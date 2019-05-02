@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.antourage.weaverlib">
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
-        <activity android:name=".screens.base.AntourageActivity">
+        <activity
+                android:name=".screens.base.AntourageActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar"
+                android:configChanges="orientation|keyboardHidden|screenSize"
+        >
         </activity>
     </application>
 

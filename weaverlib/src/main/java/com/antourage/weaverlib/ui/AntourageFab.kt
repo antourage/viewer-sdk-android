@@ -19,13 +19,14 @@ class AntourageFab @JvmOverloads constructor(
         backgroundTintList = ColorStateList.valueOf(
             ContextCompat.getColor(
                 context,
-                R.color.bg_color
+                R.color.bg_color_widget
             )
         )
         setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_icon_logo))
         val intent = Intent(context, AntourageActivity::class.java)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        setOnClickListener { context.startActivity(intent)}
+        setOnClickListener {
+            context.startActivity(intent)}
     }
 
 }
