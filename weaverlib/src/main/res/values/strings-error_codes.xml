@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="error_codes">
+        <!--status code = 0-->
+        <item>Internt server-fel</item>
+        <!--status code = 1-->
+        <item>E-postadress och lösenord matchar inte. Vänligen försök igen</item>
+        <!--status code = 2-->
+        <item>Använd den e-postadress som din administratör bjudit in dig med</item>
+        <!--status code = 3-->
+        <item>Beviset är ogiltigt</item>
+        <!--status code = 4-->
+        <item>E-postadressen är ogiltig</item>
+        <!--status code = 5-->
+        <item>E-postadressen används redan</item>
+        <!--status code = 6-->
+        <item>Information om enheten saknas</item>
+        <!--status code = 7-->
+        <item>Användaren hittas inte</item>
+        <!--status code = 8-->
+        <item>Plattformen hittas inte</item>
+        <!--status code = 9-->
+        <item>Teamet hittas inte</item>
+        <!--status code = 10-->
+        <item>Kanalen hittas inte</item>
+        <!--status code = 11-->
+        <item>Rollen hittas inte</item>
+        <!--status code = 12-->
+        <item>Team medlem hittas inte</item>
+        <!--status code = 13-->
+        <item>Denna target hittas inte</item>
+        <!--status code = 14-->
+        <item>Schemat hittas inte</item>
+        <!--status code = 15-->
+        <item>Kanal-target hittas inte</item>
+        <!--status code = 16-->
+        <item>Inställningen finns inte</item>
+        <!--status code = 17-->
+        <item>Felaktigt ID</item>
+        <!--status code = 18-->
+        <item>Du har inte behörighet att göra detta</item>
+        <!--status code = 19-->
+        <item>Ingen respons publicisten, vänligen kontrollera dina inställningar</item>
+        <!--status code = 20-->
+        <item>Kan inte skapa team</item>
+        <!--status code = 21-->
+        <item>Alla valda targets är upptagna</item>
+        <!--status code = 22-->
+        <item>Denna target är upptagen</item>
+        <!--status code = 23-->
+        <item>Inbjudan hittas inte, eller så har den redan använts</item>
+        <!--status code = 24-->
+        <item>Användarnamnet finns redan</item>
+        <!--status code = 25-->
+        <item>Hittar inte organisationen</item>
+        <!--status code = 26-->
+        <item>Fel API</item>
+        <!--status code = 27-->
+        <item>Länken är ogiltig eller redan använd</item>
+        <!--status code = 28-->
+        <item>Kan inte verifiera ditt konto</item>
+        <!--status code = 29-->
+        <item>Invite for that user already exists</item>
+        <!--status code = 30-->
+        <item>Your invite has expired</item>
+        <item>Could not process the email</item>
+        <!--status code = 32-->
+        <item>File can\'t be empty</item>
+        <!--status code = 33-->
+        <item>Could not delete your user</item>
+        <!--status code = 34-->
+        <item>Target with selected template already exists</item>
+        <!--status code = 35-->
+        <item>Nothing was found using the data provided</item>
+        <!--status code = 36-->
+        <item>User has already been assigned to the target</item>
+        <!--status code = 37-->
+        <item>Could not start stream at cloud</item>
+        <!--status code = 38-->
+        <item>User lacks password</item>
+        <!--status code = 39-->
+        <item>Error while clearing recent broadcasts</item>
+        <!--status code = 40-->
+        <item>No more recent broadcasts to show</item>
+    </string-array>
+</resources>
+
+
