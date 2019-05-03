@@ -12,6 +12,9 @@ import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos.*
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+
 
 class VideosFragment : BaseFragment<VideosViewModel>() {
 
@@ -58,5 +61,6 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
             viewModel.getStreams()
         }
     }
+
 
 }

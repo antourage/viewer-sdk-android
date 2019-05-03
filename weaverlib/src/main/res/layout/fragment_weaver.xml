@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:id="@+id/parent_view"
@@ -9,13 +9,21 @@
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:layout_gravity="top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:controller_layout_id="@layout/player_custom_control"/>
 
-    <ProgressBar
-            android:id="@+id/loading"
+    <ImageView
+            android:id="@+id/ivLoader"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:layout_gravity="center"/>
-</FrameLayout>
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            app:layout_constraintBottom_toBottomOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+    />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

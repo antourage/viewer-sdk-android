@@ -1,7 +1,9 @@
 package com.antourage.weaverlib.other.networking.models
 
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
 
 class APIError {
@@ -31,3 +33,11 @@ class SimpleResponse {
     var success: Boolean? = null
 
 }
+
+@Parcelize
+data class StreamResponse(
+    @field:SerializedName("id") val streamId:Int,
+    @field:SerializedName("name")val streamTitle:String,
+    @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
+    @field:SerializedName("hlsUrl")val hlsUrl:String
+    ):Parcelable
