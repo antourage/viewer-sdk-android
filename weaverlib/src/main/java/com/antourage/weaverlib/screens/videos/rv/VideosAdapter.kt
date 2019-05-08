@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.squareup.picasso.Picasso
 
 class VideosAdapter(val onClick:(stream:StreamResponse)->Unit) : RecyclerView.Adapter<VideosAdapter.VideoViewHolder>() {

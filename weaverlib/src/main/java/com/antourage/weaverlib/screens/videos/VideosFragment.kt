@@ -7,13 +7,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos.*
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 
 
 class VideosFragment : BaseFragment<VideosViewModel>() {

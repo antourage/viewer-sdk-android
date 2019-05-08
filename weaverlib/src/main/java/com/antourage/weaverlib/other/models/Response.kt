@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.other.networking.models
+package com.antourage.weaverlib.other.models
 
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
@@ -38,6 +38,8 @@ class SimpleResponse {
 data class StreamResponse(
     @field:SerializedName("id") val streamId:Int,
     @field:SerializedName("name")val streamTitle:String,
+    @field:SerializedName("creatorFullName") val creatorFullname:String,
+    @field:SerializedName("creatorNickName") val creatorNickname: String,
     @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
     @field:SerializedName("hlsUrl")val hlsUrl:String
     ):Parcelable

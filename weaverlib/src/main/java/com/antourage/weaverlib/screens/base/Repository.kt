@@ -5,7 +5,7 @@ import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiResponse
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 
 class Repository{
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {

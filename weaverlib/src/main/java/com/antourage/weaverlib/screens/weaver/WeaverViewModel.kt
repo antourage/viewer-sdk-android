@@ -4,8 +4,11 @@ import android.app.Application
 import android.net.Uri
 import android.view.Surface
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.screens.base.BaseViewModel
+import com.antourage.weaverlib.screens.weaver.rv.MessagesAdapter
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.decoder.DecoderCounters
@@ -30,8 +33,25 @@ class WeaverViewModel(application: Application) : BaseViewModel(application) {
     private var player: SimpleExoPlayer? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    fun getPlaybackState():MutableLiveData<Int>{
+    fun getPlaybackState(): LiveData<Int> {
         return playbackStateLiveData
+    }
+
+    //temporary - chat is here
+    private var messagesLiveData:MutableLiveData<List<Message>> = MutableLiveData()
+    fun getMessagesLiveData():LiveData<List<Message>>{return messagesLiveData}
+
+    init {
+        messagesLiveData.postValue(listOf())
+    }
+
+    fun addMessage(text:String){
+        if (!text.isEmpty()&& !text.isBlank()){
+            val temp:MutableList<Message> = messagesLiveData.value as MutableList<Message>
+            temp.add(Message((temp.size+1).toString(),null,
+                "osoluk@leobit.co","ooollleeennnaaaa",text,null))
+            messagesLiveData.postValue(temp as List<Message>)
+        }
     }
 
     fun getExoPlayer(streamUrl: String?): SimpleExoPlayer? {

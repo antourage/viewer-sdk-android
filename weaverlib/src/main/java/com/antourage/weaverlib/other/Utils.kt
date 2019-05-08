@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.other.networking
+package com.antourage.weaverlib.other
 
 import android.content.Context
 import android.util.TypedValue

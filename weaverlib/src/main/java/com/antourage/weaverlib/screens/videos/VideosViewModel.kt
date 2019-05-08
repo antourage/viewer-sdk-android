@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.State
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.BaseViewModel
 
 class VideosViewModel(application: Application):BaseViewModel(application){
@@ -20,6 +20,7 @@ class VideosViewModel(application: Application):BaseViewModel(application){
             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                 if(resource != null){
                     when(resource.state){
+                        State.LOADING->{}
                         State.SUCCESS->{
                             listOfStreams.postValue(resource.data)
                             streamResponse.removeObserver(this)

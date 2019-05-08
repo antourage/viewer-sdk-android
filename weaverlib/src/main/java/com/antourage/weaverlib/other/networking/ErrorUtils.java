@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.other.networking;
 
-import com.antourage.weaverlib.other.networking.models.APIError;
+import com.antourage.weaverlib.other.models.APIError;
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Response;

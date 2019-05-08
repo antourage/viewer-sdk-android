@@ -11,12 +11,15 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.networking.dp2px
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.BaseFragment
+import com.antourage.weaverlib.screens.weaver.rv.MessagesAdapter
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.fragment_weaver.*
 import kotlinx.android.synthetic.main.player_custom_control.*
@@ -38,14 +41,27 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         }
     }
 
+    override fun getLayoutId(): Int {
+        return R.layout.fragment_weaver
+    }
+
+    //region Observers
+
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
                 Player.STATE_READY -> hideLoading()
                 Player.STATE_BUFFERING -> showLoading()
             }
-
     }
+
+    private val messagesObserver:Observer<List<Message>> = Observer {list->
+        if(list != null){
+            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
+        }
+    }
+
+    //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,16 +72,24 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     private fun subscribeToObservers() {
         viewModel.getPlaybackState().removeObserver(streamStateObserver)
         viewModel.getPlaybackState().observe(this, streamStateObserver)
-    }
-
-    override fun getLayoutId(): Int {
-        return R.layout.fragment_weaver
+        viewModel.getMessagesLiveData().removeObserver(messagesObserver)
+        viewModel.getMessagesLiveData().observe(this,messagesObserver)
     }
 
     override fun initUi(view: View?) {
         playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
         initLoader()
         initOrientationHandling()
+        initMessagesRV()
+        btnSend.setOnClickListener {
+            viewModel.addMessage(etMessage.text.toString())
+            etMessage.setText("")
+        }
+    }
+
+    private fun initMessagesRV() {
+        rvMessages.layoutManager = LinearLayoutManager(context)
+        rvMessages.adapter = MessagesAdapter(listOf())
     }
 
     private fun initLoader() {

@@ -3,4 +3,7 @@
     <color name="bg_color_widget">#FF464646</color>
     <color name="bg_color">#222</color>
     <color name="pink">#E4699B</color>
+    <color name="light_gray_transparent">#59bababa</color>
+    <color name="card_gray_background">#2F2F2F</color>
+    <color name="gray_lighter">#FF848484</color>
 </resources>

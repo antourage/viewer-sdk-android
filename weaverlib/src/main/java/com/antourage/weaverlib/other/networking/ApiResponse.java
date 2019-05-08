@@ -1,8 +1,6 @@
 package com.antourage.weaverlib.other.networking;
 
-import android.content.Intent;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import com.antourage.weaverlib.other.networking.models.APIError;
+import com.antourage.weaverlib.other.models.APIError;
 import retrofit2.Response;
 
 import java.util.Objects;

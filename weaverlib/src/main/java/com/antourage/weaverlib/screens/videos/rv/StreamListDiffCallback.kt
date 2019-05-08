@@ -1,7 +1,7 @@
 package com.antourage.weaverlib.screens.videos.rv
 
 import androidx.recyclerview.widget.DiffUtil
-import com.antourage.weaverlib.other.networking.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 
 class StreamListDiffCallback(
     private val prevList: MutableList<StreamResponse?>,
