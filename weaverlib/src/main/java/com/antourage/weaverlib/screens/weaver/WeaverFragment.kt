@@ -9,9 +9,11 @@ import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
@@ -85,11 +87,17 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
             viewModel.addMessage(etMessage.text.toString())
             etMessage.setText("")
         }
+        tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
+        tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
     }
 
     private fun initMessagesRV() {
-        rvMessages.layoutManager = LinearLayoutManager(context)
-        rvMessages.adapter = MessagesAdapter(listOf())
+        val linearLayoutManager = LinearLayoutManager(
+            context, RecyclerView.VERTICAL, false
+        )
+        linearLayoutManager.stackFromEnd = true
+        rvMessages.layoutManager = linearLayoutManager
+        rvMessages.adapter = MessagesAdapter(listOf(),Configuration.ORIENTATION_PORTRAIT)
     }
 
     private fun initLoader() {
@@ -177,12 +185,25 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
             val params = playerView.layoutParams
             params.height = FrameLayout.LayoutParams.MATCH_PARENT
             playerView.layoutParams = params
+            val chatLayoutParams:ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(dp2px(context!!, 300f).toInt(),0)
+            chatLayoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            chatLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+            chatLayoutParams.startToStart = R.id.playerView
+            chatLayout.layoutParams = chatLayoutParams
+            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             if (context != null) {
                 val params = playerView.layoutParams
                 params.height = dp2px(context!!, 300f).toInt()
                 playerView.layoutParams = params
             }
+            val chatLayoutParams:ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(0,0)
+            chatLayoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            chatLayoutParams.topToBottom = R.id.headerLayout
+            chatLayoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            chatLayoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            chatLayout.layoutParams = chatLayoutParams
+            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
         }
     }
 }
