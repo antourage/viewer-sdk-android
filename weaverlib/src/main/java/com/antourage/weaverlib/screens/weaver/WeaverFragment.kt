@@ -8,8 +8,6 @@ import android.os.Bundle
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
-import android.widget.FrameLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,13 +15,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.weaver.rv.MessagesAdapter
 import com.google.android.exoplayer2.Player
-import kotlinx.android.synthetic.main.fragment_weaver.*
+import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.player_custom_control.*
 
 class WeaverFragment : BaseFragment<WeaverViewModel>() {
@@ -44,7 +41,7 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_weaver
+        return R.layout.fragment_weaver_portrait
     }
 
     //region Observers
@@ -68,6 +65,11 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(WeaverViewModel::class.java)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_screen)
         subscribeToObservers()
     }
 
@@ -182,27 +184,10 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         val newOrientation = newConfig.orientation
 
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val params = playerView.layoutParams
-            params.height = FrameLayout.LayoutParams.MATCH_PARENT
-            playerView.layoutParams = params
-            val chatLayoutParams:ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(dp2px(context!!, 300f).toInt(),0)
-            chatLayoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-            chatLayoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            chatLayoutParams.startToStart = R.id.playerView
-            chatLayout.layoutParams = chatLayoutParams
+            constraintLayoutParent.setState(R.id.constraintStateLandscape,newConfig.screenWidthDp,newConfig.screenHeightDp)
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (context != null) {
-                val params = playerView.layoutParams
-                params.height = dp2px(context!!, 300f).toInt()
-                playerView.layoutParams = params
-            }
-            val chatLayoutParams:ConstraintLayout.LayoutParams = ConstraintLayout.LayoutParams(0,0)
-            chatLayoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-            chatLayoutParams.topToBottom = R.id.headerLayout
-            chatLayoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-            chatLayoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-            chatLayout.layoutParams = chatLayoutParams
+            constraintLayoutParent.setState(R.id.constraintStatePortrait,newConfig.screenWidthDp,newConfig.screenHeightDp)
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
         }
     }
