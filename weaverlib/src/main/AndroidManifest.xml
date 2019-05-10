@@ -8,6 +8,7 @@
         <activity
                 android:name=".screens.base.AntourageActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar"
+                android:windowSoftInputMode="adjustPan"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
         >
         </activity>

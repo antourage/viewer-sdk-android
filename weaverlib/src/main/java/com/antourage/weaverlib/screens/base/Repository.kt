@@ -2,10 +2,10 @@ package com.antourage.weaverlib.screens.base
 
 import androidx.lifecycle.LiveData
 import com.antourage.weaverlib.other.networking.ApiClient
-import com.antourage.weaverlib.other.networking.ApiResponse
-import com.antourage.weaverlib.other.networking.NetworkBoundResource
-import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.base.ApiResponse
+import com.antourage.weaverlib.other.networking.base.NetworkBoundResource
+import com.antourage.weaverlib.other.networking.base.Resource
 
 class Repository{
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {

@@ -2,7 +2,7 @@ package com.antourage.weavervideo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.antourage.weaverlib.other.networking.AppExecutors
+import com.antourage.weaverlib.other.networking.base.AppExecutors
 
 class MainActivity : AppCompatActivity() {
 

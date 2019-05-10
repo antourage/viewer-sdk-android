@@ -4,6 +4,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 
 class APIError {
@@ -41,5 +42,10 @@ data class StreamResponse(
     @field:SerializedName("creatorFullName") val creatorFullname:String,
     @field:SerializedName("creatorNickName") val creatorNickname: String,
     @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
-    @field:SerializedName("hlsUrl")val hlsUrl:String
+    @field:SerializedName("hlsUrl")val hlsUrl:String,
+    @field:SerializedName("rtmp") val rtmpList:List<RtmpResponse>
     ):Parcelable
+@Parcelize
+data class RtmpResponse(
+    @field:SerializedName("url") val url:String
+):Parcelable

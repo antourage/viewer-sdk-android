@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other.networking;
 
+import com.antourage.weaverlib.other.networking.base.LiveDataCallAdapterFactory;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -34,7 +35,7 @@ public class ApiClient {
     }
 
 
-    static Retrofit getRetrofitInstance() {
+    public static Retrofit getRetrofitInstance() {
         return retrofit;
     }
 

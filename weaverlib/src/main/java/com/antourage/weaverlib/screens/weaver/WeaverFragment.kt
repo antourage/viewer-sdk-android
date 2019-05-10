@@ -51,6 +51,16 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
             when (state) {
                 Player.STATE_READY -> hideLoading()
                 Player.STATE_BUFFERING -> showLoading()
+                Player.STATE_IDLE->{
+                    if(!viewModel.wasStreamInitialized)
+                       startPlayingStream()
+                    else
+                        hideLoading()
+                }
+                Player.STATE_ENDED -> {
+                    viewModel.removeStatisticsListeners()
+                    hideLoading()
+                }
             }
     }
 
@@ -64,6 +74,7 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         viewModel = ViewModelProviders.of(this).get(WeaverViewModel::class.java)
     }
 
@@ -81,7 +92,7 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     override fun initUi(view: View?) {
-        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
+        startPlayingStream()
         initLoader()
         initOrientationHandling()
         initMessagesRV()
@@ -91,6 +102,10 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         }
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
+    }
+
+    fun startPlayingStream(){
+        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
     }
 
     private fun initMessagesRV() {
@@ -114,7 +129,8 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         if (loader != null &&!loader!!.isRunning) {
             loader?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                    ivLoader.post { loader?.start() }
+                    if(ivLoader != null)
+                        ivLoader.post { loader?.start() }
                 }
             })
             loader?.start()
@@ -123,8 +139,8 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     protected fun hideLoading() {
-        if (ivLoader.getVisibility() == View.VISIBLE &&(loader!= null && loader!!.isRunning())) {
-            ivLoader.setVisibility(View.GONE)
+        if (ivLoader.visibility == View.VISIBLE &&(loader!= null && loader!!.isRunning())) {
+            ivLoader.visibility = View.GONE
             loader?.clearAnimationCallbacks()
             loader?.stop()
         }
@@ -186,9 +202,11 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             constraintLayoutParent.setState(R.id.constraintStateLandscape,newConfig.screenWidthDp,newConfig.screenHeightDp)
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
+            activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             constraintLayoutParent.setState(R.id.constraintStatePortrait,newConfig.screenWidthDp,newConfig.screenHeightDp)
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
+            activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
     }
 }
