@@ -96,49 +96,6 @@
             app:layout_constraintTop_toTopOf="@+id/playerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-    >
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMessages"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/etMessage"
-        />
-        <View
-                android:id="@+id/deviderChat"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/light_gray_transparent"
-                android:layout_marginTop="20dp"
-                app:layout_constraintBottom_toTopOf="@+id/etMessage"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="0dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_send"
-                app:layout_constraintTop_toTopOf="@+id/etMessage"
-                app:layout_constraintBottom_toBottomOf="@+id/etMessage"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="ContentDescription"/>
-        <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginEnd="50dp"
-                android:paddingStart="4dp"
-                android:paddingLeft="4dp"
-                android:imeOptions="flagNoExtractUi"
-                android:textColor="@android:color/white"
-                android:textColorHint="@color/light_gray_transparent"
-                android:hint="@string/say_something"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginRight="50dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

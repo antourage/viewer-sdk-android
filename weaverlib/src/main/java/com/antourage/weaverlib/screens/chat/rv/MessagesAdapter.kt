@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.weaver.rv
+package com.antourage.weaverlib.screens.chat.rv
 
 import android.content.res.Configuration
 import android.view.LayoutInflater

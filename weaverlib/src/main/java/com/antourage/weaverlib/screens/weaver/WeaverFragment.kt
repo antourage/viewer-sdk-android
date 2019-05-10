@@ -10,15 +10,15 @@ import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.observeSafe
+import com.antourage.weaverlib.other.replaceChildFragment
+import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
-import com.antourage.weaverlib.screens.weaver.rv.MessagesAdapter
+import com.antourage.weaverlib.screens.chat.ChatFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.player_custom_control.*
@@ -64,12 +64,6 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
             }
     }
 
-    private val messagesObserver:Observer<List<Message>> = Observer {list->
-        if(list != null){
-            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
-        }
-    }
-
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,21 +79,14 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     private fun subscribeToObservers() {
-        viewModel.getPlaybackState().removeObserver(streamStateObserver)
-        viewModel.getPlaybackState().observe(this, streamStateObserver)
-        viewModel.getMessagesLiveData().removeObserver(messagesObserver)
-        viewModel.getMessagesLiveData().observe(this,messagesObserver)
+        viewModel.getPlaybackState().observeSafe(this, streamStateObserver)
     }
 
     override fun initUi(view: View?) {
         startPlayingStream()
         initLoader()
         initOrientationHandling()
-        initMessagesRV()
-        btnSend.setOnClickListener {
-            viewModel.addMessage(etMessage.text.toString())
-            etMessage.setText("")
-        }
+        replaceChildFragment(ChatFragment.newInstance(),R.id.chatLayout)
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
     }
@@ -108,14 +95,6 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
     }
 
-    private fun initMessagesRV() {
-        val linearLayoutManager = LinearLayoutManager(
-            context, RecyclerView.VERTICAL, false
-        )
-        linearLayoutManager.stackFromEnd = true
-        rvMessages.layoutManager = linearLayoutManager
-        rvMessages.adapter = MessagesAdapter(listOf(),Configuration.ORIENTATION_PORTRAIT)
-    }
 
     private fun initLoader() {
         if (context != null) {
@@ -201,11 +180,9 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
 
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             constraintLayoutParent.setState(R.id.constraintStateLandscape,newConfig.screenWidthDp,newConfig.screenHeightDp)
-            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             constraintLayoutParent.setState(R.id.constraintStatePortrait,newConfig.screenWidthDp,newConfig.screenHeightDp)
-            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
     }

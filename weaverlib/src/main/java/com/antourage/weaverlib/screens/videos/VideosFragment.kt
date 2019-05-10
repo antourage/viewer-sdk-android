@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
@@ -49,7 +50,7 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
 
     override fun initUi(view: View?) {
         val onClick:(stream:StreamResponse)->Unit = {
-            replaceFragment(WeaverFragment.newInstance(it),true)
+            replaceFragment(WeaverFragment.newInstance(it),R.id.mainContent,true)
         }
         videoAdapter = VideosAdapter(onClick)
         videosRV.adapter = videoAdapter

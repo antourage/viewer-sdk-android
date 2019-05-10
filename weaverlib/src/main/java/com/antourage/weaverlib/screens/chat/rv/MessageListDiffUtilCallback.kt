@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.weaver.rv
+package com.antourage.weaverlib.screens.chat.rv
 
 import androidx.recyclerview.widget.DiffUtil
 import com.antourage.weaverlib.other.models.Message

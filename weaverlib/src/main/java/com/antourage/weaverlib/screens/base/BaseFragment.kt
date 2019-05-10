@@ -10,6 +10,7 @@ import androidx.annotation.AnimRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.observeSafe
 
 abstract class BaseFragment<VM:BaseViewModel>:Fragment(){
 
@@ -52,14 +53,11 @@ abstract class BaseFragment<VM:BaseViewModel>:Fragment(){
         if (activity != null) {
             initUi(getView())
         }
-        BaseViewModel.error.removeObserver(errorObserver)
-        BaseViewModel.error.observe(this, errorObserver)
+        BaseViewModel.error.observeSafe(this, errorObserver)
 
-        BaseViewModel.warning.removeObserver(warningObserver)
-        BaseViewModel.warning.observe(this, warningObserver)
+        BaseViewModel.warning.observeSafe(this, warningObserver)
 
-        BaseViewModel.success.removeObserver(successObserver)
-        BaseViewModel.success.observe(this, successObserver)
+        BaseViewModel.success.observeSafe(this, successObserver)
 
     }
 
@@ -72,40 +70,5 @@ abstract class BaseFragment<VM:BaseViewModel>:Fragment(){
     private fun showSuccessAlerter(s: String) {
         Toast.makeText(context,s,Toast.LENGTH_LONG).show()
     }
-
-    protected fun replaceFragment(
-        fragment: BaseFragment<*>,
-        addToBackStack: Boolean
-    ) {
-        replaceFragment(
-            fragment, addToBackStack,
-            FragmentTransaction.TRANSIT_NONE, FragmentTransaction.TRANSIT_NONE,
-            FragmentTransaction.TRANSIT_NONE, FragmentTransaction.TRANSIT_NONE
-        )
-    }
-    protected fun replaceFragment(
-        fragment: BaseFragment<*>,
-        addToBackStack: Boolean,
-        @AnimRes enterAnimId: Int,
-        @AnimRes exitAnimId: Int,
-        @AnimRes popEnterAnimId: Int,
-        @AnimRes popExitAnimId: Int
-    ) {
-        try {
-            if (activity != null) {
-                val transaction = activity!!.supportFragmentManager.beginTransaction()
-                transaction.setCustomAnimations(enterAnimId, exitAnimId, popEnterAnimId, popExitAnimId)
-                transaction.replace(R.id.mainContent, fragment, fragment.javaClass.simpleName)
-                if (addToBackStack) {
-                    transaction.addToBackStack(fragment.javaClass.simpleName)
-                }
-                transaction.commit()
-            }
-        } catch (e: IllegalStateException) {
-            Log.d("ERROR", "error")
-        }
-
-    }
-
 
 }
