@@ -8,7 +8,7 @@
             android:id="@+id/rvMessages"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:fadingEdgeLength="1000dp"
+            android:fadingEdgeLength="150dp"
             android:fadingEdge="horizontal"
             android:fillViewport="false"
             android:requiresFadingEdge="vertical"

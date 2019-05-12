@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
+                                                   android:layout_width="wrap_content"
+                                                   android:layout_height="wrap_content">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_icon_logo"
+            app:fabSize="normal"
+            android:background="@color/bg_color_widget"
+            app:borderWidth="0dp"
+            android:elevation="5dp"
+            android:adjustViewBounds="true"
+            android:backgroundTint="@color/bg_color_widget"
+            android:scaleType="fitCenter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+    />
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/expandableLayout"
+            app:layoutDescription="@xml/scene_fab"
+            android:layout_width="280dp"
+            android:layout_height="76dp"
+            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+    >
+
+        <View
+                android:id="@+id/fabExpantion"
+                android:background="@drawable/ronded_fab_bg"
+                android:layout_width="200dp"
+
+                android:layout_height="52dp"
+        />
+        <TextView
+                android:id="@+id/tvStreamName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New stream"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:layout_constraintTop_toTopOf="@+id/fabExpantion"
+                app:layout_constraintStart_toStartOf="@+id/fabExpantion"
+        />
+        <TextView
+                android:id="@+id/tvViewers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6453 Viewers"
+                android:padding="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:layout_constraintTop_toTopOf="@+id/fabExpantion"
+                app:layout_constraintEnd_toEndOf="@+id/fabExpantion"
+        />
+        <TextView
+                android:id="@+id/tvStreamTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Naked players on the field"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:padding="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/fabExpantion"
+                app:layout_constraintStart_toStartOf="@+id/fabExpantion"
+        />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

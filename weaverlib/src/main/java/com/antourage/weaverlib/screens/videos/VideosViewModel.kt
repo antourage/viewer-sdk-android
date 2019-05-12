@@ -22,7 +22,9 @@ class VideosViewModel(application: Application):BaseViewModel(application){
                     when(resource.state){
                         State.LOADING->{}
                         State.SUCCESS->{
-                            listOfStreams.postValue(resource.data)
+                            val list =(resource.data)?.toMutableList()
+                            list?.addAll(repository.getListOfVideos())
+                            listOfStreams.postValue(list)
                             streamResponse.removeObserver(this)
                         }
                         State.FAILURE->{

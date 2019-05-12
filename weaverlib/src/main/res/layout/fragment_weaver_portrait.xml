@@ -37,15 +37,16 @@
     >
         <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivUserPhoto"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="6dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:src="@drawable/ic_default_user"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginLeft="16dp"/>
+        />
         <TextView
                 android:id="@+id/tvStreamName"
                 android:layout_width="0dp"
@@ -53,9 +54,9 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 tools:text="Olena Soluk"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="6dp"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
                 app:layout_constraintRight_toRightOf="parent"
@@ -69,7 +70,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"
+                android:textSize="12sp"
                 android:ellipsize="end"
                 android:lines="1"
                 tools:text="my nicname"
@@ -82,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/light_gray_transparent"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="6dp"
                 app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>

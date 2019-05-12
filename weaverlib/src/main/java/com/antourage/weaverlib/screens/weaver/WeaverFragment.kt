@@ -13,10 +13,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.observeSafe
 import com.antourage.weaverlib.other.replaceChildFragment
-import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.chat.ChatFragment
 import com.google.android.exoplayer2.Player
@@ -51,9 +51,9 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
             when (state) {
                 Player.STATE_READY -> hideLoading()
                 Player.STATE_BUFFERING -> showLoading()
-                Player.STATE_IDLE->{
-                    if(!viewModel.wasStreamInitialized)
-                       startPlayingStream()
+                Player.STATE_IDLE -> {
+                    if (!viewModel.wasStreamInitialized)
+                        startPlayingStream()
                     else
                         hideLoading()
                 }
@@ -86,12 +86,16 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         startPlayingStream()
         initLoader()
         initOrientationHandling()
-        replaceChildFragment(ChatFragment.newInstance(),R.id.chatLayout)
+        replaceChildFragment(ChatFragment.newInstance(), R.id.chatLayout)
+
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
     }
 
-    fun startPlayingStream(){
+    fun startPlayingStream() {
+        val params = playerView.layoutParams
+        params.height = calculatePlayerHeight(activity!!).toInt()
+        playerView.layoutParams = params
         playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
     }
 
@@ -105,10 +109,10 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     private fun showLoading() {
-        if (loader != null &&!loader!!.isRunning) {
+        if (loader != null && !loader!!.isRunning) {
             loader?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                    if(ivLoader != null)
+                    if (ivLoader != null)
                         ivLoader.post { loader?.start() }
                 }
             })
@@ -118,7 +122,7 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
     }
 
     protected fun hideLoading() {
-        if (ivLoader.visibility == View.VISIBLE &&(loader!= null && loader!!.isRunning())) {
+        if (ivLoader.visibility == View.VISIBLE && (loader != null && loader!!.isRunning())) {
             ivLoader.visibility = View.GONE
             loader?.clearAnimationCallbacks()
             loader?.stop()
@@ -179,10 +183,21 @@ class WeaverFragment : BaseFragment<WeaverViewModel>() {
         val newOrientation = newConfig.orientation
 
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            constraintLayoutParent.setState(R.id.constraintStateLandscape,newConfig.screenWidthDp,newConfig.screenHeightDp)
+            constraintLayoutParent.setState(
+                R.id.constraintStateLandscape,
+                newConfig.screenWidthDp,
+                newConfig.screenHeightDp
+            )
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            constraintLayoutParent.setState(R.id.constraintStatePortrait,newConfig.screenWidthDp,newConfig.screenHeightDp)
+            constraintLayoutParent.setState(
+                R.id.constraintStatePortrait,
+                newConfig.screenWidthDp,
+                newConfig.screenHeightDp
+            )
+            val params = playerView.layoutParams
+            params.height = calculatePlayerHeight(activity!!).toInt()
+            playerView.layoutParams = params
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
     }

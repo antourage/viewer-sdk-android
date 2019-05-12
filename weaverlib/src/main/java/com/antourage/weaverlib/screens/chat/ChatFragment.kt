@@ -62,6 +62,8 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
             context, RecyclerView.VERTICAL, false
         )
         linearLayoutManager.stackFromEnd = true
+        rvMessages.overScrollMode = View.OVER_SCROLL_NEVER
+        rvMessages.isVerticalFadingEdgeEnabled = false
         rvMessages.layoutManager = linearLayoutManager
         rvMessages.adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
     }
@@ -70,10 +72,11 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
         super.onConfigurationChanged(newConfig)
 
         val newOrientation = newConfig.orientation
-
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            rvMessages.isVerticalFadingEdgeEnabled = true
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            rvMessages.isVerticalFadingEdgeEnabled = false
             rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
         }
     }
