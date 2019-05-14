@@ -1,7 +1,6 @@
 package com.antourage.weaverlib
 
 import android.content.Context
-import android.R.id.edit
 import android.content.Context.MODE_PRIVATE
 import java.util.*
 
@@ -17,7 +16,7 @@ class UserCache{
         }
     }
 
-    public fun saveVideosIdToSeen(context: Context, seenVideoIds: List<Int> ){
+    fun saveVideosIdToSeen(context: Context, seenVideoIds: List<Int> ){
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val str = StringBuilder()
         for (i in seenVideoIds.indices) {
@@ -25,17 +24,18 @@ class UserCache{
         }
         prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
     }
-    public fun saveVideoToSeen(context: Context, seenVideoId: Int ){
+    fun saveVideoToSeen(context: Context, seenVideoId: Int ){
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val str = StringBuilder()
         val alreadySeenVideos = getSeenVideos(context).toMutableList()
-        alreadySeenVideos.add(seenVideoId)
+        if(!alreadySeenVideos.contains(seenVideoId))
+            alreadySeenVideos.add(seenVideoId)
         for (i in alreadySeenVideos.indices) {
             str.append(alreadySeenVideos[i]).append(",")
         }
         prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
     }
-    public fun getSeenVideos(context: Context):List<Int>{
+    fun getSeenVideos(context: Context):List<Int>{
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val savedString = prefs.getString(SP_SEEN_VIDEOS, "")
         val st = StringTokenizer(savedString, ",")
