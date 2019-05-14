@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.observeSafe
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
@@ -41,12 +42,15 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(VideosViewModel::class.java)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
     }
 
     private fun subscribeToObservers() {
-        viewModel.listOfStreams.removeObserver { streamsObserver }
-        viewModel.listOfStreams.observe(this,streamsObserver)
+        viewModel.listOfStreams.observeSafe(this.viewLifecycleOwner,streamsObserver)
     }
 
     override fun initUi(view: View?) {

@@ -48,7 +48,7 @@ class AntourageFab @JvmOverloads constructor(
     fun changeBadgeStatus(status: WidgetStatus) {
         when (status) {
             is WidgetStatus.INACTIVE -> {
-                floatingActionButton.setTextToBadge("193")
+                floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ACTIVE_LIVE_STREAM -> {
                 for (i in 0 until status.list.size) {
@@ -101,7 +101,7 @@ class AntourageFab @JvmOverloads constructor(
         floatingActionButton.setOnClickListener {
             context.startActivity(intent)
         }
-        floatingActionButton.setScaleType(ImageView.ScaleType.CENTER)
+        floatingActionButton.scaleType = ImageView.ScaleType.CENTER
         fabExpantion.setOnClickListener { context.startActivity(intent) }
         manageVideos()
         AntourageFabLifecycleObserver.registerActionHandler(this)

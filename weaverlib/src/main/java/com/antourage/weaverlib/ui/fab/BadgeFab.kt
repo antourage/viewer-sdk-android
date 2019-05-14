@@ -20,7 +20,6 @@ import com.google.android.material.stateful.ExtendableSavedState
 import android.graphics.RectF
 
 
-
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
 private const val TEXT_STATE = "TEXT"
 
@@ -206,9 +205,9 @@ class BadgeFab @JvmOverloads constructor(
             val radius = circleBounds.width() / 2f * animationFactor
             if(textBadge != "") {
                 // Solid rectangle with rounded corners
-//                val rect = RectF(cx-radius-10f, cy+radius, cx+radius+10f, cy-radius)
-//                canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
-                canvas.drawCircle(cx, cy, radius+10, circlePaint)
+                val rect = RectF(cx-radius-10f, cy+radius, cx+radius+10, cy-radius)
+                canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
+//                canvas.drawCircle(cx, cy, radius+10, circlePaint)
                 // Mask circle
                 //may be needed in future
                 //canvas.drawCircle(cx, cy, radius, maskPaint)
