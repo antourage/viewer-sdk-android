@@ -10,9 +10,6 @@ import android.widget.ImageView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -22,22 +19,19 @@ import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.videos.ReceivingVideosManager
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,ReceivingVideosManager.ReceivingVideoCallback {
 
     companion object {
         const val SHOWING_DURABILITY = 5000L
-        const val STREAMS_REQUEST_DELAY = 5000L
     }
 
-    val handlerCall = Handler()
-
+    private val receivingVideoManager = ReceivingVideosManager(this)
     private val listOfSeenStreams = mutableListOf<Int>()
-
-    var streamResponse: LiveData<Resource<List<StreamResponse>>> = MutableLiveData()
 
     sealed class WidgetStatus {
         class INACTIVE : WidgetStatus()
@@ -111,40 +105,12 @@ class AntourageFab @JvmOverloads constructor(
     override fun onPause() {
         expandableLayout.visibility = View.INVISIBLE
         expandableLayout.setTransitionListener(null)
+        receivingVideoManager.stopReceivingVideos()
     }
 
     override fun onResume() {
         expandableLayout.setTransitionListener(transitionListener)
-        handlerCall.postDelayed(object : Runnable {
-            override fun run() {
-                streamResponse = Repository().getListOfStreams()
-                streamResponse.observeForever(object : Observer<Resource<List<StreamResponse>>> {
-                    override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                        if (resource != null) {
-                            when (resource.state) {
-                                State.LOADING -> {
-                                }
-                                State.SUCCESS -> {
-                                    val list = (resource.data)?.toMutableList()
-                                    if (list != null && list.size > 0) {
-                                        changeBadgeStatus(WidgetStatus.ACTIVE_LIVE_STREAM(list))
-                                    } else {
-                                        manageVideos()
-                                    }
-                                    streamResponse.removeObserver(this)
-                                }
-                                State.FAILURE -> {
-                                    changeBadgeStatus(WidgetStatus.INACTIVE())
-                                    BaseViewModel.error.postValue(resource.message)
-                                    streamResponse.removeObserver(this)
-                                }
-                            }
-                        }
-                    }
-                })
-                handlerCall.postDelayed(this, STREAMS_REQUEST_DELAY)
-            }
-        }, STREAMS_REQUEST_DELAY)
+        receivingVideoManager.startReceivingVideos()
     }
 
     fun manageVideos() {
@@ -163,5 +129,25 @@ class AntourageFab @JvmOverloads constructor(
     override fun onStop() {
 
     }
+    override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
+        when (resource.state) {
+            State.LOADING -> {
+            }
+            State.SUCCESS -> {
+                val list = (resource.data)?.toMutableList()
+                if (list != null && list.size > 0) {
+                    changeBadgeStatus(WidgetStatus.ACTIVE_LIVE_STREAM(list))
+                } else {
+                    manageVideos()
+                }
+            }
+            State.FAILURE -> {
+                changeBadgeStatus(WidgetStatus.INACTIVE())
+                BaseViewModel.error.postValue(resource.message)
+            }
+        }
+    }
 
+    override fun onVODReceived() {
+    }
 }

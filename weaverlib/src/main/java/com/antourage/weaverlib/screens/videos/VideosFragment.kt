@@ -52,7 +52,15 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
     private fun subscribeToObservers() {
         viewModel.listOfStreams.observeSafe(this.viewLifecycleOwner,streamsObserver)
     }
+    override fun onStop(){
+        super.onStop()
+        viewModel.onStop()
+    }
 
+    override fun onResume(){
+        super.onResume()
+        viewModel.getStreams()
+    }
     override fun initUi(view: View?) {
         val onClick:(stream:StreamResponse)->Unit = {
             UserCache.newInstance().saveVideoToSeen(context!!,it.streamId)
@@ -61,10 +69,10 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
         videoAdapter = VideosAdapter(onClick)
         videosRV.adapter = videoAdapter
         videosRV.layoutManager = LinearLayoutManager(context)
-        viewModel.getStreams()
         videoRefreshLayout.setOnRefreshListener {
             viewModel.getStreams()
         }
+        ivClose.setOnClickListener { activity?.finish() }
     }
 
 

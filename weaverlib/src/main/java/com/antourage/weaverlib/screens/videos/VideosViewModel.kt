@@ -9,32 +9,39 @@ import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.BaseViewModel
 
-class VideosViewModel(application: Application):BaseViewModel(application){
-    var streamResponse: LiveData<Resource<List<StreamResponse>>> = MutableLiveData()
+class VideosViewModel(application: Application):BaseViewModel(application),ReceivingVideosManager.ReceivingVideoCallback{
+
     var listOfStreams:MutableLiveData<List<StreamResponse>> = MutableLiveData()
+    val receivingVideosManager = ReceivingVideosManager(this)
 
 
     fun getStreams(){
-        streamResponse = repository.getListOfStreams()
-        streamResponse.observeForever(object : Observer<Resource<List<StreamResponse>>> {
-            override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                if(resource != null){
-                    when(resource.state){
-                        State.LOADING->{}
-                        State.SUCCESS->{
-                            val list =(resource.data)?.toMutableList()
-                            list?.addAll(repository.getListOfVideos())
-                            listOfStreams.postValue(list)
-                            streamResponse.removeObserver(this)
-                        }
-                        State.FAILURE->{
-                            error.postValue(resource.message)
-                            streamResponse.removeObserver(this)
-                        }
+        receivingVideosManager.startReceivingVideos()
+    }
+    fun onStop(){
+        receivingVideosManager.stopReceivingVideos()
+    }
+    override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
+        when(resource.state){
+            State.LOADING->{}
+            State.SUCCESS->{
+                val list =(resource.data)?.toMutableList()
+                list?.let {
+                    for (i in 0 until list.size) {
+                        list[i].isLive = true
                     }
                 }
+                list?.addAll(repository.getListOfVideos())
+                listOfStreams.postValue(list)
             }
-        })
+            State.FAILURE->{
+                error.postValue(resource.message)
+            }
+        }
+    }
+
+    override fun onVODReceived() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }

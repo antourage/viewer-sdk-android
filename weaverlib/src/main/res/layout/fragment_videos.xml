@@ -1,17 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="@color/bg_color"
-             tools:context=".screens.videos.VideosFragment">
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/videoRefreshLayout"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                       xmlns:tools="http://schemas.android.com/tools"
+                                                       android:layout_width="match_parent"
+                                                       android:layout_height="match_parent"
+                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                       android:id="@+id/videoRefreshLayout"
+                                                       android:background="@color/bg_color"
+                                                       tools:context=".screens.videos.VideosFragment">
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_height="match_parent"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+    >
+
+        <ImageButton
+                android:id="@+id/ivClose"
+                android:src="@drawable/ic_close"
+                android:background="@drawable/image_btn_bg"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        />
+
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/videosRV"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</FrameLayout>
+                android:layout_height="wrap_content"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                app:layout_constraintTop_toBottomOf="@+id/ivClose"
+                app:layout_constraintStart_toStartOf="parent"
+        />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

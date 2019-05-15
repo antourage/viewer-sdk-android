@@ -43,7 +43,8 @@ data class StreamResponse(
     @field:SerializedName("creatorNickName") val creatorNickname: String,
     @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
     @field:SerializedName("hlsUrl")val hlsUrl:String,
-    @field:SerializedName("rtmp") val rtmpList:List<RtmpResponse>
+    @field:SerializedName("rtmp") val rtmpList:List<RtmpResponse>,
+    var isLive:Boolean = false
     ):Parcelable
 @Parcelize
 data class RtmpResponse(

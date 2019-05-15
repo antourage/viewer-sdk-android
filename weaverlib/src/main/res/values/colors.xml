@@ -7,4 +7,6 @@
     <color name="light_gray_transparent">#59bababa</color>
     <color name="card_gray_background">#2F2F2F</color>
     <color name="gray_lighter">#FF848484</color>
+    <color name="semitransparent">#66424242</color>
+    <color name="halftransparent">#80000000</color>
 </resources>

@@ -14,6 +14,12 @@ import com.squareup.picasso.Picasso
 class VideosAdapter(val onClick:(stream:StreamResponse)->Unit) : RecyclerView.Adapter<VideosAdapter.VideoViewHolder>() {
     var listOfStreams: MutableList<StreamResponse?> = mutableListOf()
 
+    companion object {
+        const val VIEW_LIVE: Int = 0
+        const val VIEW_VOD: Int = 1
+    }
+
+
     fun setStreamList(list: List<StreamResponse>) {
         val tempList: MutableList<StreamResponse?> = list.toMutableList()
         //tempList.add(null)
@@ -25,7 +31,10 @@ class VideosAdapter(val onClick:(stream:StreamResponse)->Unit) : RecyclerView.Ad
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
-        return VideoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_video, parent, false))
+        if (viewType == VIEW_VOD)
+            return VideoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_video, parent, false))
+        else
+            return VideoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_broadcast, parent, false))
     }
 
     override fun getItemCount(): Int {
@@ -43,4 +52,16 @@ class VideosAdapter(val onClick:(stream:StreamResponse)->Unit) : RecyclerView.Ad
         val thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
         val txtTitle: TextView = itemView.findViewById(R.id.txtTitle)
     }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position < itemCount) {
+            if (listOfStreams[position]?.isLive == true) {
+                VIEW_LIVE
+            } else {
+                VIEW_VOD
+            }
+        } else
+            VIEW_VOD
+    }
+
 }
