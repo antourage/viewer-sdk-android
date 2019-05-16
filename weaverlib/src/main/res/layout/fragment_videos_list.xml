@@ -6,7 +6,7 @@
                                                        xmlns:app="http://schemas.android.com/apk/res-auto"
                                                        android:id="@+id/videoRefreshLayout"
                                                        android:background="@color/bg_color"
-                                                       tools:context=".screens.videos.VideosFragment">
+                                                       tools:context=".screens.list.VideoListFragment">
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"

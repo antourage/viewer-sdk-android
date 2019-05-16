@@ -19,7 +19,7 @@ import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
-import com.antourage.weaverlib.screens.videos.ReceivingVideosManager
+import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 
 class AntourageFab @JvmOverloads constructor(

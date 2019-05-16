@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.antourage.weaverlib">
+          xmlns:tools="http://schemas.android.com/tools" package="com.antourage.weaverlib">
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -10,8 +10,10 @@
                 android:theme="@style/Theme.AppCompat.NoActionBar"
                 android:windowSoftInputMode="adjustPan"
                 android:screenOrientation="portrait"
+                android:supportsPictureInPicture="true"
+                android:launchMode="singleTask"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-        >
+                tools:targetApi="n">
         </activity>
     </application>
 

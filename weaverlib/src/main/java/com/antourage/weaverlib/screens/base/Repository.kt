@@ -31,7 +31,7 @@ class Repository{
         list.add(StreamResponse(4,"Stars of the Future with Nike","U21 5-a-side game","",
             "file:///android_asset/4.png",baseUrl+"4. England U21 5_a_side.mp4/playlist.m3u8", listOf()))
         list.add(StreamResponse(5,"SupporterReporter","Penalties vs Columbia","",
-            "file:///android_asset/5.png",baseUrl+"5. #SupporterReporter vs Columbia.mp4/playlist.m3u8", listOf()))
+            "file:///android_asset/5.png",baseUrl+"5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8", listOf()))
         list.add(StreamResponse(6,"Media Day with M&S","The squad has been selected","",
             "file:///android_asset/6.png",baseUrl+"6. Media Day.mp4/playlist.m3u8", listOf()))
         list.add(StreamResponse(7,"Bud Light’s Alternative Commentary","FT Reev and Theo Baker","",

@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.videos
+package com.antourage.weaverlib.screens.list
 
 
 import android.os.Bundle
@@ -12,18 +12,19 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.observeSafe
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
-import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
+import com.antourage.weaverlib.screens.list.rv.VideosAdapter
+import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
-import kotlinx.android.synthetic.main.fragment_videos.*
+import kotlinx.android.synthetic.main.fragment_videos_list.*
 
 
-class VideosFragment : BaseFragment<VideosViewModel>() {
+class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     lateinit var videoAdapter: VideosAdapter
 
     companion object{
-        fun newInstance():VideosFragment{
-            return VideosFragment()
+        fun newInstance():VideoListFragment{
+            return VideoListFragment()
         }
     }
 
@@ -35,13 +36,13 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.fragment_videos
+        return R.layout.fragment_videos_list
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(VideosViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(VideoListViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,8 +64,12 @@ class VideosFragment : BaseFragment<VideosViewModel>() {
     }
     override fun initUi(view: View?) {
         val onClick:(stream:StreamResponse)->Unit = {
-            UserCache.newInstance().saveVideoToSeen(context!!,it.streamId)
-            replaceFragment(WeaverFragment.newInstance(it),R.id.mainContent,true)
+            if (it.isLive){
+                replaceFragment(WeaverFragment.newInstance(it),R.id.mainContent,true)
+            }else {
+                UserCache.newInstance().saveVideoToSeen(context!!, it.streamId)
+                replaceFragment(VideoFragment.newInstance(it),R.id.mainContent,true)
+            }
         }
         videoAdapter = VideosAdapter(onClick)
         videosRV.adapter = videoAdapter

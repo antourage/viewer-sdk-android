@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+
+    <ImageButton
+            android:id="@+id/exo_play"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play_arrow"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:padding="10dp"
+            android:scaleType="fitXY"/>
+
+    <ImageButton
+            android:id="@+id/exo_next"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_navigate_next"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:padding="5dp"
+            android:scaleType="fitXY"
+            android:layout_gravity="center|end"
+    />
+    <ImageButton
+            android:id="@+id/exo_prev"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_navigate_prev"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:padding="5dp"
+            android:scaleType="fitXY"
+            android:layout_gravity="center|start"
+    />
+
+    <ImageButton
+            android:id="@+id/exo_pause"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pause"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:padding="10dp"
+            android:scaleType="fitXY"/>
+
+    <ImageView
+            android:id="@+id/ivScreenSize"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="18dp"
+            android:src="@drawable/ic_full_screen"
+            android:layout_gravity="end|bottom"
+
+    />
+
+    <TextView
+            android:id="@+id/exo_position"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <com.google.android.exoplayer2.ui.DefaultTimeBar
+            android:id="@+id/exo_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="15dp"
+            app:buffered_color="@android:color/white"
+            app:played_color="@color/pink"
+            app:scrubber_color="@android:color/darker_gray"
+            app:unplayed_color="@android:color/white"/>
+</FrameLayout>

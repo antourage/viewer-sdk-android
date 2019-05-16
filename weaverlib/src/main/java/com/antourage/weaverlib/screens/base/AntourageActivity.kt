@@ -1,9 +1,14 @@
 package com.antourage.weaverlib.screens.base
 
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Rational
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.screens.videos.VideosFragment
+import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
+import com.antourage.weaverlib.screens.list.VideoListFragment
 
 class AntourageActivity : AppCompatActivity() {
 
@@ -11,6 +16,20 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.mainContent,VideosFragment.newInstance()).commit()
+            .replace(R.id.mainContent,VideoListFragment.newInstance()).commit()
     }
+
+    override fun onUserLeaveHint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            && supportFragmentManager.findFragmentById(R.id.mainContent) is StreamingFragment<*>) {
+            enterPictureInPictureMode(
+                with(PictureInPictureParams.Builder()) {
+                    val width = 16
+                    val height = 9
+                    setAspectRatio(Rational(width, height))
+                    build()
+                })
+        }
+    }
+
 }

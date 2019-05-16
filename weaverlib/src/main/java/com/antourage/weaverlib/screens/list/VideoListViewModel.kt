@@ -1,15 +1,13 @@
-package com.antourage.weaverlib.screens.videos
+package com.antourage.weaverlib.screens.list
 
 import android.app.Application
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.BaseViewModel
 
-class VideosViewModel(application: Application):BaseViewModel(application),ReceivingVideosManager.ReceivingVideoCallback{
+class VideoListViewModel(application: Application):BaseViewModel(application),ReceivingVideosManager.ReceivingVideoCallback{
 
     var listOfStreams:MutableLiveData<List<StreamResponse>> = MutableLiveData()
     val receivingVideosManager = ReceivingVideosManager(this)

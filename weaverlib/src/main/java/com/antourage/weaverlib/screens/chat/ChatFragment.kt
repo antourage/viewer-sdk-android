@@ -19,8 +19,16 @@ import kotlinx.android.synthetic.main.fragment_chat.*
 class ChatFragment : BaseFragment<ChatViewModel>() {
 
     companion object {
-        fun newInstance():ChatFragment{
-            return ChatFragment()
+        const val ARGS_IS_LIVE = "args_is_live"
+        const val ARGS_STREAM_ID = "args_stream_id"
+
+        fun newInstance(id:Int,isLive:Boolean):ChatFragment{
+            val bundle = Bundle()
+            bundle.putInt(ARGS_STREAM_ID,id)
+            bundle.putBoolean(ARGS_IS_LIVE, isLive)
+            val fragment = ChatFragment()
+            fragment.arguments = bundle
+            return  fragment
         }
     }
 
@@ -51,6 +59,13 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
 
     override fun initUi(view: View?) {
         initMessagesRV()
+        arguments?.let {
+            if (!it.getBoolean(ARGS_IS_LIVE,false)){
+                btnSend.visibility = View.GONE
+                etMessage.visibility = View.GONE
+                deviderChat.visibility = View.GONE
+            }
+        }
         btnSend.setOnClickListener {
             viewModel.addMessage(etMessage.text.toString())
             etMessage.setText("")

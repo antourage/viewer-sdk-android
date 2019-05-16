@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   android:id="@+id/constraintLayoutParent"
+                                                   android:background="@color/bg_color">
+    <ImageButton
+            android:id="@+id/ivClose"
+            android:src="@drawable/ic_close"
+            android:background="@drawable/image_btn_bg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"/>
+
+
+    <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_gravity="top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:use_controller="true"
+            app:auto_show="false"
+            app:show_timeout="2000"
+            app:hide_on_touch="true"
+            app:resize_mode="zoom"
+            app:controller_layout_id="@layout/custom_video_controls"
+    />
+
+    <ImageView
+            android:id="@+id/ivLoader"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            app:layout_constraintBottom_toBottomOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+            tools:ignore="ContentDescription"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="parent"
+    >
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivUserPhoto"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:src="@drawable/ic_default_user"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+        />
+        <TextView
+                android:id="@+id/tvStreamName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                tools:text="Olena Soluk"
+                android:layout_marginTop="6dp"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
+                app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
+                app:layout_constraintVertical_chainStyle="packed"/>
+
+        <TextView
+                android:id="@+id/tvBroadcastedBy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:ellipsize="end"
+                android:lines="1"
+                tools:text="my nicname"
+                app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
+                app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
+
+                app:layout_constraintTop_toBottomOf="@id/tvStreamName"/>
+        <View
+                android:id="@+id/devider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray_transparent"
+                android:layout_marginTop="6dp"
+                app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/chatLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+    />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

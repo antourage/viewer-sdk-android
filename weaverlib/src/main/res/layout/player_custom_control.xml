@@ -9,7 +9,8 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:background="@drawable/ic_play_arrow"
+            android:src="@drawable/ic_play_arrow"
+            android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
             android:scaleType="fitXY"/>
 
@@ -18,7 +19,8 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:background="@drawable/ic_pause"
+            android:src="@drawable/ic_pause"
+            android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
             android:scaleType="fitXY" />
 

@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.videos
+package com.antourage.weaverlib.screens.list
 
 import android.os.Handler
 import androidx.lifecycle.Observer
