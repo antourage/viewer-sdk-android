@@ -12,7 +12,7 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.observeSafe
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
-import com.antourage.weaverlib.screens.list.rv.VideosAdapter
+import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
 import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*

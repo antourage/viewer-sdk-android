@@ -29,6 +29,9 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         const val SHOWING_DURABILITY = 5000L
     }
+    init {
+        AppExecutors()
+    }
 
     private val receivingVideoManager = ReceivingVideosManager(this)
     private val listOfSeenStreams = mutableListOf<Int>()
