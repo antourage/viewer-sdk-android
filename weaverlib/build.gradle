@@ -2,6 +2,94 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
+project.afterEvaluate {
+    def androidExtension = project.extensions.findByName("android")
+    if (androidExtension.hasProperty('libraryVariants')) {
+        androidExtension.libraryVariants.all { final variant ->
+            task("${variant.name}Javadoc", type: Javadoc) {
+                description "Generates Javadoc for ${variant.name}."
+                failOnError = false
+                source = variant.javaCompile.source
+                classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+                exclude '**/BuildConfig.java'
+                exclude '**/R.java'
+            }
+        }
+    }
+    task androidJavadocsJar(type: Jar, dependsOn: 'releaseJavadoc') {
+        classifier = 'javadoc'
+        from {
+            releaseJavadoc.destinationDir
+        }
+    }
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        from androidExtension.sourceSets.main.java.srcDirs
+    }
+    publishing.publications {
+        release(MavenPublication) {
+            groupId "com.weaver"
+            artifactId "weaverlib"
+            version "1.0.0"
+
+            artifact bundleReleaseAar
+            artifact androidJavadocsJar
+            artifact androidSourcesJar
+
+
+            pom.withXml {
+                // List all compile dependencies and write to POM
+                final Node dependenciesNode = asNode().appendNode('dependencies')
+                final compileConfiguration = configurations.getByName('compile')
+                compileConfiguration.allDependencies.each { final Dependency dependency ->
+                    final def noGroup = dependency.group == null
+                    final def noVersion = dependency.version == null
+                    final def noName = dependency.name == null
+                    final def invalidName = dependency.name == "unspecified"
+                    final def invalidDependency = noGroup || noVersion || noName || invalidName
+                    if (invalidDependency) {
+                        // ignore invalid dependencies
+                        return
+                    }
+                    final def dependencyFiles = compileConfiguration.files(dependency)
+                    final def firstFile = dependencyFiles.first()
+                    final def firstFileName = firstFile.name
+                    final def firstFileNameExtension = firstFileName.substring(firstFileName.lastIndexOf(".") + 1)
+
+                    final dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dependency.group)
+                    dependencyNode.appendNode('artifactId', dependency.name)
+                    dependencyNode.appendNode('version', dependency.version)
+                    dependencyNode.appendNode('type', firstFileNameExtension)
+
+                    if (!dependency.transitive) {
+                        // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                        exclusionNode.appendNode('groupId', '*')
+                        exclusionNode.appendNode('artifactId', '*')
+                    } else if (!dependency.properties.excludeRules.empty) {
+                        // Otherwise add specified exclude rules
+                        final exclusionsNode = dependencyNode.appendNode('exclusions')
+                        dependency.properties.excludeRules.each { final ExcludeRule rule ->
+                            final exclusionNode = exclusionsNode.appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', rule.group ?: '*')
+                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+publishing {
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+
+
 android {
     compileSdkVersion 28
 
@@ -23,13 +111,13 @@ android {
         }
         debugMini {
             initWith debug
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             matchingFallbacks = ['debug']
         }
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
         }
@@ -41,8 +129,8 @@ android {
     androidExtensions {
         experimental = true
     }
-
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -86,3 +174,4 @@ dependencies {
 repositories {
     mavenCentral()
 }
+

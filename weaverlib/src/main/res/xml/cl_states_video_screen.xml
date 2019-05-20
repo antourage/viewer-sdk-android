@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ConstraintLayoutStates xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:app="http://schemas.android.com/apk/res-auto">
+<ConstraintLayoutStates xmlns:android="http://schemas.android.com/apk/res/android">
     <State
             android:id="@+id/constraintStatePortrait"
-            app:constraints="@layout/fragment_video"/>
+            constraints="@layout/fragment_video"/>
     <State
             android:id="@+id/constraintStateLandscape"
-            app:constraints="@layout/fragment_weaver_landscape"/>
+            constraints="@layout/fragment_weaver_landscape"/>
 </ConstraintLayoutStates>

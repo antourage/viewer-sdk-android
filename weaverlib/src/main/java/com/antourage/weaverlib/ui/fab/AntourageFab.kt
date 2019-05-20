@@ -2,14 +2,17 @@ package com.antourage.weaverlib.ui.fab
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.Keep
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -20,8 +23,10 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 
+@Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,ReceivingVideosManager.ReceivingVideoCallback {
@@ -31,6 +36,14 @@ class AntourageFab @JvmOverloads constructor(
     }
     init {
         AppExecutors()
+//        floatingActionButton.size = FloatingActionButton.SIZE_NORMAL
+//        floatingActionButton.backgroundTintList = ColorStateList.valueOf(
+//            ContextCompat.getColor(
+//                context,
+//                R.color.bg_color_widget
+//            )
+//        )
+
     }
 
     private val receivingVideoManager = ReceivingVideosManager(this)
