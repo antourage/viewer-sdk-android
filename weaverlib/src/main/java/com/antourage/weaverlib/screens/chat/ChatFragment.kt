@@ -1,13 +1,12 @@
 package com.antourage.weaverlib.screens.chat
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.View
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.observeSafe
@@ -22,22 +21,23 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
         const val ARGS_IS_LIVE = "args_is_live"
         const val ARGS_STREAM_ID = "args_stream_id"
 
-        fun newInstance(id:Int,isLive:Boolean):ChatFragment{
+        fun newInstance(id: Int, isLive: Boolean): ChatFragment {
             val bundle = Bundle()
-            bundle.putInt(ARGS_STREAM_ID,id)
+            bundle.putInt(ARGS_STREAM_ID, id)
             bundle.putBoolean(ARGS_IS_LIVE, isLive)
             val fragment = ChatFragment()
             fragment.arguments = bundle
-            return  fragment
+            return fragment
         }
     }
 
     override fun getLayoutId(): Int {
         return R.layout.fragment_chat
     }
+
     //region Observers
-    private val messagesObserver: Observer<List<Message>> = Observer { list->
-        if(list != null){
+    private val messagesObserver: Observer<List<Message>> = Observer { list ->
+        if (list != null) {
             (rvMessages.adapter as MessagesAdapter).setMessageList(list)
         }
     }
@@ -54,13 +54,13 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
     }
 
     private fun subscribeToObservers() {
-        viewModel.getMessagesLiveData().observeSafe(this,messagesObserver)
+        viewModel.getMessagesLiveData().observeSafe(this, messagesObserver)
     }
 
     override fun initUi(view: View?) {
         initMessagesRV()
         arguments?.let {
-            if (!it.getBoolean(ARGS_IS_LIVE,false)){
+            if (!it.getBoolean(ARGS_IS_LIVE, false)) {
                 btnSend.visibility = View.GONE
                 etMessage.visibility = View.GONE
                 deviderChat.visibility = View.GONE
@@ -89,13 +89,14 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
         val newOrientation = newConfig.orientation
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             rvMessages.isVerticalFadingEdgeEnabled = true
-            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_LANDSCAPE)
+            rvMessages.adapter =
+                MessagesAdapter(viewModel.getMessagesLiveData().value!!, Configuration.ORIENTATION_LANDSCAPE)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
-            rvMessages.adapter = MessagesAdapter(viewModel.getMessagesLiveData().value!!,Configuration.ORIENTATION_PORTRAIT)
+            rvMessages.adapter =
+                MessagesAdapter(viewModel.getMessagesLiveData().value!!, Configuration.ORIENTATION_PORTRAIT)
         }
     }
-
 
 
 }

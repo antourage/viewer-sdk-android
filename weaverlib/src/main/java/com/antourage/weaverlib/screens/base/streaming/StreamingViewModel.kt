@@ -1,12 +1,12 @@
 package com.antourage.weaverlib.screens.base.streaming
 
 import android.app.Application
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.media.session.PlaybackState
 import android.net.Uri
 import android.view.Surface
 import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener

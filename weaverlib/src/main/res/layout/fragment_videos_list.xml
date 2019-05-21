@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                        xmlns:tools="http://schemas.android.com/tools"
                                                        android:layout_width="match_parent"
                                                        android:layout_height="match_parent"
@@ -7,7 +7,7 @@
                                                        android:id="@+id/videoRefreshLayout"
                                                        android:background="@color/bg_color"
                                                        tools:context=".screens.list.VideoListFragment">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <android.support.constraint.ConstraintLayout
             android:layout_height="match_parent"
             android:layout_width="match_parent"
     >
@@ -22,7 +22,7 @@
                 app:layout_constraintTop_toTopOf="parent"
         />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <android.support.v7.widget.RecyclerView
                 android:id="@+id/videosRV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,5 +31,5 @@
                 app:layout_constraintTop_toBottomOf="@+id/ivClose"
                 app:layout_constraintStart_toStartOf="parent"
         />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

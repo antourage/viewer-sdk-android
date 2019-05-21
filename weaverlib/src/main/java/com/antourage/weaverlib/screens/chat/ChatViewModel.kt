@@ -1,12 +1,12 @@
 package com.antourage.weaverlib.screens.chat
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.screens.base.BaseViewModel
 
-class ChatViewModel(application: Application):BaseViewModel(application){
+class ChatViewModel(application: Application) : BaseViewModel(application) {
 
 
     private var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData()

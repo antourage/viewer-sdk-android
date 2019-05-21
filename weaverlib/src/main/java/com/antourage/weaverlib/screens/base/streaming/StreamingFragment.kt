@@ -4,13 +4,13 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
+import android.support.graphics.drawable.Animatable2Compat
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.screens.base.BaseFragment
@@ -23,8 +23,8 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
-    private lateinit var ivScreenSize:ImageView
-    private lateinit var chatLayout:ConstraintLayout
+    private lateinit var ivScreenSize: ImageView
+    private lateinit var chatLayout: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
         if (isInPictureInPictureMode) {
 
-        }else
+        } else
             chatLayout.visibility = View.VISIBLE
 
         playerView.useController = !isInPictureInPictureMode
@@ -88,7 +88,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
         if (loader != null && !loader!!.isRunning) {
             loader?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                        ivLoader.post { loader?.start() }
+                    ivLoader.post { loader?.start() }
                 }
             })
             loader?.start()
@@ -135,6 +135,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private fun epsilonCheck(a: Int, b: Int, epsilon: Int): Boolean {
         return a > b - epsilon && a < b + epsilon
     }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 

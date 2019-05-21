@@ -1,13 +1,10 @@
 package com.antourage.weaverlib.screens.weaver
 
 
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceChildFragment
@@ -15,7 +12,6 @@ import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.antourage.weaverlib.screens.chat.ChatFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
-import kotlinx.android.synthetic.main.player_custom_control.*
 
 class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
@@ -72,8 +68,12 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_screen)
         startPlayingStream()
 
-        replaceChildFragment(ChatFragment.newInstance(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!,
-            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.isLive!!), R.id.chatLayout)
+        replaceChildFragment(
+            ChatFragment.newInstance(
+                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!,
+                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.isLive!!
+            ), R.id.chatLayout
+        )
 
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname

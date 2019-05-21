@@ -1,14 +1,14 @@
 package com.antourage.weaverlib.screens.list
 
+import android.arch.lifecycle.Observer
 import android.os.Handler
-import androidx.lifecycle.Observer
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.Repository
 
 
-class ReceivingVideosManager(val callback:ReceivingVideoCallback){
+class ReceivingVideosManager(val callback: ReceivingVideoCallback) {
 
     companion object {
         const val STREAMS_REQUEST_DELAY = 5000L
@@ -16,7 +16,7 @@ class ReceivingVideosManager(val callback:ReceivingVideoCallback){
 
     val handlerCall = Handler()
 
-    fun startReceivingVideos(){
+    fun startReceivingVideos() {
         handlerCall.postDelayed(object : Runnable {
             override fun run() {
                 val streamResponse = Repository().getListOfStreams()
@@ -24,11 +24,12 @@ class ReceivingVideosManager(val callback:ReceivingVideoCallback){
                     override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                         if (resource != null) {
                             callback.onLiveBroadcastReceived(resource)
-                            when(resource.state){
-                                State.FAILURE,State.SUCCESS ->{
+                            when (resource.state) {
+                                State.FAILURE, State.SUCCESS -> {
                                     streamResponse.removeObserver(this)
                                 }
-                                else -> {}
+                                else -> {
+                                }
                             }
                         }
                     }
@@ -37,10 +38,12 @@ class ReceivingVideosManager(val callback:ReceivingVideoCallback){
             }
         }, 0)
     }
-    fun stopReceivingVideos(){
+
+    fun stopReceivingVideos() {
         handlerCall.removeCallbacksAndMessages(null)
     }
-    interface ReceivingVideoCallback{
+
+    interface ReceivingVideoCallback {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
         fun onVODReceived()

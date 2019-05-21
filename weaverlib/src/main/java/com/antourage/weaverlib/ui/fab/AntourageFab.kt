@@ -2,17 +2,15 @@ package com.antourage.weaverlib.ui.fab
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
+import android.support.annotation.Keep
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.motion.MotionLayout
+import android.support.constraint.motion.MotionScene
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import androidx.annotation.Keep
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.constraintlayout.motion.widget.MotionScene
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -23,17 +21,17 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,ReceivingVideosManager.ReceivingVideoCallback {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, ReceivingVideosManager.ReceivingVideoCallback {
 
     companion object {
         const val SHOWING_DURABILITY = 5000L
     }
+
     init {
         AppExecutors()
 //        floatingActionButton.size = FloatingActionButton.SIZE_NORMAL
@@ -74,7 +72,7 @@ class AntourageFab @JvmOverloads constructor(
                         }, i.toLong() * SHOWING_DURABILITY)
                     }
                 }
-                floatingActionButton.setTextToBadge( context.getString(R.string.live))
+                floatingActionButton.setTextToBadge(context.getString(R.string.live))
             }
             is WidgetStatus.ACTIVE_UNSEEN_VIDEOS -> {
                 floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
@@ -145,6 +143,7 @@ class AntourageFab @JvmOverloads constructor(
     override fun onStop() {
 
     }
+
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
         when (resource.state) {
             State.LOADING -> {

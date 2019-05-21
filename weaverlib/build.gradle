@@ -28,7 +28,7 @@ project.afterEvaluate {
     }
     publishing.publications {
         release(MavenPublication) {
-            groupId "com.weaver"
+            groupId "com.weaver.supportm"
             artifactId "weaverlib"
             version "1.0.0"
 
@@ -106,18 +106,18 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debugMini {
             initWith debug
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             matchingFallbacks = ['debug']
         }
         debug {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
         }
@@ -136,18 +136,18 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //Android general
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:swiperefreshlayout:28.0.0'
     //Constraint layout
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta1'
+    implementation 'com.android.support.constraint:constraint-layout:2.0.0-beta1'
     //Architecture Components
-    implementation group: 'androidx.lifecycle', name: 'lifecycle-viewmodel-ktx', version: '2.1.0-alpha04'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0-alpha04'
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation "android.arch.lifecycle:common-java8:1.1.1"
     // RecyclerView
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha04'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
     // CardView
-    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
     // Retrofit stuff
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'

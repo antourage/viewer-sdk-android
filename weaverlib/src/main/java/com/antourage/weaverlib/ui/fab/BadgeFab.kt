@@ -2,22 +2,17 @@ package com.antourage.weaverlib.ui.fab
 
 import android.animation.ObjectAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.Paint.Style
-import android.graphics.Rect
-import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Parcelable
+import android.support.design.stateful.ExtendableSavedState
+import android.support.design.widget.FloatingActionButton
+import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.util.Property
 import android.view.animation.OvershootInterpolator
-import androidx.core.view.ViewCompat
 import com.antourage.weaverlib.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.stateful.ExtendableSavedState
-import android.graphics.RectF
 
 
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
@@ -93,7 +88,7 @@ class BadgeFab @JvmOverloads constructor(
     private var countText: String = ""
 
     var textBadge: String = ""
-        set( value) {
+        set(value) {
             if (value == field) return
             field = value
 
@@ -119,7 +114,7 @@ class BadgeFab @JvmOverloads constructor(
         countText = textBadge
     }
 
-    fun setTextToBadge(text:String){
+    fun setTextToBadge(text: String) {
         textBadge = text
     }
 
@@ -203,9 +198,9 @@ class BadgeFab @JvmOverloads constructor(
             val cx = circleBounds.centerX().toFloat()
             val cy = circleBounds.centerY().toFloat()
             val radius = circleBounds.width() / 2f * animationFactor
-            if(textBadge != "") {
+            if (textBadge != "") {
                 // Solid rectangle with rounded corners
-                val rect = RectF(cx-radius-10f, cy+radius, cx+radius+10, cy-radius)
+                val rect = RectF(cx - radius - 10f, cy + radius, cx + radius + 10, cy - radius)
                 canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
 //                canvas.drawCircle(cx, cy, radius+10, circlePaint)
                 // Mask circle
@@ -221,7 +216,7 @@ class BadgeFab @JvmOverloads constructor(
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
         if (superState is ExtendableSavedState) {
-         //   superState.extendableStates.put(STATE_KEY, bundleOf(COUNT_STATE to count))
+            //   superState.extendableStates.put(STATE_KEY, bundleOf(COUNT_STATE to count))
         }
         return superState
     }

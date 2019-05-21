@@ -1,10 +1,10 @@
 package com.antourage.weaverlib.screens.vod
 
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceChildFragment
@@ -54,10 +54,12 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
             }
     }
 
-    private val videoChangeObserver:Observer<StreamResponse> = Observer { video->
-        replaceChildFragment(ChatFragment.newInstance(video.streamId,video.isLive), R.id.chatLayout)
-        tvStreamName.text = video.streamTitle
-        tvBroadcastedBy.text = video.creatorFullname
+    private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
+        video?.let {
+            replaceChildFragment(ChatFragment.newInstance(video.streamId, video.isLive), R.id.chatLayout)
+            tvStreamName.text = video.streamTitle
+            tvBroadcastedBy.text = video.creatorFullname
+        }
     }
 
     //endregion
@@ -69,7 +71,7 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
 
     override fun subscribeToObservers() {
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
-        viewModel.getCurrentVideo().observe(this.viewLifecycleOwner,videoChangeObserver)
+        viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
     }
 
     override fun initUi(view: View?) {
@@ -78,7 +80,6 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
         startPlayingStream()
         ivClose.setOnClickListener { fragmentManager?.popBackStack() }
     }
-
 
 
     fun startPlayingStream() {
@@ -107,7 +108,6 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
         super.onDestroy()
         viewModel.releasePlayer()
     }
-
 
 
 }

@@ -1,12 +1,11 @@
 package com.antourage.weaverlib.other.networking.base
 
 
-import androidx.lifecycle.LiveData
+import android.arch.lifecycle.LiveData
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Callback
 import retrofit2.Response
-
 import java.lang.reflect.Type
 import java.util.concurrent.atomic.AtomicBoolean
 

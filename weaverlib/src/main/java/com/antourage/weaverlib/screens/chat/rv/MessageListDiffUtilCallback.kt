@@ -1,12 +1,14 @@
 package com.antourage.weaverlib.screens.chat.rv
 
-import androidx.recyclerview.widget.DiffUtil
+import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.Message
 
-class MessageListDiffUtilCallback(private val prevList: List<Message>,
-                                  private val newList: List<Message>) : DiffUtil.Callback() {
+class MessageListDiffUtilCallback(
+    private val prevList: List<Message>,
+    private val newList: List<Message>
+) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return  prevList[oldItemPosition].messageId == newList[newItemPosition].messageId
+        return prevList[oldItemPosition].messageId == newList[newItemPosition].messageId
     }
 
     override fun getOldListSize(): Int {

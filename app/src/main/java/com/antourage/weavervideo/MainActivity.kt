@@ -1,11 +1,7 @@
 package com.antourage.weavervideo
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import com.antourage.weaverlib.other.networking.base.AppExecutors
-import com.antourage.weaverlib.ui.fab.AntourageFabLifecycleObserver
-import com.antourage.weaverlib.ui.fab.BadgeFab
+import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
