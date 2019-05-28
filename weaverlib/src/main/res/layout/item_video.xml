@@ -48,7 +48,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
             android:drawableStart="@drawable/ic_watcher"
             android:textColor="@android:color/white"
-    />
+            android:drawableLeft="@drawable/ic_watcher"/>
 
     <TextView
             android:id="@+id/txtTitle"

@@ -6,12 +6,15 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceChildFragment
 import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.antourage.weaverlib.screens.chat.ChatFragment
+import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
+import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 
 class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
@@ -51,7 +54,13 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
                 }
             }
     }
+    private val pollObserver: Observer<Poll> = Observer { poll ->
+        if (poll != null) {
+            pollPopupLayout.visibility = View.VISIBLE
+            tvPollTitle.text = poll.pollQuestion
+        }
 
+    }
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +70,7 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
     override fun subscribeToObservers() {
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
+        viewModel.getPollLiveData().observe(this.viewLifecycleOwner,pollObserver)
     }
 
     override fun initUi(view: View?) {
@@ -77,9 +87,22 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
+        ivDismissPoll.setOnClickListener{
+            pollPopupLayout.visibility = View.GONE
+        }
+        pollPopupLayout.setOnClickListener {
+            headerLayout.visibility = View.GONE
+            pollPopupLayout.visibility = View.GONE
+            replaceChildFragment(PollDetailsFragment.newInstance(),R.id.chatLayout,true)
+            childFragmentManager.addOnBackStackChangedListener {
+                if(childFragmentManager.findFragmentById(R.id.chatLayout) is ChatFragment){
+                    headerLayout.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
-    fun startPlayingStream() {
+    private fun startPlayingStream() {
         playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
     }
 

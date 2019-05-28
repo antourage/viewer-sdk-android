@@ -15,6 +15,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:auto_show="false"
+            app:show_buffering="never"
             app:controller_layout_id="@layout/player_custom_control"/>
 
     <ImageView
@@ -78,13 +79,20 @@
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
 
                 app:layout_constraintTop_toBottomOf="@id/tvStreamName"/>
+        <include layout="@layout/layout_poll_suggestion"
+                 android:layout_width="match_parent"
+                 android:layout_margin="20dp"
+                 android:layout_height="wrap_content"
+                 app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
+                 app:layout_constraintStart_toStartOf="parent"/>
+
         <View
                 android:id="@+id/devider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/light_gray_transparent"
                 android:layout_marginTop="6dp"
-                app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
+                app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
     </android.support.constraint.ConstraintLayout>

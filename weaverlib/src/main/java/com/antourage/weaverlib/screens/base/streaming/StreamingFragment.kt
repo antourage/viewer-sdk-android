@@ -147,6 +147,11 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 newConfig.screenWidthDp,
                 newConfig.screenHeightDp
             )
+            if (newConfig.screenHeightDp < 200) {
+                chatLayout.visibility = View.GONE
+            } else {
+                chatLayout.visibility = View.VISIBLE
+            }
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             constraintLayoutParent.setState(

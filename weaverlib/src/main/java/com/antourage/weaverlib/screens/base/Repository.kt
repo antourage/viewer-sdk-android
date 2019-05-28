@@ -1,13 +1,35 @@
 package com.antourage.weaverlib.screens.base
 
 import android.arch.lifecycle.LiveData
+import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.other.models.PollAnswers
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.base.ApiResponse
 import com.antourage.weaverlib.other.networking.base.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.base.Resource
 
-class Repository {
+
+class Repository() {
+
+    private var currentPoll: Poll
+
+    init {
+        val answers = ArrayList<PollAnswers>()
+        val list = ArrayList<String>()
+        list.add("ivan")
+        list.add("natalia")
+        answers.add(PollAnswers("yes i like it a lot", list))
+        answers.add(PollAnswers("it is OK", ArrayList()))
+        list.add("inna")
+        answers.add(PollAnswers("bad choice", list))
+        answers.add(PollAnswers("I am not sure", list))
+        currentPoll = Poll(
+            1, 2, 3, 0L,
+            "What do you think about eurovision winner?", true, 0L, "", answers
+        )
+    }
+
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>>() {
             override fun saveCallResult(item: List<StreamResponse>) {
@@ -81,5 +103,24 @@ class Repository {
         )
 
         return list
+    }
+    fun getCurrentPoll(): Poll {
+        val answers = ArrayList<PollAnswers>()
+        val list = ArrayList<String>()
+        //list.add("ivan");
+        //list.add("natalia");
+        answers.add(PollAnswers("yes i like it a lot", ArrayList()))
+        answers.add(PollAnswers("it is OK", ArrayList()))
+        //list.add("inna");
+        answers.add(PollAnswers("bad choice", ArrayList()))
+        answers.add(PollAnswers("I am not sure", ArrayList()))
+        return Poll(
+            1, 2, 3, 0L,
+            "What do you think about eurovision winner?", true, 0L, "", answers
+        )
+    }
+
+    fun setCurrentPoll(poll: Poll) {
+        currentPoll = poll
     }
 }

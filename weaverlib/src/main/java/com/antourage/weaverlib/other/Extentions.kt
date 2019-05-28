@@ -31,6 +31,12 @@ fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: B
 fun Fragment.replaceChildFragment(fragment: Fragment, frameId: Int) {
     childFragmentManager.inTransaction { replace(frameId, fragment) }
 }
+fun Fragment.replaceChildFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {
+    if (addToBackStack) {
+        childFragmentManager.inTransaction { replace(frameId, fragment).addToBackStack(fragment.javaClass.simpleName) }
+    } else
+        replaceChildFragment(fragment,frameId)
+}
 
 fun <T> LiveData<T>.observeSafe(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
     this.removeObserver(observer)

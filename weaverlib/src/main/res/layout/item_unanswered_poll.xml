@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content" xmlns:tools="http://schemas.android.com/tools">
+    <Button
+            android:id="@+id/btnAnswer"
+            android:layout_marginBottom="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:gravity="center_vertical"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:background="?selectableItemBackground"
+            tools:text="you should really answer this question"
+            tools:background="@drawable/rounded_green_bg"
+    />
+</FrameLayout>

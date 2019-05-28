@@ -1,7 +1,10 @@
 package com.antourage.weaverlib.screens.weaver
 
 import android.app.Application
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.net.Uri
+import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
@@ -11,9 +14,15 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
 class WeaverViewModel(application: Application) : StreamingViewModel(application) {
-    override fun onVideoChanged() {
 
+    private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
+    fun getPollLiveData(): LiveData<Poll> {
+        return pollLiveData
     }
+    init {
+        pollLiveData.postValue(repository.getCurrentPoll())
+    }
+
 
     var wasStreamInitialized = false
 
@@ -35,6 +44,9 @@ class WeaverViewModel(application: Application) : StreamingViewModel(application
         //rtmp
 //        return ExtractorMediaSource.Factory(RtmpDataSourceFactory())
 //            .createMediaSource(Uri.parse(streamUrl))
+    }
+    override fun onVideoChanged() {
+
     }
 
 }

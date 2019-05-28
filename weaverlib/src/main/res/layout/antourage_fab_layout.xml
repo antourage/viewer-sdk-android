@@ -35,7 +35,7 @@
 
         <View
                 android:id="@+id/fabExpantion"
-                android:background="@drawable/ronded_fab_bg"
+                android:background="@drawable/rounded_fab_bg"
                 android:layout_width="200dp"
 
                 android:layout_height="52dp"

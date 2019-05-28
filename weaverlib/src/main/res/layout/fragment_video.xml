@@ -6,15 +6,6 @@
                                                    android:layout_height="match_parent"
                                                    android:id="@+id/constraintLayoutParent"
                                                    android:background="@color/bg_color">
-    <ImageButton
-            android:id="@+id/ivClose"
-            android:src="@drawable/ic_close"
-            android:background="@drawable/image_btn_bg"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription"/>
 
 
     <com.google.android.exoplayer2.ui.PlayerView
@@ -29,6 +20,7 @@
             app:show_timeout="2000"
             app:hide_on_touch="true"
             app:resize_mode="zoom"
+            app:show_buffering="never"
             app:controller_layout_id="@layout/custom_video_controls"
     />
 

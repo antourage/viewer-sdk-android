@@ -1,10 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <ImageButton
+            android:id="@+id/ivClose"
+            android:src="@drawable/ic_close"
+            android:background="@drawable/image_btn_bg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|end"
+            tools:ignore="ContentDescription"/>
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:orientation="horizontal">
 
+        <TextView
+                android:id="@+id/tvWasLive"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:background="@drawable/rounded_semitransparent_bg"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:textAllCaps="false"
+                android:textStyle="normal"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:textSize="14sp"
+        />
+        <TextView
+                android:id="@+id/exo_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:background="@drawable/rounded_semitransparent_bg"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:textAllCaps="false"
+                android:textStyle="normal"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="20dp"
+                android:textSize="14sp"
+        />
+        <TextView
+                android:id="@+id/txtNumberOfViewers"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="14sp"
+                android:text="6,385"
+                android:paddingLeft="4dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:paddingRight="4dp"
+                android:background="@drawable/rounded_semitransparent_bg"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_watcher"
+                android:textColor="@android:color/white"
+                android:drawableLeft="@drawable/ic_watcher"/>
+    </LinearLayout>
     <ImageButton
             android:id="@+id/exo_play"
             android:layout_width="70dp"
@@ -14,6 +80,7 @@
             android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
             android:scaleType="fitXY"/>
+
 
     <ImageButton
             android:id="@+id/exo_next"
@@ -35,7 +102,6 @@
             android:scaleType="fitXY"
             android:layout_gravity="center|start"
     />
-
     <ImageButton
             android:id="@+id/exo_pause"
             android:layout_width="70dp"

@@ -11,6 +11,7 @@ import com.antourage.weaverlib.other.replaceChildFragment
 import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.antourage.weaverlib.screens.chat.ChatFragment
 import com.google.android.exoplayer2.Player
+import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
@@ -59,6 +60,7 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
             replaceChildFragment(ChatFragment.newInstance(video.streamId, video.isLive), R.id.chatLayout)
             tvStreamName.text = video.streamTitle
             tvBroadcastedBy.text = video.creatorFullname
+            tvWasLive.text = "1 day ago"
         }
     }
 

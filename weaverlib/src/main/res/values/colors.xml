@@ -9,4 +9,8 @@
     <color name="gray_lighter">#FF848484</color>
     <color name="semitransparent">#66424242</color>
     <color name="halftransparent">#80000000</color>
+    <color name="green">#04A854</color>
+    <color name="bleak_pink">#F8BFAD</color>
+    <color name="orange">#F8BC6D</color>
+    <color name="blue">#3596C5</color>
 </resources>
