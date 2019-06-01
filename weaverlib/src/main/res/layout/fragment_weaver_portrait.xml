@@ -14,9 +14,21 @@
             android:layout_gravity="top"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:use_controller="false"
+            app:resize_mode="fill"
             app:auto_show="false"
-            app:show_buffering="never"
-            app:controller_layout_id="@layout/player_custom_control"/>
+            app:show_buffering="never"/>
+    <com.google.android.exoplayer2.ui.PlayerControlView
+            android:id="@+id/controls"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="10dp"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+            app:layout_constraintTop_toTopOf="@id/playerView"
+            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:controller_layout_id="@layout/player_custom_control"
+    />
 
     <ImageView
             android:id="@+id/ivLoader"

@@ -13,4 +13,5 @@
     <color name="bleak_pink">#F8BFAD</color>
     <color name="orange">#F8BC6D</color>
     <color name="blue">#3596C5</color>
+    <color name="transparant">#32000000</color>
 </resources>

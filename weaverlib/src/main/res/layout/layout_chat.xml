@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
+        android:id="@+id/chatLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <com.antourage.weaverlib.other.ui.FadingRecyclerView
@@ -11,6 +13,8 @@
             android:fadingEdgeLength="150dp"
             android:fadingEdge="horizontal"
             android:fillViewport="false"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
             android:requiresFadingEdge="vertical"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -42,8 +46,8 @@
             android:layout_height="60dp"
             android:layout_marginEnd="50dp"
             android:background="@android:color/transparent"
-            android:paddingStart="16dp"
-            android:paddingLeft="16dp"
+            android:paddingStart="4dp"
+            android:paddingLeft="4dp"
             android:imeOptions="flagNoExtractUi"
             android:textColor="@android:color/white"
             android:textColorHint="@color/light_gray_transparent"

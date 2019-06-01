@@ -44,6 +44,7 @@ data class StreamResponse(
     @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
     @field:SerializedName("hlsUrl")val hlsUrl:String,
     @field:SerializedName("rtmp") val rtmpList:List<RtmpResponse>,
+    val duration:Int,
     var isLive:Boolean = false
     ):Parcelable
 @Parcelize

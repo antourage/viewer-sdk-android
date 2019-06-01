@@ -13,6 +13,57 @@
             android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
             android:scaleType="fitXY"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:orientation="horizontal">
+
+        <TextView
+                android:id="@+id/tvWasLive"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:background="@drawable/rounded_pink_bg"
+                android:textColor="@android:color/white"
+                android:text="@string/live"
+                android:textAllCaps="true"
+                android:padding="2dp"
+                android:textStyle="bold"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:layout_margin="20dp"
+                android:textSize="14sp"
+        />
+
+        <TextView
+                android:id="@+id/txtNumberOfViewers"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textSize="14sp"
+                android:text="6,385"
+                android:paddingLeft="4dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:paddingRight="4dp"
+                android:background="@drawable/rounded_semitransparent_bg"
+                android:gravity="center"
+                android:drawableStart="@drawable/ic_watcher"
+                android:textColor="@android:color/white"
+                android:drawableLeft="@drawable/ic_watcher"/>
+    </LinearLayout>
+    <Button
+            android:id="@+id/btnChooseTrack"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="200dp"
+            android:layout_marginLeft="200dp"
+            android:visibility="gone"
+            android:text="Choose Track"
+    />
     <ImageButton
             android:id="@+id/exo_pause"
             android:layout_width="70dp"
@@ -21,26 +72,16 @@
             android:src="@drawable/ic_pause"
             android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
-            android:scaleType="fitXY" />
+            android:scaleType="fitXY"/>
 
     <ImageView
             android:id="@+id/ivScreenSize"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_margin="18dp"
             android:src="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
-
     />
 
-    <!--<com.google.android.exoplayer2.ui.DefaultTimeBar-->
-            <!--android:id="@+id/exo_progress"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="bottom"-->
-            <!--android:layout_margin="15dp"-->
-            <!--app:buffered_color="@android:color/white"-->
-            <!--app:played_color="@android:color/white"-->
-            <!--app:scrubber_color="@android:color/darker_gray"-->
-            <!--app:unplayed_color="@android:color/darker_gray" />-->
+    <include layout="@layout/controller_header"/>
 </FrameLayout>

@@ -4,7 +4,6 @@ package com.antourage.weaverlib.screens.list
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -12,8 +11,8 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.observeSafe
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
+import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import com.antourage.weaverlib.screens.list.rv.VideosLayoutManager
-import com.antourage.weaverlib.screens.videos.rv.VideosAdapter
 import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
@@ -23,14 +22,14 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     lateinit var videoAdapter: VideosAdapter
 
-    companion object{
-        fun newInstance():VideoListFragment{
+    companion object {
+        fun newInstance(): VideoListFragment {
             return VideoListFragment()
         }
     }
 
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
-        if(list != null)
+        if (list != null)
             videoAdapter.setStreamList(list)
         videoRefreshLayout.isRefreshing = false
 
@@ -52,24 +51,26 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun subscribeToObservers() {
-        viewModel.listOfStreams.observeSafe(this.viewLifecycleOwner,streamsObserver)
+        viewModel.listOfStreams.observeSafe(this.viewLifecycleOwner, streamsObserver)
     }
-    override fun onStop(){
+
+    override fun onStop() {
         super.onStop()
         viewModel.onStop()
     }
 
-    override fun onResume(){
+    override fun onResume() {
         super.onResume()
         viewModel.getStreams()
     }
+
     override fun initUi(view: View?) {
-        val onClick:(stream:StreamResponse)->Unit = {
-            if (it.isLive){
-                replaceFragment(WeaverFragment.newInstance(it),R.id.mainContent,true)
-            }else {
+        val onClick: (stream: StreamResponse) -> Unit = {
+            if (it.isLive) {
+                replaceFragment(WeaverFragment.newInstance(it), R.id.mainContent, true)
+            } else {
                 UserCache.newInstance().saveVideoToSeen(context!!, it.streamId)
-                replaceFragment(VideoFragment.newInstance(it),R.id.mainContent,true)
+                replaceFragment(VideoFragment.newInstance(it), R.id.mainContent, true)
             }
         }
         videoAdapter = VideosAdapter(onClick)

@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.videos.rv
+package com.antourage.weaverlib.screens.list.rv
 
 import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse

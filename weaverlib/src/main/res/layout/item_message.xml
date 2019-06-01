@@ -41,6 +41,7 @@
             tools:text="Hey, it'll be a great game game game game game game game"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:singleLine="false"
             android:textColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@id/txtUser"
             app:layout_constraintLeft_toRightOf="@id/ivAvatar"

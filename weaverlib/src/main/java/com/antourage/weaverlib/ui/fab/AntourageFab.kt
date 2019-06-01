@@ -9,6 +9,9 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.motion.MotionLayout
 import android.support.constraint.motion.MotionScene
 import android.util.AttributeSet
+import android.util.Log
+import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
@@ -29,7 +32,7 @@ class AntourageFab @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, ReceivingVideosManager.ReceivingVideoCallback {
 
     companion object {
-        const val SHOWING_DURABILITY = 5000L
+        const val SHOWING_DURABILITY =5000L
     }
 
     init {
@@ -69,7 +72,7 @@ class AntourageFab @JvmOverloads constructor(
                                 expandableLayout.transitionToStart()
                             }, SHOWING_DURABILITY)
                             listOfSeenStreams.add(status.list[i].streamId)
-                        }, i.toLong() * SHOWING_DURABILITY)
+                        }, i.toLong() * 2*SHOWING_DURABILITY)
                     }
                 }
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
@@ -110,7 +113,13 @@ class AntourageFab @JvmOverloads constructor(
             context.startActivity(intent)
         }
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
-        fabExpantion.setOnClickListener { context.startActivity(intent) }
+        //fabExpantion.setOnClickListener { context.startActivity(intent) }
+        fabExpantion.setOnTouchListener (object:OnTouchListener{
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                return false
+            }
+
+        })
         manageVideos()
         AntourageFabLifecycleObserver.registerActionHandler(this)
     }

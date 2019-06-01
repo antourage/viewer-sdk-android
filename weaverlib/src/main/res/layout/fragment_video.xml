@@ -15,15 +15,24 @@
             android:layout_gravity="top"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:use_controller="true"
-            app:auto_show="false"
+            app:use_controller="false"
+    />
+    <com.google.android.exoplayer2.ui.PlayerControlView
+            android:id="@+id/controls"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:elevation="10dp"
+            app:auto_show="true"
             app:show_timeout="2000"
             app:hide_on_touch="true"
             app:resize_mode="zoom"
             app:show_buffering="never"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+            app:layout_constraintTop_toTopOf="@id/playerView"
+            app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:controller_layout_id="@layout/custom_video_controls"
     />
-
     <ImageView
             android:id="@+id/ivLoader"
             android:layout_width="70dp"
@@ -39,6 +48,9 @@
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:paddingRight="12dp"
+            android:paddingLeft="12dp"
             app:layout_constraintTop_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="parent"
     >
@@ -78,32 +90,45 @@
                 android:layout_marginRight="10dp"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
+                android:layout_marginBottom="12dp"
                 android:ellipsize="end"
                 android:lines="1"
                 tools:text="my nicname"
                 app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-
                 app:layout_constraintTop_toBottomOf="@id/tvStreamName"/>
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_share_white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+        />
         <View
                 android:id="@+id/devider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/light_gray_transparent"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="12dp"
                 app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
-            android:id="@+id/chatLayout"
+            android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@id/headerLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-    />
+            app:layout_constraintBottom_toBottomOf="parent">
+            <include layout="@layout/layout_chat"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+            />
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

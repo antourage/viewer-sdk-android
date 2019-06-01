@@ -13,6 +13,7 @@ import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.antourage.weaverlib.screens.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
+import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 
@@ -87,6 +88,8 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
+        tvControllerStreamName.text =  arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
+        tvControllerBroadcastedBy.text =  arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         ivDismissPoll.setOnClickListener{
             pollPopupLayout.visibility = View.GONE
         }
@@ -103,7 +106,7 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
     }
 
     private fun startPlayingStream() {
-        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
+        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.hlsUrl)
     }
 
 

@@ -19,7 +19,7 @@
             android:layout_height="20dp"
             android:background="@drawable/rounded_semitransparent_bg"
             android:textColor="@android:color/white"
-            android:text="1:02"
+            tools:text="1:02"
             android:gravity="center"
             android:textAllCaps="false"
             android:textStyle="normal"

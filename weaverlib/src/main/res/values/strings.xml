@@ -3,10 +3,9 @@
     <string name="live">live</string>
     <string name="say_something">Say something</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="new_poll">New poll</string>
     <string name="total_answers">Total answers</string>
-
+    <string name="new_stream">New stream</string>
+    <string name="chat_not_available">Chat is unavailable</string>
 
 </resources>

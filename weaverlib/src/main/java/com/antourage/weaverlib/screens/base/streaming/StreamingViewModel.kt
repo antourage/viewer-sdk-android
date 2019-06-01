@@ -3,8 +3,7 @@ package com.antourage.weaverlib.screens.base.streaming
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.media.session.PlaybackState
-import android.net.Uri
+import android.util.Log
 import android.view.Surface
 import android.widget.Toast
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -15,25 +14,23 @@ import com.google.android.exoplayer2.metadata.Metadata
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceEventListener
 import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.util.Assertions
 import java.io.FileNotFoundException
 import java.io.IOException
 
-abstract class StreamingViewModel(application: Application):BaseViewModel(application){
+abstract class StreamingViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
+    private lateinit var trackSelector: DefaultTrackSelector
 
-    private lateinit var player: SimpleExoPlayer
+    protected lateinit var player: SimpleExoPlayer
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
 
-    public fun getPlaybackState(): LiveData<Int> {
+    fun getPlaybackState(): LiveData<Int> {
         return playbackStateLiveData
     }
 
@@ -41,7 +38,7 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
         currentWindow = 0
     }
 
-    abstract fun  onStreamStateChanged(playbackState:Int)
+    abstract fun onStreamStateChanged(playbackState: Int)
 
     abstract fun getMediaSource(streamUrl: String?): MediaSource?
 
@@ -55,6 +52,19 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
         player.seekTo(currentWindow, C.TIME_UNSET)
         initStatisticsListeners()
         return player
+    }
+
+    fun getStreamGroups(): List<Format> {
+        val mappedTrackInfo = trackSelector.currentMappedTrackInfo
+        val list: MutableList<Format> = mutableListOf()
+        mappedTrackInfo?.let {
+            val trackGroupArray = mappedTrackInfo.getTrackGroups(0)
+            val trackGroup = trackGroupArray[0]
+            for (j in 0 until trackGroup.length) {
+                list.add(trackGroup.getFormat(j))
+            }
+        }
+        return list
     }
 
     fun onResume() {
@@ -78,7 +88,28 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
         player.release()
     }
 
-    fun initStatisticsListeners() {
+    fun onResolutionChanged(pos: Int) {
+        val builder = trackSelector.parameters.buildUpon()
+        val i = 0
+        builder
+            .clearSelectionOverrides(/* rendererIndex= */i)
+            .setRendererDisabled(
+                /* rendererIndex= */ i,
+                i == pos
+            )
+        val overrides:MutableList<DefaultTrackSelector.SelectionOverride> = mutableListOf()
+        overrides.add(0, DefaultTrackSelector.SelectionOverride(0, pos))
+        if (!overrides.isEmpty()) {
+            builder.setSelectionOverride(
+                /* rendererIndex= */ i,
+                trackSelector.currentMappedTrackInfo?.getTrackGroups(/* rendererIndex= */i),
+                overrides[0]
+            )
+        }
+        trackSelector.setParameters(builder)
+    }
+
+    private fun initStatisticsListeners() {
 
         player.addAnalyticsListener(streamAnalyticsListener)
         player.addListener(playerEventListener)
@@ -90,14 +121,16 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
     }
 
     private fun getSimpleExoplayer(): SimpleExoPlayer {
+        val trackSelectorParameters = DefaultTrackSelector.ParametersBuilder().build()
         val adaptiveTrackSelection = AdaptiveTrackSelection.Factory()
+        trackSelector = DefaultTrackSelector(adaptiveTrackSelection)
+        trackSelector.parameters = trackSelectorParameters
         return ExoPlayerFactory.newSimpleInstance(
             getApplication(),
             DefaultRenderersFactory(getApplication()),
-            DefaultTrackSelector(adaptiveTrackSelection)
+            trackSelector
         )
     }
-
 
 
     //region Listeners
@@ -148,7 +181,7 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
             totalBytesLoaded: Long,
             bitrateEstimate: Long
         ) {
-            Toast.makeText(getApplication(), "bitrate estimate = " + bitrateEstimate, Toast.LENGTH_SHORT).show()
+            // Toast.makeText(getApplication(), "bitrate estimate = " + bitrateEstimate, Toast.LENGTH_SHORT).show()
         }
 
 
@@ -197,6 +230,7 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
             trackGroups: TrackGroupArray?,
             trackSelections: TrackSelectionArray?
         ) {
+            Log.d("test", "track changed")
         }
 
         override fun onPositionDiscontinuity(eventTime: AnalyticsListener.EventTime?, reason: Int) {
@@ -315,7 +349,7 @@ abstract class StreamingViewModel(application: Application):BaseViewModel(applic
         }
 
         override fun onPlayerError(error: ExoPlaybackException) {
-            if(error.cause is FileNotFoundException){
+            if (error.cause is FileNotFoundException) {
 
             }
             Toast.makeText(getApplication(), error.toString(), Toast.LENGTH_LONG).show()

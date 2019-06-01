@@ -10,11 +10,19 @@ import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.google.android.exoplayer2.ui.PlayerView
+import android.content.DialogInterface
+import android.os.Handler
+import android.os.Looper
+import android.support.v7.app.AlertDialog
+import com.antourage.weaverlib.screens.base.AntourageActivity
+import com.google.android.exoplayer2.ui.PlayerControlView
+
 
 abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private lateinit var orientationEventListener: OrientationEventListener
@@ -25,6 +33,9 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private lateinit var playerView: PlayerView
     private lateinit var ivScreenSize: ImageView
     private lateinit var chatLayout: ConstraintLayout
+    private lateinit var btnChooseTrack: Button
+    protected lateinit var playerControls: PlayerControlView
+    private lateinit var controllerHeaderLayout: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +54,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
 
         } else
             chatLayout.visibility = View.VISIBLE
-
         playerView.useController = !isInPictureInPictureMode
         super.onPictureInPictureModeChanged(isInPictureInPictureMode)
     }
@@ -55,6 +65,13 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             constraintLayoutParent = view.findViewById(R.id.constraintLayoutParent)
             ivScreenSize = view.findViewById(R.id.ivScreenSize)
             chatLayout = view.findViewById(R.id.chatLayout)
+            btnChooseTrack =  view.findViewById(R.id.btnChooseTrack)
+            playerControls = view.findViewById(R.id.controls)
+            controllerHeaderLayout = view.findViewById(R.id.controllerHeaderLayout)
+            controllerHeaderLayout.visibility = View.GONE
+            playerView.setOnClickListener {
+                playerControls.show()
+            }
             initLoader()
             initOrientationHandling()
             setPlayerSizePortrait()
@@ -65,6 +82,19 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 } else {
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 }
+            }
+            btnChooseTrack.setOnClickListener {
+                val arrayResolution = viewModel.getStreamGroups()
+                val str:MutableList<String> = mutableListOf<String>()
+                for(i in 0 until arrayResolution.size){
+                    str.add(arrayResolution[i].width.toString()+"x"+arrayResolution[i].height)
+                }
+                val builder = AlertDialog.Builder(activity!!)
+                builder.setTitle("Pick a resolution")
+                builder.setItems(str.toTypedArray()) { _, which ->
+                    viewModel.onResolutionChanged(which)
+                }
+                builder.show()
             }
         }
     }
@@ -93,6 +123,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             })
             loader?.start()
             ivLoader.visibility = View.VISIBLE
+            playerControls.hide()
         }
     }
 
@@ -147,20 +178,25 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 newConfig.screenWidthDp,
                 newConfig.screenHeightDp
             )
+            controllerHeaderLayout.visibility = View.VISIBLE
             if (newConfig.screenHeightDp < 200) {
                 chatLayout.visibility = View.GONE
             } else {
                 chatLayout.visibility = View.VISIBLE
             }
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+            //(activity as AntourageActivity).hideSystemUI()
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             constraintLayoutParent.setState(
                 R.id.constraintStatePortrait,
                 newConfig.screenWidthDp,
                 newConfig.screenHeightDp
             )
+            controllerHeaderLayout.visibility = View.GONE
             setPlayerSizePortrait()
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
+        playerControls.hide()
     }
+
 }

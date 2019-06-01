@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
              xmlns:tools="http://schemas.android.com/tools"
+             android:background="@color/semitransparent"
              android:layout_width="match_parent" android:layout_height="match_parent">
 
     <ImageButton
@@ -12,6 +13,15 @@
             android:layout_height="48dp"
             android:layout_gravity="top|end"
             tools:ignore="ContentDescription"/>
+    <Button
+            android:id="@+id/btnChooseTrack"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:visibility="gone"
+            android:layout_marginStart="200dp"
+            android:layout_marginLeft="200dp"
+            android:text="Choose Track"
+    />
     <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -119,7 +129,6 @@
             android:layout_margin="18dp"
             android:src="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
-
     />
 
     <TextView
@@ -141,4 +150,5 @@
             app:played_color="@color/pink"
             app:scrubber_color="@android:color/darker_gray"
             app:unplayed_color="@android:color/white"/>
+    <include layout="@layout/controller_header"/>
 </FrameLayout>

@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.videos.rv
+package com.antourage.weaverlib.screens.list.rv
 
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
@@ -45,6 +45,8 @@ class VideosAdapter(val onClick: (stream: StreamResponse) -> Unit) :
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
         Picasso.get().load(listOfStreams[position]?.thumbnailUrl).into(holder.thumbnail)
         holder.txtTitle.text = listOfStreams[position]?.streamTitle
+        if(listOfStreams[position]?.duration != null)
+            holder.txtStatus.text = ("0:"+listOfStreams[position]?.duration)
         holder.itemView.setOnClickListener {
             listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
         }
@@ -53,6 +55,8 @@ class VideosAdapter(val onClick: (stream: StreamResponse) -> Unit) :
     class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
         val txtTitle: TextView = itemView.findViewById(R.id.txtTitle)
+        val txtStatus:TextView = itemView.findViewById(R.id.txtStatus)
+
     }
 
     override fun getItemViewType(position: Int): Int {
