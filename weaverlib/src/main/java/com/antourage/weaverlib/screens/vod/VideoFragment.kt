@@ -11,10 +11,8 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
-import com.antourage.weaverlib.screens.chat.rv.MessagesAdapter
-import com.antourage.weaverlib.screens.list.rv.VideosLayoutManager
-import com.antourage.weaverlib.screens.vod.rv.ChatLayoutManager
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
@@ -26,9 +24,8 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
-import kotlinx.android.synthetic.main.layout_chat.*
 
-class VideoFragment : StreamingFragment<VideoViewModel>() {
+class VideoFragment : ChatFragment<VideoViewModel>() {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -47,11 +44,6 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
     }
 
     //region Observers
-    private val messagesObserver: Observer<List<Message>> = Observer { list ->
-        if (list != null) {
-            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
-        }
-    }
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
@@ -89,16 +81,16 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
     }
 
     override fun subscribeToObservers() {
+        super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
-        viewModel.getMessagesLiveData().observe(this.viewLifecycleOwner, messagesObserver)
+
     }
 
     override fun initUi(view: View?) {
         super.initUi(view)
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
         startPlayingStream()
-        initMessagesRV()
         handleChat()
         ivClose.setOnClickListener { fragmentManager?.popBackStack() }
     }
@@ -108,18 +100,6 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
         btnSend.isEnabled = false
         etMessage.hint = getString(R.string.chat_not_available)
     }
-
-    private fun initMessagesRV() {
-        val linearLayoutManager = ChatLayoutManager(
-            context
-        )
-        linearLayoutManager.stackFromEnd = true
-        rvMessages.overScrollMode = View.OVER_SCROLL_NEVER
-        rvMessages.isVerticalFadingEdgeEnabled = false
-        rvMessages.layoutManager = linearLayoutManager
-        rvMessages.adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
-    }
-
 
     fun startPlayingStream() {
         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { viewModel.setCurrentPlayerPosition(it) }
@@ -152,16 +132,10 @@ class VideoFragment : StreamingFragment<VideoViewModel>() {
 
         val newOrientation = newConfig.orientation
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            rvMessages.isVerticalFadingEdgeEnabled = true
-            rvMessages.adapter =
-                MessagesAdapter(viewModel.getMessagesLiveData().value!!, Configuration.ORIENTATION_LANDSCAPE)
             etMessage.visibility = View.GONE
             btnSend.visibility = View.GONE
             deviderChat.visibility = View.GONE
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            rvMessages.isVerticalFadingEdgeEnabled = false
-            rvMessages.adapter =
-                MessagesAdapter(viewModel.getMessagesLiveData().value!!, Configuration.ORIENTATION_PORTRAIT)
             etMessage.visibility = View.VISIBLE
             btnSend.visibility = View.VISIBLE
             deviderChat.visibility = View.VISIBLE

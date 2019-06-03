@@ -45,7 +45,7 @@ class VideosAdapter(val onClick: (stream: StreamResponse) -> Unit) :
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
         Picasso.get().load(listOfStreams[position]?.thumbnailUrl).into(holder.thumbnail)
         holder.txtTitle.text = listOfStreams[position]?.streamTitle
-        if(listOfStreams[position]?.duration != null)
+        if(listOfStreams[position]?.duration != null && listOfStreams[position]?.duration != 0)
             holder.txtStatus.text = ("0:"+listOfStreams[position]?.duration)
         holder.itemView.setOnClickListener {
             listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }

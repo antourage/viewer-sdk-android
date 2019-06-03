@@ -4,7 +4,9 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.net.Uri
+import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.rtmp.RtmpDataSourceFactory
@@ -15,7 +17,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
-class WeaverViewModel(application: Application) : StreamingViewModel(application) {
+class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
     fun getPollLiveData(): LiveData<Poll> {
@@ -25,7 +27,18 @@ class WeaverViewModel(application: Application) : StreamingViewModel(application
         pollLiveData.postValue(repository.getCurrentPoll())
     }
 
-
+    fun addMessage(text: String,nickname: String) {
+        if (!text.isEmpty() && !text.isBlank()) {
+            val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
+            temp.add(
+                Message(
+                    (temp.size + 1).toString(), null,
+                    "osoluk@leobit.co", nickname, text, null
+                )
+            )
+            messagesLiveData.postValue(temp as List<Message>)
+        }
+    }
     var wasStreamInitialized = false
 
     override fun onStreamStateChanged(playbackState: Int) {
@@ -49,6 +62,11 @@ class WeaverViewModel(application: Application) : StreamingViewModel(application
     }
     override fun onVideoChanged() {
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        player.seekTo(player.duration)
     }
 
 }

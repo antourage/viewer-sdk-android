@@ -16,20 +16,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import android.support.v4.os.HandlerCompat.postDelayed
+import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 
 
-
-class VideoViewModel(application: Application) : StreamingViewModel(application) {
-
-    private var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData()
-
-    fun getMessagesLiveData(): LiveData<List<Message>> {
-        return messagesLiveData
-    }
-
-    init {
-        messagesLiveData.postValue(listOf())
-    }
+class VideoViewModel(application: Application) : ChatViewModel(application) {
 
     fun onVideoStarted(streamId:Int){
         val handler = Handler()
@@ -57,18 +47,6 @@ class VideoViewModel(application: Application) : StreamingViewModel(application)
         handler.post(runnable)
     }
 
-    fun addMessage(text: String,nickname: String) {
-        if (!text.isEmpty() && !text.isBlank()) {
-            val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
-            temp.add(
-                Message(
-                    (temp.size + 1).toString(), null,
-                    "osoluk@leobit.co", nickname, text, null
-                )
-            )
-            messagesLiveData.postValue(temp as List<Message>)
-        }
-    }
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 

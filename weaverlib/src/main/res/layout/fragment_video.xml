@@ -116,7 +116,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
     </android.support.constraint.ConstraintLayout>
-
     <android.support.constraint.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
@@ -124,11 +123,64 @@
             app:layout_constraintTop_toBottomOf="@id/headerLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-            <include layout="@layout/layout_chat"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-            />
-    </android.support.constraint.ConstraintLayout>
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.antourage.weaverlib.other.ui.FadingRecyclerView
+            android:id="@+id/rvMessages"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fadingEdgeLength="150dp"
+            android:fadingEdge="horizontal"
+            android:fillViewport="false"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp"
+            android:requiresFadingEdge="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+    />
+    <View
+            android:id="@+id/deviderChat"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray_transparent"
+            android:layout_marginTop="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    <LinearLayout
+            android:id="@+id/ll_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/bg_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+    >
+
+        <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:paddingStart="8dp"
+                android:paddingLeft="8dp"
+                android:background="@android:color/transparent"
+                android:imeOptions="flagNoExtractUi"
+                android:textColor="@android:color/white"
+                android:textColorHint="@color/light_gray_transparent"
+                android:hint="@string/say_something"
+                android:layout_weight="10"
+                tools:ignore="RtlSymmetry"/>
+        <ImageButton
+                android:id="@+id/btnSend"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_send"
+                tools:ignore="ContentDescription"/>
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

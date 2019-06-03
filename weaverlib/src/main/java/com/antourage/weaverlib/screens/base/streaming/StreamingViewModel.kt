@@ -67,11 +67,12 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         return list
     }
 
-    fun onResume() {
+    open fun onResume() {
         initStatisticsListeners()
         if (player.playbackState != Player.STATE_READY) {
             player.playWhenReady = true
         }
+
     }
 
     fun onPause() {

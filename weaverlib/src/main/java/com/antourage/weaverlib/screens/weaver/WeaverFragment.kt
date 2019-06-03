@@ -9,15 +9,15 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceChildFragment
-import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
-import com.antourage.weaverlib.screens.chat.ChatFragment
+import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.controller_header.*
+import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 
-class WeaverFragment : StreamingFragment<WeaverViewModel>() {
+class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
 
     companion object {
@@ -70,6 +70,7 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
     }
 
     override fun subscribeToObservers() {
+        super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getPollLiveData().observe(this.viewLifecycleOwner,pollObserver)
     }
@@ -79,13 +80,10 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_screen)
         startPlayingStream()
 
-        replaceChildFragment(
-            ChatFragment.newInstance(
-                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!,
-                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.isLive!!
-            ), R.id.chatLayout
-        )
-
+        btnSend.setOnClickListener {
+            viewModel.addMessage(etMessage.text.toString(),"my nic")
+            etMessage.setText("")
+        }
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         tvControllerStreamName.text =  arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
@@ -94,12 +92,15 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
             pollPopupLayout.visibility = View.GONE
         }
         pollPopupLayout.setOnClickListener {
-            headerLayout.visibility = View.GONE
             pollPopupLayout.visibility = View.GONE
-            replaceChildFragment(PollDetailsFragment.newInstance(),R.id.chatLayout,true)
+            replaceChildFragment(PollDetailsFragment.newInstance(),R.id.bottomLayout,true)
             childFragmentManager.addOnBackStackChangedListener {
-                if(childFragmentManager.findFragmentById(R.id.chatLayout) is ChatFragment){
+                if((childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)){
+                    headerLayout.visibility = View.GONE
+                    etMessage.isEnabled = false
+                } else{
                     headerLayout.visibility = View.VISIBLE
+                    etMessage.isEnabled = true
                 }
             }
         }
@@ -107,6 +108,7 @@ class WeaverFragment : StreamingFragment<WeaverViewModel>() {
 
     private fun startPlayingStream() {
         playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.hlsUrl)
+        playerControls.player = playerView.player
     }
 
 
