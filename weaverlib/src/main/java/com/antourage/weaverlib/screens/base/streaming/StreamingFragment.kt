@@ -4,10 +4,13 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
@@ -23,6 +26,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private lateinit var orientationEventListener: OrientationEventListener
     private var loader: AnimatedVectorDrawableCompat? = null
+    private var isPortrait = false
 
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
@@ -73,9 +77,14 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             ivScreenSize.setOnClickListener {
                 val currentOrientation = activity?.resources?.configuration?.orientation
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    Log.d("STREAMING_ORIENTATION","LANDSCAPE")
+                    isPortrait = false
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else {
+                    isPortrait = true
+                    Log.d("STREAMING_ORIENTATION","PORTRAIT")
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
                 }
             }
             btnChooseTrack.setOnClickListener {
@@ -133,13 +142,20 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private fun initOrientationHandling() {
         orientationEventListener = object : OrientationEventListener(context) {
             override fun onOrientationChanged(orientation: Int) {
+                Log.d("StreamingFragment"," "+orientation)
                 val epsilon = 10
                 val leftLandscape = 90
                 val rightLandscape = 270
-                if (epsilonCheck(orientation, leftLandscape, epsilon) ||
-                    epsilonCheck(orientation, rightLandscape, epsilon)
-                ) {
-                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+                if (!isPortrait) {
+                    if (epsilonCheck(orientation, leftLandscape, epsilon) ||
+                        epsilonCheck(orientation, rightLandscape, epsilon)
+                    ) {
+                        Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
+                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                    }
+                } else if(epsilonCheck(orientation, 0, 5)||epsilonCheck(orientation,360,5)){
+                    Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
                 }
 
             }

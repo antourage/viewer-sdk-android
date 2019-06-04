@@ -13,6 +13,9 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     val receivingVideosManager = ReceivingVideosManager(this)
 
+    init {
+        listOfStreams.postValue(repository.getListOfVideos())
+    }
 
     fun getStreams() {
         receivingVideosManager.startReceivingVideos()

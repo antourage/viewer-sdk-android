@@ -22,17 +22,18 @@ class AntourageActivity : AppCompatActivity() {
     }
 
     override fun onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-            && supportFragmentManager.findFragmentById(R.id.mainContent) is StreamingFragment<*>
-        ) {
-            enterPictureInPictureMode(
-                with(PictureInPictureParams.Builder()) {
-                    val width = 16
-                    val height = 9
-                    setAspectRatio(Rational(width, height))
-                    build()
-                })
-        }
+        //TODO uncomment and enable
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+//            && supportFragmentManager.findFragmentById(R.id.mainContent) is StreamingFragment<*>
+//        ) {
+//            enterPictureInPictureMode(
+//                with(PictureInPictureParams.Builder()) {
+//                    val width = 16
+//                    val height = 9
+//                    setAspectRatio(Rational(width, height))
+//                    build()
+//                })
+//        }
     }
 
     //region Fullscreen leanback mode

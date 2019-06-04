@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.list
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import com.antourage.weaverlib.R
@@ -61,6 +62,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun onResume() {
         super.onResume()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         viewModel.getStreams()
     }
 

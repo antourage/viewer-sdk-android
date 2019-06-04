@@ -3,9 +3,14 @@ package com.antourage.weaverlib.screens.weaver
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.res.Configuration
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceChildFragment
@@ -16,6 +21,9 @@ import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
+import android.widget.Toast
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+
 
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
@@ -91,6 +99,17 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         ivDismissPoll.setOnClickListener{
             pollPopupLayout.visibility = View.GONE
         }
+        etMessage.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus && resources.configuration.orientation ==  Configuration.ORIENTATION_LANDSCAPE){
+                etMessage.layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT)
+            } else{
+                val layoutParam = etMessage.layoutParams
+                layoutParam.width = dp2px(context!!,300f).toInt()
+                etMessage.layoutParams = layoutParam
+            }
+        }
         pollPopupLayout.setOnClickListener {
             pollPopupLayout.visibility = View.GONE
             replaceChildFragment(PollDetailsFragment.newInstance(),R.id.bottomLayout,true)
@@ -127,6 +146,23 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         super.onDestroy()
         viewModel.releasePlayer()
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val newOrientation = newConfig.orientation
+        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            context?.let {context ->
+                ll_wrapper.background = ContextCompat.getDrawable(context, R.drawable.rounded_semitransparent_bg)
+
+            }
+        } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            context?.let {context ->
+                ll_wrapper.setBackgroundColor(ContextCompat.getColor(context, R.color.bg_color))
+            }
+        }
+    }
+
+    var isOpened = false
 
 
 }
