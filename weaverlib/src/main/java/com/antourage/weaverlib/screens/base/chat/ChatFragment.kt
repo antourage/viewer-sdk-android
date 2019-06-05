@@ -7,7 +7,7 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
-import com.antourage.weaverlib.screens.chat.rv.MessagesAdapter
+import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.vod.rv.ChatLayoutManager
 
 

@@ -3,9 +3,13 @@ package com.antourage.weaverlib.screens.weaver
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.net.Uri
+import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.other.models.Stream
+import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.Player
@@ -22,23 +26,41 @@ import com.google.android.exoplayer2.util.Util
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
+    private val isChatAllowed:MutableLiveData<Boolean> = MutableLiveData()
     fun getPollLiveData(): LiveData<Poll> {
         return pollLiveData
+    }
+    fun getChatAllowed():LiveData<Boolean>{
+        return isChatAllowed
+    }
+
+    private  val messagesObserver:Observer<Resource<List<Message>>> = Observer {data->
+        if(data?.data !=null )
+            messagesLiveData.postValue(data.data)
+    }
+    private val streamObserver:Observer<Resource<Stream>> = Observer { data->
+            if (data?.data != null) {
+                isChatAllowed.postValue(data.data.isChatActive)
+            }
     }
     init {
         pollLiveData.postValue(repository.getCurrentPoll())
     }
 
-    fun addMessage(text: String,nickname: String) {
-        if (!text.isEmpty() && !text.isBlank()) {
+    fun initChatUi(streamId: Int?){
+        streamId?.let {
+            repository.getMessages(streamId).observeForever(messagesObserver)
+            repository.getStreamLiveData(streamId).observeForever(streamObserver)
+        }
+    }
+
+    fun addMessage(message:Message,streamId:Int) {
+        if (message.text != null && !message.text!!.isEmpty() && !message.text!!.isBlank()) {
             val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
             temp.add(
-                Message(
-                    (temp.size + 1).toString(), null,
-                    "osoluk@leobit.co", nickname, text, null
-                )
+                message
             )
-            messagesLiveData.postValue(temp as List<Message>)
+            repository.addMessage(message,streamId)
         }
     }
     var wasStreamInitialized = false

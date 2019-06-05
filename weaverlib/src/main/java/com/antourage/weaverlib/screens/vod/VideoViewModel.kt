@@ -16,7 +16,10 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import android.support.v4.os.HandlerCompat.postDelayed
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.google.firebase.Timestamp
+import java.util.*
 
 
 class VideoViewModel(application: Application) : ChatViewModel(application) {
@@ -33,8 +36,9 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
                 val listToDisplay = mutableListOf<Message>()
                 for (i in 0 until list.size){
                     if((list[i].timestamp-1)<=pos){
-                        listToDisplay.add(Message(list[i].timestamp.toString(),"",list[i].nickname,
-                            list[i].nickname,list[i].text))
+                        listToDisplay.add(Message("",list[i].nickname,
+                            list[i].nickname,list[i].text, MessageType.USER,Timestamp(Date())
+                        ))
                     }
                 }
                 messagesLiveData.value = listToDisplay

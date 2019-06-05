@@ -100,7 +100,6 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -153,9 +152,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     // for firebase
-    implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-database:16.1.0'
-    implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation 'com.google.firebase:firebase-auth:17.0.0'
+    implementation 'com.google.firebase:firebase-firestore:19.0.2'
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     //ExoPlayer
@@ -174,5 +172,5 @@ dependencies {
 }
 repositories {
     mavenCentral()
+    maven { url "https://maven.google.com" }
 }
-

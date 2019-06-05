@@ -8,7 +8,8 @@ class MessageListDiffUtilCallback(
     private val newList: List<Message>
 ) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return prevList[oldItemPosition].messageId == newList[newItemPosition].messageId
+        //TODO change to messageId
+        return prevList[oldItemPosition].id== newList[newItemPosition].id
     }
 
     override fun getOldListSize(): Int {

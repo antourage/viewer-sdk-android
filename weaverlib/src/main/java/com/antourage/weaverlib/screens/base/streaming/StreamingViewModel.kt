@@ -353,7 +353,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             if (error.cause is FileNotFoundException) {
 
             }
- //           Toast.makeText(getApplication(), error.toString(), Toast.LENGTH_LONG).show()
+            Toast.makeText(getApplication(), error.toString(), Toast.LENGTH_LONG).show()
         }
 
         override fun onPositionDiscontinuity(reason: Int) {

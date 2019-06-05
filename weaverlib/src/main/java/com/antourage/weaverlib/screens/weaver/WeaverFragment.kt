@@ -21,8 +21,10 @@ import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
-import android.widget.Toast
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
+import com.google.firebase.Timestamp
+import java.util.*
 
 
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
@@ -45,6 +47,11 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     }
 
     //region Observers
+
+    private val chatStateObserver:Observer<Boolean> = Observer { isActive->
+        if (isActive != null)
+            etMessage.isEnabled = isActive
+    }
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -81,6 +88,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getPollLiveData().observe(this.viewLifecycleOwner,pollObserver)
+        viewModel.getChatAllowed().observe(this.viewLifecycleOwner,chatStateObserver)
     }
 
     override fun initUi(view: View?) {
@@ -89,9 +97,12 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         startPlayingStream()
 
         btnSend.setOnClickListener {
-            viewModel.addMessage(etMessage.text.toString(),"my nic")
+            val message = Message("","osoluk@leobit.co","my nic", etMessage.text.toString(),
+                MessageType.USER,Timestamp(Date()))
+            viewModel.addMessage(message,arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!)
             etMessage.setText("")
         }
+        viewModel.initChatUi(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId)
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         tvControllerStreamName.text =  arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
@@ -162,7 +173,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         }
     }
 
-    var isOpened = false
 
 
 }

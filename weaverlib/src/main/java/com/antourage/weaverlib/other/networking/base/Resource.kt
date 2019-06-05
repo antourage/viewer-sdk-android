@@ -1,7 +1,7 @@
 package com.antourage.weaverlib.other.networking.base
 
 //a generic class that describes a data with a state
-class Resource<T> private constructor(val state: State, val data: T?, val message: String?, val statusCode: Int?) {
+class Resource<T>  constructor(val state: State, val data: T?, val message: String?=null, val statusCode: Int?=null) {
     companion object {
 
         fun <T> success(data: T): Resource<T> {

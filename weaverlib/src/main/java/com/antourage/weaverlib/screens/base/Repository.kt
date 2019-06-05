@@ -1,16 +1,19 @@
 package com.antourage.weaverlib.screens.base
 
 import android.arch.lifecycle.LiveData
-import com.antourage.weaverlib.other.models.Poll
-import com.antourage.weaverlib.other.models.PollAnswers
-import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.firebase.FirestoreDatabase
+import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
+import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.base.ApiResponse
 import com.antourage.weaverlib.other.networking.base.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.base.Resource
+import com.google.firebase.firestore.Query
+import kotlin.collections.ArrayList
 
 
-class Repository() {
+class Repository {
 
     private var currentPoll: Poll
 
@@ -52,7 +55,8 @@ class Repository() {
                 "",
                 "file:///android_asset/1.png",
 //                "https://d33kzx2k689f49.cloudfront.net/out/v1/b8cf10bb32e54a339be195906b6ac165/index.m3u8",
-                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
+//                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
+                "https://d1my4itlgzru7b.cloudfront.net/out/v1/ff0c96a98d7b44aa8a9a9e3ed1a96dad/index.m3u8",
 //                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
                 listOf(),
                 30
@@ -241,4 +245,18 @@ class Repository() {
             ))
         )
     }
+
+    //region Firebase
+    fun addMessage(message: Message,streamId:Int){
+        FirestoreDatabase().getMessagesReferences(streamId).document().set(message)
+    }
+    fun getMessages(streamId: Int):QuerySnapshotLiveData<Message>{
+        return QuerySnapshotLiveData(FirestoreDatabase().getMessagesReferences(streamId).orderBy("timestamp",
+            Query.Direction.ASCENDING),Message::class.java)
+    }
+    fun getStreamLiveData(streamId: Int): QuerySnapshotValueLiveData<Stream>{
+        val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
+        return QuerySnapshotValueLiveData(docRef, Stream::class.java)
+    }
+    //endregion
 }

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 
 class MessagesAdapter(var list: List<Message>, val orientation: Int) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
@@ -35,11 +36,16 @@ class MessagesAdapter(var list: List<Message>, val orientation: Int) :
     }
 
     fun setMessageList(newlist: List<Message>) {
+        val listUserMsg = mutableListOf<Message>()
+        for (i in 0 until newlist.size){
+            if(newlist[i].type == MessageType.USER)
+                listUserMsg.add(newlist[i])
+        }
         val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
-            MessageListDiffUtilCallback(list, newlist)
+            MessageListDiffUtilCallback(list, listUserMsg)
         )
         diffResult.dispatchUpdatesTo(this)
-        this.list = newlist
+        this.list = listUserMsg
     }
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -1,25 +1,27 @@
 package com.antourage.weaverlib.screens.base
 
-import android.app.PictureInPictureParams
-import android.os.Build
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Rational
-import android.view.View
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import android.content.res.Configuration
+import com.google.firebase.FirebaseApp
 
 
 class AntourageActivity : AppCompatActivity() {
-
+    companion object{
+        fun initAntourage(context: Context){
+            FirebaseApp.initializeApp(context)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         supportFragmentManager.beginTransaction()
             .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
+        FirebaseLoginService(this).handleSignIn()
     }
+
 
     override fun onUserLeaveHint() {
         //TODO uncomment and enable

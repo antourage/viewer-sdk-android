@@ -1,19 +1,26 @@
 package com.antourage.weaverlib.other.models
 
-import com.google.firebase.database.Exclude
-import com.google.firebase.database.PropertyName
-import com.google.firebase.database.IgnoreExtraProperties
 
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.Exclude
+import com.google.firebase.firestore.IgnoreExtraProperties
+import com.google.firebase.firestore.PropertyName
 
-
+class MessageType {
+    companion object {
+        const val SYSTEM: Int = 0
+        const val USER: Int = 1
+    }
+}
+open class FirestoreModel(@get:Exclude var id:String = "")
 data class Message(
-    val messageId:String?=null,
     var avatarUrl: String? = null,
     var email: String? = null,
     var nickname: String? = null,
     var text: String? = null,
-    var timestamp: Long? = null
-)
+    var type:Int?=null,
+    var timestamp: Timestamp? = null
+):FirestoreModel()
 @IgnoreExtraProperties
 class Poll {
     var userId: Int = 0
@@ -80,4 +87,14 @@ class PollAnswers {
     constructor(answerText: String) {
         this.answerText = answerText
     }
+}
+@IgnoreExtraProperties
+data class Stream(@get:Exclude val streamId:Int,
+                  @get:PropertyName("isChatActive")
+                  var isChatActive:Boolean,
+                  val teamID: Int,
+                  val userID:Int,
+                  val viewersCount:Int,
+                  @get:Exclude val messages:List<Message>){
+    constructor():this(-1,false,-1,-1,-1, mutableListOf())
 }
