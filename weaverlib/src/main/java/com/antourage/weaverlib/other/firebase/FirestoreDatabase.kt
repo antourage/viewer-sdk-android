@@ -18,4 +18,7 @@ class FirestoreDatabase{
         return db.collection("antourage").document("dev").collection("streams")
             .document(streamId.toString()).collection("polls")
     }
+    fun getAnsweredUsersReference(streamId: Int, pollId:String):CollectionReference{
+        return getPollsReferences(streamId).document(pollId).collection("answeredUsers")
+    }
 }

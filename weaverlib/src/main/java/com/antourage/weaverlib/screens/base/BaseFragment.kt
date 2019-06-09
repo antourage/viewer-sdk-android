@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base
 import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,16 +51,21 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
         if (activity != null) {
             initUi(getView())
         }
-        BaseViewModel.error.observeSafe(this, errorObserver)
+        BaseViewModel.error.observe(this.viewLifecycleOwner, errorObserver)
 
-        BaseViewModel.warning.observeSafe(this, warningObserver)
+        BaseViewModel.warning.observe(this.viewLifecycleOwner, warningObserver)
 
-        BaseViewModel.success.observeSafe(this, successObserver)
+        BaseViewModel.success.observe(this.viewLifecycleOwner, successObserver)
 
     }
 
     private fun showErrorAlerter(s: String) {
-        Toast.makeText(context, s, Toast.LENGTH_LONG).show()
+       // Toast.makeText(context, s, Toast.LENGTH_LONG).show()
+        var alertDialog = AlertDialog.Builder(context!!) // this: Activity
+            .setMessage(s)
+            .create()
+
+        alertDialog.show()
     }
 
     private fun showWarningAlerter(s: String) {

@@ -151,11 +151,11 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                         epsilonCheck(orientation, rightLandscape, epsilon)
                     ) {
                         Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
-                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                     }
                 } else if(epsilonCheck(orientation, 0, 5)||epsilonCheck(orientation,360,5)){
                     Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
-                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                 }
 
             }

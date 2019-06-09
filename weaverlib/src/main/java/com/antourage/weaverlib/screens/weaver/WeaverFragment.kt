@@ -72,8 +72,10 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     }
     private val pollObserver: Observer<Poll> = Observer { poll ->
         if (poll != null) {
+            tvPollTitle.text = poll.question
             pollPopupLayout.visibility = View.VISIBLE
-            tvPollTitle.text = poll.pollQuestion
+        } else{
+            pollPopupLayout.visibility = View.GONE
         }
 
     }
@@ -123,7 +125,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         }
         pollPopupLayout.setOnClickListener {
             pollPopupLayout.visibility = View.GONE
-            replaceChildFragment(PollDetailsFragment.newInstance(),R.id.bottomLayout,true)
+            replaceChildFragment(PollDetailsFragment.newInstance(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
+                viewModel.getPollLiveData().value!!.id),R.id.bottomLayout,true)
             childFragmentManager.addOnBackStackChangedListener {
                 if((childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)){
                     headerLayout.visibility = View.GONE

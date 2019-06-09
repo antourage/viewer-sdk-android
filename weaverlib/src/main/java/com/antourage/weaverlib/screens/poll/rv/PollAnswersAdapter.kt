@@ -9,12 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.PollAnswers
+import com.antourage.weaverlib.other.models.AnswersCombined
 import java.text.DecimalFormat
 
 
 class PollAnswersAdapter(
-    private val listOfAnswers: List<PollAnswers>,
+    private val listOfAnswers: List<AnswersCombined>,
     private val isAnswered: Boolean,
     private val callback: AnswerClickedCallback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -56,7 +56,7 @@ class PollAnswersAdapter(
         } else {
             (viewHolder as AnsweredViewHolder).tvAnswer.text = listOfAnswers[i].answerText
             viewHolder.tvAnswerPercentage.text = (DecimalFormat("##.##")
-                .format(getPercentage(i) * 100) + "%").toString()
+                .format(getPercentage(i) * 100) + "%")
             viewHolder.tvPollLength.background = ResourcesCompat.getDrawable(
                 context!!.resources,
                 listOfBackgrounds[i], null
@@ -71,13 +71,13 @@ class PollAnswersAdapter(
     }
 
     private fun getPercentage(pos: Int): Double {
-        return listOfAnswers[pos].andweredUsers!!.size / calculateAllAnswers()
+        return listOfAnswers[pos].numberAnswered / calculateAllAnswers()
     }
 
     private fun calculateAllAnswers(): Double {
         var sum = 0
         for (i in listOfAnswers.indices) {
-            sum += listOfAnswers[i].andweredUsers!!.size
+            sum += listOfAnswers[i].numberAnswered
         }
         return sum.toDouble()
     }

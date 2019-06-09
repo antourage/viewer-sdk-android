@@ -16,14 +16,13 @@ class QuerySnapshotLiveData<T:FirestoreModel>(private val query: Query, val type
     private var registration: ListenerRegistration? = null
 
     override fun onEvent(snapshots: QuerySnapshot?, e: FirebaseFirestoreException?) {
-        Log.d("gjgj","fired")
         value = if (e != null) {
             Resource(State.FAILURE, null, e.localizedMessage)
         } else {
             val data:MutableList<T> = mutableListOf()
             for (i in 0 until snapshots!!.documents.size) {
                 if(snapshots.documents[i].toObject(typeParameterClass!!)!=null) {
-                    data.add(snapshots.documents[i].toObject(typeParameterClass!!)!!)
+                    data.add(snapshots.documents[i].toObject(typeParameterClass)!!)
                     data[i].id = snapshots.documents[i].id
                 }
             }

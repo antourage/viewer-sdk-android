@@ -10,6 +10,7 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.networking.base.Resource
+import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.Player
@@ -25,8 +26,11 @@ import com.google.android.exoplayer2.util.Util
 
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
+    var wasStreamInitialized = false
+
     private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
     private val isChatAllowed:MutableLiveData<Boolean> = MutableLiveData()
+
     fun getPollLiveData(): LiveData<Poll> {
         return pollLiveData
     }
@@ -38,18 +42,26 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
         if(data?.data !=null )
             messagesLiveData.postValue(data.data)
     }
+    private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data->
+        if (data?.state == State.SUCCESS) {
+            if (data.data != null && data.data.isNotEmpty()) {
+                pollLiveData.postValue(data.data[0])
+            } else
+                pollLiveData.postValue(null)
+        }else if (data?.state == State.FAILURE){
+            error.value = data.message
+        }
+    }
     private val streamObserver:Observer<Resource<Stream>> = Observer { data->
             if (data?.data != null) {
                 isChatAllowed.postValue(data.data.isChatActive)
             }
     }
-    init {
-        pollLiveData.postValue(repository.getCurrentPoll())
-    }
 
     fun initChatUi(streamId: Int?){
         streamId?.let {
             repository.getMessages(streamId).observeForever(messagesObserver)
+            repository.getPollLiveData(streamId).observeForever(activePollObserver)
             repository.getStreamLiveData(streamId).observeForever(streamObserver)
         }
     }
@@ -63,7 +75,6 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
             repository.addMessage(message,streamId)
         }
     }
-    var wasStreamInitialized = false
 
     override fun onStreamStateChanged(playbackState: Int) {
         if (playbackState == Player.STATE_READY) {

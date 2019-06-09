@@ -13,12 +13,26 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.poll.rv.PollAnswersAdapter
 
 
 class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAdapter.AnswerClickedCallback {
 
+    companion object {
+        val ARGS_POLL_ID = "args_poll_id"
+        val ARGS_STREAM_ID = "args_stream_id"
+
+        fun newInstance(streamId:Int,pollId:String): PollDetailsFragment {
+             val bundle = Bundle()
+            bundle.putString(ARGS_POLL_ID, pollId)
+            bundle.putInt(ARGS_STREAM_ID,streamId)
+            val fragment = PollDetailsFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
 
     private var rvPollAnswers: RecyclerView? = null
     private var tvPollTitle: TextView? = null
@@ -28,11 +42,16 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
 
     private val pollObserver:Observer<Poll> = Observer{ poll ->
         if (poll != null) {
-            rvPollAnswers!!.layoutManager = LinearLayoutManager(context)
-            rvPollAnswers!!.adapter = PollAnswersAdapter(poll.pollAnswers!!, poll.isAnswered, this)
-            tvPollTitle!!.text = poll.pollQuestion
-            tvTotalAnswers!!.text = (poll.totalAnswers).toString()
+            tvPollTitle!!.text = poll.question
         }
+    }
+    private val answersObserver:Observer<List<AnswersCombined>> = Observer { answers->
+        if(answers != null){
+            rvPollAnswers!!.layoutManager = LinearLayoutManager(context)
+            rvPollAnswers!!.adapter = PollAnswersAdapter(answers, viewModel.isAnswered, this)
+            tvTotalAnswers!!.text = viewModel.calculateAllAnswers().toString()
+        }
+
     }
 
 
@@ -51,10 +70,15 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
     }
 
     private fun subscribeToObservers() {
-        viewModel.pollLiveData.observe(this.viewLifecycleOwner, pollObserver)
+        viewModel.getPollLiveData().observe(this.viewLifecycleOwner, pollObserver)
+        viewModel.getAnswersLiveData().observe(this.viewLifecycleOwner,answersObserver)
     }
 
     override fun initUi(view: View?) {
+        arguments?.let {arguments->
+            viewModel.initPollDetails(arguments.getInt(ARGS_STREAM_ID,-1),
+                arguments.getString(ARGS_POLL_ID,""))
+        }
         view?.let{
             rvPollAnswers = view.findViewById(R.id.rvAnswers)
             tvPollTitle = view.findViewById(R.id.pollTitle)
@@ -73,10 +97,4 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
         viewModel.onAnswerChosen(position)
     }
 
-    companion object {
-
-        fun newInstance(): PollDetailsFragment {
-            return PollDetailsFragment()
-        }
-    }
 }

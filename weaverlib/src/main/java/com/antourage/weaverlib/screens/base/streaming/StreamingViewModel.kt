@@ -11,6 +11,7 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.decoder.DecoderCounters
 import com.google.android.exoplayer2.metadata.Metadata
+import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.MediaSourceEventListener
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -26,6 +27,8 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
     private lateinit var trackSelector: DefaultTrackSelector
+
+    private var streamUrl: String? = null
 
     protected lateinit var player: SimpleExoPlayer
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -46,6 +49,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
     fun getExoPlayer(streamUrl: String?): SimpleExoPlayer? {
         player = getSimpleExoplayer()
+        this.streamUrl = streamUrl
         val mediaSource = getMediaSource(streamUrl)
         player.playWhenReady = playWhenReady
         player.prepare(mediaSource, true, false)
@@ -349,11 +353,12 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
         }
 
-        override fun onPlayerError(error: ExoPlaybackException) {
-            if (error.cause is FileNotFoundException) {
-
+        override fun onPlayerError(err: ExoPlaybackException) {
+            if (err.cause is BehindLiveWindowException) {
+                player.prepare(getMediaSource(streamUrl))
             }
-            Toast.makeText(getApplication(), error.toString(), Toast.LENGTH_LONG).show()
+            error.postValue(err.toString())
+//            Toast.makeText(getApplication(), err.toString(), Toast.LENGTH_LONG).show()
         }
 
         override fun onPositionDiscontinuity(reason: Int) {

@@ -15,22 +15,22 @@ import kotlin.collections.ArrayList
 
 class Repository {
 
-    private var currentPoll: Poll
+    //private var currentPoll: Poll
 
     init {
-        val answers = ArrayList<PollAnswers>()
-        val list = ArrayList<String>()
-        list.add("ivan")
-        list.add("natalia")
-        answers.add(PollAnswers("yes i like it a lot", list))
-        answers.add(PollAnswers("it is OK", ArrayList()))
-        list.add("inna")
-        answers.add(PollAnswers("bad choice", list))
-        answers.add(PollAnswers("I am not sure", list))
-        currentPoll = Poll(
-            1, 2, 3, 0L,
-            "What do you think about eurovision winner?", true, 0L, "", answers
-        )
+//        val answers = ArrayList<PollAnswers>()
+//        val list = ArrayList<String>()
+//        list.add("ivan")
+//        list.add("natalia")
+//        answers.add(PollAnswers("yes i like it a lot", list))
+//        answers.add(PollAnswers("it is OK", ArrayList()))
+//        list.add("inna")
+//        answers.add(PollAnswers("bad choice", list))
+//        answers.add(PollAnswers("I am not sure", list))
+//        currentPoll = Poll(
+//            1, 2, 3, 0L,
+//            "What do you think about eurovision winner?", true, 0L, "", answers
+//        )
     }
 
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {
@@ -114,25 +114,25 @@ class Repository {
         return list
     }
 
-    fun getCurrentPoll(): Poll {
-        val answers = ArrayList<PollAnswers>()
-        val list = ArrayList<String>()
-        //list.add("ivan");
-        //list.add("natalia");
-        answers.add(PollAnswers("yes i like it a lot", ArrayList()))
-        answers.add(PollAnswers("it is OK", ArrayList()))
-        //list.add("inna");
-        answers.add(PollAnswers("bad choice", ArrayList()))
-        answers.add(PollAnswers("I am not sure", ArrayList()))
-        return Poll(
-            1, 2, 3, 0L,
-            "What do you think about eurovision winner?", true, 0L, "", answers
-        )
-    }
+//    fun getCurrentPoll(): Poll {
+//        val answers = ArrayList<PollAnswers>()
+//        val list = ArrayList<String>()
+//        //list.add("ivan");
+//        //list.add("natalia");
+//        answers.add(PollAnswers("yes i like it a lot", ArrayList()))
+//        answers.add(PollAnswers("it is OK", ArrayList()))
+//        //list.add("inna");
+//        answers.add(PollAnswers("bad choice", ArrayList()))
+//        answers.add(PollAnswers("I am not sure", ArrayList()))
+//        return Poll(
+//            1, 2, 3, 0L,
+//            "What do you think about eurovision winner?", true, 0L, "", answers
+//        )
+//    }
 
-    fun setCurrentPoll(poll: Poll) {
-        currentPoll = poll
-    }
+//    fun setCurrentPoll(poll: Poll) {
+//        currentPoll = poll
+//    }
 
     data class MessageEmulation(val timestamp: Int, val nickname: String, val text: String)
 
@@ -257,6 +257,19 @@ class Repository {
     fun getStreamLiveData(streamId: Int): QuerySnapshotValueLiveData<Stream>{
         val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
         return QuerySnapshotValueLiveData(docRef, Stream::class.java)
+    }
+    fun getPollLiveData(streamId: Int):QuerySnapshotLiveData<Poll>{
+        return QuerySnapshotLiveData(FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive",true),
+            Poll::class.java)
+    }
+    fun getPollDetails(streamId:Int, pollId: String):QuerySnapshotValueLiveData<Poll>{
+        return QuerySnapshotValueLiveData(FirestoreDatabase().getPollsReferences(streamId).document(pollId),Poll::class.java)
+    }
+    fun getAnsweredUsers(streamId: Int,pollId: String):QuerySnapshotLiveData<AnsweredUser>{
+        return QuerySnapshotLiveData(FirestoreDatabase().getAnsweredUsersReference(streamId, pollId),AnsweredUser::class.java)
+    }
+    fun vote(streamId: Int,pollId: String,user:AnsweredUser){
+        FirestoreDatabase().getAnsweredUsersReference(streamId,pollId).document(user.id).set(user)
     }
     //endregion
 }
