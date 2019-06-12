@@ -15,24 +15,6 @@ import kotlin.collections.ArrayList
 
 class Repository {
 
-    //private var currentPoll: Poll
-
-    init {
-//        val answers = ArrayList<PollAnswers>()
-//        val list = ArrayList<String>()
-//        list.add("ivan")
-//        list.add("natalia")
-//        answers.add(PollAnswers("yes i like it a lot", list))
-//        answers.add(PollAnswers("it is OK", ArrayList()))
-//        list.add("inna")
-//        answers.add(PollAnswers("bad choice", list))
-//        answers.add(PollAnswers("I am not sure", list))
-//        currentPoll = Poll(
-//            1, 2, 3, 0L,
-//            "What do you think about eurovision winner?", true, 0L, "", answers
-//        )
-    }
-
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>>() {
             override fun saveCallResult(item: List<StreamResponse>) {
@@ -55,8 +37,8 @@ class Repository {
                 "",
                 "file:///android_asset/1.png",
 //                "https://d33kzx2k689f49.cloudfront.net/out/v1/b8cf10bb32e54a339be195906b6ac165/index.m3u8",
-//                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
-                "https://d1my4itlgzru7b.cloudfront.net/out/v1/ff0c96a98d7b44aa8a9a9e3ed1a96dad/index.m3u8",
+                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
+//                "https://d1my4itlgzru7b.cloudfront.net/out/v1/ff0c96a98d7b44aa8a9a9e3ed1a96dad/index.m3u8",
 //                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
                 listOf(),
                 30
@@ -113,26 +95,6 @@ class Repository {
 
         return list
     }
-
-//    fun getCurrentPoll(): Poll {
-//        val answers = ArrayList<PollAnswers>()
-//        val list = ArrayList<String>()
-//        //list.add("ivan");
-//        //list.add("natalia");
-//        answers.add(PollAnswers("yes i like it a lot", ArrayList()))
-//        answers.add(PollAnswers("it is OK", ArrayList()))
-//        //list.add("inna");
-//        answers.add(PollAnswers("bad choice", ArrayList()))
-//        answers.add(PollAnswers("I am not sure", ArrayList()))
-//        return Poll(
-//            1, 2, 3, 0L,
-//            "What do you think about eurovision winner?", true, 0L, "", answers
-//        )
-//    }
-
-//    fun setCurrentPoll(poll: Poll) {
-//        currentPoll = poll
-//    }
 
     data class MessageEmulation(val timestamp: Int, val nickname: String, val text: String)
 

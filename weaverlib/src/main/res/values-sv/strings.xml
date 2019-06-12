@@ -7,4 +7,6 @@
     <string name="total_answers">Total answers</string>
     <string name="new_stream">New stream</string>
     <string name="chat_not_available">Chat is unavailable</string>
+
+    <string name="number_answers">%i poll answers</string>
 </resources>

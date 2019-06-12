@@ -27,6 +27,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
     private lateinit var trackSelector: DefaultTrackSelector
+    public var isLoaderShown:Boolean = false
 
     private var streamUrl: String? = null
 
@@ -160,6 +161,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onLoadingChanged(eventTime: AnalyticsListener.EventTime?, isLoading: Boolean) {
+            isLoaderShown = isLoading
         }
 
         override fun onDownstreamFormatChanged(

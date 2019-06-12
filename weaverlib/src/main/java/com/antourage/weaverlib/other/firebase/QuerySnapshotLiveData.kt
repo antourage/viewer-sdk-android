@@ -5,6 +5,7 @@ import android.util.Log
 import com.antourage.weaverlib.other.models.FirestoreModel
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
 
 
@@ -22,6 +23,7 @@ class QuerySnapshotLiveData<T:FirestoreModel>(private val query: Query, val type
             val data:MutableList<T> = mutableListOf()
             for (i in 0 until snapshots!!.documents.size) {
                 if(snapshots.documents[i].toObject(typeParameterClass!!)!=null) {
+
                     data.add(snapshots.documents[i].toObject(typeParameterClass)!!)
                     data[i].id = snapshots.documents[i].id
                 }

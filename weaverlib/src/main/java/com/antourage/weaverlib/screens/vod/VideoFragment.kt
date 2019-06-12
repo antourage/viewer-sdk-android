@@ -5,19 +5,14 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
-import kotlinx.android.synthetic.main.fragment_chat.rvMessages
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
@@ -47,7 +42,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
-                Player.STATE_READY ->{
+                Player.STATE_READY -> {
                     hideLoading()
                     viewModel.onVideoStarted(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId)
                 }
@@ -92,7 +87,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
         startPlayingStream()
         handleChat()
-        ivClose.setOnClickListener { fragmentManager?.popBackStack() }
     }
 
     private fun handleChat() {
@@ -127,6 +121,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         super.onDestroy()
         viewModel.releasePlayer()
     }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 

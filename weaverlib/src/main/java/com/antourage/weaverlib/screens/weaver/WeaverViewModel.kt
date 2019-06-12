@@ -5,10 +5,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.net.Uri
+import android.os.Handler
+import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.firebase.FirestoreDatabase
-import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.Poll
-import com.antourage.weaverlib.other.models.Stream
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
@@ -26,17 +26,27 @@ import com.google.android.exoplayer2.util.Util
 
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
+    companion object{
+        const val NEW_POLL_DELAY_MS = 15000L
+    }
+
+    sealed class PollStatus {
+        class NO_POLL : PollStatus()
+        class ACTIVE_POLL_DISMISABLE : PollStatus()
+        class ACTIVE_POLL_DISMISSED(val pollStatus: Int) : PollStatus()
+    }
+
     var wasStreamInitialized = false
+    private var isNewPoll = true
+    var streamId: Int = 0
 
     private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
     private val isChatAllowed:MutableLiveData<Boolean> = MutableLiveData()
+    private val pollStatusMessage:MutableLiveData<String> = MutableLiveData()
 
-    fun getPollLiveData(): LiveData<Poll> {
-        return pollLiveData
-    }
-    fun getChatAllowed():LiveData<Boolean>{
-        return isChatAllowed
-    }
+    fun getPollLiveData(): LiveData<Poll> = pollLiveData
+    fun getChatAllowed():LiveData<Boolean> = isChatAllowed
+    fun getPollStatusMessage():LiveData<String> = pollStatusMessage
 
     private  val messagesObserver:Observer<Resource<List<Message>>> = Observer {data->
         if(data?.data !=null )
@@ -48,6 +58,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
                 pollLiveData.postValue(data.data[0])
             } else
                 pollLiveData.postValue(null)
+
         }else if (data?.state == State.FAILURE){
             error.value = data.message
         }
@@ -58,12 +69,31 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
             }
     }
 
-    fun initChatUi(streamId: Int?){
+    fun initUi(streamId: Int?){
+
         streamId?.let {
+            this.streamId = it
             repository.getMessages(streamId).observeForever(messagesObserver)
             repository.getPollLiveData(streamId).observeForever(activePollObserver)
             repository.getStreamLiveData(streamId).observeForever(streamObserver)
         }
+    }
+
+    fun startNewPollCoundown(){
+        pollStatusMessage.postValue(getApplication<Application>().getString(R.string.new_poll))
+        Handler().postDelayed(
+            {
+                pollLiveData.value?.let {
+                    isNewPoll = false
+                    repository.getAnsweredUsers(streamId, it.id).observeForever {
+                        if (it?.data != null) {
+                            pollStatusMessage.postValue(getApplication<Application>().getString(R.string.number_answers,
+                                it.data.size))
+                        }
+                    }
+                }
+            },
+            NEW_POLL_DELAY_MS)
     }
 
     fun addMessage(message:Message,streamId:Int) {

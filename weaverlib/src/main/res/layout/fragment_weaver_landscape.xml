@@ -94,15 +94,6 @@
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
 
                 app:layout_constraintTop_toBottomOf="@id/tvStreamName"/>
-        <View
-                android:id="@+id/devider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/light_gray_transparent"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
     </android.support.constraint.ConstraintLayout>
     <android.support.constraint.ConstraintLayout
             android:id="@+id/bottomLayout"
@@ -111,22 +102,63 @@
             app:layout_constraintTop_toBottomOf="@id/headerLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <com.antourage.weaverlib.other.ui.FadingRecyclerView
-            android:id="@+id/rvMessages"
+    <com.antourage.weaverlib.other.ui.CustomDrawerLayout
+            android:id="@+id/drawerLayout"
             android:layout_width="300dp"
             android:layout_height="0dp"
-            android:fadingEdgeLength="150dp"
-            android:layout_margin="16dp"
-            android:fadingEdge="horizontal"
-            android:fillViewport="false"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:requiresFadingEdge="vertical"
-            app:layout_constraintStart_toStartOf="@+id/playerView"
-            app:layout_constraintTop_toTopOf="@id/playerView"
+            android:clickable="false"
+            android:focusable="false"
+            android:elevation="3dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-    />
+            app:layout_constraintLeft_toLeftOf="parent"
+    >
+
+        <android.support.design.widget.NavigationView
+                android:id="@+id/navView"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="-64dp"
+                android:layout_gravity="start"
+                android:background="@android:color/transparent"
+        >
+
+            <include layout="@layout/layout_poll_suggestion"
+                     android:layout_width="match_parent"
+                     android:layout_margin="20dp"
+                     android:focusableInTouchMode="true"
+                     android:focusable="true"
+                     android:importantForAccessibility="yes"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toTopOf="parent"
+                     app:layout_constraintStart_toStartOf="parent"/>
+
+            <View
+                    android:id="@+id/devider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/light_gray_transparent"
+                    android:layout_marginTop="6dp"
+                    app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+            <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                    android:id="@+id/rvMessages"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:fadingEdgeLength="150dp"
+                    android:fadingEdge="horizontal"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:fillViewport="false"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:requiresFadingEdge="vertical"
+            />
+        </android.support.design.widget.NavigationView>
+    </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
     <View
             android:id="@+id/deviderChat"
             android:layout_width="match_parent"
@@ -175,7 +207,33 @@
                 tools:ignore="ContentDescription"/>
     </LinearLayout>
 
+    <LinearLayout
+            android:id="@+id/llPollStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_green_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_poll_white_transparent"
+                tools:ignore="ContentDescription"/>
+        <TextView
+                android:id="@+id/txtPollStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+        />
 
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>

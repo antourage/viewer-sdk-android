@@ -120,26 +120,46 @@
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/headerLayout"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <com.antourage.weaverlib.other.ui.FadingRecyclerView
-            android:id="@+id/rvMessages"
+    <com.antourage.weaverlib.other.ui.CustomDrawerLayout
+            android:id="@+id/drawerLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:fadingEdgeLength="150dp"
-            android:fadingEdge="horizontal"
-            android:fillViewport="false"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:requiresFadingEdge="vertical"
+            android:clickable="false"
+            android:elevation="3dp"
+            android:focusable="false"
+            android:background="@android:color/transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/headerLayout"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-    />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+    >
+
+        <android.support.design.widget.NavigationView
+                android:id="@+id/navView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="-64dp"
+                android:layout_gravity="start"
+                android:background="@android:color/transparent"
+        >
+            <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                    android:id="@+id/rvMessages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fadingEdgeLength="150dp"
+                    android:fadingEdge="horizontal"
+                    android:fillViewport="false"
+                    android:requiresFadingEdge="vertical"
+            />
+        </android.support.design.widget.NavigationView>
+    </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
     <View
             android:id="@+id/deviderChat"
             android:layout_width="match_parent"
@@ -181,6 +201,5 @@
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription"/>
     </LinearLayout>
-
 
 </android.support.constraint.ConstraintLayout>

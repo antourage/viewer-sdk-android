@@ -18,12 +18,13 @@ import android.widget.Button
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
+import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 
 
-abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
+abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
     private lateinit var orientationEventListener: OrientationEventListener
     private var loader: AnimatedVectorDrawableCompat? = null
     private var isPortrait = false
@@ -69,15 +70,16 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             controllerHeaderLayout = view.findViewById(R.id.controllerHeaderLayout)
             controllerHeaderLayout.visibility = View.GONE
             playerView.setOnClickListener {
-                playerControls.show()
+                handleControlsVisibility()
             }
+            val ivClose:ImageView = view.findViewById(R.id.ivClose)
+            ivClose.setOnClickListener { fragmentManager?.popBackStack() }
             initLoader()
             initOrientationHandling()
             setPlayerSizePortrait()
             ivScreenSize.setOnClickListener {
                 val currentOrientation = activity?.resources?.configuration?.orientation
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    Log.d("STREAMING_ORIENTATION","LANDSCAPE")
                     isPortrait = false
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else {
@@ -102,7 +104,12 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             }
         }
     }
-
+    protected fun handleControlsVisibility(){
+        if(playerControls.isVisible)
+            playerControls.hide()
+        else
+            playerControls.show()
+    }
     protected fun setPlayerSizePortrait() {
         val params = playerView.layoutParams
         params.height = calculatePlayerHeight(activity!!).toInt()
@@ -190,9 +197,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 newConfig.screenHeightDp
             )
             controllerHeaderLayout.visibility = View.VISIBLE
-
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-            //(activity as AntourageActivity).hideSystemUI()
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             constraintLayoutParent.setState(
                 R.id.constraintStatePortrait,
@@ -205,6 +210,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
         }
         playerControls.hide()
     }
+
 
 
 }

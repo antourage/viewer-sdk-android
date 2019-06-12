@@ -41,23 +41,16 @@
             app:layout_constraintEnd_toEndOf="@id/playerView"
             tools:ignore="ContentDescription"/>
 
-    <android.support.constraint.ConstraintLayout
-            android:id="@+id/headerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/playerView"
-            app:layout_constraintStart_toStartOf="parent"
-    >
         <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivUserPhoto"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginBottom="2dp"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:src="@drawable/ic_default_user"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/playerView"
                 app:layout_constraintStart_toStartOf="parent"
         />
         <TextView
@@ -72,7 +65,7 @@
                 android:textSize="14sp"
                 app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/llPollStatus"
                 app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
                 app:layout_constraintVertical_chainStyle="packed"/>
 
@@ -89,51 +82,131 @@
                 tools:text="my nicname"
                 app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-
+                app:layout_constraintRight_toLeftOf="@id/llPollStatus"
                 app:layout_constraintTop_toBottomOf="@id/tvStreamName"/>
-        <include layout="@layout/layout_poll_suggestion"
-                 android:layout_width="match_parent"
-                 android:layout_margin="20dp"
-                 android:layout_height="wrap_content"
-                 app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy"
-                 app:layout_constraintStart_toStartOf="parent"/>
-
-        <View
-                android:id="@+id/devider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/light_gray_transparent"
-                android:layout_marginTop="6dp"
-                app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
+        <ImageButton
+                android:id="@+id/btnShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_share_white"
+                android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
-    </android.support.constraint.ConstraintLayout>
+                app:layout_constraintTop_toBottomOf="@id/playerView"
+        />
 
+    <LinearLayout
+            android:id="@+id/llPollStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_green_bg"
+            app:layout_constraintEnd_toStartOf="@id/btnShare"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
+           >
+        <ImageView
+                android:layout_width="32dp"
+                android:layout_height="24dp"
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_poll_white_transparent"
+                tools:ignore="ContentDescription"/>
+        <TextView
+                android:id="@+id/txtPollStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                tools:visibility="visible"
+                tools:text="@string/new_poll"
+        />
+
+    </LinearLayout>
     <android.support.constraint.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:elevation="5dp"
-            app:layout_constraintTop_toBottomOf="@id/headerLayout"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <com.antourage.weaverlib.other.ui.FadingRecyclerView
-            android:id="@+id/rvMessages"
+    <com.antourage.weaverlib.other.ui.CustomDrawerLayout
+            android:id="@+id/drawerLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:fadingEdgeLength="150dp"
-            android:fadingEdge="horizontal"
-            android:fillViewport="false"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="8dp"
-            android:requiresFadingEdge="vertical"
+            android:clickable="false"
+            android:focusable="false"
+            android:elevation="3dp"
+            android:background="@android:color/transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+            app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-    />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+    >
+
+        <android.support.design.widget.NavigationView
+                android:id="@+id/navView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="-64dp"
+                android:layout_gravity="start"
+                android:background="@android:color/transparent"
+        >
+            <android.support.constraint.ConstraintLayout
+                    android:id="@+id/clNavView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+            <include layout="@layout/layout_poll_suggestion"
+                     android:layout_width="match_parent"
+                     android:layout_margin="20dp"
+                     android:visibility="gone"
+                     android:focusableInTouchMode="true"
+                     android:focusable="true"
+                     android:importantForAccessibility="yes"
+                     android:layout_height="wrap_content"
+                     app:layout_constraintTop_toTopOf="parent"
+                     app:layout_constraintStart_toStartOf="parent"/>
+
+            <View
+                    android:id="@+id/devider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/light_gray_transparent"
+                    android:layout_marginTop="6dp"
+                    app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+            <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                    android:id="@+id/rvMessages"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:fadingEdgeLength="150dp"
+                    android:layout_margin="16dp"
+                    android:fadingEdge="horizontal"
+                    android:fillViewport="false"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:requiresFadingEdge="vertical"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/devider"
+                    app:layout_constraintBottom_toBottomOf="parent"
+            />
+            </android.support.constraint.ConstraintLayout>
+        </android.support.design.widget.NavigationView>
+    </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
     <View
             android:id="@+id/deviderChat"
             android:layout_width="match_parent"
@@ -176,4 +249,6 @@
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription"/>
     </LinearLayout>
+
+
 </android.support.constraint.ConstraintLayout>
