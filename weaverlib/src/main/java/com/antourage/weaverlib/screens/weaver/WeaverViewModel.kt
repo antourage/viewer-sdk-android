@@ -7,69 +7,70 @@ import android.arch.lifecycle.Observer
 import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.firebase.FirestoreDatabase
-import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
-import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.rtmp.RtmpDataSourceFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT
 import com.google.android.exoplayer2.util.Util
 
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
-    companion object{
+    companion object {
         const val NEW_POLL_DELAY_MS = 15000L
     }
 
     sealed class PollStatus {
         class NO_POLL : PollStatus()
-        class ACTIVE_POLL_DISMISABLE : PollStatus()
-        class ACTIVE_POLL_DISMISSED(val pollStatus: Int) : PollStatus()
+        class ACTIVE_POLL(val poll: Poll) : PollStatus()
+        class ACTIVE_POLL_DISMISSED(val pollStatus: String?) : PollStatus()
+        class POLL_DETAILS(val pollId: String) : PollStatus()
     }
 
     var wasStreamInitialized = false
-    private var isNewPoll = true
     var streamId: Int = 0
 
-    private val pollLiveData: MutableLiveData<Poll> =  MutableLiveData()
-    private val isChatAllowed:MutableLiveData<Boolean> = MutableLiveData()
-    private val pollStatusMessage:MutableLiveData<String> = MutableLiveData()
+    private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
+    private var currentPoll: Poll? = null
+    private val isChatAllowed: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun getPollLiveData(): LiveData<Poll> = pollLiveData
-    fun getChatAllowed():LiveData<Boolean> = isChatAllowed
-    fun getPollStatusMessage():LiveData<String> = pollStatusMessage
+    fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
+    fun getChatAllowed(): LiveData<Boolean> = isChatAllowed
 
-    private  val messagesObserver:Observer<Resource<List<Message>>> = Observer {data->
-        if(data?.data !=null )
+    init {
+        pollStatusLiveData.value = PollStatus.NO_POLL()
+    }
+
+    private val messagesObserver: Observer<Resource<List<Message>>> = Observer { data ->
+        if (data?.data != null)
             messagesLiveData.postValue(data.data)
     }
-    private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data->
+    private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data ->
         if (data?.state == State.SUCCESS) {
             if (data.data != null && data.data.isNotEmpty()) {
-                pollLiveData.postValue(data.data[0])
-            } else
-                pollLiveData.postValue(null)
-
-        }else if (data?.state == State.FAILURE){
+                pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL(data.data[0]))
+                currentPoll = data.data[0]
+            } else {
+                pollStatusLiveData.postValue(PollStatus.NO_POLL())
+                currentPoll = null
+            }
+        } else if (data?.state == State.FAILURE) {
             error.value = data.message
         }
     }
-    private val streamObserver:Observer<Resource<Stream>> = Observer { data->
-            if (data?.data != null) {
-                isChatAllowed.postValue(data.data.isChatActive)
-            }
+    private val streamObserver: Observer<Resource<Stream>> = Observer { data ->
+        if (data?.data != null) {
+            isChatAllowed.postValue(data.data.isChatActive)
+        }
     }
 
-    fun initUi(streamId: Int?){
+    fun initUi(streamId: Int?) {
 
         streamId?.let {
             this.streamId = it
@@ -79,30 +80,42 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
         }
     }
 
-    fun startNewPollCoundown(){
-        pollStatusMessage.postValue(getApplication<Application>().getString(R.string.new_poll))
+    fun seePollDetails() {
+        currentPoll?.let {
+            pollStatusLiveData.postValue(PollStatus.POLL_DETAILS(it.id))
+        }
+    }
+
+    fun startNewPollCoundown() {
+        pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
         Handler().postDelayed(
             {
-                pollLiveData.value?.let {
-                    isNewPoll = false
+                currentPoll?.let {
                     repository.getAnsweredUsers(streamId, it.id).observeForever {
                         if (it?.data != null) {
-                            pollStatusMessage.postValue(getApplication<Application>().getString(R.string.number_answers,
-                                it.data.size))
+                            pollStatusLiveData.postValue(
+                                PollStatus.ACTIVE_POLL_DISMISSED(
+                                    getApplication<Application>().getString(
+                                        R.string.number_answers,
+                                        it.data.size
+                                    )
+                                )
+                            )
                         }
                     }
                 }
             },
-            NEW_POLL_DELAY_MS)
+            NEW_POLL_DELAY_MS
+        )
     }
 
-    fun addMessage(message:Message,streamId:Int) {
+    fun addMessage(message: Message, streamId: Int) {
         if (message.text != null && !message.text!!.isEmpty() && !message.text!!.isBlank()) {
             val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
             temp.add(
                 message
             )
-            repository.addMessage(message,streamId)
+            repository.addMessage(message, streamId)
         }
     }
 
@@ -111,6 +124,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
             wasStreamInitialized = true
         }
     }
+
     override fun getMediaSource(streamUrl: String?): MediaSource? {
         val defaultBandwidthMeter = DefaultBandwidthMeter()
         val dataSourceFactory = DefaultDataSourceFactory(
@@ -125,6 +139,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 //        return ExtractorMediaSource.Factory(RtmpDataSourceFactory())
 //            .createMediaSource(Uri.parse(streamUrl))
     }
+
     override fun onVideoChanged() {
 
     }

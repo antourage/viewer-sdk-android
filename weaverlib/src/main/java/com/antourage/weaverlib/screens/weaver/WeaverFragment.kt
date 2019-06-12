@@ -12,8 +12,8 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceChildFragment
-import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import java.util.*
 
 
-class WeaverFragment : ChatFragment<WeaverViewModel>(){
+class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -39,9 +39,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
         }
     }
 
-    private var isPollStatusVisible = false
-    private var isNewPollVisible = false
-
     override fun getLayoutId(): Int {
         return R.layout.fragment_weaver_portrait
     }
@@ -52,10 +49,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
         if (isActive != null)
             etMessage.isEnabled = isActive
     }
-    private val pollStatusObserver:Observer<String> = Observer { status->
-        txtPollStatus.text = status
-    }
-
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
@@ -73,18 +66,36 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
                 }
             }
     }
-    private val pollObserver: Observer<Poll> = Observer { poll ->
-        if (poll != null) {
-            tvPollTitle.text = poll.question
-            pollPopupLayout.visibility = View.VISIBLE
-            isNewPollVisible = true
-        } else {
-            llPollStatus.visibility = View.GONE
-            isPollStatusVisible = false
-            isNewPollVisible = false
-            pollPopupLayout.visibility = View.GONE
+    private val pollStateObserver:Observer<WeaverViewModel.PollStatus> = Observer { state->
+        if(state != null){
+            when(state){
+                is WeaverViewModel.PollStatus.NO_POLL ->{
+                    pollPopupLayout.visibility = View.GONE
+                    llPollStatus.visibility = View.GONE
+                }
+                is WeaverViewModel.PollStatus.ACTIVE_POLL ->{
+                    tvPollTitle.text = state.poll.question
+                    pollPopupLayout.visibility = View.VISIBLE
+                    llPollStatus.visibility = View.GONE
+                }
+                is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED->{
+                    pollPopupLayout.visibility = View.GONE
+                    llPollStatus.visibility = View.VISIBLE
+                    if (state.pollStatus != null)
+                        txtPollStatus.text = state.pollStatus
+                }
+                is WeaverViewModel.PollStatus.POLL_DETAILS ->{
+                    pollPopupLayout.visibility = View.GONE
+                    llPollStatus.visibility = View.VISIBLE
+                    replaceChildFragment(
+                        PollDetailsFragment.newInstance(
+                            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
+                            state.pollId
+                        ), R.id.bottomLayout, true
+                    )
+                }
+            }
         }
-
     }
     //endregion
 
@@ -96,15 +107,13 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
     override fun subscribeToObservers() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
-        viewModel.getPollLiveData().observe(this.viewLifecycleOwner, pollObserver)
+        viewModel.getPollStatusLiveData().observe(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getChatAllowed().observe(this.viewLifecycleOwner, chatStateObserver)
-        viewModel.getPollStatusMessage().observe(this.viewLifecycleOwner,pollStatusObserver)
     }
 
     override fun initUi(view: View?) {
         super.initUi(view)
         llPollStatus.visibility = View.GONE
-        isPollStatusVisible = false
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_screen)
         startPlayingStream()
 
@@ -122,10 +131,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
         tvControllerStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvControllerBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         ivDismissPoll.setOnClickListener {
-            pollPopupLayout.visibility = View.GONE
-            llPollStatus.visibility = View.VISIBLE
-            isNewPollVisible = false
-            isPollStatusVisible = true
             viewModel.startNewPollCoundown()
         }
         llPollStatus.setOnClickListener {
@@ -137,15 +142,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
         }
     }
 
-    private fun onPollDetailsClicked(){
-        llPollStatus.visibility = View.VISIBLE
-        pollPopupLayout.visibility = View.GONE
-        replaceChildFragment(
-            PollDetailsFragment.newInstance(
-                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
-                viewModel.getPollLiveData().value!!.id
-            ), R.id.bottomLayout, true
-        )
+    private fun onPollDetailsClicked() {
+        viewModel.seePollDetails()
         childFragmentManager.addOnBackStackChangedListener {
             etMessage.isEnabled = !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
         }
@@ -190,15 +188,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>(){
                 devider.visibility = View.VISIBLE
             }
         }
-        if(isNewPollVisible){
-            pollPopupLayout.visibility = View.VISIBLE
-        } else{
-            pollPopupLayout.visibility = View.GONE
-        }
-        if(isPollStatusVisible){
-            llPollStatus.visibility = View.VISIBLE
-        } else
-            llPollStatus.visibility = View.GONE
+        viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner,pollStateObserver)
         btnSend.visibility = View.VISIBLE
     }
 

@@ -9,7 +9,7 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.observeSafe
+import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -52,7 +52,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun subscribeToObservers() {
-        viewModel.listOfStreams.observeSafe(this.viewLifecycleOwner, streamsObserver)
+        viewModel.listOfStreams.reobserve(this.viewLifecycleOwner, streamsObserver)
     }
 
     override fun onStop() {

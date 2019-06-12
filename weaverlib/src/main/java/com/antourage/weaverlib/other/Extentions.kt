@@ -40,7 +40,7 @@ fun Fragment.replaceChildFragment(fragment: Fragment, frameId: Int, addToBackSta
         replaceChildFragment(fragment,frameId)
 }
 
-fun <T> LiveData<T>.observeSafe(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
+fun <T> LiveData<T>.reobserve(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
     this.removeObserver(observer)
     this.observe(owner, observer)
 }
