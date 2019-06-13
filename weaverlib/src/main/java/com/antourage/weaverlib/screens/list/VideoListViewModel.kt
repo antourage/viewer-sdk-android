@@ -36,6 +36,8 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
                         list[i].isLive = true
                     }
                 }
+                if(list?.size != 0)
+                    list?.add(StreamResponse(-1))
                 list?.addAll(repository.getListOfVideos())
                 listOfStreams.postValue(list)
             }

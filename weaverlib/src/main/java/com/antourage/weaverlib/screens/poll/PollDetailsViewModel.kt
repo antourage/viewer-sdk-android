@@ -18,7 +18,7 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
     private var answersLiveData:MutableLiveData<List<AnswersCombined>> = MutableLiveData()
     private var streamId:Int = -1
     private var pollId:String = ""
-    public var isAnswered: Boolean = false
+    var isAnswered: Boolean = false
 
     fun getPollLiveData():LiveData<Poll> = pollLiveData
     fun getAnswersLiveData():LiveData<List<AnswersCombined>> = answersLiveData
@@ -38,6 +38,9 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
                             for (i in 0 until poll.answers!!.size){
                                 var counter = 0
                                 for(j in 0 until answeredUsers.size){
+                                    if(answeredUsers[j].id == FirebaseAuth.getInstance().uid){
+                                        isAnswered = true
+                                    }
                                     if (answeredUsers[j].choosenAnswer == i)
                                         counter++
                                 }

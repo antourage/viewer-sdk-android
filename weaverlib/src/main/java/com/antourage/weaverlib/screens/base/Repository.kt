@@ -10,6 +10,8 @@ import com.antourage.weaverlib.other.networking.base.ApiResponse
 import com.antourage.weaverlib.other.networking.base.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -40,26 +42,35 @@ class Repository {
                 baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
 //                "https://d1my4itlgzru7b.cloudfront.net/out/v1/ff0c96a98d7b44aa8a9a9e3ed1a96dad/index.m3u8",
 //                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
-                listOf(),
-                30
+                startTime = substractDays(0),
+                duration = 30,
+                viewerCounter = 13553
             )
         )
         list.add(
             StreamResponse(
                 2, "Roommates with Head and Shoulders", "Kyle Walker and John Stones", "",
-                "file:///android_asset/2.png", baseUrl + "2. Roommates.mp4/playlist.m3u8", listOf(),19
+                "file:///android_asset/2.png", baseUrl + "2. Roommates.mp4/playlist.m3u8",
+                startTime = substractDays(0,60*60*4000),
+                duration = 19,
+                viewerCounter = 14555
             )
         )
         list.add(
             StreamResponse(
                 3, "Live Coverage", "England Women vs Sweden Women", "",
-                "file:///android_asset/3.png", baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8", listOf(),26
+                "file:///android_asset/3.png", baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8",
+                startTime = substractDays(1,60*60*4000),
+                duration = 26,viewerCounter = 14235
             )
         )
         list.add(
             StreamResponse(
                 4, "Stars of the Future with Nike", "U21 5-a-side game", "",
-                "file:///android_asset/4.png", baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8", listOf(),19
+                "file:///android_asset/4.png", baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8",
+                startTime = substractDays(2),
+                duration = 19,
+                viewerCounter = 4324
             )
         )
         list.add(
@@ -70,14 +81,18 @@ class Repository {
                 "",
                 "file:///android_asset/5.png",
                 baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8",
-                listOf(),
-                29
+                startTime = substractDays(3),
+                duration = 29,
+                viewerCounter = 54354
             )
         )
         list.add(
             StreamResponse(
                 6, "Media Day with M&S", "The squad has been selected", "",
-                "file:///android_asset/6.png", baseUrl + "6. Media Day.mp4/playlist.m3u8", listOf(),35
+                "file:///android_asset/6.png", baseUrl + "6. Media Day.mp4/playlist.m3u8",
+                startTime = substractDays(4),
+                duration = 35,
+                viewerCounter = 234
             )
         )
         list.add(
@@ -88,12 +103,22 @@ class Repository {
                 "",
                 "file:///android_asset/7.png",
                 baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8",
-                listOf(),
-                40
+                startTime = substractDays(6),
+                duration = 40,
+                viewerCounter = 123
             )
         )
 
         return list
+    }
+
+    fun substractDays(numberOfDays:Int,minusMin:Int=0):String{
+        val cal = GregorianCalendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.DAY_OF_YEAR, -numberOfDays)
+        val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)
+        df.timeZone = TimeZone.getTimeZone("UTC")
+        return df.format(Date(cal.time.time - minusMin))
     }
 
     data class MessageEmulation(val timestamp: Int, val nickname: String, val text: String)

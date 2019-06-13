@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.networking.base.Resource
@@ -32,16 +33,21 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
         class ACTIVE_POLL_DISMISSED(val pollStatus: String?) : PollStatus()
         class POLL_DETAILS(val pollId: String) : PollStatus()
     }
+    sealed class ChatStatus{
+        class CHAT_TURNED_OFF: ChatStatus()
+        class CHAT_NO_MESSAGES: ChatStatus()
+        class CHAT_MESSAGES(val messages: List<Message>):ChatStatus()
+    }
 
     var wasStreamInitialized = false
     var streamId: Int = 0
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
+    private val chatStatusLiveData:MutableLiveData<ChatStatus> = MutableLiveData()
     private var currentPoll: Poll? = null
-    private val isChatAllowed: MutableLiveData<Boolean> = MutableLiveData()
 
     fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
-    fun getChatAllowed(): LiveData<Boolean> = isChatAllowed
+    fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
 
     init {
         pollStatusLiveData.value = PollStatus.NO_POLL()
@@ -49,7 +55,10 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { data ->
         if (data?.data != null)
-            messagesLiveData.postValue(data.data)
+            if(isChatContainsNonstatusMsg(data.data))
+                chatStatusLiveData.postValue(ChatStatus.CHAT_MESSAGES(data.data))
+            else
+                chatStatusLiveData.postValue(ChatStatus.CHAT_NO_MESSAGES())
     }
     private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data ->
         if (data?.state == State.SUCCESS) {
@@ -66,7 +75,11 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
     }
     private val streamObserver: Observer<Resource<Stream>> = Observer { data ->
         if (data?.data != null) {
-            isChatAllowed.postValue(data.data.isChatActive)
+            if(!data.data.isChatActive) {
+                chatStatusLiveData.postValue(ChatStatus.CHAT_TURNED_OFF())
+            } else {
+                repository.getMessages(streamId).observeForever(messagesObserver)
+            }
         }
     }
 
@@ -74,7 +87,6 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
         streamId?.let {
             this.streamId = it
-            repository.getMessages(streamId).observeForever(messagesObserver)
             repository.getPollLiveData(streamId).observeForever(activePollObserver)
             repository.getStreamLiveData(streamId).observeForever(streamObserver)
         }
@@ -82,10 +94,17 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     fun seePollDetails() {
         currentPoll?.let {
-            pollStatusLiveData.postValue(PollStatus.POLL_DETAILS(it.id))
+            pollStatusLiveData.value = (PollStatus.POLL_DETAILS(it.id))
         }
     }
-
+    private fun isChatContainsNonstatusMsg(list:List<Message>):Boolean{
+        for (message in list){
+            if (message.type == MessageType.USER){
+                return true
+            }
+        }
+        return false
+    }
     fun startNewPollCoundown() {
         pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
         Handler().postDelayed(
@@ -131,13 +150,8 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
             getApplication(),
             Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
         )
-        //TODO 10/5/2018 choose one
-        //hls
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(Uri.parse(streamUrl))
-        //rtmp
-//        return ExtractorMediaSource.Factory(RtmpDataSourceFactory())
-//            .createMediaSource(Uri.parse(streamUrl))
     }
 
     override fun onVideoChanged() {

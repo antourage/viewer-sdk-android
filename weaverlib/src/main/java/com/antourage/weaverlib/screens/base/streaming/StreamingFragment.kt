@@ -4,8 +4,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
@@ -18,7 +16,6 @@ import android.widget.Button
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
-import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
@@ -84,7 +81,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else {
                     isPortrait = true
-                    Log.d("STREAMING_ORIENTATION","PORTRAIT")
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 }
@@ -107,9 +103,14 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
     protected fun handleControlsVisibility(){
         if(playerControls.isVisible)
             playerControls.hide()
-        else
+        else {
+            onControlsVisible()
             playerControls.show()
+
+        }
     }
+    abstract  fun onControlsVisible()
+
     protected fun setPlayerSizePortrait() {
         val params = playerView.layoutParams
         params.height = calculatePlayerHeight(activity!!).toInt()
@@ -157,11 +158,9 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                     if (epsilonCheck(orientation, leftLandscape, epsilon) ||
                         epsilonCheck(orientation, rightLandscape, epsilon)
                     ) {
-                        Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
                         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                     }
                 } else if(epsilonCheck(orientation, 0, 5)||epsilonCheck(orientation,360,5)){
-                    Log.d("STREAMING_ORIENTATION", "FULL_SENSOR")
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                 }
 

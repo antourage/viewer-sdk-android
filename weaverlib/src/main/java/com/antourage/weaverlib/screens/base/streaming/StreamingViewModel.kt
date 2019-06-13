@@ -27,9 +27,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
     private lateinit var trackSelector: DefaultTrackSelector
-    public var isLoaderShown:Boolean = false
-
-    private var streamUrl: String? = null
+    protected var streamUrl: String? = null
 
     protected lateinit var player: SimpleExoPlayer
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -92,6 +90,15 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         currentWindow = player.currentWindowIndex
         playWhenReady = player.playWhenReady
         player.release()
+    }
+
+    fun onNetworkLost(){
+        playbackPosition = player.currentPosition
+        currentWindow = player.currentWindowIndex
+    }
+
+    fun onNetworkGained(){
+        player.seekTo(currentWindow,playbackPosition)
     }
 
     fun onResolutionChanged(pos: Int) {
@@ -161,7 +168,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onLoadingChanged(eventTime: AnalyticsListener.EventTime?, isLoading: Boolean) {
-            isLoaderShown = isLoading
+
         }
 
         override fun onDownstreamFormatChanged(
@@ -357,7 +364,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
         override fun onPlayerError(err: ExoPlaybackException) {
             if (err.cause is BehindLiveWindowException) {
-                player.prepare(getMediaSource(streamUrl))
+                player.prepare(getMediaSource(streamUrl),false,true)
             }
             error.postValue(err.toString())
 //            Toast.makeText(getApplication(), err.toString(), Toast.LENGTH_LONG).show()

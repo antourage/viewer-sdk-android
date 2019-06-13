@@ -4,7 +4,9 @@ package com.antourage.weaverlib.screens.weaver
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.view.View
 import com.antourage.weaverlib.R
@@ -12,16 +14,22 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceChildFragment
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
+import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.controller_header.*
+import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
+import kotlinx.android.synthetic.main.layout_no_chat.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
+import kotlinx.android.synthetic.main.player_custom_control.*
+import kotlinx.android.synthetic.main.player_custom_control.tvWasLive
 import java.util.*
 
 
@@ -45,10 +53,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     //region Observers
 
-    private val chatStateObserver: Observer<Boolean> = Observer { isActive ->
-        if (isActive != null)
-            etMessage.isEnabled = isActive
-    }
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
@@ -63,6 +67,46 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 Player.STATE_ENDED -> {
                     viewModel.removeStatisticsListeners()
                     hideLoading()
+                }
+            }
+    }
+    private val chatStateObserver: Observer<WeaverViewModel.ChatStatus> = Observer { state ->
+        if (state!= null)
+            when(state){
+                is WeaverViewModel.ChatStatus.CHAT_TURNED_OFF ->{
+                    etMessage.isEnabled = false
+                    ll_wrapper.visibility = View.INVISIBLE
+                    val orientation = resources.configuration.orientation
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        llNoChat.visibility = View.GONE
+                    }else{
+                        if(context != null)
+                            ivNoChat.background = ContextCompat.getDrawable(context!!,R.drawable.ic_chat_off)
+                        txtNoChat.text = getString(R.string.commenting_off)
+                        if(rvMessages.adapter?.itemCount==0)
+                            llNoChat.visibility = View.VISIBLE
+                    }
+                }
+                is WeaverViewModel.ChatStatus.CHAT_MESSAGES ->{
+                    rvMessages.visibility = View.VISIBLE
+                    (rvMessages.adapter as MessagesAdapter).setMessageList(state.messages)
+                    ll_wrapper.visibility = View.VISIBLE
+                    llNoChat.visibility = View.GONE
+                    etMessage.isEnabled = true
+                }
+                is WeaverViewModel.ChatStatus.CHAT_NO_MESSAGES ->{
+                    etMessage.isEnabled = true
+                    ll_wrapper.visibility = View.VISIBLE
+                    rvMessages.visibility = View.INVISIBLE
+                    val orientation = resources.configuration.orientation
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        llNoChat.visibility = View.GONE
+                    }else{
+                        if(context != null)
+                            ivNoChat.background = ContextCompat.getDrawable(context!!,R.drawable.ic_chat_no_comments_yet)
+                        txtNoChat.text = getString(R.string.no_comments_yet)
+                        llNoChat.visibility = View.VISIBLE
+                    }
                 }
             }
     }
@@ -87,12 +131,18 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 is WeaverViewModel.PollStatus.POLL_DETAILS ->{
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.VISIBLE
+                    bottomLayout.visibility = View.VISIBLE
                     replaceChildFragment(
                         PollDetailsFragment.newInstance(
                             arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
                             state.pollId
                         ), R.id.bottomLayout, true
                     )
+                    childFragmentManager.addOnBackStackChangedListener {
+                        if(!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment))
+                             bottomLayout.visibility = View.GONE
+                        etMessage.isEnabled = !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
+                    }
                 }
             }
         }
@@ -108,7 +158,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getPollStatusLiveData().observe(this.viewLifecycleOwner, pollStateObserver)
-        viewModel.getChatAllowed().observe(this.viewLifecycleOwner, chatStateObserver)
+        viewModel.getChatStatusLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
     }
 
     override fun initUi(view: View?) {
@@ -130,6 +180,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         tvControllerStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvControllerBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
+        if(context != null)
+            tvWasLive.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.startTime?.parseDate(context!!)
         ivDismissPoll.setOnClickListener {
             viewModel.startNewPollCoundown()
         }
@@ -141,12 +193,13 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             viewModel.startNewPollCoundown()
         }
     }
+    override fun onControlsVisible() {
+        if(context != null)
+            tvWasLive.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.startTime?.parseDate(context!!)
+    }
 
     private fun onPollDetailsClicked() {
         viewModel.seePollDetails()
-        childFragmentManager.addOnBackStackChangedListener {
-            etMessage.isEnabled = !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
-        }
     }
 
     private fun startPlayingStream() {
@@ -189,6 +242,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             }
         }
         viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner,pollStateObserver)
+        viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner,chatStateObserver)
         btnSend.visibility = View.VISIBLE
     }
 

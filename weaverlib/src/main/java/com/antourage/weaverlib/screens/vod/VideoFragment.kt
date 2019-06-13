@@ -5,13 +5,18 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
+import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
+import kotlinx.android.synthetic.main.custom_video_controls.tvWasLive
+import kotlinx.android.synthetic.main.custom_video_controls.txtNumberOfViewers
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
@@ -19,6 +24,7 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
+import kotlinx.android.synthetic.main.player_custom_control.*
 
 class VideoFragment : ChatFragment<VideoViewModel>() {
 
@@ -59,12 +65,13 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.let {
-
             tvStreamName.text = video.streamTitle
             tvBroadcastedBy.text = video.creatorFullname
             tvWasLive.text = "1 day ago"
             tvControllerStreamName.text = video.streamTitle
             tvControllerBroadcastedBy.text = video.creatorFullname
+            txtNumberOfViewers.text = video.viewerCounter.toString()
+
         }
     }
 
@@ -87,7 +94,14 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
         startPlayingStream()
         handleChat()
+        if(context != null)
+            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
+    override fun onControlsVisible() {
+        if(context != null)
+            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+    }
+
 
     private fun handleChat() {
         etMessage.isEnabled = false
@@ -105,11 +119,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
     }
 
     override fun onStop() {
@@ -136,5 +145,17 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             deviderChat.visibility = View.VISIBLE
         }
     }
+
+    override fun onNetworkConnectionLost() {
+        viewModel.onNetworkLost()
+    }
+
+    override fun onNetworkConnectionAvailable() {
+        startPlayingStream()
+        viewModel.onNetworkGained()
+
+    }
+
+
 
 }

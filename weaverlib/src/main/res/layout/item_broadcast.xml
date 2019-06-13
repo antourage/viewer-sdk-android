@@ -32,6 +32,22 @@
             app:layout_constraintTop_toTopOf="@id/thumbnail"
             app:layout_constraintStart_toStartOf="@id/thumbnail"
     />
+    <TextView
+            android:id="@+id/tvWasLive"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:textSize="14sp"
+            android:paddingLeft="4dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:paddingRight="4dp"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            app:layout_constraintStart_toEndOf="@+id/txtStatus"
+            app:layout_constraintTop_toTopOf="parent"
+    />
         <TextView
                 android:id="@+id/txtNumberOfViewers"
                 android:layout_width="wrap_content"
@@ -44,10 +60,10 @@
                 android:gravity="center"
                 android:layout_marginStart="12dp"
                 android:layout_marginLeft="12dp"
-                app:layout_constraintStart_toEndOf="@+id/txtStatus"
-                app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
                 android:drawableStart="@drawable/ic_watcher"
                 android:textColor="@android:color/white"
+                app:layout_constraintStart_toEndOf="@+id/tvWasLive"
+                app:layout_constraintBottom_toBottomOf="@+id/tvWasLive"
         />
 
     <TextView

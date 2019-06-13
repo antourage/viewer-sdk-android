@@ -135,7 +135,9 @@
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:visibility="gone"
             android:elevation="5dp"
+            android:background="@drawable/rounded_gray_bg"
             app:layout_constraintTop_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -189,7 +191,15 @@
                     app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
-            <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                <include layout="@layout/layout_no_chat"
+                         android:layout_width="match_parent"
+                         android:layout_height="0dp"
+                         android:visibility="gone"
+                         app:layout_constraintStart_toStartOf="parent"
+                         app:layout_constraintTop_toBottomOf="@+id/devider"
+                         app:layout_constraintBottom_toBottomOf="parent"
+                />
+                <com.antourage.weaverlib.other.ui.FadingRecyclerView
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

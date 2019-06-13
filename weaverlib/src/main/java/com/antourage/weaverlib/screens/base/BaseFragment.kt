@@ -1,17 +1,36 @@
 package com.antourage.weaverlib.screens.base
 
 import android.arch.lifecycle.Observer
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.antourage.weaverlib.screens.base.AntourageActivity.Companion.ACTION_CONNECTION_AVAILABLE
+import com.antourage.weaverlib.screens.base.AntourageActivity.Companion.ACTION_CONNECTION_LOST
 
 abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     protected lateinit var viewModel: VM
+
+    private val onConnectionLostReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onNetworkConnectionLost()
+        }
+    }
+    private val onConnectionAvailableReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onNetworkConnectionAvailable()
+        }
+    }
 
     protected abstract fun getLayoutId(): Int
 
@@ -55,12 +74,34 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
         BaseViewModel.warning.observe(this.viewLifecycleOwner, warningObserver)
 
         BaseViewModel.success.observe(this.viewLifecycleOwner, successObserver)
-
     }
+
+    override fun onResume() {
+        super.onResume()
+        val connectionLostFilter = IntentFilter(ACTION_CONNECTION_LOST)
+        val connectionAvailableFilter = IntentFilter(ACTION_CONNECTION_AVAILABLE)
+        context?.let {
+            LocalBroadcastManager.getInstance(it)
+                .registerReceiver(onConnectionLostReceiver, connectionLostFilter)
+            LocalBroadcastManager.getInstance(it)
+                .registerReceiver(onConnectionAvailableReceiver, connectionAvailableFilter)
+        }
+    }
+
+    override fun onPause(){
+        super.onPause()
+        context?.let {
+            LocalBroadcastManager.getInstance(it)
+                .unregisterReceiver(onConnectionLostReceiver)
+            LocalBroadcastManager.getInstance(it)
+                .unregisterReceiver(onConnectionAvailableReceiver)
+        }
+    }
+
 
     private fun showErrorAlerter(s: String) {
        // Toast.makeText(context, s, Toast.LENGTH_LONG).show()
-        var alertDialog = AlertDialog.Builder(context!!) // this: Activity
+        val alertDialog = AlertDialog.Builder(context!!) // this: Activity
             .setMessage(s)
             .create()
 
@@ -74,5 +115,11 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
     private fun showSuccessAlerter(s: String) {
         Toast.makeText(context, s, Toast.LENGTH_LONG).show()
     }
+    open protected fun onNetworkConnectionLost() {
+        Log.d("BaseFragment","Connection lost")
+    }
 
+    open protected fun onNetworkConnectionAvailable() {
+        Log.d("BaseFragment","Connection gained")
+    }
 }

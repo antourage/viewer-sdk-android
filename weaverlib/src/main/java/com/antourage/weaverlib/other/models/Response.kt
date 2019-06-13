@@ -38,16 +38,13 @@ class SimpleResponse {
 @Parcelize
 data class StreamResponse(
     @field:SerializedName("id") val streamId:Int,
-    @field:SerializedName("name")val streamTitle:String,
-    @field:SerializedName("creatorFullName") val creatorFullname:String,
-    @field:SerializedName("creatorNickName") val creatorNickname: String,
-    @field:SerializedName("thumbnailUrl")val thumbnailUrl:String,
-    @field:SerializedName("hlsUrl")val hlsUrl:String,
-    @field:SerializedName("rtmp") val rtmpList:List<RtmpResponse>,
-    val duration:Int,
-    var isLive:Boolean = false
+    @field:SerializedName("name")val streamTitle:String = "",
+    @field:SerializedName("creatorFullName") val creatorFullname:String = "",
+    @field:SerializedName("creatorNickName") val creatorNickname: String = "",
+    @field:SerializedName("thumbnailUrl")val thumbnailUrl:String ="",
+    @field:SerializedName("hlsUrl")val hlsUrl:String = "",
+    @field:SerializedName("startTime") val startTime:String = "",
+    val duration:Int = -1,
+    var isLive:Boolean = false,
+    val viewerCounter:Int = 6385
     ):Parcelable
-@Parcelize
-data class RtmpResponse(
-    @field:SerializedName("url") val url:String
-):Parcelable

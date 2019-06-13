@@ -9,5 +9,26 @@
     <string name="chat_not_available">Chat is unavailable</string>
 
     <string name="number_answers">%d poll answers</string>
+    <string name="no_comments_yet">There are no comments yet</string>
+    <string name="commenting_off">Commenting is turned off for now</string>
+    <plurals name="seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <string name="started_ago">%1$s ago</string>
 
 </resources>
