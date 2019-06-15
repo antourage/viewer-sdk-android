@@ -31,14 +31,16 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
         val runnable = object : Runnable {
             override fun run() {
                 // Insert custom code here
-                val pos = player.currentPosition/1000
+                val pos = (player.currentPosition/1000)-1
                 val list = repository.getMessagesList(currentWindow+1)
                 val listToDisplay = mutableListOf<Message>()
                 for (i in 0 until list.size){
                     if((list[i].timestamp-1)<=pos){
-                        listToDisplay.add(Message("",list[i].nickname,
+                        val msg = Message("",list[i].nickname,
                             list[i].nickname,list[i].text, MessageType.USER,Timestamp(Date())
-                        ))
+                        )
+                        msg.id = list[i].timestamp.toString()
+                        listToDisplay.add(msg)
                     }
                 }
                 messagesLiveData.value = listToDisplay

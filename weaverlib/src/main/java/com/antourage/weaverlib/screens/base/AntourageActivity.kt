@@ -8,8 +8,11 @@ import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.NetworkStateReceiver
 import com.antourage.weaverlib.screens.list.VideoListFragment
+import com.antourage.weaverlib.screens.weaver.WeaverFragment
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.google.firebase.FirebaseApp
 
 
@@ -29,8 +32,14 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
+        val inteee = intent
+        val extra =  intent.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
+        if(intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null){
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.mainContent, WeaverFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))).commit()
+        } else
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
         FirebaseLoginService(this).handleSignIn()
         networkStateReceiver = NetworkStateReceiver()
         networkStateReceiver.addListener(this)

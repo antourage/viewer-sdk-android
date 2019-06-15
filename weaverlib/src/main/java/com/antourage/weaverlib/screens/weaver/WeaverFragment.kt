@@ -22,6 +22,7 @@ import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
@@ -172,6 +173,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 "", "osoluk@leobit.co", "my nic", etMessage.text.toString(),
                 MessageType.USER, Timestamp(Date())
             )
+            message.userID = FirebaseAuth.getInstance().uid
             viewModel.addMessage(message, arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!)
             etMessage.setText("")
         }
@@ -246,5 +248,14 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         btnSend.visibility = View.VISIBLE
     }
 
+    override fun onNetworkConnectionLost() {
+        viewModel.onNetworkLost()
+    }
 
+    override fun onNetworkConnectionAvailable() {
+        showLoading()
+        startPlayingStream()
+        //viewModel.onNetworkGained()
+
+    }
 }

@@ -12,7 +12,6 @@
                 android:windowSoftInputMode="adjustResize"
                 android:screenOrientation="portrait"
                 android:supportsPictureInPicture="true"
-                android:launchMode="singleTask"
                 android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
                 tools:targetApi="n">
         </activity>

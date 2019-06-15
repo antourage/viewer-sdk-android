@@ -67,7 +67,8 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         video?.let {
             tvStreamName.text = video.streamTitle
             tvBroadcastedBy.text = video.creatorFullname
-            tvWasLive.text = "1 day ago"
+            if(context != null)
+                tvWasLive.text = video.startTime.parseDate(context!!)
             tvControllerStreamName.text = video.streamTitle
             tvControllerBroadcastedBy.text = video.creatorFullname
             txtNumberOfViewers.text = video.viewerCounter.toString()
@@ -94,12 +95,13 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
         startPlayingStream()
         handleChat()
+        ll_wrapper.visibility = View.INVISIBLE
         if(context != null)
             tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
     override fun onControlsVisible() {
-        if(context != null)
-            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+//        if(context != null)
+//            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
 
 
@@ -144,6 +146,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             btnSend.visibility = View.VISIBLE
             deviderChat.visibility = View.VISIBLE
         }
+        ll_wrapper.visibility = View.INVISIBLE
     }
 
     override fun onNetworkConnectionLost() {

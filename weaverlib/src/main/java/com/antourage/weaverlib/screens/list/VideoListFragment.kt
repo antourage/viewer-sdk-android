@@ -52,7 +52,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun subscribeToObservers() {
-        viewModel.listOfStreams.reobserve(this.viewLifecycleOwner, streamsObserver)
+        viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
     }
 
     override fun onStop() {

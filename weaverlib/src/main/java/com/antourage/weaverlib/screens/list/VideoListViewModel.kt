@@ -11,18 +11,18 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
     ReceivingVideosManager.ReceivingVideoCallback {
 
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
-    val receivingVideosManager = ReceivingVideosManager(this)
+    val receivingVideosManager = ReceivingVideosManager.newInstance(this)
 
     init {
         listOfStreams.postValue(repository.getListOfVideos())
     }
 
     fun getStreams() {
-        receivingVideosManager.startReceivingVideos()
+        ReceivingVideosManager.startReceivingVideos()
     }
 
     fun onStop() {
-        receivingVideosManager.stopReceivingVideos()
+        ReceivingVideosManager.stopReceivingVideos()
     }
 
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {

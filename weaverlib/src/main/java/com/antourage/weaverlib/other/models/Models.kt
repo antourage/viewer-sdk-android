@@ -19,7 +19,8 @@ data class Message(
     var nickname: String? = null,
     var text: String? = null,
     var type:Int?=null,
-    var timestamp: Timestamp? = null
+    var timestamp: Timestamp? = null,
+    var userID:String? = null
 ):FirestoreModel()
 @IgnoreExtraProperties
 class Poll : FirestoreModel() {

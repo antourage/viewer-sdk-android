@@ -3,34 +3,32 @@
              xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition
-            motion:constraintSetStart="@+id/start"
-            motion:constraintSetEnd="@+id/end"
-            motion:duration="2000">
+            motion:constraintSetStart="@id/start"
+            motion:constraintSetEnd="@id/end"
+            motion:duration="1000">
         <OnSwipe
                 motion:touchAnchorId="@+id/fabExpantion"
-                motion:touchAnchorSide="right"
-                motion:dragDirection="dragRight" />
+                motion:maxAcceleration="25"
+                motion:touchAnchorSide="left"
+                motion:dragDirection="dragLeft" />
     </Transition>
-
     <ConstraintSet android:id="@+id/start">
         <Constraint
                 android:id="@+id/fabExpantion"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintEnd_toEndOf="parent"
+                motion:layout_constraintTop_toTopOf="parent"/>
+        <Constraint
+                android:id="@+id/tvStreamName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
                 android:visibility="gone"
-                motion:layout_constraintBottom_toBottomOf="parent"
-                motion:layout_constraintTop_toTopOf="parent"
-                motion:layout_constraintEnd_toEndOf="parent"/>
-        <Constraint
-            android:id="@+id/tvStreamName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            motion:layout_constraintEnd_toEndOf="@id/fabExpantion"
-            motion:layout_constraintTop_toTopOf="@id/fabExpantion"
-            />
+                motion:layout_constraintEnd_toEndOf="@id/fabExpantion"
+                motion:layout_constraintTop_toTopOf="@id/fabExpantion"
+        />
         <Constraint
                 android:id="@+id/tvViewers"
                 android:layout_width="0dp"
@@ -53,14 +51,13 @@
     <ConstraintSet android:id="@+id/end">
         <Constraint
                 android:id="@+id/fabExpantion"
-                android:layout_width="276dp"
+                android:layout_width="300dp"
                 android:layout_height="64dp"
-                android:layout_marginEnd="16dp"
-
+                android:layout_marginEnd="8dp"
                 motion:layout_constraintBottom_toBottomOf="parent"
-                motion:layout_constraintTop_toTopOf="parent"
                 motion:layout_constraintEnd_toEndOf="parent"
-                 />
+                motion:layout_constraintTop_toTopOf="parent"
+        />
         <Constraint
                 android:id="@+id/tvStreamName"
                 android:layout_width="wrap_content"
@@ -86,6 +83,4 @@
                 motion:layout_constraintStart_toStartOf="@+id/fabExpantion"
         />
     </ConstraintSet>
-
-
 </MotionScene>

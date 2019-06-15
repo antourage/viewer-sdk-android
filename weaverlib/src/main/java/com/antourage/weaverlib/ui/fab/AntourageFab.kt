@@ -2,16 +2,15 @@ package com.antourage.weaverlib.ui.fab
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.Keep
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.motion.MotionLayout
 import android.support.constraint.motion.MotionScene
+import android.support.v4.content.ContextCompat.startActivity
 import android.util.AttributeSet
-import android.util.Log
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_DOWN
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
@@ -25,29 +24,35 @@ import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
+import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, ReceivingVideosManager.ReceivingVideoCallback {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, ReceivingVideosManager.ReceivingVideoCallback,
+    MotionOverlayView.FabExpantionListener {
+
+    private lateinit var currentlyDisplayedStream: StreamResponse
+
+    override fun onFabExpantionClicked() {
+        val intent = Intent(context, AntourageActivity::class.java)
+        intent.putExtra(ARGS_STREAM_SELECTED,currentlyDisplayedStream)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.applicationContext.startActivity(intent)
+    }
+
+    val handlerFab: Handler = Handler(Looper.getMainLooper())
 
     companion object {
-        const val SHOWING_DURABILITY =5000L
+        const val SHOWING_DURABILITY = 5000L
+        const val ARGS_STREAM_SELECTED = "args_stream_selected"
     }
 
     init {
         AppExecutors()
-//        floatingActionButton.size = FloatingActionButton.SIZE_NORMAL
-//        floatingActionButton.backgroundTintList = ColorStateList.valueOf(
-//            ContextCompat.getColor(
-//                context,
-//                R.color.bg_color_widget
-//            )
-//        )
-
     }
 
-    private val receivingVideoManager = ReceivingVideosManager(this)
+    private val receivingVideoManager = ReceivingVideosManager.newInstance(this)
     private val listOfSeenStreams = mutableListOf<Int>()
 
     sealed class WidgetStatus {
@@ -64,15 +69,22 @@ class AntourageFab @JvmOverloads constructor(
             is WidgetStatus.ACTIVE_LIVE_STREAM -> {
                 for (i in 0 until status.list.size) {
                     if (!listOfSeenStreams.contains(status.list[i].streamId)) {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            expandableLayout.visibility = View.VISIBLE
-                            expandableLayout.transitionToEnd()
-                            tvStreamTitle.text = status.list[i].streamTitle
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                expandableLayout.transitionToStart()
-                            }, SHOWING_DURABILITY)
-                            listOfSeenStreams.add(status.list[i].streamId)
-                        }, i.toLong() * 2*SHOWING_DURABILITY)
+                        handlerFab.postDelayed(object : Runnable {
+                            override fun run() {
+                                currentlyDisplayedStream = status.list[i]
+                                expandableLayout.visibility = View.VISIBLE
+                                expandableLayout.transitionToEnd()
+                                tvStreamTitle.text = status.list[i].streamTitle
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    expandableLayout.transitionToStart()
+                                }, SHOWING_DURABILITY)
+                                listOfSeenStreams.add(status.list[i].streamId)
+                                handlerFab.postDelayed(
+                                    this,
+                                    (listOfSeenStreams.size) * (i + 1).toLong() * SHOWING_DURABILITY
+                                )
+                            }
+                        }, i.toLong() * SHOWING_DURABILITY)
                     }
                 }
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
@@ -108,18 +120,12 @@ class AntourageFab @JvmOverloads constructor(
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
         val intent = Intent(context, AntourageActivity::class.java)
+        motionOverlayView.setFabListener(this)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         floatingActionButton.setOnClickListener {
             context.startActivity(intent)
         }
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
-        //fabExpantion.setOnClickListener { context.startActivity(intent) }
-        fabExpantion.setOnTouchListener (object:OnTouchListener{
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                return false
-            }
-
-        })
         manageVideos()
         AntourageFabLifecycleObserver.registerActionHandler(this)
     }
@@ -128,12 +134,13 @@ class AntourageFab @JvmOverloads constructor(
     override fun onPause() {
         expandableLayout.visibility = View.INVISIBLE
         expandableLayout.setTransitionListener(null)
-        receivingVideoManager.stopReceivingVideos()
+        ReceivingVideosManager.stopReceivingVideos()
+
     }
 
     override fun onResume() {
         expandableLayout.setTransitionListener(transitionListener)
-        receivingVideoManager.startReceivingVideos()
+        ReceivingVideosManager.startReceivingVideos()
     }
 
     fun manageVideos() {
