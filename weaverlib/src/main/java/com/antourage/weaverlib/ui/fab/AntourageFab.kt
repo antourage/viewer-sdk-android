@@ -2,15 +2,14 @@ package com.antourage.weaverlib.ui.fab
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.Keep
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.motion.MotionLayout
 import android.support.constraint.motion.MotionScene
-import android.support.v4.content.ContextCompat.startActivity
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
@@ -33,6 +32,10 @@ class AntourageFab @JvmOverloads constructor(
     MotionOverlayView.FabExpantionListener {
 
     private lateinit var currentlyDisplayedStream: StreamResponse
+    private var listOfStreams:List<StreamResponse>? = null
+    val handlerFab: Handler = Handler(Looper.getMainLooper())
+    var isSwipeInProgress = false
+
 
     override fun onFabExpantionClicked() {
         val intent = Intent(context, AntourageActivity::class.java)
@@ -40,8 +43,9 @@ class AntourageFab @JvmOverloads constructor(
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.applicationContext.startActivity(intent)
     }
-
-    val handlerFab: Handler = Handler(Looper.getMainLooper())
+    override fun onSwipeStarted() {
+        isSwipeInProgress = true
+    }
 
     companion object {
         const val SHOWING_DURABILITY = 5000L
@@ -50,9 +54,9 @@ class AntourageFab @JvmOverloads constructor(
 
     init {
         AppExecutors()
+        ReceivingVideosManager.newInstance(this)
     }
 
-    private val receivingVideoManager = ReceivingVideosManager.newInstance(this)
     private val listOfSeenStreams = mutableListOf<Int>()
 
     sealed class WidgetStatus {
@@ -64,6 +68,7 @@ class AntourageFab @JvmOverloads constructor(
     fun changeBadgeStatus(status: WidgetStatus) {
         when (status) {
             is WidgetStatus.INACTIVE -> {
+                handlerFab.removeCallbacksAndMessages(null)
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ACTIVE_LIVE_STREAM -> {
@@ -71,25 +76,30 @@ class AntourageFab @JvmOverloads constructor(
                     if (!listOfSeenStreams.contains(status.list[i].streamId)) {
                         handlerFab.postDelayed(object : Runnable {
                             override fun run() {
-                                currentlyDisplayedStream = status.list[i]
-                                expandableLayout.visibility = View.VISIBLE
-                                expandableLayout.transitionToEnd()
-                                tvStreamTitle.text = status.list[i].streamTitle
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    expandableLayout.transitionToStart()
-                                }, SHOWING_DURABILITY)
-                                listOfSeenStreams.add(status.list[i].streamId)
-                                handlerFab.postDelayed(
-                                    this,
-                                    (listOfSeenStreams.size) * (i + 1).toLong() * SHOWING_DURABILITY
-                                )
+                                if(listOfStreams!!.contains(status.list[i])) {
+                                    currentlyDisplayedStream = status.list[i]
+                                    expandableLayout.visibility = View.VISIBLE
+                                    expandableLayout.transitionToEnd()
+                                    tvStreamTitle.text = status.list[i].streamTitle
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        expandableLayout.transitionToStart()
+                                    }, SHOWING_DURABILITY)
+                                    listOfSeenStreams.add(status.list[i].streamId)
+                                    listOfStreams?.let {
+                                        handlerFab.postDelayed(
+                                            this,
+                                            it.size * (i + 1).toLong() * SHOWING_DURABILITY
+                                        )
+                                    }
+                                }
                             }
-                        }, i.toLong() * SHOWING_DURABILITY)
+                        }, status.list.size*i.toLong() * SHOWING_DURABILITY)
                     }
                 }
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
             }
             is WidgetStatus.ACTIVE_UNSEEN_VIDEOS -> {
+                handlerFab.removeCallbacksAndMessages(null)
                 floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
             }
         }
@@ -97,7 +107,6 @@ class AntourageFab @JvmOverloads constructor(
 
     private val transitionListener = object : MotionLayout.TransitionListener {
         override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
-
         }
 
         override fun allowsTransition(p0: MotionScene.Transition?): Boolean {
@@ -113,7 +122,12 @@ class AntourageFab @JvmOverloads constructor(
         override fun onTransitionCompleted(p0: MotionLayout?, currentId: Int) {
             if (currentId == R.id.start) {
                 expandableLayout.visibility = View.INVISIBLE
+                if(isSwipeInProgress){
+                    handlerFab.removeCallbacksAndMessages(null)
+                }
             }
+            isSwipeInProgress = false
+
         }
     }
 
@@ -167,6 +181,7 @@ class AntourageFab @JvmOverloads constructor(
             State.SUCCESS -> {
                 val list = (resource.data)?.toMutableList()
                 if (list != null && list.size > 0) {
+                    listOfStreams = list
                     changeBadgeStatus(WidgetStatus.ACTIVE_LIVE_STREAM(list))
                 } else {
                     manageVideos()

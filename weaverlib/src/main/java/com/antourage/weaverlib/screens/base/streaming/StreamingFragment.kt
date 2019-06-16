@@ -225,7 +225,4 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
         }
         playerControls.hide()
     }
-
-
-
 }

@@ -61,6 +61,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
                 MotionEvent.ACTION_DOWN -> {
                     startX = ev.x
                     startY = ev.y
+                    listener?.onSwipeStarted()
                 }
 
                 MotionEvent.ACTION_UP   -> {
@@ -69,6 +70,8 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
                     if (isAClick(startX!!, endX, startY!!, endY)) {
                         expandableLayout.transitionToStart()
                         listener?.onFabExpantionClicked()
+                    } else{
+                        listener?.onSwipeStarted()
                     }
                 }
             }
@@ -89,5 +92,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
     }
     interface FabExpantionListener{
         fun onFabExpantionClicked()
+
+        fun onSwipeStarted()
     }
 }
