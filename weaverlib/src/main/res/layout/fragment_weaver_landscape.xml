@@ -208,7 +208,7 @@
                 android:id="@+id/btnSend"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_weight="1"
+                android:layout_weight="0.2"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription"/>

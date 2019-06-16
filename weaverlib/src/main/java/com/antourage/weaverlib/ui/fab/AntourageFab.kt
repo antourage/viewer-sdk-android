@@ -37,7 +37,7 @@ class AntourageFab @JvmOverloads constructor(
     override fun onFabExpantionClicked() {
         val intent = Intent(context, AntourageActivity::class.java)
         intent.putExtra(ARGS_STREAM_SELECTED,currentlyDisplayedStream)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.applicationContext.startActivity(intent)
     }
 

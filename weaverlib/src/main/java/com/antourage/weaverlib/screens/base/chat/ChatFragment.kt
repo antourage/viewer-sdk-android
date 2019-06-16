@@ -62,12 +62,17 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
                     val drawerToggle = object : ActionBarDrawerToggle(activity, drawerLayout, null, 0, 0) {
                         override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                             super.onDrawerSlide(drawerView, slideOffset)
-                            llMessageWrapper.alpha = slideOffset
-                            if(slideOffset == 0.0f){
-                                etMessage.isEnabled = false
-                            }
-                            if(slideOffset == 1.0f){
-                                etMessage.isEnabled = true
+                            val orientation = resources.configuration.orientation
+                            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                llMessageWrapper.alpha = slideOffset
+                                if (slideOffset == 0.0f) {
+                                    etMessage.isEnabled = false
+                                }
+                                if (slideOffset == 1.0f) {
+                                    etMessage.isEnabled = true
+                                }
+                            } else{
+                                drawerLayout.openDrawer(navigationView,false)
                             }
                         }
                     }

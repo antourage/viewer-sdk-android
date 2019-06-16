@@ -89,13 +89,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_share_white"
                 android:layout_marginTop="24dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/playerView"
-        />
+                tools:ignore="ContentDescription"/>
 
     <LinearLayout
             android:id="@+id/llPollStatus"
@@ -103,7 +102,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginTop="24dp"
             android:background="@drawable/rounded_green_bg"
             app:layout_constraintEnd_toStartOf="@id/btnShare"
@@ -191,14 +189,23 @@
                     app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
-                <include layout="@layout/layout_no_chat"
-                         android:layout_width="match_parent"
-                         android:layout_height="0dp"
-                         android:visibility="gone"
-                         app:layout_constraintStart_toStartOf="parent"
-                         app:layout_constraintTop_toBottomOf="@+id/devider"
-                         app:layout_constraintBottom_toBottomOf="parent"
-                />
+                <android.support.constraint.ConstraintLayout android:layout_width="match_parent"
+                                                             android:layout_height="match_parent"
+                                                             android:id="@+id/llNoChat"
+
+                                                             app:layout_constraintTop_toBottomOf="@+id/devider"
+                                                             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+                                                             app:layout_constraintStart_toStartOf="parent"
+                                                             app:layout_constraintEnd_toEndOf="parent"
+                >
+                    <include layout="@layout/layout_no_chat"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             app:layout_constraintStart_toStartOf="parent"
+                             app:layout_constraintTop_toTopOf="parent"
+                             app:layout_constraintBottom_toBottomOf="parent"
+                    />
+                </android.support.constraint.ConstraintLayout>
                 <com.antourage.weaverlib.other.ui.FadingRecyclerView
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
@@ -232,6 +239,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_margin="6dp"
+            android:visibility="invisible"
             android:background="@color/bg_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -254,7 +262,7 @@
                 android:id="@+id/btnSend"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_weight="1"
+                android:layout_weight="0.2"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription"/>

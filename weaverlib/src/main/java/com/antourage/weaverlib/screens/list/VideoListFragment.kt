@@ -9,7 +9,6 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -17,6 +16,8 @@ import com.antourage.weaverlib.screens.list.rv.VideosLayoutManager
 import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
+import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 
 
 class VideoListFragment : BaseFragment<VideoListViewModel>() {
@@ -78,6 +79,10 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videoAdapter = VideosAdapter(onClick)
         videosRV.adapter = videoAdapter
         videosRV.layoutManager = VideosLayoutManager(context)
+        val dividerItemDecoration = VerticalSpaceItemDecorator(
+            dp2px(context!!,30f).toInt()
+        )
+        videosRV.addItemDecoration(dividerItemDecoration)
         videoRefreshLayout.setOnRefreshListener {
             viewModel.getStreams()
         }

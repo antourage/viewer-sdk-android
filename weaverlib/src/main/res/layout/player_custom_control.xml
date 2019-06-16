@@ -108,7 +108,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_margin="18dp"
-            android:src="@drawable/ic_full_screen"
+            android:background="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
     />
 

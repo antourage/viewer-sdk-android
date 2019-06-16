@@ -4,19 +4,17 @@ package com.antourage.weaverlib.screens.weaver
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
-import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
-import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceChildFragment
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
@@ -24,13 +22,11 @@ import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.controller_header.*
-import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.layout_no_chat.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_control.*
-import kotlinx.android.synthetic.main.player_custom_control.tvWasLive
 import java.util.*
 
 
@@ -71,65 +67,70 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 }
             }
     }
+
     private val chatStateObserver: Observer<WeaverViewModel.ChatStatus> = Observer { state ->
-        if (state!= null)
-            when(state){
-                is WeaverViewModel.ChatStatus.CHAT_TURNED_OFF ->{
+        if (state != null)
+            when (state) {
+                is WeaverViewModel.ChatStatus.CHAT_TURNED_OFF -> {
                     etMessage.isEnabled = false
                     ll_wrapper.visibility = View.INVISIBLE
                     val orientation = resources.configuration.orientation
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         llNoChat.visibility = View.GONE
-                    }else{
-                        if(context != null)
-                            ivNoChat.background = ContextCompat.getDrawable(context!!,R.drawable.ic_chat_off)
+                    } else {
+                        context?.let {context->
+                            ivNoChat.background =
+                                ContextCompat.getDrawable(context, R.drawable.ic_chat_off_layered)
+                        }
                         txtNoChat.text = getString(R.string.commenting_off)
-                        if(rvMessages.adapter?.itemCount==0)
+                        if (rvMessages.adapter?.itemCount == 0)
                             llNoChat.visibility = View.VISIBLE
                     }
                 }
-                is WeaverViewModel.ChatStatus.CHAT_MESSAGES ->{
+                is WeaverViewModel.ChatStatus.CHAT_MESSAGES -> {
                     rvMessages.visibility = View.VISIBLE
                     (rvMessages.adapter as MessagesAdapter).setMessageList(state.messages)
                     ll_wrapper.visibility = View.VISIBLE
                     llNoChat.visibility = View.GONE
                     etMessage.isEnabled = true
                 }
-                is WeaverViewModel.ChatStatus.CHAT_NO_MESSAGES ->{
+                is WeaverViewModel.ChatStatus.CHAT_NO_MESSAGES -> {
                     etMessage.isEnabled = true
                     ll_wrapper.visibility = View.VISIBLE
                     rvMessages.visibility = View.INVISIBLE
                     val orientation = resources.configuration.orientation
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         llNoChat.visibility = View.GONE
-                    }else{
-                        if(context != null)
-                            ivNoChat.background = ContextCompat.getDrawable(context!!,R.drawable.ic_chat_no_comments_yet)
+                    } else {
+                        context?.let { context ->
+                            ivNoChat.background =
+                                ContextCompat.getDrawable(context, R.drawable.ic_chat_no_comments_yet)
+                        }
                         txtNoChat.text = getString(R.string.no_comments_yet)
                         llNoChat.visibility = View.VISIBLE
                     }
                 }
             }
     }
-    private val pollStateObserver:Observer<WeaverViewModel.PollStatus> = Observer { state->
-        if(state != null){
-            when(state){
-                is WeaverViewModel.PollStatus.NO_POLL ->{
+    private val pollStateObserver: Observer<WeaverViewModel.PollStatus> = Observer { state ->
+        if (state != null) {
+            when (state) {
+                is WeaverViewModel.PollStatus.NO_POLL -> {
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.GONE
                 }
-                is WeaverViewModel.PollStatus.ACTIVE_POLL ->{
+                is WeaverViewModel.PollStatus.ACTIVE_POLL -> {
                     tvPollTitle.text = state.poll.question
                     pollPopupLayout.visibility = View.VISIBLE
                     llPollStatus.visibility = View.GONE
                 }
-                is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED->{
+                is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED -> {
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.VISIBLE
                     if (state.pollStatus != null)
                         txtPollStatus.text = state.pollStatus
                 }
-                is WeaverViewModel.PollStatus.POLL_DETAILS ->{
+                is WeaverViewModel.PollStatus.POLL_DETAILS -> {
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.VISIBLE
                     bottomLayout.visibility = View.VISIBLE
@@ -140,9 +141,10 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                         ), R.id.bottomLayout, true
                     )
                     childFragmentManager.addOnBackStackChangedListener {
-                        if(!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment))
-                             bottomLayout.visibility = View.GONE
-                        etMessage.isEnabled = !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
+                        if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment))
+                            bottomLayout.visibility = View.GONE
+                        etMessage.isEnabled =
+                            !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
                     }
                 }
             }
@@ -176,13 +178,14 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             message.userID = FirebaseAuth.getInstance().uid
             viewModel.addMessage(message, arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!)
             etMessage.setText("")
+            (activity as AntourageActivity).hideSoftKeyboard()
         }
         viewModel.initUi(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId)
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
         tvControllerStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
         tvControllerBroadcastedBy.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.creatorFullname
-        if(context != null)
+        if (context != null)
             tvWasLive.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.startTime?.parseDate(context!!)
         ivDismissPoll.setOnClickListener {
             viewModel.startNewPollCoundown()
@@ -195,8 +198,9 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             viewModel.startNewPollCoundown()
         }
     }
+
     override fun onControlsVisible() {
-        if(context != null)
+        if (context != null)
             tvWasLive.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
 
@@ -243,8 +247,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 devider.visibility = View.VISIBLE
             }
         }
-        viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner,pollStateObserver)
-        viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner,chatStateObserver)
+        viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
+        viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner, chatStateObserver)
         btnSend.visibility = View.VISIBLE
     }
 

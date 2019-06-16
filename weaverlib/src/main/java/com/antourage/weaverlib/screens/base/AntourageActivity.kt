@@ -1,5 +1,7 @@
 package com.antourage.weaverlib.screens.base
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -7,6 +9,10 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.NetworkStateReceiver
@@ -32,8 +38,6 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        val inteee = intent
-        val extra =  intent.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         if(intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null){
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContent, WeaverFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))).commit()
@@ -41,6 +45,7 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
         FirebaseLoginService(this).handleSignIn()
+        setupKeyboardListener(findViewById(R.id.mainContent))
         networkStateReceiver = NetworkStateReceiver()
         networkStateReceiver.addListener(this)
         this.registerReceiver(networkStateReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
@@ -56,6 +61,32 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         val intent = Intent(ACTION_CONNECTION_LOST)
         localBroadcastManager.sendBroadcast(intent)
+    }
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupKeyboardListener(view: View) {
+
+        if (!(view is EditText )) {
+            view.setOnTouchListener { v, event ->
+                hideSoftKeyboard()
+                false
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                setupKeyboardListener(view.getChildAt(i))
+            }
+        }
+    }
+
+    fun hideSoftKeyboard() {
+        val inputMethodManager = getSystemService(
+            Activity.INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+        if ( currentFocus != null)
+            inputMethodManager.hideSoftInputFromWindow(
+                currentFocus?.windowToken, 0
+            )
+
     }
     override fun onUserLeaveHint() {
         //TODO uncomment and enable

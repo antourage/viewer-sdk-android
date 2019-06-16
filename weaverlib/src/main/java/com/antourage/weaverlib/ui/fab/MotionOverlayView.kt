@@ -1,12 +1,12 @@
 package com.antourage.weaverlib.ui.fab
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.support.constraint.motion.MotionLayout
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import com.antourage.weaverlib.R
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 
@@ -83,6 +83,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
         return !/* =5 */(differenceX > 200 || differenceY > 200)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
     }

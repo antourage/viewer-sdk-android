@@ -16,15 +16,11 @@ import com.antourage.weaverlib.R
 
 
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
-private const val TEXT_STATE = "TEXT"
 
 private const val NORMAL_MAX_COUNT_TEXT = "live"
 
-private const val MINI_MAX_COUNT_TEXT = "9+"
-
 private const val TEXT_SIZE_DP = 11
 private const val TEXT_PADDING_DP = 2
-private val MASK_COLOR = Color.parseColor("#33000000") // Translucent black as mask color
 private val ANIMATION_INTERPOLATOR = OvershootInterpolator()
 private const val RIGHT_TOP_POSITION = 0
 private const val LEFT_BOTTOM_POSITION = 1
@@ -56,11 +52,7 @@ class BadgeFab @JvmOverloads constructor(
     private val textPadding = TEXT_PADDING_DP * resources.displayMetrics.density
 
     private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-    }
-    private val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        color = MASK_COLOR
+        style = Style.FILL
     }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Style.FILL_AND_STROKE
@@ -200,7 +192,17 @@ class BadgeFab @JvmOverloads constructor(
             val radius = circleBounds.width() / 2f * animationFactor
             if (textBadge != "") {
                 // Solid rectangle with rounded corners
-                val rect = RectF(cx - radius - 10f, cy + radius, cx + radius + 10, cy - radius)
+                var left = cx - radius
+                var right = cx + radius
+                if(textBadge.length == 2){
+                    left -= 5f
+                    right += 5f
+                }
+                if(textBadge.length>=3){
+                    left -= 10f
+                    right += 10f
+                }
+                val rect = RectF(left, cy + radius, right, cy - radius)
                 canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
 //                canvas.drawCircle(cx, cy, radius+10, circlePaint)
                 // Mask circle

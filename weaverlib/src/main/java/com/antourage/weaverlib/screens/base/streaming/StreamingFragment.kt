@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.OrientationEventListener
@@ -16,7 +17,9 @@ import android.widget.Button
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
+import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
+import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 
@@ -70,7 +73,14 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                 handleControlsVisibility()
             }
             val ivClose:ImageView = view.findViewById(R.id.ivClose)
-            ivClose.setOnClickListener { fragmentManager?.popBackStack() }
+            ivClose.setOnClickListener {
+                fragmentManager?.let { fragmentManager->
+                    if ( fragmentManager.backStackEntryCount>0)
+                        fragmentManager.popBackStack()
+                    else
+                        replaceFragment(VideoListFragment.newInstance(),R.id.mainContent)
+                }
+            }
             initLoader()
             initOrientationHandling()
             setPlayerSizePortrait()
@@ -195,6 +205,9 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                 newConfig.screenWidthDp,
                 newConfig.screenHeightDp
             )
+            context?.let {context->
+                ivScreenSize.background = ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
+            }
             controllerHeaderLayout.visibility = View.VISIBLE
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -203,6 +216,9 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                 newConfig.screenWidthDp,
                 newConfig.screenHeightDp
             )
+            context?.let {context->
+                ivScreenSize.background = ContextCompat.getDrawable(context, R.drawable.ic_full_screen)
+            }
             controllerHeaderLayout.visibility = View.GONE
             setPlayerSizePortrait()
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
