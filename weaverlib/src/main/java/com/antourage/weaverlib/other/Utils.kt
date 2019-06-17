@@ -42,3 +42,9 @@ fun getDateDiff(date1: Date, date2: Date): Long {
     val diffInMillies = date2.time - date1.time
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS)
 }
+
+fun generateRandomViewerNumber():Int{
+    val min = 20
+    val max = 1000
+    return Random().nextInt(max - min + 1) + min
+}

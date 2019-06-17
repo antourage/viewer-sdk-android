@@ -104,6 +104,7 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
             rvMessages.adapter =
                 MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
             (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
+            rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false

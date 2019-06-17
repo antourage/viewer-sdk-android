@@ -33,17 +33,19 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
         class ACTIVE_POLL_DISMISSED(val pollStatus: String?) : PollStatus()
         class POLL_DETAILS(val pollId: String) : PollStatus()
     }
-    sealed class ChatStatus{
-        class CHAT_TURNED_OFF: ChatStatus()
-        class CHAT_NO_MESSAGES: ChatStatus()
-        class CHAT_MESSAGES(val messages: List<Message>):ChatStatus()
+
+    sealed class ChatStatus {
+        class CHAT_TURNED_OFF : ChatStatus()
+        class CHAT_NO_MESSAGES : ChatStatus()
+        class CHAT_MESSAGES(val messages: List<Message>) : ChatStatus()
     }
 
     var wasStreamInitialized = false
     var streamId: Int = 0
+    private var isChatTurnedOn = false
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
-    private val chatStatusLiveData:MutableLiveData<ChatStatus> = MutableLiveData()
+    private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private var currentPoll: Poll? = null
 
     fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
@@ -53,13 +55,18 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
         pollStatusLiveData.value = PollStatus.NO_POLL()
     }
 
-    private val messagesObserver: Observer<Resource<List<Message>>> = Observer { data ->
-        if (data?.data != null)
-            if(isChatContainsNonstatusMsg(data.data))
-                chatStatusLiveData.postValue(ChatStatus.CHAT_MESSAGES(data.data))
-            else
-                chatStatusLiveData.postValue(ChatStatus.CHAT_NO_MESSAGES())
-    }
+    private val messagesObserver: Observer<Resource<List<Message>>> =
+        object : Observer<Resource<List<Message>>> {
+            override fun onChanged(data: Resource<List<Message>>?) {
+                if (data?.data != null && isChatTurnedOn)
+                    if (isChatContainsNonstatusMsg(data.data)) {
+                        chatStatusLiveData.postValue(ChatStatus.CHAT_MESSAGES(data.data))
+                        messagesLiveData.postValue(data.data)
+                    } else {
+                        chatStatusLiveData.postValue(ChatStatus.CHAT_NO_MESSAGES())
+                    }
+            }
+        }
     private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data ->
         if (data?.state == State.SUCCESS) {
             if (data.data != null && data.data.isNotEmpty()) {
@@ -75,7 +82,10 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
     }
     private val streamObserver: Observer<Resource<Stream>> = Observer { data ->
         if (data?.data != null) {
-            if(!data.data.isChatActive) {
+            isChatTurnedOn = data.data.isChatActive
+            if (!data.data.isChatActive) {
+                //TODO 17/06/2019 wth does not actually remove observer
+                repository.getMessages(streamId).removeObserver(messagesObserver)
                 chatStatusLiveData.postValue(ChatStatus.CHAT_TURNED_OFF())
             } else {
                 repository.getMessages(streamId).observeForever(messagesObserver)
@@ -97,14 +107,16 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
             pollStatusLiveData.value = (PollStatus.POLL_DETAILS(it.id))
         }
     }
-    private fun isChatContainsNonstatusMsg(list:List<Message>):Boolean{
-        for (message in list){
-            if (message.type == MessageType.USER){
+
+    private fun isChatContainsNonstatusMsg(list: List<Message>): Boolean {
+        for (message in list) {
+            if (message.type == MessageType.USER) {
                 return true
             }
         }
         return false
     }
+
     fun startNewPollCoundown() {
         pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
         Handler().postDelayed(

@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.list
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
@@ -34,6 +35,7 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
                 list?.let {
                     for (i in 0 until list.size) {
                         list[i].isLive = true
+                        list[i].viewerCounter = generateRandomViewerNumber()
                     }
                 }
                 if(list?.size != 0)

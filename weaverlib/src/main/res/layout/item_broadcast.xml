@@ -46,13 +46,14 @@
             android:textColor="@android:color/white"
             app:layout_constraintStart_toEndOf="@+id/txtStatus"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
     />
         <TextView
                 android:id="@+id/txtNumberOfViewers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:text="6,385"
+                tools:text="6,385"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:background="@drawable/rounded_semitransparent_bg"

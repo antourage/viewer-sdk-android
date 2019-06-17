@@ -28,11 +28,11 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
     companion object {
         const val ACTION_CONNECTION_LOST = "action_internet_connection_lost"
         const val ACTION_CONNECTION_AVAILABLE = "action_internet_connection_available"
+        var isNetworkAvailable:Boolean = true
         fun initAntourage(context: Context){
             FirebaseApp.initializeApp(context)
         }
     }
-
     private lateinit var networkStateReceiver: NetworkStateReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +52,14 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
     }
 
     override fun networkAvailable() {
+        isNetworkAvailable = true
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         val intent = Intent(ACTION_CONNECTION_AVAILABLE)
         localBroadcastManager.sendBroadcast(intent)
     }
 
     override fun networkUnavailable() {
+        isNetworkAvailable = false
         val localBroadcastManager = LocalBroadcastManager.getInstance(this)
         val intent = Intent(ACTION_CONNECTION_LOST)
         localBroadcastManager.sendBroadcast(intent)

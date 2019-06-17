@@ -46,5 +46,5 @@ data class StreamResponse(
     @field:SerializedName("startTime") val startTime:String = "",
     val duration:Int = -1,
     var isLive:Boolean = false,
-    val viewerCounter:Int = 6385
+    var viewerCounter:Int = 6385
     ):Parcelable

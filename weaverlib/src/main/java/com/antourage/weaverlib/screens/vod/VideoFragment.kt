@@ -151,11 +151,10 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     }
 
     override fun onNetworkConnectionLost() {
-        viewModel.onNetworkLost()
+
     }
 
     override fun onNetworkConnectionAvailable() {
-        startPlayingStream()
         viewModel.onNetworkGained()
 
     }

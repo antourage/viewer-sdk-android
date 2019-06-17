@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.base.AppExecutors
 import com.antourage.weaverlib.other.networking.base.Resource
@@ -89,6 +90,7 @@ class AntourageFab @JvmOverloads constructor(
                                     expandableLayout.visibility = View.VISIBLE
                                     expandableLayout.transitionToEnd()
                                     tvStreamTitle.text = listOfStreams[counter].streamTitle
+                                    tvViewers.text = context.getString(R.string.viewers, generateRandomViewerNumber())
                                     Handler(Looper.getMainLooper()).postDelayed({
                                         expandableLayout.transitionToStart()
                                     }, SHOWING_DURABILITY)

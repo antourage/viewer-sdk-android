@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.support.v4.widget.DrawerLayout
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
@@ -17,7 +18,6 @@ import com.antourage.weaverlib.other.replaceChildFragment
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
-import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -78,7 +78,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         llNoChat.visibility = View.GONE
                     } else {
-                        context?.let {context->
+                        context?.let { context ->
                             ivNoChat.background =
                                 ContextCompat.getDrawable(context, R.drawable.ic_chat_off_layered)
                         }
@@ -89,7 +89,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 }
                 is WeaverViewModel.ChatStatus.CHAT_MESSAGES -> {
                     rvMessages.visibility = View.VISIBLE
-                    (rvMessages.adapter as MessagesAdapter).setMessageList(state.messages)
                     ll_wrapper.visibility = View.VISIBLE
                     llNoChat.visibility = View.GONE
                     etMessage.isEnabled = true
@@ -126,23 +125,33 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 }
                 is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED -> {
                     pollPopupLayout.visibility = View.GONE
-                    llPollStatus.visibility = View.VISIBLE
+                    if (bottomLayout.visibility == View.GONE)
+                        llPollStatus.visibility = View.VISIBLE
                     if (state.pollStatus != null)
                         txtPollStatus.text = state.pollStatus
                 }
                 is WeaverViewModel.PollStatus.POLL_DETAILS -> {
                     pollPopupLayout.visibility = View.GONE
-                    llPollStatus.visibility = View.VISIBLE
+                    llPollStatus.visibility = View.GONE
                     bottomLayout.visibility = View.VISIBLE
-                    replaceChildFragment(
-                        PollDetailsFragment.newInstance(
-                            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
-                            state.pollId
-                        ), R.id.bottomLayout, true
-                    )
+                    val orientation = resources.configuration.orientation
+                    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        drawerLayout.closeDrawer(navView)
+                    }
+                    if (childFragmentManager.backStackEntryCount == 0)
+                        replaceChildFragment(
+                            PollDetailsFragment.newInstance(
+                                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId,
+                                state.pollId
+                            ), R.id.bottomLayout, true
+                        )
                     childFragmentManager.addOnBackStackChangedListener {
-                        if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment))
+                        if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
+                            llPollStatus.visibility = View.VISIBLE
+                            drawerLayout.openDrawer(navView)
+                            viewModel.startNewPollCoundown()
+                        }
                         etMessage.isEnabled =
                             !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
                     }
@@ -194,8 +203,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             onPollDetailsClicked()
         }
         pollPopupLayout.setOnClickListener {
+            playerControls.hide()
             onPollDetailsClicked()
-            viewModel.startNewPollCoundown()
         }
     }
 
@@ -249,17 +258,13 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         }
         viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner, chatStateObserver)
+        viewModel.getPlaybackState().reobserve(this.viewLifecycleOwner, streamStateObserver)
         btnSend.visibility = View.VISIBLE
-    }
-
-    override fun onNetworkConnectionLost() {
-        viewModel.onNetworkLost()
     }
 
     override fun onNetworkConnectionAvailable() {
         showLoading()
         startPlayingStream()
-        //viewModel.onNetworkGained()
 
     }
 }

@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
+import android.view.View
+import android.view.ViewTreeObserver
 import com.antourage.weaverlib.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -82,4 +84,15 @@ fun String.parseDate(context: Context): String {
     } else {
         return ""
     }
+}
+
+fun <T : View> T.trueWidth(function: (Int) -> Unit) {
+    if (width == 0)
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                function(width)
+            }
+        })
+    else function(width)
 }

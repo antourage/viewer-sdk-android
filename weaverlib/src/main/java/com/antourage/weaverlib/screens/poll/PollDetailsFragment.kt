@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.annotation.NonNull
 import android.arch.lifecycle.ViewModelProviders
+import android.content.res.Configuration
 import android.support.annotation.Nullable
 import android.support.v7.widget.LinearLayoutManager
 import com.antourage.weaverlib.other.models.Poll
@@ -14,6 +15,7 @@ import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.AnswersCombined
+import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.poll.rv.PollAnswersAdapter
 
@@ -95,6 +97,12 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
 
     override fun onAnswerChosen(position: Int) {
         viewModel.onAnswerChosen(position)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        viewModel.getPollLiveData().reobserve(this.viewLifecycleOwner, pollObserver)
+        viewModel.getAnswersLiveData().reobserve(this.viewLifecycleOwner,answersObserver)
     }
 
 }

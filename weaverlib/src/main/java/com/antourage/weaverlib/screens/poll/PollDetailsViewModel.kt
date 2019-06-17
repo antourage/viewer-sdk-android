@@ -53,13 +53,13 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
             }
         }
     }
-    fun calculateAllAnswers():Double{
+    fun calculateAllAnswers():Int{
         var sum = 0
         if(answersLiveData.value != null)
         for (i in answersLiveData.value!!.indices) {
             sum += answersLiveData.value!![i].numberAnswered
         }
-        return sum.toDouble()
+        return sum
     }
     fun onAnswerChosen(pos: Int) {
         FirebaseAuth.getInstance().currentUser?.let {

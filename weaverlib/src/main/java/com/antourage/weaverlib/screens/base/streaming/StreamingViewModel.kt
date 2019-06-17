@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import android.view.Surface
 import android.widget.Toast
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
@@ -92,12 +93,8 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         player.release()
     }
 
-    fun onNetworkLost(){
-        playbackPosition = player.currentPosition
-        currentWindow = player.currentWindowIndex
-    }
-
     fun onNetworkGained(){
+        player.prepare(getMediaSource(streamUrl),false,true)
         player.seekTo(currentWindow,playbackPosition)
     }
 
@@ -160,8 +157,6 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onPlayerError(eventTime: AnalyticsListener.EventTime?, error: ExoPlaybackException?) {
-            val type = error?.type
-            //         Toast.makeText(getApplication(), "playerError", Toast.LENGTH_LONG).show()
         }
 
         override fun onSeekStarted(eventTime: AnalyticsListener.EventTime?) {
@@ -244,7 +239,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             trackGroups: TrackGroupArray?,
             trackSelections: TrackSelectionArray?
         ) {
-            Log.d("test", "track changed")
+
         }
 
         override fun onPositionDiscontinuity(eventTime: AnalyticsListener.EventTime?, reason: Int) {
@@ -363,11 +358,14 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onPlayerError(err: ExoPlaybackException) {
+            if(!AntourageActivity.isNetworkAvailable) {
+                playbackPosition = player.currentPosition
+                currentWindow = player.currentWindowIndex
+            }
             if (err.cause is BehindLiveWindowException) {
                 player.prepare(getMediaSource(streamUrl),false,true)
             }
             error.postValue(err.toString())
-//            Toast.makeText(getApplication(), err.toString(), Toast.LENGTH_LONG).show()
         }
 
         override fun onPositionDiscontinuity(reason: Int) {

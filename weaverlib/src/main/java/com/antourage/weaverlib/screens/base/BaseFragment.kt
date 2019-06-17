@@ -101,11 +101,11 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     private fun showErrorAlerter(s: String) {
        // Toast.makeText(context, s, Toast.LENGTH_LONG).show()
-        val alertDialog = AlertDialog.Builder(context!!) // this: Activity
-            .setMessage(s)
-            .create()
-
-        alertDialog.show()
+//        val alertDialog = AlertDialog.Builder(context!!) // this: Activity
+//            .setMessage(s)
+//            .create()
+//
+//        alertDialog.show()
     }
 
     private fun showWarningAlerter(s: String) {
@@ -115,11 +115,11 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
     private fun showSuccessAlerter(s: String) {
         Toast.makeText(context, s, Toast.LENGTH_LONG).show()
     }
-    open protected fun onNetworkConnectionLost() {
-        Log.d("BaseFragment","Connection lost")
+    protected open fun onNetworkConnectionLost() {
+        Log.d(this::javaClass.name,"Connection lost")
     }
 
-    open protected fun onNetworkConnectionAvailable() {
-        Log.d("BaseFragment","Connection gained")
+    protected open fun onNetworkConnectionAvailable() {
+        Log.d(this::javaClass.name,"Connection gained")
     }
 }

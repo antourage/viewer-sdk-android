@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.provider.Settings
 import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
@@ -22,6 +23,8 @@ import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
+import android.database.ContentObserver
+import android.os.Handler
 
 
 abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
@@ -86,9 +89,12 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
             setPlayerSizePortrait()
             ivScreenSize.setOnClickListener {
                 val currentOrientation = activity?.resources?.configuration?.orientation
+                if(!isRotationOn())
+                    orientationEventListener.disable()
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     isPortrait = false
-                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+
                 } else {
                     isPortrait = true
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -150,17 +156,25 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
     }
 
     protected fun hideLoading() {
-        if (ivLoader.visibility == View.VISIBLE && (loader != null && loader!!.isRunning())) {
+        if (ivLoader.visibility == View.VISIBLE && (loader != null && loader!!.isRunning)) {
             ivLoader.visibility = View.GONE
             loader?.clearAnimationCallbacks()
             loader?.stop()
         }
     }
 
+    private val contentObserver = object : ContentObserver(Handler()) {
+        override fun onChange(selfChange: Boolean) {
+            orientationEventListener.enable()
+        }
+    }
     private fun initOrientationHandling() {
+        activity?.contentResolver?.registerContentObserver(
+            Settings.System.getUriFor
+            (Settings.System.ACCELEROMETER_ROTATION),
+            true,contentObserver)
         orientationEventListener = object : OrientationEventListener(context) {
             override fun onOrientationChanged(orientation: Int) {
-                Log.d("StreamingFragment"," "+orientation)
                 val epsilon = 10
                 val leftLandscape = 90
                 val rightLandscape = 270
@@ -168,26 +182,28 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                     if (epsilonCheck(orientation, leftLandscape, epsilon) ||
                         epsilonCheck(orientation, rightLandscape, epsilon)
                     ) {
-                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
                     }
                 } else if(epsilonCheck(orientation, 0, 5)||epsilonCheck(orientation,360,5)){
-                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
                 }
-
             }
         }
+        orientationEventListener.enable()
+    }
+
+    private fun isRotationOn():Boolean{
+        return Settings.System.getInt(activity?.contentResolver,Settings.System.ACCELEROMETER_ROTATION, 0) == 1
     }
 
     override fun onResume() {
         super.onResume()
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        orientationEventListener.enable()
     }
 
     override fun onPause() {
         super.onPause()
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        orientationEventListener.disable()
     }
 
     private fun epsilonCheck(a: Int, b: Int, epsilon: Int): Boolean {
@@ -196,7 +212,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
         val newOrientation = newConfig.orientation
 
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {

@@ -28,12 +28,15 @@ class StreamListDiffCallback(
     override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
         return prevList[oldPos]?.hlsUrl == newList[newPos]?.hlsUrl &&
                 prevList[oldPos]?.thumbnailUrl == newList[newPos]?.thumbnailUrl &&
-                prevList[oldPos]?.streamTitle == newList[newPos]?.streamTitle
+                prevList[oldPos]?.streamTitle == newList[newPos]?.streamTitle &&
+                prevList[oldPos]?.viewerCounter == newList[newPos]?.viewerCounter
     }
 
     override fun getChangePayload(oldPos: Int, newPos: Int): Any? {
-        val bundle = Bundle()
-        bundle.putBoolean(ARGS_REFRESH_TIMESTAMP, true)
-        return bundle
+        if(prevList[oldPos]?.viewerCounter != newList[newPos]?.viewerCounter) {
+            val bundle = Bundle()
+            bundle.putBoolean(ARGS_REFRESH_TIMESTAMP, true)
+            return bundle
+        } else return null
     }
 }

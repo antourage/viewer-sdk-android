@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
@@ -67,13 +68,15 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
-        super.onBindViewHolder(holder, position, payloads)
-        if(payloads.size>0 && payloads[0] is Bundle)
-            if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP,false)){
-                if(holder is VideoViewHolder) {
+        if(payloads.size>0 && payloads[0] is Bundle) {
+            if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP, false)) {
+                if (holder is VideoViewHolder) {
+                    holder.txtNumberOfViewers.text = listOfStreams[position]?.viewerCounter.toString()
                     holder.txtWasLive.text = listOfStreams[position]?.startTime?.parseDate(context)
                 }
             }
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

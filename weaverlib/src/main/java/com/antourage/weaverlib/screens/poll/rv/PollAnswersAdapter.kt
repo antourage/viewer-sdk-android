@@ -9,7 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
+import com.antourage.weaverlib.other.trueWidth
 import java.text.DecimalFormat
 
 
@@ -61,10 +63,15 @@ class PollAnswersAdapter(
                 context!!.resources,
                 listOfBackgrounds[i], null
             )
-            val maxWidth = viewHolder.tvPollLength.maxWidth
-            val params = viewHolder.tvPollLength.layoutParams
-            params.width = (maxWidth * getPercentage(i)).toInt()
-            viewHolder.tvPollLength.layoutParams = params
+            viewHolder.itemView.trueWidth {
+                val maxWidth = it - dp2px(context!!,40f)
+                val params = viewHolder.tvPollLength.layoutParams
+                params.width = (maxWidth * getPercentage(i)).toInt()
+                if (params.width == 0){
+                    params.width = 10
+                }
+                viewHolder.tvPollLength.layoutParams = params
+            }
 
 
         }
