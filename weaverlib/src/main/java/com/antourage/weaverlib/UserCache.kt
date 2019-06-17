@@ -16,26 +16,26 @@ class UserCache{
         }
     }
 
-    fun saveVideosIdToSeen(context: Context, seenVideoIds: List<Int> ){
+    fun saveVideosIdToSeen(context: Context, seenVideoIds: Set<Int> ){
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val str = StringBuilder()
-        for (i in seenVideoIds.indices) {
-            str.append(seenVideoIds[i]).append(",")
+        seenVideoIds.forEach{
+            str.append(it).append(",")
         }
         prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
     }
     fun saveVideoToSeen(context: Context, seenVideoId: Int ){
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val str = StringBuilder()
-        val alreadySeenVideos = getSeenVideos(context).toMutableList()
+        val alreadySeenVideos = getSeenVideos(context).toMutableSet()
         if(!alreadySeenVideos.contains(seenVideoId))
             alreadySeenVideos.add(seenVideoId)
-        for (i in alreadySeenVideos.indices) {
-            str.append(alreadySeenVideos[i]).append(",")
+        alreadySeenVideos.forEach{
+            str.append(it).append(",")
         }
         prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
     }
-    fun getSeenVideos(context: Context):List<Int>{
+    fun getSeenVideos(context: Context):Set<Int>{
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val savedString = prefs.getString(SP_SEEN_VIDEOS, "")
         val st = StringTokenizer(savedString, ",")
@@ -45,7 +45,7 @@ class UserCache{
             savedList[i] = Integer.parseInt(st.nextToken())
             i++
         }
-        return savedList.toList()
+        return savedList.toHashSet()
     }
 
 }

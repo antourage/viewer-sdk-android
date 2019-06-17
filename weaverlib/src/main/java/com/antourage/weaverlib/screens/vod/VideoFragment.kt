@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -72,7 +73,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             tvControllerStreamName.text = video.streamTitle
             tvControllerBroadcastedBy.text = video.creatorFullname
             txtNumberOfViewers.text = video.viewerCounter.toString()
-
+            UserCache.newInstance().saveVideoToSeen(context!!, it.streamId)
         }
     }
 

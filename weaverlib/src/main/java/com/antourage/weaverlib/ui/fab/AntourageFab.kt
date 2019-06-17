@@ -9,7 +9,6 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.motion.MotionLayout
 import android.support.constraint.motion.MotionScene
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
@@ -25,6 +24,7 @@ import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 
+@Suppress("IMPLICIT_CAST_TO_ANY") //TODO 6/17/2019 handle this
 @Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -32,17 +32,20 @@ class AntourageFab @JvmOverloads constructor(
     MotionOverlayView.FabExpantionListener {
 
     private lateinit var currentlyDisplayedStream: StreamResponse
-    private var listOfStreams:List<StreamResponse>? = null
+    private var listOfStreams: List<StreamResponse>? = null
     val handlerFab: Handler = Handler(Looper.getMainLooper())
+    private val setOfDismissed = mutableListOf<Int>()
     var isSwipeInProgress = false
+    var counter = 0
 
 
     override fun onFabExpantionClicked() {
         val intent = Intent(context, AntourageActivity::class.java)
-        intent.putExtra(ARGS_STREAM_SELECTED,currentlyDisplayedStream)
+        intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedStream)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.applicationContext.startActivity(intent)
     }
+
     override fun onSwipeStarted() {
         isSwipeInProgress = true
     }
@@ -57,8 +60,6 @@ class AntourageFab @JvmOverloads constructor(
         ReceivingVideosManager.newInstance(this)
     }
 
-    private val listOfSeenStreams = mutableListOf<Int>()
-
     sealed class WidgetStatus {
         class INACTIVE : WidgetStatus()
         class ACTIVE_LIVE_STREAM(val list: List<StreamResponse>) : WidgetStatus()
@@ -69,37 +70,51 @@ class AntourageFab @JvmOverloads constructor(
         when (status) {
             is WidgetStatus.INACTIVE -> {
                 handlerFab.removeCallbacksAndMessages(null)
+                listOfStreams = null
+                counter = 0
+                floatingActionButton.setImageResource(R.drawable.ic_logo_white)
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ACTIVE_LIVE_STREAM -> {
-                for (i in 0 until status.list.size) {
-                    if (!listOfSeenStreams.contains(status.list[i].streamId)) {
-                        handlerFab.postDelayed(object : Runnable {
-                            override fun run() {
-                                if(listOfStreams!!.contains(status.list[i])) {
-                                    currentlyDisplayedStream = status.list[i]
+                floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                if (!handlerFab.hasMessages(0))
+                    handlerFab.postDelayed(object : Runnable {
+                        override fun run() {
+                            listOfStreams?.let { listOfStreams ->
+                                if (counter > (listOfStreams.size - 1)) {
+                                    counter = 0
+                                }
+                                if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
+                                    currentlyDisplayedStream = listOfStreams[counter]
                                     expandableLayout.visibility = View.VISIBLE
                                     expandableLayout.transitionToEnd()
-                                    tvStreamTitle.text = status.list[i].streamTitle
+                                    tvStreamTitle.text = listOfStreams[counter].streamTitle
                                     Handler(Looper.getMainLooper()).postDelayed({
                                         expandableLayout.transitionToStart()
                                     }, SHOWING_DURABILITY)
-                                    listOfSeenStreams.add(status.list[i].streamId)
-                                    listOfStreams?.let {
-                                        handlerFab.postDelayed(
-                                            this,
-                                            it.size * (i + 1).toLong() * SHOWING_DURABILITY
-                                        )
-                                    }
+                                    handlerFab.postDelayed(
+                                        this,
+                                        2 * SHOWING_DURABILITY
+                                    )
+                                    counter++
+                                } else {
+                                    counter++
+                                    handlerFab.postDelayed(
+                                        this,
+                                        0
+                                    )
+
                                 }
                             }
-                        }, status.list.size*i.toLong() * SHOWING_DURABILITY)
-                    }
-                }
+                        }
+                    }, 0)
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
             }
             is WidgetStatus.ACTIVE_UNSEEN_VIDEOS -> {
+                floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
                 handlerFab.removeCallbacksAndMessages(null)
+                listOfStreams = null
+                counter = 0
                 floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
             }
         }
@@ -122,7 +137,12 @@ class AntourageFab @JvmOverloads constructor(
         override fun onTransitionCompleted(p0: MotionLayout?, currentId: Int) {
             if (currentId == R.id.start) {
                 expandableLayout.visibility = View.INVISIBLE
-                if(isSwipeInProgress){
+                if (isSwipeInProgress) {
+                    listOfStreams?.let { listOfStreams ->
+                        for (i in 0 until listOfStreams.size) {
+                            setOfDismissed.add(listOfStreams[i].streamId)
+                        }
+                    }
                     handlerFab.removeCallbacksAndMessages(null)
                 }
             }
@@ -154,7 +174,9 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onResume() {
         expandableLayout.setTransitionListener(transitionListener)
+        ReceivingVideosManager.newInstance(this)
         ReceivingVideosManager.startReceivingVideos()
+
     }
 
     fun manageVideos() {
