@@ -23,7 +23,7 @@ fun calculatePlayerHeight(activity: Activity):Float{
     val size = Point()
     display.getSize(size)
     val width = size.x
-    return ((width*10.0f) /16.0f)
+    return ((width*9.0f) /16.0f)
 }
 fun convertUtcToLocal(utcTime: String): Date? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)

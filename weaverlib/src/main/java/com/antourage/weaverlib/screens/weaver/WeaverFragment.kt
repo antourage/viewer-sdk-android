@@ -257,7 +257,11 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+    }
 
+    override fun onStop() {
+        super.onStop()
+        viewModel.onPause()
     }
 
     override fun onDestroy() {
