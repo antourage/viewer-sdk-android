@@ -192,7 +192,6 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             message.userID = FirebaseAuth.getInstance().uid
             viewModel.addMessage(message, arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!)
             etMessage.setText("")
-            (activity as AntourageActivity).hideSoftKeyboard()
         }
         viewModel.initUi(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId)
         tvStreamName.text = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamTitle
