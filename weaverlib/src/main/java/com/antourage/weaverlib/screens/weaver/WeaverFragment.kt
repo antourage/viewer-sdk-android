@@ -211,6 +211,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             playerControls.hide()
             onPollDetailsClicked()
         }
+
         //initKeyboardListener()
     }
 
