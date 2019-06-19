@@ -41,7 +41,16 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
     />
-
+    <include layout="@layout/layout_poll_suggestion"
+             android:layout_width="280dp"
+             android:layout_margin="20dp"
+             android:visibility="gone"
+             android:focusableInTouchMode="true"
+             android:focusable="true"
+             android:importantForAccessibility="yes"
+             android:layout_height="wrap_content"
+             app:layout_constraintTop_toTopOf="parent"
+             app:layout_constraintStart_toStartOf="parent"/>
     <android.support.constraint.ConstraintLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
@@ -130,26 +139,6 @@
                 android:layout_gravity="start"
                 android:background="@android:color/transparent"
         >
-
-            <include layout="@layout/layout_poll_suggestion"
-                     android:layout_width="match_parent"
-                     android:layout_margin="20dp"
-                     android:focusableInTouchMode="true"
-                     android:focusable="true"
-                     android:importantForAccessibility="yes"
-                     android:layout_height="wrap_content"
-                     app:layout_constraintTop_toTopOf="parent"
-                     app:layout_constraintStart_toStartOf="parent"/>
-
-            <View
-                    android:id="@+id/devider"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/light_gray_transparent"
-                    android:layout_marginTop="6dp"
-                    app:layout_constraintTop_toBottomOf="@id/pollPopupLayout"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
             <com.antourage.weaverlib.other.ui.FadingRecyclerView
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
@@ -159,8 +148,7 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:fillViewport="false"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="20dp"
                     android:requiresFadingEdge="vertical"
             />
         </android.support.design.widget.NavigationView>
