@@ -2,4 +2,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="design_fab_size_mini" tools:override="true">400dp</dimen>
     <dimen name="design_fab_image_size" tools:override="true">600dp</dimen>
+    <integer name="max_length_message_input">250</integer>
 </resources>

@@ -10,7 +10,6 @@ import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.util.Log
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
@@ -31,6 +30,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
     private lateinit var orientationEventListener: OrientationEventListener
     private var loader: AnimatedVectorDrawableCompat? = null
     private var isPortrait = false
+    private var isLoaderShowing = false
 
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
@@ -150,6 +150,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
                 }
             })
             loader?.start()
+            isLoaderShowing = true
             ivLoader.visibility = View.VISIBLE
             playerControls.hide()
         }
@@ -160,6 +161,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
             ivLoader.visibility = View.GONE
             loader?.clearAnimationCallbacks()
             loader?.stop()
+            isLoaderShowing = false
         }
     }
 
@@ -239,5 +241,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>(){
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
         playerControls.hide()
+        if(isLoaderShowing)
+            initLoader()
     }
 }

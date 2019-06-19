@@ -15,6 +15,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.base.AppExecutors
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
@@ -57,6 +58,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     init {
+        BASE_URL = UserCache.newInstance().getBeChoice(context)!!
         AppExecutors()
         ReceivingVideosManager.newInstance(this)
     }

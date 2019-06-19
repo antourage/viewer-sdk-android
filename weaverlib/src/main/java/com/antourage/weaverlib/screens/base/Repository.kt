@@ -38,10 +38,8 @@ class Repository {
                 "Heading Out for Training",
                 "",
                 "file:///android_asset/1.png",
-//                "https://d33kzx2k689f49.cloudfront.net/out/v1/b8cf10bb32e54a339be195906b6ac165/index.m3u8",
+//                "http://d3pqhz4gxngfhe.cloudfront.net/portrait3/portrait3.m3u8",
                 baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
-//                "https://d1my4itlgzru7b.cloudfront.net/out/v1/ff0c96a98d7b44aa8a9a9e3ed1a96dad/index.m3u8",
-//                "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
                 startTime = substractDays(0),
                 duration = 30,
                 viewerCounter = 13553

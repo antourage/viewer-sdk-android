@@ -32,4 +32,14 @@
 
     <string name="started_ago">%1$s ago</string>
 
+    <string name="local_link">http://192.168.20.89:3000/</string>
+    <string name="development_link">https://api-myra.net</string>
+    <string name="staging_link">https://staging-myra.com</string>
+    <string name="production_link">https://myra.technology</string>
+    <string name="choose_link">Choose link</string>
+    <string name="set">set</string>
+
+
+    <string name="main_title">Inside England | LIVE</string>
+
 </resources>

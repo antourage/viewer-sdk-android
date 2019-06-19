@@ -198,6 +198,7 @@
                 android:paddingStart="8dp"
                 android:background="@android:color/transparent"
                 android:imeOptions="flagNoExtractUi"
+                android:maxLength="@integer/max_length_message_input"
                 android:textColor="@android:color/white"
                 android:textColorHint="@color/light_gray_transparent"
                 android:hint="@string/say_something"

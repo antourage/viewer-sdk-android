@@ -16,8 +16,8 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
-import com.antourage.weaverlib.screens.vod.rv.MessagesAdapter
-import com.antourage.weaverlib.screens.vod.rv.ChatLayoutManager
+import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
+import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 
 
@@ -103,7 +103,8 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
             rvMessages.isVerticalFadingEdgeEnabled = true
             rvMessages.adapter =
                 MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
-            (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
+            if(viewModel.getMessagesLiveData().value != null)
+                (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
             rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {

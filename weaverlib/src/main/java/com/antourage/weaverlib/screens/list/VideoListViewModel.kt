@@ -1,14 +1,19 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.BaseViewModel
+import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 
-class VideoListViewModel(application: Application) : BaseViewModel(application),
+class VideoListViewModel(application: Application) : BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
 
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
@@ -23,6 +28,8 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
     }
 
     fun onStop() {
+        showBeDialogLiveData.postValue(false)
+        numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
     }
 
@@ -50,7 +57,41 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
     }
 
     override fun onVODReceived() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    //region backend choice
+    private val BE_CHOICE_TIMEOUT = 4000L
+    private val BE_CHOICE_NUMBEROFCLICKS = 4
+
+    private val showBeDialogLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var numberOfLogoClicks: Int = 0
+    private val beDebouncer: Debouncer = Debouncer(Runnable{ numberOfLogoClicks = 0 }, BE_CHOICE_TIMEOUT)
+
+    init {
+        showBeDialogLiveData.postValue(false)
+    }
+
+    fun onLogoPressed() {
+        if (numberOfLogoClicks >= BE_CHOICE_NUMBEROFCLICKS) {
+            showBeDialogLiveData.value = true
+            numberOfLogoClicks = 0
+            beDebouncer.cancel()
+        } else {
+            numberOfLogoClicks++
+            if (numberOfLogoClicks == 1) {
+                showBeDialogLiveData.postValue(false)
+                beDebouncer.run()
+
+            }
+        }
+    }
+    fun getShowBeDialog() = showBeDialogLiveData as LiveData<Boolean>
+
+    override fun onBeChanged(choice: String?) {
+        choice?.let {
+            UserCache.newInstance().updateBEChoice(getApplication<Application>().applicationContext, choice)
+            BASE_URL = choice
+        }
+    }
+    //endregion
 }

@@ -23,7 +23,7 @@
                 android:scaleType="fitXY"
 
                 android:adjustViewBounds="true"
-                android:src="@mipmap/main_page"
+                android:src="@drawable/landing_page_main"
         />
     </ScrollView>
 

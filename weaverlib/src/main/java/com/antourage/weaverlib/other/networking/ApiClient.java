@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
 
-    private static final String BASE_URL = "https://api-myra.net";
+    public static String BASE_URL = "";
     private static final String HEADER_LANGUAGE = "Accept-Language";
 
     private static WebService webService;

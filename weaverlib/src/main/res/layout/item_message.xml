@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:paddingLeft="10dp"
@@ -36,17 +36,18 @@
 
     <TextView
             android:id="@+id/txtMessage"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            tools:text="Hey, it'll be a great game game game game game game game"
+            tools:text="Hey, it'll be a great game game game game game game game to remember"
+            tools:textColor="@android:color/black"
             android:textSize="14sp"
             android:textStyle="bold"
             android:singleLine="false"
             android:textColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@id/txtUser"
-            app:layout_constraintLeft_toRightOf="@id/ivAvatar"
+            app:layout_constraintStart_toStartOf="@+id/txtUser"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="3dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"/>
+            />
 </android.support.constraint.ConstraintLayout>

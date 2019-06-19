@@ -17,6 +17,7 @@ import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 
 
@@ -29,13 +30,19 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
             return VideoListFragment()
         }
     }
-
+    //region Observers
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
         if (list != null)
             videoAdapter.setStreamList(list)
         videoRefreshLayout.isRefreshing = false
 
     }
+    private val beChoiceObserver: Observer<Boolean> = Observer {
+        if(it != null && it)
+            context?.let { context -> DevSettingsDialog(context, viewModel).show() }
+    }
+
+    //endregion
 
     override fun getLayoutId(): Int {
         return R.layout.fragment_videos_list
@@ -54,6 +61,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun subscribeToObservers() {
         viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
+        viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
     }
 
     override fun onStop() {
@@ -87,6 +95,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
             viewModel.getStreams()
         }
         ivClose.setOnClickListener { activity?.finish() }
+        viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
     }
 
 
