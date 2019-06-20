@@ -57,8 +57,8 @@ class PollAnswersAdapter(
             viewHolder.btnAnswer.setOnClickListener { _ -> callback.onAnswerChosen(viewHolder.getAdapterPosition()) }
         } else {
             (viewHolder as AnsweredViewHolder).tvAnswer.text = listOfAnswers[i].answerText
-            viewHolder.tvAnswerPercentage.text = (DecimalFormat("##.##")
-                .format(getPercentage(i) * 100) + "%")
+            viewHolder.tvAnswerPercentage.text = (Math.round(getPercentage(i) * 100).toString()
+                    + "%")
             viewHolder.tvPollLength.background = ResourcesCompat.getDrawable(
                 context!!.resources,
                 listOfBackgrounds[i], null

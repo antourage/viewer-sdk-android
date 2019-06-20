@@ -101,6 +101,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:padding="4dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
             android:background="@drawable/rounded_green_bg"
@@ -108,8 +109,8 @@
             app:layout_constraintTop_toBottomOf="@id/playerView"
            >
         <ImageView
-                android:layout_width="32dp"
-                android:layout_height="24dp"
+                android:layout_width="28dp"
+                android:layout_height="20dp"
                 android:padding="4dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_poll_white_transparent"
@@ -193,8 +194,6 @@
                                                              android:layout_height="match_parent"
                                                              android:id="@+id/llNoChat"
 
-                                                             app:layout_constraintTop_toBottomOf="@+id/devider"
-                                                             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
                                                              app:layout_constraintStart_toStartOf="parent"
                                                              app:layout_constraintEnd_toEndOf="parent"
                 >
@@ -216,7 +215,6 @@
                         android:fillViewport="false"
                         android:requiresFadingEdge="vertical"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/devider"
                 />
             </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.NavigationView>
@@ -235,7 +233,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_margin="6dp"
+            android:elevation="6dp"
             android:visibility="invisible"
             android:background="@color/bg_color"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -9,8 +9,8 @@
             android:id="@+id/ivClose"
             android:src="@drawable/ic_close"
             android:background="@drawable/image_btn_bg"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_gravity="top|end"
             tools:ignore="ContentDescription"/>
     <Button
@@ -19,7 +19,6 @@
             android:layout_height="40dp"
             android:visibility="gone"
             android:layout_marginStart="200dp"
-            android:layout_marginLeft="200dp"
             android:text="Choose Track"
     />
     <LinearLayout
@@ -41,9 +40,8 @@
                 android:paddingRight="4dp"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:textSize="14sp"
         />
         <TextView
@@ -60,8 +58,7 @@
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="8dp"
                 android:textSize="14sp"
         />
         <TextView
@@ -71,15 +68,13 @@
                 android:textSize="14sp"
                 android:text="6,385"
                 android:paddingLeft="4dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:paddingRight="4dp"
                 android:background="@drawable/rounded_semitransparent_bg"
                 android:gravity="center"
                 android:drawableStart="@drawable/ic_watcher"
-                android:textColor="@android:color/white"
-                android:drawableLeft="@drawable/ic_watcher"/>
+                android:textColor="@android:color/white"/>
     </LinearLayout>
     <ImageButton
             android:id="@+id/exo_play"
@@ -126,7 +121,8 @@
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_margin="18dp"
+            android:layout_marginBottom="18dp"
+            android:layout_marginEnd="18dp"
             android:background="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
             tools:ignore="ContentDescription"/>
@@ -136,7 +132,8 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:layout_gravity="bottom|start"
-            android:layout_margin="18dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginBottom="18dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -145,7 +142,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_marginTop="15dp"
             app:buffered_color="@android:color/white"
             app:played_color="@color/pink"
             app:scrubber_color="@android:color/darker_gray"

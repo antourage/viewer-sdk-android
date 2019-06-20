@@ -6,6 +6,7 @@ import android.support.annotation.NonNull
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.support.annotation.Nullable
+import android.support.v4.view.ViewCompat.canScrollVertically
 import android.support.v7.widget.LinearLayoutManager
 import com.antourage.weaverlib.other.models.Poll
 import android.widget.TextView
@@ -49,7 +50,11 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
     }
     private val answersObserver:Observer<List<AnswersCombined>> = Observer { answers->
         if(answers != null){
-            rvPollAnswers!!.layoutManager = LinearLayoutManager(context)
+            rvPollAnswers!!.layoutManager = object:LinearLayoutManager(context) {
+                override fun canScrollVertically():Boolean {
+                    return false
+                }
+            }
             rvPollAnswers!!.adapter = PollAnswersAdapter(answers, viewModel.isAnswered, this)
             tvTotalAnswers!!.text = viewModel.calculateAllAnswers().toString()
         }

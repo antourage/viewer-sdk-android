@@ -14,6 +14,9 @@ import android.view.ViewTreeObserver
 import com.antourage.weaverlib.R
 import java.text.SimpleDateFormat
 import java.util.*
+import android.view.ViewGroup
+
+
 
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
     beginTransaction().func().commit()
@@ -95,4 +98,12 @@ fun <T : View> T.trueWidth(function: (Int) -> Unit) {
             }
         })
     else function(width)
+}
+
+fun <T: View> T.setMargins(left:Int, top:Int, right:Int, bottom:Int){
+    if (this.layoutParams is ViewGroup.MarginLayoutParams) {
+        val p = this.layoutParams as ViewGroup.MarginLayoutParams
+        p.setMargins(left, top, right, bottom)
+        this.requestLayout()
+    }
 }

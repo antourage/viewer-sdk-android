@@ -46,7 +46,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
-    private var currentPoll: Poll? = null
+    var currentPoll: Poll? = null
 
     fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData

@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.antourage.weaverlib.R
@@ -18,7 +17,6 @@ import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.other.replaceChildFragment
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
-import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
@@ -138,6 +136,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 is WeaverViewModel.PollStatus.POLL_DETAILS -> {
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.GONE
+                    ll_wrapper.visibility = View.GONE
                     bottomLayout.visibility = View.VISIBLE
                     val orientation = resources.configuration.orientation
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -153,9 +152,12 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
-                            llPollStatus.visibility = View.VISIBLE
+                            ll_wrapper.visibility = View.VISIBLE
+                            if(viewModel.currentPoll != null) {
+                                llPollStatus.visibility = View.VISIBLE
+                                viewModel.startNewPollCoundown()
+                            }
                             drawerLayout.openDrawer(navView)
-                            viewModel.startNewPollCoundown()
                         }
                         etMessage.isEnabled =
                             !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
@@ -286,10 +288,9 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 devider.visibility = View.VISIBLE
             }
         }
-        viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner, chatStateObserver)
+        viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getPlaybackState().reobserve(this.viewLifecycleOwner, streamStateObserver)
-        btnSend.visibility = View.VISIBLE
     }
 
     override fun onNetworkConnectionAvailable() {

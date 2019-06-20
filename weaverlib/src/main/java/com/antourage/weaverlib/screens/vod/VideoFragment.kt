@@ -5,19 +5,20 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
+import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
-import kotlinx.android.synthetic.main.custom_video_controls.tvWasLive
-import kotlinx.android.synthetic.main.custom_video_controls.txtNumberOfViewers
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
 import kotlinx.android.synthetic.main.fragment_video.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
@@ -25,7 +26,6 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
-import kotlinx.android.synthetic.main.player_custom_control.*
 
 class VideoFragment : ChatFragment<VideoViewModel>() {
 
@@ -139,7 +139,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
         val newOrientation = newConfig.orientation
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             etMessage.visibility = View.GONE
@@ -152,7 +151,17 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         }
         ll_wrapper.visibility = View.INVISIBLE
     }
-
+    private fun changeControlsView(isLandscape:Boolean){
+            if (isLandscape) {
+                exo_progress.setMargins(148, 0, 148, 0)
+                exo_position.setMargins(4, 0, 0, 4)
+                ivScreenSize.setMargins(0, 0, 4, 4)
+            } else {
+                exo_progress.setMargins(0, 0, 0, 0)
+                exo_position.setMargins(18, 0, 0, 18)
+                ivScreenSize.setMargins(0, 0, 18, 18)
+            }
+    }
     override fun onNetworkConnectionLost() {
 
     }
