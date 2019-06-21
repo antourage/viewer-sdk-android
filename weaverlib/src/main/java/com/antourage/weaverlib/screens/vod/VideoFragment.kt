@@ -21,6 +21,12 @@ import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
 import kotlinx.android.synthetic.main.fragment_video.*
+import kotlinx.android.synthetic.main.fragment_video.btnSend
+import kotlinx.android.synthetic.main.fragment_video.deviderChat
+import kotlinx.android.synthetic.main.fragment_video.drawerLayout
+import kotlinx.android.synthetic.main.fragment_video.ll_wrapper
+import kotlinx.android.synthetic.main.fragment_video.navView
+import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
@@ -94,7 +100,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     override fun initUi(view: View?) {
         super.initUi(view)
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
-        startPlayingStream()
         handleChat()
         ll_wrapper.visibility = View.INVISIBLE
         if(context != null)
@@ -121,6 +126,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     override fun onResume() {
         super.onResume()
+        startPlayingStream()
         viewModel.onResume()
     }
     override fun onPause() {
@@ -150,6 +156,12 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             deviderChat.visibility = View.VISIBLE
         }
         ll_wrapper.visibility = View.INVISIBLE
+        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if(isChatDismissed){
+                drawerLayout.closeDrawer(navView)
+            }
+        }
+
     }
     private fun changeControlsView(isLandscape:Boolean){
             if (isLandscape) {

@@ -32,13 +32,17 @@ constructor() {
         apiResponse.observeForever(object : Observer<ApiResponse<ResultType>> {
             override fun onChanged(resultTypeApiResponse: ApiResponse<ResultType>?) {
                 if (resultTypeApiResponse != null && resultTypeApiResponse.isSuccessful) {
-                    AppExecutors.diskIO()!!.execute {
+                    AppExecutors.diskIO()?.let { io->
+                    io.execute {
                         saveCallResult(processResponse(resultTypeApiResponse))
-                        AppExecutors.mainThread()!!.execute { result.setValue(
-                            Resource.success(
-                                resultTypeApiResponse.getData()
+                        AppExecutors.mainThread()!!.execute {
+                            result.setValue(
+                                Resource.success(
+                                    resultTypeApiResponse.getData()
+                                )
                             )
-                        ) }
+                        }
+                    }
                     }
                 } else {
                     if (resultTypeApiResponse != null && resultTypeApiResponse.errorMessage != null) {

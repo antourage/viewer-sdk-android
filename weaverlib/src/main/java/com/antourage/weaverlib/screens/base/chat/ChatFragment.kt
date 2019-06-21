@@ -3,8 +3,6 @@ package com.antourage.weaverlib.screens.base.chat
 import android.arch.lifecycle.Observer
 import android.content.res.Configuration
 import android.graphics.Color
-import android.os.Handler
-import android.os.Looper
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -22,6 +20,8 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 
 
 abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),CustomDrawerLayout.DrawerTouchListener {
+
+    protected var isChatDismissed:Boolean = false
 
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
@@ -67,9 +67,11 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
                                 llMessageWrapper.alpha = slideOffset
                                 if (slideOffset == 0.0f) {
                                     etMessage.isEnabled = false
+                                    isChatDismissed = true
                                 }
                                 if (slideOffset == 1.0f) {
                                     etMessage.isEnabled = true
+                                    isChatDismissed = false
                                 }
                             } else{
                                 drawerLayout.openDrawer(navigationView,false)
@@ -114,10 +116,5 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
             (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
         }
-        Handler(Looper.getMainLooper()).post {
-            drawerLayout.openDrawer(navigationView)
-        }
     }
-
-
 }

@@ -30,7 +30,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
     private lateinit var trackSelector: DefaultTrackSelector
     protected var streamUrl: String? = null
 
-    protected lateinit var player: SimpleExoPlayer
+    protected var player: SimpleExoPlayer? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
 
     fun getPlaybackState(): LiveData<Int> {
@@ -51,9 +51,9 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         player = getSimpleExoplayer()
         this.streamUrl = streamUrl
         val mediaSource = getMediaSource(streamUrl)
-        player.playWhenReady = playWhenReady
-        player.prepare(mediaSource, true, false)
-        player.seekTo(currentWindow, C.TIME_UNSET)
+        player?.playWhenReady = playWhenReady
+        player?.prepare(mediaSource, true, false)
+        player?.seekTo(currentWindow, playbackPosition)
         initStatisticsListeners()
         return player
     }
@@ -73,29 +73,32 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
     open fun onResume() {
         initStatisticsListeners()
-        if (player.playbackState != Player.STATE_READY) {
-            player.playWhenReady = true
-        }
+
+        //if (player.playbackState != Player.STATE_READY) {
+        //    player.playWhenReady = true
+        //}
 
     }
 
     fun onPause() {
         removeStatisticsListeners()
-        if (player.playbackState == Player.STATE_READY)
-            player.playWhenReady = false
+        releasePlayer()
     }
 
     fun releasePlayer() {
         removeStatisticsListeners()
-        playbackPosition = player.currentPosition
-        currentWindow = player.currentWindowIndex
-        playWhenReady = player.playWhenReady
-        player.release()
+        player?.let { player ->
+            playbackPosition = player.currentPosition
+            currentWindow = player.currentWindowIndex
+            playWhenReady = player.playWhenReady
+        }
+        player?.release()
+        player = null
     }
 
     fun onNetworkGained(){
-        player.prepare(getMediaSource(streamUrl),false,true)
-        player.seekTo(currentWindow,playbackPosition)
+        player?.prepare(getMediaSource(streamUrl),false,true)
+        player?.seekTo(currentWindow,playbackPosition)
     }
 
     fun onResolutionChanged(pos: Int) {
@@ -121,13 +124,13 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
     private fun initStatisticsListeners() {
 
-        player.addAnalyticsListener(streamAnalyticsListener)
-        player.addListener(playerEventListener)
+        player?.addAnalyticsListener(streamAnalyticsListener)
+        player?.addListener(playerEventListener)
     }
 
     fun removeStatisticsListeners() {
-        player.removeAnalyticsListener(streamAnalyticsListener)
-        player.removeListener(playerEventListener)
+        player?.removeAnalyticsListener(streamAnalyticsListener)
+        player?.removeListener(playerEventListener)
     }
 
     private fun getSimpleExoplayer(): SimpleExoPlayer {
@@ -359,17 +362,21 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
         override fun onPlayerError(err: ExoPlaybackException) {
             if(!AntourageActivity.isNetworkAvailable) {
-                playbackPosition = player.currentPosition
-                currentWindow = player.currentWindowIndex
+                player?.let { player ->
+                    playbackPosition = player.currentPosition
+                    currentWindow = player.currentWindowIndex
+                }
             }
             if (err.cause is BehindLiveWindowException) {
-                player.prepare(getMediaSource(streamUrl),false,true)
+                player?.prepare(getMediaSource(streamUrl),false,true)
             }
             error.postValue(err.toString())
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
-            currentWindow = player.currentWindowIndex
+            player?.let { player ->
+                currentWindow = player.currentWindowIndex
+            }
             onVideoChanged()
         }
 

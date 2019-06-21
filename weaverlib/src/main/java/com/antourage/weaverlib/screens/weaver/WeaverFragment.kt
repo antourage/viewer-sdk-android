@@ -1,25 +1,27 @@
 package com.antourage.weaverlib.screens.weaver
 
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
-import android.widget.Toast
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.parseDate
-import com.antourage.weaverlib.other.reobserve
-import com.antourage.weaverlib.other.replaceChildFragment
+import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.util.Util
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.controller_header.*
@@ -29,8 +31,6 @@ import kotlinx.android.synthetic.main.layout_no_chat.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_control.*
 import java.util.*
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 
 
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
@@ -134,6 +134,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                         txtPollStatus.text = state.pollStatus
                 }
                 is WeaverViewModel.PollStatus.POLL_DETAILS -> {
+                    (activity as AntourageActivity).hideSoftKeyboard()
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.GONE
                     ll_wrapper.visibility = View.GONE
@@ -153,7 +154,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                         if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
                             ll_wrapper.visibility = View.VISIBLE
-                            if(viewModel.currentPoll != null) {
+                            if (viewModel.currentPoll != null) {
                                 llPollStatus.visibility = View.VISIBLE
                                 viewModel.startNewPollCoundown()
                             }
@@ -213,25 +214,42 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
             onPollDetailsClicked()
         }
 
-        //initKeyboardListener()
+        initKeyboardListener()
     }
 
     private fun initKeyboardListener() {
-        rvMessages.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val lastVisiblePosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-                //Toast.makeText(context, "messages scrolled", Toast.LENGTH_LONG).show()
-            }
-        })
         KeyboardEventListener(activity as AppCompatActivity) {
-            val orientation = resources.configuration.orientation
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                if (it) {
-                    Toast.makeText(context, "Keyboard Open", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(context, "Keyboard closed", Toast.LENGTH_LONG).show()
+            try {
+                val orientation = resources.configuration.orientation
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    context?.let { context ->
+                        if (it) {
+                            etMessage.requestFocus()
+                            if (viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                                llPollStatus.visibility = View.GONE
+                            }
+                            ivScreenSize.visibility = View.GONE
+                            val anim = ResizeWidthAnimation(
+                                ll_wrapper, getScreenWidth(activity as Activity)
+                                        - dp2px(context, 8f).toInt()
+                            )
+                            anim.duration = 500
+                            ll_wrapper.startAnimation(anim)
+                        } else {
+                            if (viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                                llPollStatus.visibility = View.VISIBLE
+                            }
+                            ivScreenSize.visibility = View.VISIBLE
+                            val anim = ResizeWidthAnimation(
+                                ll_wrapper, dp2px(context, 300f).toInt()
+                            )
+                            anim.duration = 500
+                            ll_wrapper.startAnimation(anim)
+                        }
+                    }
                 }
+            } catch (ex: IllegalStateException) {
+                Log.d("Keyboard", "Fragment not attached to a context.")
             }
         }
     }
@@ -253,16 +271,30 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     override fun onResume() {
         super.onResume()
+        startPlayingStream()
+        if (playerView != null) {
+            playerView.onResume()
+        }
         viewModel.onResume()
     }
 
     override fun onPause() {
         super.onPause()
+        if (Util.SDK_INT <= 23) {
+            if (playerView != null) {
+                playerView.onPause()
+            }
+        }
         viewModel.onPause()
     }
 
     override fun onStop() {
         super.onStop()
+        if (Util.SDK_INT > 23) {
+            if (playerView != null) {
+                playerView.onPause()
+            }
+        }
         viewModel.onPause()
     }
 
@@ -291,6 +323,12 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         viewModel.getChatStatusLiveData().reobserve(this.viewLifecycleOwner, chatStateObserver)
         viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getPlaybackState().reobserve(this.viewLifecycleOwner, streamStateObserver)
+        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (isChatDismissed) {
+                drawerLayout.closeDrawer(navView)
+            }
+        }
+        ivScreenSize.visibility = View.VISIBLE
     }
 
     override fun onNetworkConnectionAvailable() {

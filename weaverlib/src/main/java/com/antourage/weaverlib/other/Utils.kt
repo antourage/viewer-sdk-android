@@ -19,11 +19,14 @@ fun dp2px(context: Context, dipValue: Float): Float {
 
 
 fun calculatePlayerHeight(activity: Activity):Float{
+    val width =  getScreenWidth(activity)
+    return ((width*9.0f) /16.0f)
+}
+fun getScreenWidth(activity: Activity):Int{
     val display = activity.windowManager.defaultDisplay
     val size = Point()
     display.getSize(size)
-    val width = size.x
-    return ((width*9.0f) /16.0f)
+    return size.x
 }
 fun convertUtcToLocal(utcTime: String): Date? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)
