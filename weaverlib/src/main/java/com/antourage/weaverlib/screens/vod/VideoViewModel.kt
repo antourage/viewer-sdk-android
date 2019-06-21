@@ -31,7 +31,6 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
         val runnable = object : Runnable {
             override fun run() {
                 // Insert custom code here
-                player?.let { player ->
                     val pos = (player.currentPosition / 1000) - 1
                     val list = repository.getMessagesList(currentWindow + 1)
                     val listToDisplay = mutableListOf<Message>()
@@ -46,7 +45,6 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
                         }
                     }
                     messagesLiveData.value = listToDisplay
-                }
                 // Repeat every  seconds
                 handler.postDelayed(this, 500)
             }

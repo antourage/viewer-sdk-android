@@ -172,9 +172,8 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     override fun onResume() {
         super.onResume()
-        player?.let { player ->
-            player.seekTo(player.duration)
-        }
+        player.seekTo(player.duration)
+
     }
 
 }

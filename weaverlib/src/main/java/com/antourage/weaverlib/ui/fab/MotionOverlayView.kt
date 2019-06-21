@@ -67,6 +67,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
                 MotionEvent.ACTION_UP   -> {
                     val endX = ev.x
                     val endY = ev.y
+                    if(startX != null && startY != null)
                     if (isAClick(startX!!, endX, startY!!, endY)) {
                         expandableLayout.transitionToStart()
                         listener?.onFabExpantionClicked()

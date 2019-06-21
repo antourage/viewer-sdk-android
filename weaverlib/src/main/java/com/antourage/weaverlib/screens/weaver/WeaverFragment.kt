@@ -315,6 +315,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         viewModel.getPlaybackState().reobserve(this.viewLifecycleOwner, streamStateObserver)
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             if(isChatDismissed){
+                (activity as AntourageActivity).hideSoftKeyboard()
                 drawerLayout.closeDrawer(navView)
             }
         }
