@@ -21,7 +21,6 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.util.Util
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.controller_header.*
@@ -56,7 +55,12 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
-                Player.STATE_READY -> hideLoading()
+                Player.STATE_READY -> {
+                    hideLoading()
+                    if(viewModel.isPlaybackPaused()){
+                        playerControls.show()
+                    }
+                }
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_IDLE -> {
                     if (!viewModel.wasStreamInitialized)
@@ -220,35 +224,35 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     private fun initKeyboardListener() {
         KeyboardEventListener(activity as AppCompatActivity) {
             try {
-                val orientation = resources.configuration.orientation
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    context?.let { context ->
-                        if (it) {
-                            etMessage.requestFocus()
-                            if (viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
-                                llPollStatus.visibility = View.GONE
-                            }
-                            ivScreenSize.visibility = View.GONE
-                            val anim = ResizeWidthAnimation(
-                                ll_wrapper, getScreenWidth(activity as Activity)
-                                        - dp2px(context, 8f).toInt()
-                            )
-                            anim.duration = 500
-                            ll_wrapper.startAnimation(anim)
-                        } else {
-                            if (viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
-                                llPollStatus.visibility = View.VISIBLE
-                            }
-                            ivScreenSize.visibility = View.VISIBLE
-                            val anim = ResizeWidthAnimation(
-                                ll_wrapper, dp2px(context, 300f).toInt()
-                            )
-                            anim.duration = 500
-                            ll_wrapper.startAnimation(anim)
+            val orientation = resources.configuration.orientation
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                context?.let { context ->
+                    if (it) {
+                        etMessage.requestFocus()
+                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                            llPollStatus.visibility = View.GONE
                         }
+                        ivScreenSize.visibility = View.GONE
+                        val anim = ResizeWidthAnimation(
+                            ll_wrapper, getScreenWidth(activity as Activity)
+                                    - dp2px(context, 8f).toInt()
+                        )
+                        anim.duration = 500
+                        ll_wrapper.startAnimation(anim)
+                    } else {
+                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                            llPollStatus.visibility = View.VISIBLE
+                        }
+                        ivScreenSize.visibility = View.VISIBLE
+                        val anim = ResizeWidthAnimation(
+                            ll_wrapper, dp2px(context, 300f).toInt()
+                        )
+                        anim.duration = 500
+                        ll_wrapper.startAnimation(anim)
                     }
                 }
-            } catch (ex: IllegalStateException) {
+            }
+            }catch (ex:IllegalStateException){
                 Log.d("Keyboard", "Fragment not attached to a context.")
             }
         }
@@ -271,30 +275,16 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     override fun onResume() {
         super.onResume()
-        startPlayingStream()
-        if (playerView != null) {
-            playerView.onResume()
-        }
         viewModel.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        if (Util.SDK_INT <= 23) {
-            if (playerView != null) {
-                playerView.onPause()
-            }
-        }
         viewModel.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        if (Util.SDK_INT > 23) {
-            if (playerView != null) {
-                playerView.onPause()
-            }
-        }
         viewModel.onPause()
     }
 
@@ -324,7 +314,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         viewModel.getPollStatusLiveData().reobserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getPlaybackState().reobserve(this.viewLifecycleOwner, streamStateObserver)
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (isChatDismissed) {
+            if(isChatDismissed){
                 drawerLayout.closeDrawer(navView)
             }
         }

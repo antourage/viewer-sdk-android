@@ -57,6 +57,9 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             when (state) {
                 Player.STATE_READY -> {
                     hideLoading()
+                    if(viewModel.isPlaybackPaused()){
+                        playerControls.show()
+                    }
                     viewModel.onVideoStarted(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId)
                 }
                 Player.STATE_BUFFERING -> showLoading()
@@ -100,6 +103,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     override fun initUi(view: View?) {
         super.initUi(view)
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
+        startPlayingStream()
         handleChat()
         ll_wrapper.visibility = View.INVISIBLE
         if(context != null)
@@ -126,12 +130,16 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     override fun onResume() {
         super.onResume()
-        startPlayingStream()
         viewModel.onResume()
+        if(viewModel.isPlaybackPaused()){
+            playerControls.show()
+        }
+        playerView.onResume()
     }
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+        playerView.onPause()
     }
     override fun onStop() {
         super.onStop()

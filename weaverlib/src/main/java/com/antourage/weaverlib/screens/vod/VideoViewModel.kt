@@ -67,6 +67,7 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
         val list: List<StreamResponse> = repository.getListOfVideos()
         messagesLiveData.value = mutableListOf()
         currentVideo.postValue(list[currentWindow])
+        player.playWhenReady = true
     }
 
     fun setCurrentPlayerPosition(videoId: Int) {
