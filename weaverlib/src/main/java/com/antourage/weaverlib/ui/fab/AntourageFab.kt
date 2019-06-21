@@ -79,7 +79,8 @@ class AntourageFab @JvmOverloads constructor(
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ACTIVE_LIVE_STREAM -> {
-                floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                if(floatingActionButton != null)
+                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
                 if (!handlerFab.hasMessages(0))
                     handlerFab.postDelayed(object : Runnable {
                         override fun run() {

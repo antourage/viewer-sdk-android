@@ -34,6 +34,9 @@ import java.util.*
 
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
+
+    var wasDrawerClosed = false
+
     companion object {
         const val ARGS_STREAM = "args_stream"
 
@@ -143,9 +146,13 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                     llPollStatus.visibility = View.GONE
                     ll_wrapper.visibility = View.GONE
                     bottomLayout.visibility = View.VISIBLE
+                    wasDrawerClosed = false
                     val orientation = resources.configuration.orientation
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        drawerLayout.closeDrawer(navView)
+                        if(drawerLayout.isDrawerOpen(navView)) {
+                            drawerLayout.closeDrawer(navView)
+                            wasDrawerClosed = true
+                        }
                     }
                     if (childFragmentManager.backStackEntryCount == 0)
                         replaceChildFragment(
@@ -162,7 +169,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                                 llPollStatus.visibility = View.VISIBLE
                                 viewModel.startNewPollCoundown()
                             }
-                            drawerLayout.openDrawer(navView)
+                            if(wasDrawerClosed)
+                                drawerLayout.openDrawer(navView)
                         }
                         etMessage.isEnabled =
                             !(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)
@@ -325,6 +333,5 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     override fun onNetworkConnectionAvailable() {
         showLoading()
         startPlayingStream()
-
     }
 }

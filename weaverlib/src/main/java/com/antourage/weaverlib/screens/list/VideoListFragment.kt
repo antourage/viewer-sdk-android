@@ -98,5 +98,8 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
     }
 
-
+    override fun onNetworkConnectionLost() {
+        super.onNetworkConnectionLost()
+        viewModel.getListOfVideos()
+    }
 }

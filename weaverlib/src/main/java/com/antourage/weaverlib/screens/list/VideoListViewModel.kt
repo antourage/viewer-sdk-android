@@ -10,7 +10,9 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
+import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 
 class VideoListViewModel(application: Application) : BaseViewModel(application), OnDevSettingsChangedListener,
@@ -19,14 +21,13 @@ class VideoListViewModel(application: Application) : BaseViewModel(application),
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     val receivingVideosManager = ReceivingVideosManager.newInstance(this)
 
-//    init {
-//        listOfStreams.postValue(repository.getListOfVideos())
-//    }
 
     fun getStreams() {
-        ReceivingVideosManager.startReceivingVideos()
+            ReceivingVideosManager.startReceivingVideos()
     }
-
+    fun getListOfVideos(){
+        listOfStreams.postValue(Repository().getListOfVideos())
+    }
     fun onStop() {
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0

@@ -11,6 +11,10 @@ import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
+import android.app.Activity
+import android.content.Intent
+import com.antourage.weaverlib.screens.weaver.WeaverFragment
+
 
 class PollDetailsViewModel(application: Application) : BaseViewModel(application) {
 
@@ -61,6 +65,8 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
         }
         return sum
     }
+
+
     fun onAnswerChosen(pos: Int) {
         FirebaseAuth.getInstance().currentUser?.let {
             val userAnswer = AnsweredUser()

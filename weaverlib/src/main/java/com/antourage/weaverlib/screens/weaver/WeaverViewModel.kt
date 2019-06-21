@@ -7,10 +7,7 @@ import android.arch.lifecycle.Observer
 import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.MessageType
-import com.antourage.weaverlib.other.models.Poll
-import com.antourage.weaverlib.other.models.Stream
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
@@ -20,6 +17,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.google.firebase.auth.FirebaseAuth
 
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
@@ -43,6 +41,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
     var wasStreamInitialized = false
     var streamId: Int = 0
     private var isChatTurnedOn = false
+    private var postAnsweredUsers = false
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
@@ -53,6 +52,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     init {
         pollStatusLiveData.value = PollStatus.NO_POLL()
+        postAnsweredUsers = false
     }
 
     private val messagesObserver: Observer<Resource<List<Message>>> =
@@ -70,9 +70,11 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
     private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data ->
         if (data?.state == State.SUCCESS) {
             if (data.data != null && data.data.isNotEmpty()) {
+                postAnsweredUsers = false
                 pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL(data.data[0]))
                 currentPoll = data.data[0]
             } else {
+                postAnsweredUsers = false
                 pollStatusLiveData.postValue(PollStatus.NO_POLL())
                 currentPoll = null
             }
@@ -118,26 +120,46 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
     }
 
     fun startNewPollCoundown() {
-        pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
+        observeAnsweredUsers()
         Handler().postDelayed(
             {
-                currentPoll?.let {
-                    repository.getAnsweredUsers(streamId, it.id).observeForever {
-                        if (it?.data != null) {
-                            pollStatusLiveData.postValue(
-                                PollStatus.ACTIVE_POLL_DISMISSED(
-                                    getApplication<Application>().getString(
-                                        R.string.number_answers,
-                                        it.data.size
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
+                postAnsweredUsers = true
+                observeAnsweredUsers()
             },
             NEW_POLL_DELAY_MS
         )
+    }
+
+    private fun wasAnswered(answeredUsers: List<AnsweredUser>): Boolean {
+        for (j in 0 until answeredUsers.size) {
+            if (answeredUsers[j].id == FirebaseAuth.getInstance().uid) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun observeAnsweredUsers() {
+        currentPoll?.let {
+            repository.getAnsweredUsers(streamId, it.id).observeForever {
+                if (it?.data != null) {
+                    if (wasAnswered(it.data)) {
+                        postAnsweredUsers = true
+                    }
+                    if (postAnsweredUsers)
+                        pollStatusLiveData.postValue(
+                            PollStatus.ACTIVE_POLL_DISMISSED(
+                                getApplication<Application>().getString(
+                                    R.string.number_answers,
+                                    it.data.size
+                                )
+                            )
+                        )
+                    else
+                        pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
+                }
+            }
+        }
     }
 
     fun addMessage(message: Message, streamId: Int) {

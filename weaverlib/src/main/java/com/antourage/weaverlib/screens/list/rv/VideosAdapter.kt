@@ -59,7 +59,9 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
             if (listOfStreams[position]?.duration != null && listOfStreams[position]?.duration != 0)
                 holder.txtStatus.text = ("0:" + listOfStreams[position]?.duration)
             holder.itemView.setOnClickListener {
-                listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
+                if(holder.adapterPosition>=0 && holder.adapterPosition<listOfStreams.size &&
+                    holder.adapterPosition != -1)
+                    listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
             }
             holder.txtNumberOfViewers.text = listOfStreams[position]?.viewerCounter.toString()
             holder.txtWasLive.text = listOfStreams[position]?.startTime?.parseDate(context)
