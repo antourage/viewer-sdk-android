@@ -61,7 +61,7 @@ fun String.parseDate(context: Context): String {
     if (localUTC != null) {
         var diff = getDateDiff(localUTC, Date())
         if (diff > 3 * DAY) {
-            val df = SimpleDateFormat("dd.MM.yyyy")
+            val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             return  df.format(localUTC)
         } else if (diff > DAY) {
             val days = (diff / DAY).toInt()

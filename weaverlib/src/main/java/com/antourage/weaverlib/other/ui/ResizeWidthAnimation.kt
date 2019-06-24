@@ -6,21 +6,13 @@ import android.view.animation.Transformation
 
 
 class ResizeWidthAnimation(private val mView: View, private val mWidth: Int) : Animation() {
-    private val mStartWidth: Int
-
-    init {
-        mStartWidth = mView.getWidth()
-    }
+    private val mStartWidth: Int = mView.width
 
     override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
         val newWidth = mStartWidth + ((mWidth - mStartWidth) * interpolatedTime).toInt()
 
         mView.layoutParams.width = newWidth
         mView.requestLayout()
-    }
-
-    override fun initialize(width: Int, height: Int, parentWidth: Int, parentHeight: Int) {
-        super.initialize(width, height, parentWidth, parentHeight)
     }
 
     override fun willChangeBounds(): Boolean {

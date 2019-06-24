@@ -110,7 +110,7 @@ class Repository {
         return list
     }
 
-    fun substractDays(numberOfDays:Int,minusMin:Int=0):String{
+    private fun substractDays(numberOfDays:Int,minusMin:Int=0):String{
         val cal = GregorianCalendar.getInstance()
         cal.time = Date()
         cal.add(Calendar.DAY_OF_YEAR, -numberOfDays)

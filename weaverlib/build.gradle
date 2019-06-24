@@ -103,7 +103,9 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
-
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     buildTypes {
         release {
             minifyEnabled true
@@ -164,6 +166,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     //Testing
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.25.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
