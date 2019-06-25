@@ -20,3 +20,9 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class android.arch.** { *; }
+-keepattributes InnerClasses
+
+-keep class **.R
+-keep class **.R$* {
+    <fields>;
+}

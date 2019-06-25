@@ -3,7 +3,9 @@ package com.antourage.weaverlib.ui.fab
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
+import android.support.annotation.Keep
 
+@Keep
 object AntourageFabLifecycleObserver : LifecycleObserver {
     private var actionHandler: FabActionHandler? = null
 
@@ -35,7 +37,7 @@ object AntourageFabLifecycleObserver : LifecycleObserver {
         this.actionHandler?.onStop()
     }
 }
-
+@Keep
 interface FabActionHandler {
     fun onPause()
     fun onResume()

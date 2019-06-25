@@ -2,13 +2,14 @@ package com.antourage.weaverlib.screens.list
 
 import android.arch.lifecycle.Observer
 import android.os.Handler
+import android.support.annotation.Keep
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 
-
+@Keep
 class ReceivingVideosManager() {
 
 
@@ -54,7 +55,7 @@ class ReceivingVideosManager() {
         }
     }
 
-
+    @Keep
     interface ReceivingVideoCallback {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 

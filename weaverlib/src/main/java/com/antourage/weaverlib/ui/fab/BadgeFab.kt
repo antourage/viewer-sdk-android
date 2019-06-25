@@ -6,6 +6,7 @@ import android.graphics.*
 import android.graphics.Paint.Style
 import android.graphics.drawable.ColorDrawable
 import android.os.Parcelable
+import android.support.annotation.Keep
 import android.support.design.stateful.ExtendableSavedState
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.view.ViewCompat
@@ -30,6 +31,7 @@ private const val RIGHT_BOTTOM_POSITION = 3
 /**
  * A [FloatingActionButton] subclass that shows a badge on right top corner.
  */
+@Keep
 class BadgeFab @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -2,6 +2,7 @@ package com.antourage.weaverlib.ui.fab
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.support.annotation.Keep
 import android.support.constraint.motion.MotionLayout
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -9,7 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.antourage.weaverlib.R
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
-
+@Keep
 class MotionOverlayView @JvmOverloads constructor(context: Context,
                                                   attrs: AttributeSet? = null,
                                                   defStyleAttr: Int = 0) : MotionLayout(context, attrs, defStyleAttr) {
@@ -91,6 +92,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
     }
+    @Keep
     interface FabExpantionListener{
         fun onFabExpantionClicked()
 
