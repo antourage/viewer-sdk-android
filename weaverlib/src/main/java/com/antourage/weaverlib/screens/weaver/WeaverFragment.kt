@@ -34,7 +34,6 @@ import java.util.*
 
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
-
     var wasDrawerClosed = false
 
     companion object {
@@ -67,7 +66,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_IDLE -> {
                     if (!viewModel.wasStreamInitialized)
-                        startPlayingStream()
+                        viewModel.onNetworkGained()
                     else
                         hideLoading()
                 }
@@ -330,8 +329,12 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         ivScreenSize.visibility = View.VISIBLE
     }
 
+    override fun onNetworkConnectionLost() {
+        super.onNetworkConnectionLost()
+
+    }
     override fun onNetworkConnectionAvailable() {
         showLoading()
-        startPlayingStream()
+        viewModel.onNetworkGained()
     }
 }
