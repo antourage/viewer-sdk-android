@@ -23,14 +23,11 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
 }
-plugins {
-    id 'digital.wup.android-maven-publish' version '3.6.2'
-}
 allprojects {
     repositories {
+        mavenLocal()
         google()
         jcenter()
-
     }
 }
 
