@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other
 
+import android.app.Application
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
@@ -15,7 +16,8 @@ import com.antourage.weaverlib.R
 import java.text.SimpleDateFormat
 import java.util.*
 import android.view.ViewGroup
-
+import com.antourage.weaverlib.di.ApplicationComponent
+import com.antourage.weaverlib.di.DaggerApplicationComponent
 
 
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
@@ -31,6 +33,11 @@ fun AppCompatActivity.replaceFragment(fragment: Fragment, frameId: Int, addToBac
         supportFragmentManager.inTransaction {
             replace(frameId, fragment)
         }
+}
+fun Application.initDagger(): ApplicationComponent {
+    return DaggerApplicationComponent.builder()
+        .application(this)
+        .build()
 }
 
 fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {

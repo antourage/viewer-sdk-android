@@ -15,6 +15,10 @@
                 android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
                 tools:targetApi="n">
         </activity>
+        <provider
+                android:name=".WeaverInitProvider"
+                android:authorities="${applicationId}.WeaverInitProvider"
+                android:exported="false"/>
     </application>
 
 </manifest>

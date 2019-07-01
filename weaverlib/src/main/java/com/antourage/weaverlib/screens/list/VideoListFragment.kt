@@ -5,9 +5,13 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
@@ -21,9 +25,10 @@ import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 
 
-class VideoListFragment : BaseFragment<VideoListViewModel>() {
+class VideoListFragment : Fragment() {
 
     lateinit var videoAdapter: VideosAdapter
+    protected lateinit var viewModel: VideoListViewModel
 
     companion object {
         fun newInstance(): VideoListFragment {
@@ -44,18 +49,21 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     //endregion
 
-    override fun getLayoutId(): Int {
-        return R.layout.fragment_videos_list
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate( R.layout.fragment_videos_list, container, false)
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(VideoListViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, activity?.injector?.getVideoListViewModelFactory())
+            .get(VideoListViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initUi(view)
         subscribeToObservers()
     }
 
@@ -75,7 +83,7 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
         viewModel.getStreams()
     }
 
-    override fun initUi(view: View?) {
+     fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = {
             if (it.isLive) {
                 replaceFragment(WeaverFragment.newInstance(it), R.id.mainContent, true)
@@ -98,8 +106,8 @@ class VideoListFragment : BaseFragment<VideoListViewModel>() {
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
     }
 
-    override fun onNetworkConnectionLost() {
-        super.onNetworkConnectionLost()
-        viewModel.getListOfVideos()
-    }
+//    override fun onNetworkConnectionLost() {
+//        super.onNetworkConnectionLost()
+//        viewModel.getListOfVideos()
+//    }
 }

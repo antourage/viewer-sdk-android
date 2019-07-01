@@ -3,7 +3,6 @@ package com.antourage.weavervideo
 import android.os.Bundle
 import android.support.multidex.MultiDex
 import android.support.v7.app.AppCompatActivity
-import com.antourage.weaverlib.screens.base.AntourageActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
