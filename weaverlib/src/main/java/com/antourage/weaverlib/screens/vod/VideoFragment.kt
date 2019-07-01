@@ -5,10 +5,11 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -17,6 +18,7 @@ import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ui.DefaultTimeBar
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
@@ -32,6 +34,7 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
+
 
 class VideoFragment : ChatFragment<VideoViewModel>() {
 
@@ -57,7 +60,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             when (state) {
                 Player.STATE_READY -> {
                     hideLoading()
-                    if(viewModel.isPlaybackPaused()){
+                    if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                     }
                     viewModel.onVideoStarted(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId)
@@ -77,7 +80,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         video?.let {
             tvStreamName.text = video.streamTitle
             tvBroadcastedBy.text = video.creatorFullname
-            if(context != null)
+            if (context != null)
                 tvWasLive.text = video.startTime.parseDate(context!!)
             tvControllerStreamName.text = video.streamTitle
             tvControllerBroadcastedBy.text = video.creatorFullname
@@ -106,9 +109,11 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         startPlayingStream()
         handleChat()
         ll_wrapper.visibility = View.INVISIBLE
-        if(context != null)
-            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+        if (context != null)
+            tvWasLive.text =
+                arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
+
     override fun onControlsVisible() {
 //        if(context != null)
 //            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
@@ -131,16 +136,18 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
-        if(viewModel.isPlaybackPaused()){
+        if (viewModel.isPlaybackPaused()) {
             playerControls.show()
         }
         playerView.onResume()
     }
+
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
         playerView.onPause()
     }
+
     override fun onStop() {
         super.onStop()
         viewModel.onPause()
@@ -165,23 +172,25 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         }
         ll_wrapper.visibility = View.INVISIBLE
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if(isChatDismissed){
+            if (isChatDismissed) {
                 drawerLayout.closeDrawer(navView)
             }
         }
 
     }
-    private fun changeControlsView(isLandscape:Boolean){
-            if (isLandscape) {
-                exo_progress.setMargins(148, 0, 148, 0)
-                exo_position.setMargins(4, 0, 0, 4)
-                ivScreenSize.setMargins(0, 0, 4, 4)
-            } else {
-                exo_progress.setMargins(0, 0, 0, 0)
-                exo_position.setMargins(18, 0, 0, 18)
-                ivScreenSize.setMargins(0, 0, 18, 18)
-            }
+
+    private fun changeControlsView(isLandscape: Boolean) {
+        if (isLandscape) {
+            exo_progress.setMargins(148, 0, 148, 0)
+            exo_position.setMargins(4, 0, 0, 4)
+            ivScreenSize.setMargins(0, 0, 4, 4)
+        } else {
+            exo_progress.setMargins(0, 0, 0, 0)
+            exo_position.setMargins(18, 0, 0, 18)
+            ivScreenSize.setMargins(0, 0, 18, 18)
+        }
     }
+
     override fun onNetworkConnectionLost() {
 
     }
@@ -190,7 +199,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         viewModel.onNetworkGained()
 
     }
-
 
 
 }

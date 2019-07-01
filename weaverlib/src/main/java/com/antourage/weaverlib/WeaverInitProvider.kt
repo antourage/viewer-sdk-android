@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 
 class WeaverInitProvider : ContentProvider() {
 

@@ -17,7 +17,7 @@
         </activity>
         <provider
                 android:name=".WeaverInitProvider"
-                android:authorities="com.antourage.weaverlib.WeaverInitProvider"
+                android:authorities="${applicationId}.WeaverInitProvider"
                 android:exported="false"/>
     </application>
 
