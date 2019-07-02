@@ -26,13 +26,19 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
             resValue('string',"gcm_defaultSenderId","1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
             resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
             resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
             resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
             resValue('string',"project_id","leobit-antourage")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
         debugMini {
             initWith debug
@@ -41,26 +47,38 @@ android {
                     'proguard-rules.pro'
             matchingFallbacks = ['debug']
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
             resValue('string',"gcm_defaultSenderId","1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
             resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
             resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
             resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
             resValue('string',"project_id","leobit-antourage")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
         debug {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
             resValue('string',"gcm_defaultSenderId","1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
             resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
             resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
             resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
             resValue('string',"project_id","leobit-antourage")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
     }
     compileOptions {

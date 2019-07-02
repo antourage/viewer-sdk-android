@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
@@ -21,6 +22,7 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
+import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.controller_header.*
@@ -203,7 +205,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 "", "osoluk@leobit.co", "my nic", etMessage.text.toString(),
                 MessageType.USER, Timestamp(Date())
             )
-            message.userID = FirebaseAuth.getInstance().uid
+            message.userID = FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
             viewModel.addMessage(message, arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId!!)
             etMessage.setText("")
         }

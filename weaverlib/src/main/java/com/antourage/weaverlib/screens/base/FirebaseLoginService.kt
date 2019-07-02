@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.base
 
 import android.content.Context
 import android.util.Log
+import com.antourage.weaverlib.BuildConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -9,7 +10,7 @@ class FirebaseLoginService(context: Context) {
     private var auth: FirebaseAuth
 
     init {
-        auth = FirebaseAuth.getInstance()
+        auth = FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
     }
     fun handleSignIn(){
         if (!isLoggedInToFirebase()){
@@ -24,8 +25,6 @@ class FirebaseLoginService(context: Context) {
         auth.signInAnonymously()
             .addOnSuccessListener {
                 Log.d(FirebaseLoginService::class.java.simpleName, "Firebase Login Successful")
-                val currentUser = auth.currentUser
-                Log.d("test","test")
             }
             .addOnFailureListener {
                 Log.d(FirebaseLoginService::class.java.simpleName, "Firebase Login Failed")

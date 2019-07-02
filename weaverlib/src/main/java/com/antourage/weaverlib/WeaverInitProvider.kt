@@ -11,7 +11,13 @@ class WeaverInitProvider : ContentProvider() {
 
     override fun onCreate(): Boolean {
         context?.let {
-            FirebaseApp.initializeApp(it.applicationContext)
+            val options = FirebaseOptions.Builder()
+                .setApiKey(BuildConfig.FirebaseApiKey)
+                .setApplicationId(BuildConfig.ApplicationFirebaseId)
+                .setDatabaseUrl(BuildConfig.DatabaseUrl)
+                .setProjectId(BuildConfig.FirebaseProjectId)
+                .build()
+            FirebaseApp.initializeApp(it.applicationContext, options, BuildConfig.FirebaseName)
         }
         return true
     }

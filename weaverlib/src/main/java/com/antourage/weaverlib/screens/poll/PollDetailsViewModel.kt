@@ -4,6 +4,7 @@ package com.antourage.weaverlib.screens.poll
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.other.models.AnsweredUser
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
@@ -11,9 +12,7 @@ import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
-import android.app.Activity
-import android.content.Intent
-import com.antourage.weaverlib.screens.weaver.WeaverFragment
+import com.google.firebase.FirebaseApp
 
 
 class PollDetailsViewModel(application: Application) : BaseViewModel(application) {
@@ -42,7 +41,8 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
                             for (i in 0 until poll.answers!!.size){
                                 var counter = 0
                                 for(j in 0 until answeredUsers.size){
-                                    if(answeredUsers[j].id == FirebaseAuth.getInstance().uid){
+                                    if(answeredUsers[j].id == FirebaseAuth.getInstance(FirebaseApp.getInstance(
+                                            BuildConfig.FirebaseName)).uid){
                                         isAnswered = true
                                     }
                                     if (answeredUsers[j].choosenAnswer == i)
@@ -68,7 +68,7 @@ class PollDetailsViewModel(application: Application) : BaseViewModel(application
 
 
     fun onAnswerChosen(pos: Int) {
-        FirebaseAuth.getInstance().currentUser?.let {
+        FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).currentUser?.let {
             val userAnswer = AnsweredUser()
             userAnswer.choosenAnswer = pos
             userAnswer.timestamp = Timestamp(Date())

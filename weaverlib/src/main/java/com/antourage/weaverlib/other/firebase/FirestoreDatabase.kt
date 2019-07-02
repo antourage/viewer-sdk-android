@@ -1,16 +1,19 @@
 package com.antourage.weaverlib.other.firebase
 
+import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_LOCAL
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_PROD
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FirestoreDatabase{
-    val db = FirebaseFirestore.getInstance()
+
+    val db = FirebaseFirestore.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
 
     private fun getMainDocumentPath(): DocumentReference {
         if (BASE_URL == BASE_URL_LOCAL) {

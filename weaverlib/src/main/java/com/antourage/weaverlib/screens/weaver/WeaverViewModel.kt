@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.net.Uri
 import android.os.Handler
+import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.base.Resource
@@ -17,6 +18,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
 class WeaverViewModel(application: Application) : ChatViewModel(application) {
@@ -132,7 +134,7 @@ class WeaverViewModel(application: Application) : ChatViewModel(application) {
 
     private fun wasAnswered(answeredUsers: List<AnsweredUser>): Boolean {
         for (j in 0 until answeredUsers.size) {
-            if (answeredUsers[j].id == FirebaseAuth.getInstance().uid) {
+            if (answeredUsers[j].id == FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid) {
                 return true
             }
         }
