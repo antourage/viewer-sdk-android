@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.Paint.Style
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Parcelable
 import android.support.annotation.Keep
 import android.support.design.stateful.ExtendableSavedState
@@ -204,12 +205,11 @@ class BadgeFab @JvmOverloads constructor(
                     left -= 10f
                     right += 10f
                 }
-                val rect = RectF(left, cy + radius, right, cy - radius)
-                canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
-//                canvas.drawCircle(cx, cy, radius+10, circlePaint)
-                // Mask circle
-                //may be needed in future
-                //canvas.drawCircle(cx, cy, radius, maskPaint)
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    val rect = RectF(left, cy + radius, right, cy - radius)
+                    canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
+                }else
+                    canvas.drawCircle(cx, cy, radius+10, circlePaint)
                 // Count text
                 textPaint.textSize = textSize * animationFactor
                 canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)
