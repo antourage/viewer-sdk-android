@@ -18,8 +18,13 @@ import com.google.android.exoplayer2.util.Util
 import android.support.v4.os.HandlerCompat.postDelayed
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.firebase.Timestamp
+import okhttp3.OkHttpClient
 import java.util.*
+import okhttp3.Interceptor
+import okhttp3.Response
+import java.io.IOException
 
 
 class VideoViewModel(application: Application) : ChatViewModel(application) {
@@ -99,10 +104,21 @@ class VideoViewModel(application: Application) : ChatViewModel(application) {
 
     private fun buildSimpleMediaSource(uri: String): MediaSource {
         val defaultBandwidthMeter = DefaultBandwidthMeter()
-        val dataSourceFactory = DefaultDataSourceFactory(
-            getApplication(),
-            Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
-        )
+
+        val okHttpClient = OkHttpClient.Builder ()
+            .addNetworkInterceptor(object : Interceptor {
+                @Throws(IOException::class)
+                override fun intercept(chain: Interceptor.Chain): Response {
+                    val request = chain.request().newBuilder().addHeader("Connection", "close").build()
+                    return chain.proceed(request)
+                }
+            })
+            .build()
+        val dataSourceFactory = OkHttpDataSourceFactory(okHttpClient,Util.getUserAgent(getApplication(), "Exo2"))
+//        val dataSourceFactory = DefaultDataSourceFactory(
+//            getApplication(),
+//            Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
+//        )
         //TODO 10/5/2018 choose one
         //hls
         return HlsMediaSource.Factory(dataSourceFactory)

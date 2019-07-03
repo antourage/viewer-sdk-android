@@ -23,7 +23,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
             buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
@@ -42,7 +42,7 @@ android {
         }
         debugMini {
             initWith debug
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             matchingFallbacks = ['debug']
@@ -62,7 +62,7 @@ android {
             buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
@@ -122,6 +122,7 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-core:2.9.6'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
     implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.6'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.9.6'
     //CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     // Dagger
