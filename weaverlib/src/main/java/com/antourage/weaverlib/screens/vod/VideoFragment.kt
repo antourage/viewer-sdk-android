@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.setMargins
@@ -93,7 +94,8 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(VideoViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, activity?.injector?.getVideoViewModelFactory())
+            .get(VideoViewModel::class.java)
     }
 
     override fun subscribeToObservers() {

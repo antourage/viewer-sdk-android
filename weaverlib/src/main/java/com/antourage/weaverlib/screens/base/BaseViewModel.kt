@@ -12,5 +12,4 @@ open class BaseViewModel constructor(application: Application) : AndroidViewMode
         var success: MutableLiveData<String?> = MutableLiveData()
     }
 
-    protected val repository = Repository()
 }

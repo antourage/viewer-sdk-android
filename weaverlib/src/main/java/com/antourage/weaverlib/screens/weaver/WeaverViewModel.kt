@@ -11,6 +11,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
+import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
@@ -20,8 +21,9 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import javax.inject.Inject
 
-class WeaverViewModel(application: Application) : ChatViewModel(application) {
+class WeaverViewModel @Inject constructor(application: Application, val repository: Repository) : ChatViewModel(application) {
 
     companion object {
         const val NEW_POLL_DELAY_MS = 15000L

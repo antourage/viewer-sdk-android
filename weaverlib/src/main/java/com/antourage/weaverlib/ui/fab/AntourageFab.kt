@@ -15,6 +15,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.base.AppExecutors
 import com.antourage.weaverlib.other.networking.base.Resource
@@ -186,7 +187,7 @@ class AntourageFab @JvmOverloads constructor(
 
     fun manageVideos() {
         val seenVideos = UserCache.newInstance().getSeenVideos(context)
-        val nonSeenNumber = Repository().getListOfVideos().size - seenVideos.size
+        val nonSeenNumber = Repository(ApiClient.getInitialClient().webService).getListOfVideos().size - seenVideos.size
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ACTIVE_UNSEEN_VIDEOS(nonSeenNumber))
         } else

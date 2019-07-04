@@ -4,7 +4,9 @@ import android.app.Application
 import android.arch.lifecycle.ViewModel
 import android.content.Context
 import com.antourage.weaverlib.screens.list.VideoListViewModel
+import com.antourage.weaverlib.screens.poll.PollDetailsViewModel
 import com.antourage.weaverlib.screens.vod.VideoViewModel
+import com.antourage.weaverlib.screens.weaver.WeaverViewModel
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
@@ -29,6 +31,10 @@ interface ApplicationComponent {
      */
     fun getVideoListViewModelFactory(): ViewModelFactory<VideoListViewModel>
 
-//    fun getVideoViewModelFactory():ViewModelFactory<VideoViewModel>
+    fun getVideoViewModelFactory():ViewModelFactory<VideoViewModel>
+
+    fun getWeaverViewModelFactory():ViewModelFactory<WeaverViewModel>
+
+    fun getPollViewModelFactory():ViewModelFactory<PollDetailsViewModel>
 
 }

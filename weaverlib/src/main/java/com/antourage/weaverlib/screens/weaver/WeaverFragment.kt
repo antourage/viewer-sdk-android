@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
@@ -20,6 +21,7 @@ import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
+import com.antourage.weaverlib.screens.list.VideoListViewModel
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
 import com.google.firebase.FirebaseApp
@@ -184,7 +186,8 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(WeaverViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, activity?.injector?.getWeaverViewModelFactory())
+            .get(WeaverViewModel::class.java)
     }
 
     override fun subscribeToObservers() {

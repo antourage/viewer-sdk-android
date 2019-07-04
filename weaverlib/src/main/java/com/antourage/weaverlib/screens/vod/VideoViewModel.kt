@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import android.support.v4.os.HandlerCompat.postDelayed
 import com.antourage.weaverlib.other.models.MessageType
+import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.firebase.Timestamp
@@ -25,9 +26,10 @@ import java.util.*
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
+import javax.inject.Inject
 
 
-class VideoViewModel(application: Application) : ChatViewModel(application) {
+class VideoViewModel @Inject constructor(application: Application, val repository: Repository) : ChatViewModel(application) {
 
     fun onVideoStarted(streamId:Int){
         val handler = Handler()

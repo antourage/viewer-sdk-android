@@ -9,13 +9,15 @@ import com.antourage.weaverlib.other.models.AnsweredUser
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.screens.base.BaseViewModel
+import com.antourage.weaverlib.screens.base.Repository
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 import com.google.firebase.FirebaseApp
+import javax.inject.Inject
 
 
-class PollDetailsViewModel(application: Application) : BaseViewModel(application) {
+class PollDetailsViewModel @Inject constructor(application: Application, val repository: Repository) : BaseViewModel(application) {
 
     private val pollLiveData = MutableLiveData<Poll>()
     private var answersLiveData:MutableLiveData<List<AnswersCombined>> = MutableLiveData()

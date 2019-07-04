@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.os.Handler
 import android.support.annotation.Keep
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.AntourageActivity
@@ -29,7 +30,8 @@ class ReceivingVideosManager() {
         fun startReceivingVideos() {
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
-                    val streamResponse = Repository().getListOfStreams()
+                    //TODO 4/7/2019 change through DI
+                    val streamResponse = Repository(ApiClient.getInitialClient().webService).getListOfStreams()
                     streamResponse.observeForever(object : Observer<Resource<List<StreamResponse>>> {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                             if (resource != null) {

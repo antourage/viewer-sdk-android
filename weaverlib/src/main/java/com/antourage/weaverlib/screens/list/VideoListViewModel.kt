@@ -3,8 +3,6 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
-import android.content.Context
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -16,7 +14,8 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import javax.inject.Inject
 
-class VideoListViewModel @Inject constructor(application: Application) : BaseViewModel(application), OnDevSettingsChangedListener,
+class VideoListViewModel @Inject constructor(application: Application, val repository: Repository) :
+    BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
 
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
@@ -28,7 +27,7 @@ class VideoListViewModel @Inject constructor(application: Application) : BaseVie
     }
 
     fun getListOfVideos() {
-        listOfStreams.postValue(Repository().getListOfVideos())
+        listOfStreams.postValue(repository.getListOfVideos())
     }
 
     fun onStop() {
@@ -51,7 +50,7 @@ class VideoListViewModel @Inject constructor(application: Application) : BaseVie
                 }
                 if (list?.size != 0)
                     list?.add(StreamResponse(-1))
-                list?.addAll(Repository().getListOfVideos())
+                list?.addAll(repository.getListOfVideos())
                 listOfStreams.postValue(list)
             }
             State.FAILURE -> {

@@ -5,17 +5,17 @@ import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.networking.ApiClient
+import com.antourage.weaverlib.other.networking.WebService
 import com.antourage.weaverlib.other.networking.base.ApiResponse
 import com.antourage.weaverlib.other.networking.base.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+import javax.inject.Inject
 
 
-class Repository {
+class Repository @Inject constructor(val api:WebService) {
 
     fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>>() {
@@ -23,7 +23,7 @@ class Repository {
             }
 
             override fun createCall(): LiveData<ApiResponse<List<StreamResponse>>> {
-                return ApiClient.getInitialClient().webService.getLiveStreams()
+                return api.getLiveStreams()
             }
         }.asLiveData()
     }
@@ -38,7 +38,6 @@ class Repository {
                 "Heading Out for Training",
                 "",
                 "file:///android_asset/1.png",
-//                "http://d3pqhz4gxngfhe.cloudfront.net/portrait3/portrait3.m3u8",
                 baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
                 startTime = substractDays(0),
                 duration = 30,

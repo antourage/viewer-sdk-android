@@ -2,11 +2,9 @@ package com.antourage.weaverlib.screens.poll
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.support.annotation.NonNull
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.support.annotation.Nullable
-import android.support.v4.view.ViewCompat.canScrollVertically
 import android.support.v7.widget.LinearLayoutManager
 import com.antourage.weaverlib.other.models.Poll
 import android.widget.TextView
@@ -15,6 +13,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.reobserve
 import com.antourage.weaverlib.screens.base.BaseFragment
@@ -68,7 +67,8 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(), PollAnswersAda
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(PollDetailsViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, activity?.injector?.getPollViewModelFactory())
+            .get(PollDetailsViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
