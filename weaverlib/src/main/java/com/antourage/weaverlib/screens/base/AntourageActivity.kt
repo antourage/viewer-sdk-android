@@ -2,52 +2,46 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.Toast
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.NetworkStateReceiver
-import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
-import com.google.firebase.FirebaseApp
 
 
-class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkStateReceiverListener  {
+class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkStateReceiverListener {
 
 
     companion object {
         const val ACTION_CONNECTION_LOST = "action_internet_connection_lost"
         const val ACTION_CONNECTION_AVAILABLE = "action_internet_connection_available"
-        var isNetworkAvailable:Boolean = true
-        fun initAntourage(context: Context){
-            FirebaseApp.initializeApp(context)
-        }
+        var isNetworkAvailable: Boolean = true
+
     }
+
     private lateinit var networkStateReceiver: NetworkStateReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         BASE_URL = UserCache.newInstance().getBeChoice(this)!!
-        if(intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null){
+        if (intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.mainContent, WeaverFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))).commit()
+                .replace(R.id.mainContent, WeaverFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED)))
+                .commit()
         } else
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
@@ -71,10 +65,11 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
         val intent = Intent(ACTION_CONNECTION_LOST)
         localBroadcastManager.sendBroadcast(intent)
     }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun setupKeyboardListener(view: View) {
 
-        if (!(view is EditText )) {
+        if (!(view is EditText)) {
             view.setOnTouchListener { v, event ->
                 hideSoftKeyboard()
                 false
@@ -91,12 +86,13 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
         val inputMethodManager = getSystemService(
             Activity.INPUT_METHOD_SERVICE
         ) as InputMethodManager
-        if ( currentFocus != null)
+        if (currentFocus != null)
             inputMethodManager.hideSoftInputFromWindow(
                 currentFocus?.windowToken, 0
             )
 
     }
+
     override fun onUserLeaveHint() {
         //TODO uncomment and enable
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

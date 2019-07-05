@@ -65,21 +65,21 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     sealed class WidgetStatus {
-        class INACTIVE : WidgetStatus()
-        class ACTIVE_LIVE_STREAM(val list: List<StreamResponse>) : WidgetStatus()
-        class ACTIVE_UNSEEN_VIDEOS(val numberOfVideos: Int) : WidgetStatus()
+        object Inactive : WidgetStatus()
+        class ActiveLiveStream(val list: List<StreamResponse>) : WidgetStatus()
+        class ActiveUnseenVideos(val numberOfVideos: Int) : WidgetStatus()
     }
 
     fun changeBadgeStatus(status: WidgetStatus) {
         when (status) {
-            is WidgetStatus.INACTIVE -> {
+            is WidgetStatus.Inactive -> {
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
                 floatingActionButton.setImageResource(R.drawable.ic_logo_white)
                 floatingActionButton.setTextToBadge("")
             }
-            is WidgetStatus.ACTIVE_LIVE_STREAM -> {
+            is WidgetStatus.ActiveLiveStream -> {
                 if(floatingActionButton != null)
                     floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
                 if (!handlerFab.hasMessages(0))
@@ -116,7 +116,7 @@ class AntourageFab @JvmOverloads constructor(
                     }, 0)
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
             }
-            is WidgetStatus.ACTIVE_UNSEEN_VIDEOS -> {
+            is WidgetStatus.ActiveUnseenVideos -> {
                 floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
@@ -189,9 +189,9 @@ class AntourageFab @JvmOverloads constructor(
         val seenVideos = UserCache.newInstance().getSeenVideos(context)
         val nonSeenNumber = Repository(ApiClient.getInitialClient().webService).getListOfVideos().size - seenVideos.size
         if (nonSeenNumber > 0) {
-            changeBadgeStatus(WidgetStatus.ACTIVE_UNSEEN_VIDEOS(nonSeenNumber))
+            changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
         } else
-            changeBadgeStatus(WidgetStatus.INACTIVE())
+            changeBadgeStatus(WidgetStatus.Inactive)
     }
 
     override fun onStart() {
@@ -210,13 +210,13 @@ class AntourageFab @JvmOverloads constructor(
                 val list = (resource.data)?.toMutableList()
                 if (list != null && list.size > 0) {
                     listOfStreams = list
-                    changeBadgeStatus(WidgetStatus.ACTIVE_LIVE_STREAM(list))
+                    changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                 } else {
                     manageVideos()
                 }
             }
             State.FAILURE -> {
-                changeBadgeStatus(WidgetStatus.INACTIVE())
+                changeBadgeStatus(WidgetStatus.Inactive)
                 BaseViewModel.error.postValue(resource.message)
             }
         }

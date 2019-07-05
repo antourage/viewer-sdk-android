@@ -19,14 +19,6 @@ class UserCache{
         }
     }
 
-    fun saveVideosIdToSeen(context: Context, seenVideoIds: Set<Int> ){
-        val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
-        val str = StringBuilder()
-        seenVideoIds.forEach{
-            str.append(it).append(",")
-        }
-        prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
-    }
     fun saveVideoToSeen(context: Context, seenVideoId: Int ){
         val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
         val str = StringBuilder()

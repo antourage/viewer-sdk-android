@@ -2,7 +2,6 @@ package com.antourage.weaverlib.other.networking.base
 
 import com.antourage.weaverlib.other.networking.base.ErrorUtils.parseError
 import retrofit2.Response
-import java.io.IOException
 import java.util.*
 
 class ApiResponse<D> {

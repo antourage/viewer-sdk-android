@@ -1,9 +1,8 @@
 package com.antourage.weaverlib.screens.list.rv
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
-import android.support.annotation.NonNull
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 
 
 class VideosLayoutManager(context: Context?) : LinearLayoutManager(context) {
@@ -14,7 +13,6 @@ class VideosLayoutManager(context: Context?) : LinearLayoutManager(context) {
 
     override fun onItemsAdded(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
         super.onItemsAdded(recyclerView, positionStart, itemCount)
-        val pos = findLastCompletelyVisibleItemPosition()
         recyclerView.smoothScrollToPosition(positionStart)
     }
 }

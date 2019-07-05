@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.di
 
-import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.WebService
 import com.antourage.weaverlib.other.networking.base.LiveDataCallAdapterFactory
@@ -10,10 +9,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
-import android.content.Context.MODE_PRIVATE
-import android.app.Application
-import android.content.SharedPreferences
-import com.antourage.weaverlib.screens.list.VideoListViewModel
 
 
 /**
@@ -25,7 +20,9 @@ object RetrofitModule {
 
     private val HEADER_LANGUAGE = "Accept-Language"
 
-    @JvmStatic @Provides @Singleton
+    @JvmStatic
+    @Provides
+    @Singleton
     fun provideApiClient(): WebService = Retrofit.Builder()
         .baseUrl(BASE_URL + "/api/v1/")
         .client(OkHttpClient.Builder().addInterceptor { chain ->

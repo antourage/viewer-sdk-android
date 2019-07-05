@@ -1,13 +1,10 @@
 package com.antourage.weaverlib.di
 
 import android.app.Application
-import android.arch.lifecycle.ViewModel
-import android.content.Context
 import com.antourage.weaverlib.screens.list.VideoListViewModel
 import com.antourage.weaverlib.screens.poll.PollDetailsViewModel
 import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.antourage.weaverlib.screens.weaver.WeaverViewModel
-import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -22,19 +19,22 @@ interface ApplicationComponent {
 
     @Component.Builder
     interface Builder {
-        @BindsInstance fun application(application: Application): Builder
+        @BindsInstance
+        fun application(application: Application): Builder
+
         fun build(): ApplicationComponent
     }
+
     /**
      * We could've chosen to create an inject() method instead and do field injection in the
      * Activity, but for this case this seems less verbose to me in the end.
      */
     fun getVideoListViewModelFactory(): ViewModelFactory<VideoListViewModel>
 
-    fun getVideoViewModelFactory():ViewModelFactory<VideoViewModel>
+    fun getVideoViewModelFactory(): ViewModelFactory<VideoViewModel>
 
-    fun getWeaverViewModelFactory():ViewModelFactory<WeaverViewModel>
+    fun getWeaverViewModelFactory(): ViewModelFactory<WeaverViewModel>
 
-    fun getPollViewModelFactory():ViewModelFactory<PollDetailsViewModel>
+    fun getPollViewModelFactory(): ViewModelFactory<PollDetailsViewModel>
 
 }

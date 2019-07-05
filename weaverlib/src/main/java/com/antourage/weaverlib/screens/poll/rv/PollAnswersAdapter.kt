@@ -1,18 +1,17 @@
 package com.antourage.weaverlib.screens.poll.rv
 
 import android.content.Context
-import android.widget.TextView
-import android.support.v7.widget.RecyclerView
-import android.view.ViewGroup
 import android.support.v4.content.res.ResourcesCompat
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.trueWidth
-import java.text.DecimalFormat
 
 
 class PollAnswersAdapter(
@@ -54,7 +53,7 @@ class PollAnswersAdapter(
                 listOfBackgrounds[i], null
             )
             viewHolder.btnAnswer.text = listOfAnswers[i].answerText
-            viewHolder.btnAnswer.setOnClickListener { _ -> callback.onAnswerChosen(viewHolder.getAdapterPosition()) }
+            viewHolder.btnAnswer.setOnClickListener { callback.onAnswerChosen(viewHolder.getAdapterPosition()) }
         } else {
             (viewHolder as AnsweredViewHolder).tvAnswer.text = listOfAnswers[i].answerText
             viewHolder.tvAnswerPercentage.text = (Math.round(getPercentage(i) * 100).toString()
@@ -64,10 +63,10 @@ class PollAnswersAdapter(
                 listOfBackgrounds[i], null
             )
             viewHolder.itemView.trueWidth {
-                val maxWidth = it - dp2px(context!!,40f)
+                val maxWidth = it - dp2px(context!!, 40f)
                 val params = viewHolder.tvPollLength.layoutParams
                 params.width = (maxWidth * getPercentage(i)).toInt()
-                if (params.width == 0){
+                if (params.width == 0) {
                     params.width = 10
                 }
                 viewHolder.tvPollLength.layoutParams = params

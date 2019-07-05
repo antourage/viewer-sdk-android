@@ -4,7 +4,6 @@ import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.RawValue
 
 
 class APIError {
@@ -37,14 +36,14 @@ class SimpleResponse {
 
 @Parcelize
 data class StreamResponse(
-    @field:SerializedName("id") val streamId:Int,
-    @field:SerializedName("name")val streamTitle:String = "",
-    @field:SerializedName("creatorFullName") val creatorFullname:String = "",
+    @field:SerializedName("id") val streamId: Int,
+    @field:SerializedName("name") val streamTitle: String = "",
+    @field:SerializedName("creatorFullName") val creatorFullname: String = "",
     @field:SerializedName("creatorNickname") var creatorNickname: String = "",
-    @field:SerializedName("thumbnailUrl")val thumbnailUrl:String ="",
-    @field:SerializedName("hlsUrl")val hlsUrl:String = "",
-    @field:SerializedName("startTime") val startTime:String = "",
-    val duration:Int = -1,
-    var isLive:Boolean = false,
-    var viewerCounter:Int = 6385
-    ):Parcelable
+    @field:SerializedName("thumbnailUrl") val thumbnailUrl: String = "",
+    @field:SerializedName("hlsUrl") val hlsUrl: String = "",
+    @field:SerializedName("startTime") val startTime: String = "",
+    val duration: Int = -1,
+    var isLive: Boolean = false,
+    var viewerCounter: Int = 6385
+) : Parcelable

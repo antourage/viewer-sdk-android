@@ -105,7 +105,7 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             }
             btnChooseTrack.setOnClickListener {
                 val arrayResolution = viewModel.getStreamGroups()
-                val str: MutableList<String> = mutableListOf<String>()
+                val str: MutableList<String> = mutableListOf()
                 for (i in 0 until arrayResolution.size) {
                     str.add(arrayResolution[i].width.toString() + "x" + arrayResolution[i].height)
                 }

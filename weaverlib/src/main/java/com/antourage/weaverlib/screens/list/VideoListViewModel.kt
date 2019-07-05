@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -63,8 +64,10 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     }
 
     //region backend choice
-    private val BE_CHOICE_TIMEOUT = 4000L
-    private val BE_CHOICE_NUMBEROFCLICKS = 4
+    companion object {
+        private const val BE_CHOICE_TIMEOUT = 4000L
+        private const val BE_CHOICE_CLICKS = 4
+    }
 
     private val showBeDialogLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var numberOfLogoClicks: Int = 0
@@ -75,7 +78,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     }
 
     fun onLogoPressed() {
-        if (numberOfLogoClicks >= BE_CHOICE_NUMBEROFCLICKS) {
+        if (numberOfLogoClicks >= BE_CHOICE_CLICKS) {
             showBeDialogLiveData.value = true
             numberOfLogoClicks = 0
             beDebouncer.cancel()
@@ -93,7 +96,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
 
     override fun onBeChanged(choice: String?) {
         choice?.let {
-            // UserCache.newInstance().updateBEChoice(getApplication<Application>().applicationContext, choice)
+            UserCache.newInstance().updateBEChoice(getApplication<Application>().applicationContext, choice)
             BASE_URL = choice
         }
     }

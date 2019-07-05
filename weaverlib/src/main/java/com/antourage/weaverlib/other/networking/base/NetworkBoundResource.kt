@@ -45,7 +45,7 @@ constructor() {
                     }
                     }
                 } else {
-                    if (resultTypeApiResponse != null && resultTypeApiResponse.errorMessage != null) {
+                    if (resultTypeApiResponse?.errorMessage != null) {
                         result.setValue(
                             Resource.error(
                                 resultTypeApiResponse.errorMessage,

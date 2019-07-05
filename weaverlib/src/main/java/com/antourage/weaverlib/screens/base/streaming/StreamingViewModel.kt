@@ -5,7 +5,6 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import android.view.Surface
-import android.widget.Toast
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
@@ -19,8 +18,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.util.Assertions
-import java.io.FileNotFoundException
 import java.io.IOException
 
 abstract class StreamingViewModel(application: Application) : BaseViewModel(application) {
@@ -70,9 +67,11 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
         return list
     }
-    fun isPlaybackPaused():Boolean{
+
+    fun isPlaybackPaused(): Boolean {
         return !player.playWhenReady
     }
+
     open fun onResume() {
         initStatisticsListeners()
         if (player.playbackState != Player.STATE_READY) {
@@ -94,9 +93,9 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         player.release()
     }
 
-    fun onNetworkGained(){
-        player.prepare(getMediaSource(streamUrl),false,true)
-        player.seekTo(currentWindow,playbackPosition)
+    fun onNetworkGained() {
+        player.prepare(getMediaSource(streamUrl), false, true)
+        player.seekTo(currentWindow, playbackPosition)
     }
 
     fun onResolutionChanged(pos: Int) {
@@ -108,7 +107,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
                 /* rendererIndex= */ i,
                 i == pos
             )
-        val overrides:MutableList<DefaultTrackSelector.SelectionOverride> = mutableListOf()
+        val overrides: MutableList<DefaultTrackSelector.SelectionOverride> = mutableListOf()
         overrides.add(0, DefaultTrackSelector.SelectionOverride(0, pos))
         if (!overrides.isEmpty()) {
             builder.setSelectionOverride(
@@ -158,7 +157,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onPlayerError(eventTime: AnalyticsListener.EventTime?, error: ExoPlaybackException?) {
-            Log.d("TESSR","TEST")
+            Log.d("TESSR", "TEST")
         }
 
         override fun onSeekStarted(eventTime: AnalyticsListener.EventTime?) {
@@ -327,7 +326,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             error: IOException?,
             wasCanceled: Boolean
         ) {
-            Log.d("TEST","TEST")
+            Log.d("TEST", "TEST")
         }
 
         override fun onMetadata(eventTime: AnalyticsListener.EventTime?, metadata: Metadata?) {
@@ -361,12 +360,12 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onPlayerError(err: ExoPlaybackException) {
-            if(!AntourageActivity.isNetworkAvailable) {
+            if (!AntourageActivity.isNetworkAvailable) {
                 playbackPosition = player.currentPosition
                 currentWindow = player.currentWindowIndex
             }
             if (err.cause is BehindLiveWindowException) {
-                player.prepare(getMediaSource(streamUrl),false,true)
+                player.prepare(getMediaSource(streamUrl), false, true)
             }
 
             error.postValue(err.toString())

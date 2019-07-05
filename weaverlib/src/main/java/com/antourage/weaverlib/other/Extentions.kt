@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import com.antourage.weaverlib.R
@@ -61,25 +62,25 @@ fun <T> LiveData<T>.reobserve(@NonNull owner: LifecycleOwner, @NonNull observer:
 }
 
 fun String.parseDate(context: Context): String {
-    val MINUTE = 60
-    val HOUR = 60*MINUTE
-    val DAY = HOUR * 24
+    val secondsInMinute = 60
+    val minutesInHour = 60*secondsInMinute
+    val hoursInDay = minutesInHour * 24
     val localUTC = convertUtcToLocal(this)
     if (localUTC != null) {
         var diff = getDateDiff(localUTC, Date())
-        if (diff > 3 * DAY) {
+        if (diff > 3 * hoursInDay) {
             val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             return  df.format(localUTC)
-        } else if (diff > DAY) {
-            val days = (diff / DAY).toInt()
+        } else if (diff > hoursInDay) {
+            val days = (diff / hoursInDay).toInt()
             val amount = context.resources.getQuantityString(R.plurals.days, days, days)
             return context.getString(R.string.started_ago, amount)
-        } else if (diff > HOUR) {
-            val hours = (diff / HOUR).toInt()
+        } else if (diff > minutesInHour) {
+            val hours = (diff / minutesInHour).toInt()
             val amount = context.resources.getQuantityString(R.plurals.hours, hours, hours)
             return context.getString(R.string.started_ago, amount)
-        }else if(diff>MINUTE){
-            val minute = (diff / MINUTE).toInt()
+        }else if(diff>secondsInMinute){
+            val minute = (diff / secondsInMinute).toInt()
             val amount = context.resources.getQuantityString(R.plurals.minutes,minute,minute)
             return context.getString(R.string.started_ago, amount)
 

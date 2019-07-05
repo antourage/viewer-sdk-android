@@ -7,11 +7,10 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
-import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 
 @Keep
-class ReceivingVideosManager() {
+class ReceivingVideosManager {
 
 
     companion object {
@@ -20,11 +19,12 @@ class ReceivingVideosManager() {
         private var lastReceivedData: Resource<List<StreamResponse>>? = null
 
 
-        fun newInstance(callback: ReceivingVideoCallback){
+        fun newInstance(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
-            if(lastReceivedData != null)
+            if (lastReceivedData != null)
                 ReceivingVideosManager.callback.onLiveBroadcastReceived(lastReceivedData!!)
         }
+
         val handlerCall = Handler()
 
         fun startReceivingVideos() {

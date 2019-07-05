@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.support.v4.widget.DrawerLayout
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 
 
@@ -13,11 +12,11 @@ class CustomDrawerLayout : DrawerLayout {
 
     var touchListener: DrawerTouchListener? = null
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {}
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var widthMeasureSpec = widthMeasureSpec

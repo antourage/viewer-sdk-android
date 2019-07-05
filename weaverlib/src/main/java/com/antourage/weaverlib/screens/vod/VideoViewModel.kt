@@ -5,17 +5,13 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.net.Uri
 import android.os.Handler
-import android.provider.ContactsContract
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.screens.base.streaming.StreamingViewModel
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import android.support.v4.os.HandlerCompat.postDelayed
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
@@ -96,8 +92,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         for (i in 0 until list.size) {
             mediaSources[i] = buildSimpleMediaSource(list[i].hlsUrl)
         }
-        val mediaSource = ConcatenatingMediaSource(*mediaSources)
-        return mediaSource
+        return ConcatenatingMediaSource(*mediaSources)
     }
 
     override fun onStreamStateChanged(playbackState: Int) {
@@ -105,24 +100,18 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     private fun buildSimpleMediaSource(uri: String): MediaSource {
-        val defaultBandwidthMeter = DefaultBandwidthMeter()
 
         val okHttpClient = OkHttpClient.Builder ()
-            .addNetworkInterceptor(object : Interceptor {
-                @Throws(IOException::class)
-                override fun intercept(chain: Interceptor.Chain): Response {
-                    val request = chain.request().newBuilder().addHeader("Connection", "close").build()
-                    return chain.proceed(request)
-                }
-            })
+            .addNetworkInterceptor { chain ->
+                val request = chain.request().newBuilder().addHeader("Connection", "close").build()
+                chain.proceed(request)
+            }
             .build()
         val dataSourceFactory = OkHttpDataSourceFactory(okHttpClient,Util.getUserAgent(getApplication(), "Exo2"))
 //        val dataSourceFactory = DefaultDataSourceFactory(
 //            getApplication(),
 //            Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
 //        )
-        //TODO 10/5/2018 choose one
-        //hls
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(Uri.parse(uri))
     }

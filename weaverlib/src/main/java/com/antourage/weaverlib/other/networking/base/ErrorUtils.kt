@@ -2,10 +2,7 @@ package com.antourage.weaverlib.other.networking.base
 
 import com.antourage.weaverlib.other.models.APIError
 import com.antourage.weaverlib.other.networking.ApiClient
-import okhttp3.ResponseBody
-import retrofit2.Converter
 import retrofit2.Response
-
 import java.io.IOException
 
 object ErrorUtils {

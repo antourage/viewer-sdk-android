@@ -30,16 +30,16 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
     }
 
     sealed class PollStatus {
-        class NO_POLL : PollStatus()
-        class ACTIVE_POLL(val poll: Poll) : PollStatus()
-        class ACTIVE_POLL_DISMISSED(val pollStatus: String?) : PollStatus()
-        class POLL_DETAILS(val pollId: String) : PollStatus()
+        object NoPoll : PollStatus()
+        class ActivePoll(val poll: Poll) : PollStatus()
+        class ActivePollDismissed(val pollStatus: String?) : PollStatus()
+        class PollDetails(val pollId: String) : PollStatus()
     }
 
     sealed class ChatStatus {
-        class CHAT_TURNED_OFF : ChatStatus()
-        class CHAT_NO_MESSAGES : ChatStatus()
-        class CHAT_MESSAGES(val messages: List<Message>) : ChatStatus()
+        object ChatTurnedOff : ChatStatus()
+        object ChatNoMessages : ChatStatus()
+        object ChatMessages : ChatStatus()
     }
 
     var wasStreamInitialized = false
@@ -55,7 +55,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
 
     init {
-        pollStatusLiveData.value = PollStatus.NO_POLL()
+        pollStatusLiveData.value = PollStatus.NoPoll
         postAnsweredUsers = false
     }
 
@@ -64,10 +64,10 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
             override fun onChanged(data: Resource<List<Message>>?) {
                 if (data?.data != null && isChatTurnedOn)
                     if (isChatContainsNonstatusMsg(data.data)) {
-                        chatStatusLiveData.postValue(ChatStatus.CHAT_MESSAGES(data.data))
+                        chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                         messagesLiveData.postValue(data.data)
                     } else {
-                        chatStatusLiveData.postValue(ChatStatus.CHAT_NO_MESSAGES())
+                        chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                     }
             }
         }
@@ -75,11 +75,11 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
         if (data?.state == State.SUCCESS) {
             if (data.data != null && data.data.isNotEmpty()) {
                 postAnsweredUsers = false
-                pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL(data.data[0]))
+                pollStatusLiveData.postValue(PollStatus.ActivePoll(data.data[0]))
                 currentPoll = data.data[0]
             } else {
                 postAnsweredUsers = false
-                pollStatusLiveData.postValue(PollStatus.NO_POLL())
+                pollStatusLiveData.postValue(PollStatus.NoPoll)
                 currentPoll = null
             }
         } else if (data?.state == State.FAILURE) {
@@ -92,7 +92,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
             if (!data.data.isChatActive) {
                 //TODO 17/06/2019 wth does not actually remove observer
                 repository.getMessages(streamId).removeObserver(messagesObserver)
-                chatStatusLiveData.postValue(ChatStatus.CHAT_TURNED_OFF())
+                chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
             } else {
                 repository.getMessages(streamId).observeForever(messagesObserver)
             }
@@ -110,7 +110,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
 
     fun seePollDetails() {
         currentPoll?.let {
-            pollStatusLiveData.value = (PollStatus.POLL_DETAILS(it.id))
+            pollStatusLiveData.value = (PollStatus.PollDetails(it.id))
         }
     }
 
@@ -152,7 +152,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
                     }
                     if (postAnsweredUsers)
                         pollStatusLiveData.postValue(
-                            PollStatus.ACTIVE_POLL_DISMISSED(
+                            PollStatus.ActivePollDismissed(
                                 getApplication<Application>().getString(
                                     R.string.number_answers,
                                     it.data.size
@@ -160,7 +160,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
                             )
                         )
                     else
-                        pollStatusLiveData.postValue(PollStatus.ACTIVE_POLL_DISMISSED(getApplication<Application>().getString(R.string.new_poll)))
+                        pollStatusLiveData.postValue(PollStatus.ActivePollDismissed(getApplication<Application>().getString(R.string.new_poll)))
                 }
             }
         }

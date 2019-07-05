@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.di
 
 
-import android.app.Application
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import javax.inject.Inject

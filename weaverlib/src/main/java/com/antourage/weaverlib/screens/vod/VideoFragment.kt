@@ -6,10 +6,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -19,7 +15,6 @@ import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.DefaultTimeBar
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
@@ -167,10 +162,12 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
             etMessage.visibility = View.GONE
             btnSend.visibility = View.GONE
             deviderChat.visibility = View.GONE
+            changeControlsView(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             etMessage.visibility = View.VISIBLE
             btnSend.visibility = View.VISIBLE
             deviderChat.visibility = View.VISIBLE
+            changeControlsView(false)
         }
         ll_wrapper.visibility = View.INVISIBLE
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {

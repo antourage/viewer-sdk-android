@@ -23,7 +23,3 @@ fun Activity.isKeyboardOpen(): Boolean {
     val marginOfError = Math.round(this.convertDpToPx(50F))
     return heightDiff > marginOfError
 }
-
-fun Activity.isKeyboardClosed(): Boolean {
-    return !this.isKeyboardOpen()
-}

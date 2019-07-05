@@ -21,7 +21,6 @@ import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.list.VideoListViewModel
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
 import com.google.firebase.FirebaseApp
@@ -84,7 +83,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     private val chatStateObserver: Observer<WeaverViewModel.ChatStatus> = Observer { state ->
         if (state != null)
             when (state) {
-                is WeaverViewModel.ChatStatus.CHAT_TURNED_OFF -> {
+                is WeaverViewModel.ChatStatus.ChatTurnedOff -> {
                     etMessage.isEnabled = false
                     ll_wrapper.visibility = View.INVISIBLE
                     val orientation = resources.configuration.orientation
@@ -100,13 +99,13 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                             llNoChat.visibility = View.VISIBLE
                     }
                 }
-                is WeaverViewModel.ChatStatus.CHAT_MESSAGES -> {
+                is WeaverViewModel.ChatStatus.ChatMessages -> {
                     rvMessages.visibility = View.VISIBLE
                     ll_wrapper.visibility = View.VISIBLE
                     llNoChat.visibility = View.GONE
                     etMessage.isEnabled = true
                 }
-                is WeaverViewModel.ChatStatus.CHAT_NO_MESSAGES -> {
+                is WeaverViewModel.ChatStatus.ChatNoMessages -> {
                     etMessage.isEnabled = true
                     ll_wrapper.visibility = View.VISIBLE
                     rvMessages.visibility = View.INVISIBLE
@@ -127,23 +126,23 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     private val pollStateObserver: Observer<WeaverViewModel.PollStatus> = Observer { state ->
         if (state != null) {
             when (state) {
-                is WeaverViewModel.PollStatus.NO_POLL -> {
+                is WeaverViewModel.PollStatus.NoPoll -> {
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.GONE
                 }
-                is WeaverViewModel.PollStatus.ACTIVE_POLL -> {
+                is WeaverViewModel.PollStatus.ActivePoll -> {
                     tvPollTitle.text = state.poll.question
                     pollPopupLayout.visibility = View.VISIBLE
                     llPollStatus.visibility = View.GONE
                 }
-                is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED -> {
+                is WeaverViewModel.PollStatus.ActivePollDismissed -> {
                     pollPopupLayout.visibility = View.GONE
                     if (bottomLayout.visibility == View.GONE)
                         llPollStatus.visibility = View.VISIBLE
                     if (state.pollStatus != null)
                         txtPollStatus.text = state.pollStatus
                 }
-                is WeaverViewModel.PollStatus.POLL_DETAILS -> {
+                is WeaverViewModel.PollStatus.PollDetails -> {
                     (activity as AntourageActivity).hideSoftKeyboard()
                     pollPopupLayout.visibility = View.GONE
                     llPollStatus.visibility = View.GONE
@@ -241,7 +240,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                 context?.let { context ->
                     if (it) {
                         etMessage.requestFocus()
-                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ActivePollDismissed) {
                             llPollStatus.visibility = View.GONE
                         }
                         ivScreenSize.visibility = View.GONE
@@ -252,7 +251,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                         anim.duration = 500
                         ll_wrapper.startAnimation(anim)
                     } else {
-                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ACTIVE_POLL_DISMISSED) {
+                        if(viewModel.getPollStatusLiveData().value is WeaverViewModel.PollStatus.ActivePollDismissed) {
                             llPollStatus.visibility = View.VISIBLE
                         }
                         ivScreenSize.visibility = View.VISIBLE
@@ -334,10 +333,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
         ivScreenSize.visibility = View.VISIBLE
     }
 
-    override fun onNetworkConnectionLost() {
-        super.onNetworkConnectionLost()
 
-    }
     override fun onNetworkConnectionAvailable() {
         showLoading()
         viewModel.onNetworkGained()
