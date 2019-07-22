@@ -144,13 +144,13 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
     }
 
     fun observeAnsweredUsers() {
-        currentPoll?.let {
-            repository.getAnsweredUsers(streamId, it.id).observeForever {
+        currentPoll?.let { poll ->
+            repository.getAnsweredUsers(streamId, poll.id).observeForever {
                 if (it?.data != null) {
                     if (wasAnswered(it.data)) {
                         postAnsweredUsers = true
                     }
-                    if (postAnsweredUsers)
+                    if (postAnsweredUsers && it.data.isNotEmpty())
                         pollStatusLiveData.postValue(
                             PollStatus.ActivePollDismissed(
                                 getApplication<Application>().getString(
