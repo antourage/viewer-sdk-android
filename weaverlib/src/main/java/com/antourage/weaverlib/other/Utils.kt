@@ -8,6 +8,9 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import android.util.DisplayMetrics
+
+
 
 
 fun dp2px(context: Context, dipValue: Float): Float {
@@ -15,7 +18,9 @@ fun dp2px(context: Context, dipValue: Float): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
 }
 
-
+fun px2dp(context: Context,px: Float): Float {
+    return px / (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
 fun calculatePlayerHeight(activity: Activity): Float {
     val width = getScreenWidth(activity)
     return ((width * 9.0f) / 16.0f)

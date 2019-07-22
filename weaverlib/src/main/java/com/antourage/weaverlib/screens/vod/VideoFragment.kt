@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -15,6 +16,7 @@ import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ui.DefaultTimeBar
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_chat.etMessage
@@ -24,7 +26,6 @@ import kotlinx.android.synthetic.main.fragment_video.deviderChat
 import kotlinx.android.synthetic.main.fragment_video.drawerLayout
 import kotlinx.android.synthetic.main.fragment_video.ll_wrapper
 import kotlinx.android.synthetic.main.fragment_video.navView
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
@@ -180,13 +181,26 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     private fun changeControlsView(isLandscape: Boolean) {
         if (isLandscape) {
-            exo_progress.setMargins(148, 0, 148, 0)
-            exo_position.setMargins(4, 0, 0, 4)
-            ivScreenSize.setMargins(0, 0, 4, 4)
+            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
+                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
+                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0)
+            controls.findViewById<TextView>(R.id.exo_position).setMargins(
+                resources.getDimension(R.dimen.margin_time_landscape).toInt(), 0,
+                0, resources.getDimension(R.dimen.margin_time_landscape).toInt())
+            ivScreenSize.setMargins(0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
+                resources.getDimension(R.dimen.margin_size_landscape).toInt())
         } else {
-            exo_progress.setMargins(0, 0, 0, 0)
-            exo_position.setMargins(18, 0, 0, 18)
-            ivScreenSize.setMargins(0, 0, 18, 18)
+            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
+            context?.let { context ->
+                controls.findViewById<TextView>(R.id.exo_position).setMargins(
+                     resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
+                    0, resources.getDimension(R.dimen.margin_portrait).toInt()
+                )
+                ivScreenSize.setMargins(
+                    0, 0,  resources.getDimension(R.dimen.margin_portrait).toInt(),
+                     resources.getDimension(R.dimen.margin_portrait).toInt()
+                )
+            }
         }
     }
 

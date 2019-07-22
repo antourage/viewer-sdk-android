@@ -67,7 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:textSize="14sp"
-                android:text="6,385"
+                tools:text="6,385"
                 android:paddingLeft="4dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
@@ -122,8 +122,8 @@
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginBottom="18dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginBottom="@dimen/margin_portrait"
+            android:layout_marginEnd="@dimen/margin_portrait"
             android:background="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
             tools:ignore="ContentDescription"/>
@@ -133,8 +133,8 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:layout_gravity="bottom|start"
-            android:layout_marginStart="18dp"
-            android:layout_marginBottom="18dp"
+            android:layout_marginStart="@dimen/margin_portrait"
+            android:layout_marginBottom="@dimen/margin_portrait"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
