@@ -11,6 +11,7 @@ import android.support.constraint.motion.MotionScene
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.generateRandomViewerNumber
@@ -24,6 +25,7 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 
@@ -59,7 +61,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     init {
-        BASE_URL = UserCache.newInstance().getBeChoice(context)!!
+        BASE_URL = BASE_URL_DEV
         AppExecutors()
         ReceivingVideosManager.newInstance(this)
     }
@@ -91,6 +93,8 @@ class AntourageFab @JvmOverloads constructor(
                                 }
                                 if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
                                     currentlyDisplayedStream = listOfStreams[counter]
+                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(R.id.tvStreamTitle).text = listOfStreams[counter].streamTitle
+                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(R.id.tvViewers).text = context.getString(R.string.viewers, generateRandomViewerNumber())
                                     expandableLayout.visibility = View.VISIBLE
                                     expandableLayout.transitionToEnd()
                                     tvStreamTitle.text = listOfStreams[counter].streamTitle

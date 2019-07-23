@@ -3,6 +3,7 @@ package com.antourage.weaverlib
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.preference.PreferenceManager
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_PROD
 import java.util.*
 
@@ -44,7 +45,7 @@ class UserCache{
     }
     fun getBeChoice(context: Context): String? {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-        return sharedPref.getString(SP_BE_CHOICE, BASE_URL_PROD)
+        return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
     }
 
     fun updateBEChoice(context: Context, link: String) {
