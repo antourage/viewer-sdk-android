@@ -6,6 +6,7 @@ import android.graphics.*
 import android.graphics.Paint.Style
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.os.Bundle
 import android.os.Parcelable
 import android.support.annotation.Keep
 import android.support.design.stateful.ExtendableSavedState
@@ -18,6 +19,7 @@ import com.antourage.weaverlib.R
 
 
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
+private val COUNT_STATE = BadgeFab::class.java.name + ".COUNT_STATE"
 
 private const val NORMAL_MAX_COUNT_TEXT = "live"
 
@@ -220,7 +222,9 @@ class BadgeFab @JvmOverloads constructor(
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
         if (superState is ExtendableSavedState) {
-            //   superState.extendableStates.put(STATE_KEY, bundleOf(COUNT_STATE to count))
+            val bundle = Bundle()
+            bundle.putString(COUNT_STATE, countText)
+            superState.extendableStates.put(STATE_KEY, bundle)
         }
         return superState
     }
@@ -230,7 +234,7 @@ class BadgeFab @JvmOverloads constructor(
         if (state !is ExtendableSavedState) return
 
         val bundle = state.extendableStates.get(STATE_KEY)
-        //count = bundle?.getInt(COUNT_STATE) ?: 0
+        countText = bundle?.getString(COUNT_STATE) ?: ""
 
         requestLayout()
     }

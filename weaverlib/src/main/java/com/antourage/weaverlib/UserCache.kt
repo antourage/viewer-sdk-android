@@ -6,18 +6,17 @@ import android.preference.PreferenceManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_PROD
 import java.util.*
+import javax.inject.Inject
 
 
-class UserCache{
+class UserCache @Inject constructor(){
     companion object {
 
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val ANT_PREF = "ant_pref"
         private const val SP_BE_CHOICE = "sp_be_choice"
 
-        fun newInstance():UserCache{
-            return UserCache()
-        }
+        fun newInstance() = UserCache()
     }
 
     fun saveVideoToSeen(context: Context, seenVideoId: Int ){

@@ -20,10 +20,11 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     ReceivingVideosManager.ReceivingVideoCallback {
 
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
-    val receivingVideosManager = ReceivingVideosManager.newInstance(this)
+    val receivingVideosManager = ReceivingVideosManager()
 
 
     fun getStreams() {
+        ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
     }
 

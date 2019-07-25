@@ -83,12 +83,14 @@ class VideoListFragment : Fragment() {
         viewModel.getStreams()
     }
 
-    fun initUi(view: View?) {
+    private fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = {
             if (it.isLive) {
                 replaceFragment(WeaverFragment.newInstance(it), R.id.mainContent, true)
             } else {
-                UserCache.newInstance().saveVideoToSeen(context!!, it.streamId)
+                context?.let {context->
+                    UserCache.newInstance().saveVideoToSeen(context, it.streamId)
+                }
                 replaceFragment(VideoFragment.newInstance(it), R.id.mainContent, true)
             }
         }

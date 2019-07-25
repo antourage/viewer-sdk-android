@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.di.DaggerCacheComponent
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient
@@ -28,13 +29,17 @@ import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
+import javax.inject.Inject
 
 @Suppress("IMPLICIT_CAST_TO_ANY") //TODO 6/17/2019 handle this
 @Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, ReceivingVideosManager.ReceivingVideoCallback,
-    MotionOverlayView.FabExpantionListener {
+    MotionOverlayView.FabExpansionListener {
+
+    @Inject
+    lateinit var userCache: UserCache
 
     private lateinit var currentlyDisplayedStream: StreamResponse
     private var listOfStreams: List<StreamResponse>? = null
@@ -44,7 +49,7 @@ class AntourageFab @JvmOverloads constructor(
     var counter = 0
 
 
-    override fun onFabExpantionClicked() {
+    override fun onFabExpansionClicked() {
         val intent = Intent(context, AntourageActivity::class.java)
         intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedStream)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -63,7 +68,7 @@ class AntourageFab @JvmOverloads constructor(
     init {
         BASE_URL = BASE_URL_DEV
         AppExecutors()
-        ReceivingVideosManager.newInstance(this)
+        DaggerCacheComponent.create().injectCache(this)
     }
 
     sealed class WidgetStatus {
@@ -121,11 +126,13 @@ class AntourageFab @JvmOverloads constructor(
                 floatingActionButton.setTextToBadge(context.getString(R.string.live))
             }
             is WidgetStatus.ActiveUnseenVideos -> {
-                floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                if (floatingActionButton != null){
+                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
+                }
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
-                floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
             }
         }
     }
@@ -184,13 +191,13 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onResume() {
         expandableLayout.setTransitionListener(transitionListener)
-        ReceivingVideosManager.newInstance(this)
+        ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
 
     }
 
     fun manageVideos() {
-        val seenVideos = UserCache.newInstance().getSeenVideos(context)
+        val seenVideos = userCache.getSeenVideos(context)
         val nonSeenNumber = Repository(ApiClient.getInitialClient().webService).getListOfVideos().size - seenVideos.size
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))

@@ -21,9 +21,9 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
 
     private var startX: Float? = null
     private var startY: Float? = null
-    private var listener:FabExpantionListener? =  null
+    private var listener:FabExpansionListener? =  null
 
-    fun setFabListener(fablistener:FabExpantionListener){
+    fun setFabListener(fablistener:FabExpansionListener){
         this.listener = fablistener
     }
 
@@ -71,7 +71,7 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
                     if(startX != null && startY != null)
                     if (isAClick(startX!!, endX, startY!!, endY)) {
                         expandableLayout.transitionToStart()
-                        listener?.onFabExpantionClicked()
+                        listener?.onFabExpansionClicked()
                     } else{
                         listener?.onSwipeStarted()
                     }
@@ -93,8 +93,8 @@ class MotionOverlayView @JvmOverloads constructor(context: Context,
         return false
     }
     @Keep
-    interface FabExpantionListener{
-        fun onFabExpantionClicked()
+    interface FabExpansionListener{
+        fun onFabExpansionClicked()
 
         fun onSwipeStarted()
     }

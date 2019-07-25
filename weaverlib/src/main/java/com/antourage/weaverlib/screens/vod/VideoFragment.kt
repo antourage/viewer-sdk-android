@@ -77,12 +77,13 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         video?.let {
             tvStreamName.text = video.streamTitle
             tvBroadcastedBy.text = video.creatorFullname
-            if (context != null)
-                tvWasLive.text = video.startTime.parseDate(context!!)
+            context?.let {context->
+                tvWasLive.text = video.startTime.parseDate(context)
+                UserCache.newInstance().saveVideoToSeen(context, it.streamId)
+            }
             tvControllerStreamName.text = video.streamTitle
             tvControllerBroadcastedBy.text = video.creatorFullname
             txtNumberOfViewers.text = video.viewerCounter.toString()
-            UserCache.newInstance().saveVideoToSeen(context!!, it.streamId)
         }
     }
 

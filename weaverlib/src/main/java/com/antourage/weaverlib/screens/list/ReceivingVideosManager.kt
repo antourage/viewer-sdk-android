@@ -14,17 +14,15 @@ class ReceivingVideosManager {
 
 
     companion object {
-        lateinit var callback: ReceivingVideoCallback
+        private var callback: ReceivingVideoCallback? = null
         const val STREAMS_REQUEST_DELAY = 5000L
         private var lastReceivedData: Resource<List<StreamResponse>>? = null
 
-
-        fun newInstance(callback: ReceivingVideoCallback) {
+        fun setReceivingVideoCallback(callback: ReceivingVideoCallback){
             ReceivingVideosManager.callback = callback
             if (lastReceivedData != null)
-                ReceivingVideosManager.callback.onLiveBroadcastReceived(lastReceivedData!!)
+                ReceivingVideosManager.callback?.onLiveBroadcastReceived(lastReceivedData!!)
         }
-
         val handlerCall = Handler()
 
         fun startReceivingVideos() {
@@ -35,7 +33,7 @@ class ReceivingVideosManager {
                     streamResponse.observeForever(object : Observer<Resource<List<StreamResponse>>> {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                             if (resource != null) {
-                                callback.onLiveBroadcastReceived(resource)
+                                callback?.onLiveBroadcastReceived(resource)
                                 when (resource.state) {
                                     State.FAILURE, State.SUCCESS -> {
                                         lastReceivedData = resource
@@ -54,6 +52,7 @@ class ReceivingVideosManager {
 
         fun stopReceivingVideos() {
             handlerCall.removeCallbacksAndMessages(null)
+            callback = null
         }
     }
 
