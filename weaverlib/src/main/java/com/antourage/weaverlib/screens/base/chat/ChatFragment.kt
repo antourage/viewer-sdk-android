@@ -18,7 +18,9 @@ import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 
-
+/**
+ * handles Chat visibility
+ */
 abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),CustomDrawerLayout.DrawerTouchListener {
 
     protected var isChatDismissed:Boolean = false

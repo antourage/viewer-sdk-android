@@ -28,6 +28,7 @@ class Repository @Inject constructor(val api:WebService) {
         }.asLiveData()
     }
 
+    //region videos with chat simulation
     fun getListOfVideos(): List<StreamResponse> {
         val list = mutableListOf<StreamResponse>()
         val baseUrl = "http://18.185.126.11:1935/vod/"
@@ -122,7 +123,7 @@ class Repository @Inject constructor(val api:WebService) {
 
      fun getMessagesList(streamId:Int):List<MessageEmulation>{
         val map = getChatMapping()
-        return map[streamId]!!
+        return map[streamId] ?: error("no such item")
     }
     private fun getChatMapping(): Map<Int, List<MessageEmulation>> {
         return mapOf(
@@ -229,6 +230,7 @@ class Repository @Inject constructor(val api:WebService) {
             ))
         )
     }
+    //endregion
 
     //region Firebase
     fun addMessage(message: Message,streamId:Int){

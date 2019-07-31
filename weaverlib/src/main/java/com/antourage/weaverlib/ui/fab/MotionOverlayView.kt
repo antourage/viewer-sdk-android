@@ -10,6 +10,10 @@ import android.view.MotionEvent
 import android.view.View
 import com.antourage.weaverlib.R
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
+
+/**
+ * Used to tell whether user badge extention was clicked or swiped
+ */
 @Keep
 class MotionOverlayView @JvmOverloads constructor(context: Context,
                                                   attrs: AttributeSet? = null,

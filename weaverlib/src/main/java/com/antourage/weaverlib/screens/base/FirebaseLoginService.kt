@@ -1,17 +1,17 @@
 package com.antourage.weaverlib.screens.base
 
-import android.content.Context
 import android.util.Log
 import com.antourage.weaverlib.BuildConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
-class FirebaseLoginService(context: Context) {
-    private var auth: FirebaseAuth
+/**
+ * For now, we use Firebase anonymous login so that data in database would be protected
+ * Need to figure out a way to handle login error
+ */
+class FirebaseLoginService {
+    private var auth: FirebaseAuth = FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
 
-    init {
-        auth = FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
-    }
     fun handleSignIn(){
         if (!isLoggedInToFirebase()){
             signInAnonymously()

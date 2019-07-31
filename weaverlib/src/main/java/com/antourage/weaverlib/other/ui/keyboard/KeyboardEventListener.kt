@@ -7,6 +7,10 @@ import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.view.ViewTreeObserver
 
+/**
+ * This listener works only with adjustPan
+ * Used in Weaver fragment
+ */
 class KeyboardEventListener(
     private val activity: AppCompatActivity,
     private val callback: (isOpen: Boolean) -> Unit

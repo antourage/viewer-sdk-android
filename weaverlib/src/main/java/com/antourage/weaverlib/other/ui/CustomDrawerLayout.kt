@@ -7,6 +7,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_UP
 
+/**
+ * had to create custom, crush thrown in onMeasure method with default
+ */
 
 class CustomDrawerLayout : DrawerLayout {
 

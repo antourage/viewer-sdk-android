@@ -30,10 +30,8 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     fun onVideoStarted(streamId:Int){
         val handler = Handler()
 
-// Define the code block to be executed
         val runnable = object : Runnable {
             override fun run() {
-                // Insert custom code here
                     val pos = (player.currentPosition / 1000) - 1
                     val list = repository.getMessagesList(currentWindow + 1)
                     val listToDisplay = mutableListOf<Message>()
@@ -53,7 +51,6 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
             }
         }
 
-// Start the Runnable immediately
         handler.post(runnable)
     }
 
@@ -86,6 +83,9 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         return -1
     }
 
+    /**
+     * using this to create playlist. For now, was approved
+     */
     override fun getMediaSource(streamUrl: String?): MediaSource? {
         val list: List<StreamResponse> = repository.getListOfVideos()
         val mediaSources = arrayOfNulls<MediaSource>(list.size)
@@ -99,6 +99,9 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
     }
 
+    /**
+     * videos do not play on Android 5 without this additional header. IDK why
+     */
     private fun buildSimpleMediaSource(uri: String): MediaSource {
 
         val okHttpClient = OkHttpClient.Builder ()
@@ -107,11 +110,8 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
                 chain.proceed(request)
             }
             .build()
+
         val dataSourceFactory = OkHttpDataSourceFactory(okHttpClient,Util.getUserAgent(getApplication(), "Exo2"))
-//        val dataSourceFactory = DefaultDataSourceFactory(
-//            getApplication(),
-//            Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
-//        )
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(Uri.parse(uri))
     }

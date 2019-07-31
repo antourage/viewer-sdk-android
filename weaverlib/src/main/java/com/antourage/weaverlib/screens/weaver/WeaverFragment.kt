@@ -34,7 +34,11 @@ import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_control.*
 import java.util.*
 
-
+/**
+ * Be careful not to create multiple instances of player
+ * That way the sound will continue to go on after user exits fragment
+ * Especially check method onNetworkGained
+ */
 class WeaverFragment : ChatFragment<WeaverViewModel>() {
 
     var wasDrawerClosed = false
@@ -164,7 +168,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
                             ), R.id.bottomLayout, true
                         )
                     childFragmentManager.addOnBackStackChangedListener {
-                        if (!(childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment)) {
+                        if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
                             ll_wrapper.visibility = View.VISIBLE
                             if (viewModel.currentPoll != null) {

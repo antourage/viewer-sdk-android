@@ -9,6 +9,9 @@ import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.antourage.weaverlib.screens.base.Repository
 
+/**
+ * Added so that AntourageFab and VideoListFragment received data from the same source
+ */
 @Keep
 class ReceivingVideosManager {
 

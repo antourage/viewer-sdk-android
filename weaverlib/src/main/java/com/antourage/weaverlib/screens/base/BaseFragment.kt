@@ -100,12 +100,12 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
 
     private fun showErrorAlerter(s: String) {
-       // Toast.makeText(context, s, Toast.LENGTH_LONG).show()
-        val alertDialog = AlertDialog.Builder(context!!) // this: Activity
-            .setMessage(s)
-            .create()
-
-        alertDialog.show()
+        Toast.makeText(context, s, Toast.LENGTH_LONG).show()
+//        val alertDialog = AlertDialog.Builder(context!!) // this: Activity
+//            .setMessage(s)
+//            .create()
+//
+//        alertDialog.show()
     }
 
     private fun showWarningAlerter(s: String) {

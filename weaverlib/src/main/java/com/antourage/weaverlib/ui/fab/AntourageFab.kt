@@ -31,6 +31,10 @@ import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 import javax.inject.Inject
 
+/**
+ * When integrating to React Native need to add also constraint layout library in declaration
+ * so it would know that it is subclass of View
+ */
 @Suppress("IMPLICIT_CAST_TO_ANY") //TODO 6/17/2019 handle this
 @Keep
 class AntourageFab @JvmOverloads constructor(

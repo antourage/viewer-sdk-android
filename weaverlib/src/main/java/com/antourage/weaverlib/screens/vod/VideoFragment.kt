@@ -192,7 +192,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
                 resources.getDimension(R.dimen.margin_size_landscape).toInt())
         } else {
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
-            context?.let { context ->
+            context?.let { _ ->
                 controls.findViewById<TextView>(R.id.exo_position).setMargins(
                      resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
                     0, resources.getDimension(R.dimen.margin_portrait).toInt()

@@ -16,6 +16,10 @@ fun Context.convertDpToPx(dp: Float): Float {
             this.resources.displayMetrics
     )
 }
+
+/**
+ * works only if activity's softInputMode is adjustPan
+ */
 fun Activity.isKeyboardOpen(): Boolean {
     val visibleBounds = Rect()
     this.getRootView().getWindowVisibleDisplayFrame(visibleBounds)

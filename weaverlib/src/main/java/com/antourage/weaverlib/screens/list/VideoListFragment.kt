@@ -108,8 +108,4 @@ class VideoListFragment : Fragment() {
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
     }
 
-//    override fun onNetworkConnectionLost() {
-//        super.onNetworkConnectionLost()
-//        viewModel.getListOfVideos()
-//    }
 }

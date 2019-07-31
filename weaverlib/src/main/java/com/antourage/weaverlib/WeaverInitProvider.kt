@@ -7,6 +7,10 @@ import android.net.Uri
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 
+/**
+ * Using this way to get applicationContext to avoid asking parent app to initialize lib
+ * Also connecting this way to Firebase does not require json file and is safer as keys are not hardcoded
+ */
 class WeaverInitProvider : ContentProvider() {
 
     override fun onCreate(): Boolean {

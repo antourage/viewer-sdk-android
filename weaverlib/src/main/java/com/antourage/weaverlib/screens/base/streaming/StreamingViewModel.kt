@@ -157,7 +157,6 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         }
 
         override fun onPlayerError(eventTime: AnalyticsListener.EventTime?, error: ExoPlaybackException?) {
-            Log.d("TESSR", "TEST")
         }
 
         override fun onSeekStarted(eventTime: AnalyticsListener.EventTime?) {
@@ -326,7 +325,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             error: IOException?,
             wasCanceled: Boolean
         ) {
-            Log.d("TEST", "TEST")
+
         }
 
         override fun onMetadata(eventTime: AnalyticsListener.EventTime?, metadata: Metadata?) {

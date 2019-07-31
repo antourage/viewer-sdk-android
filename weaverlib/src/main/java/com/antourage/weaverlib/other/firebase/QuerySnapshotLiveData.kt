@@ -6,7 +6,11 @@ import com.antourage.weaverlib.other.networking.base.Resource
 import com.antourage.weaverlib.other.networking.base.State
 import com.google.firebase.firestore.*
 
-
+/**
+ * This classes create abstraction over Firebase requests
+ * Allow handling of errors in consitent way(not in current scope)
+ *
+ */
 class QuerySnapshotLiveData<T : FirestoreModel>(private val query: Query, val typeParameterClass: Class<T>? = null) :
     LiveData<Resource<List<T>>>(),
     EventListener<QuerySnapshot> {

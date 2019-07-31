@@ -56,7 +56,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
                 listOfStreams.postValue(list)
             }
             State.FAILURE -> {
-                //               error.postValue(resource.message)
+                error.postValue(resource.message)
             }
         }
     }

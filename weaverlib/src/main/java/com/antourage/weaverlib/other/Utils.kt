@@ -10,9 +10,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import android.util.DisplayMetrics
 
-
-
-
 fun dp2px(context: Context, dipValue: Float): Float {
     val metrics = context.resources.displayMetrics
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)

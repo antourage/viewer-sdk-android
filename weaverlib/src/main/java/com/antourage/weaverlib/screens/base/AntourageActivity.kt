@@ -45,7 +45,7 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
         } else
             supportFragmentManager.beginTransaction()
                 .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
-        FirebaseLoginService(this).handleSignIn()
+        FirebaseLoginService().handleSignIn()
         setupKeyboardListener(findViewById(R.id.mainContent))
         networkStateReceiver = NetworkStateReceiver()
         networkStateReceiver.addListener(this)
@@ -92,7 +92,7 @@ class AntourageActivity : AppCompatActivity(), NetworkStateReceiver.NetworkState
             )
 
     }
-
+    // in branch additional_features
     override fun onUserLeaveHint() {
         //TODO uncomment and enable
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

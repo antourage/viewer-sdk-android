@@ -35,6 +35,8 @@ fun AppCompatActivity.replaceFragment(fragment: Fragment, frameId: Int, addToBac
             replace(frameId, fragment)
         }
 }
+
+//Did not wanted to use Application class(problem with merging), decided on extension function
 fun Application.initDagger(): ApplicationComponent {
     return DaggerApplicationComponent.builder()
         .application(this)

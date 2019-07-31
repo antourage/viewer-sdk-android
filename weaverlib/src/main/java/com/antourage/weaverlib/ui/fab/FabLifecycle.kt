@@ -5,6 +5,10 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.support.annotation.Keep
 
+/**
+ * Elegant way to give view lifecycle.
+ * Not used as it is too much to ask for if integrating in Cordova or React Native
+ */
 @Keep
 object AntourageFabLifecycleObserver : LifecycleObserver {
     private var actionHandler: FabActionHandler? = null

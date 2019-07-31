@@ -27,6 +27,7 @@
             app:layout_constraintTop_toTopOf="@+id/fabExpantion"
             app:layout_constraintStart_toStartOf="@+id/fabExpantion"
     />
+    <!--If hardcoded text deleted, no text shows up on extention after integrating to RN-->
     <TextView
             android:id="@+id/tvViewers"
             android:layout_width="wrap_content"
