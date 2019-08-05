@@ -3,5 +3,6 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">18.185.126.11</domain>
         <domain includeSubdomains="true">d3pqhz4gxngfhe.cloudfront.net</domain>
+        <domain includeSubdomains="true">d382pphprxgdpj.cloudfront.net</domain>
     </domain-config>
 </network-security-config>

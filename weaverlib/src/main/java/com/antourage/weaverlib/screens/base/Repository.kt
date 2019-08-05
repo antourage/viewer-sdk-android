@@ -39,7 +39,8 @@ class Repository @Inject constructor(val api:WebService) {
                 "Heading Out for Training",
                 "",
                 "file:///android_asset/1.png",
-                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
+//                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
+                "http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8",
                 startTime = substractDays(0),
                 duration = 30,
                 viewerCounter = 13553
