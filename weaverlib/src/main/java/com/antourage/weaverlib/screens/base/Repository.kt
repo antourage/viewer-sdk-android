@@ -40,7 +40,7 @@ class Repository @Inject constructor(val api:WebService) {
                 "",
                 "file:///android_asset/1.png",
 //                baseUrl + "1. The lads are heading out to training.mp4/playlist.m3u8",
-                "http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8",
+                arrayOf("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8"),
                 startTime = substractDays(0),
                 duration = 30,
                 viewerCounter = 13553
@@ -49,7 +49,7 @@ class Repository @Inject constructor(val api:WebService) {
         list.add(
             StreamResponse(
                 2, "Roommates with Head and Shoulders", "Kyle Walker and John Stones", "",
-                "file:///android_asset/2.png", baseUrl + "2. Roommates.mp4/playlist.m3u8",
+                "file:///android_asset/2.png", arrayOf(baseUrl + "2. Roommates.mp4/playlist.m3u8"),
                 startTime = substractDays(0,60*60*4000),
                 duration = 19,
                 viewerCounter = 14555
@@ -58,7 +58,7 @@ class Repository @Inject constructor(val api:WebService) {
         list.add(
             StreamResponse(
                 3, "Live Coverage", "England Women vs Sweden Women", "",
-                "file:///android_asset/3.png", baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8",
+                "file:///android_asset/3.png", arrayOf(baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8"),
                 startTime = substractDays(1,60*60*4000),
                 duration = 26,viewerCounter = 14235
             )
@@ -66,7 +66,7 @@ class Repository @Inject constructor(val api:WebService) {
         list.add(
             StreamResponse(
                 4, "Stars of the Future with Nike", "U21 5-a-side game", "",
-                "file:///android_asset/4.png", baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8",
+                "file:///android_asset/4.png", arrayOf(baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8"),
                 startTime = substractDays(2),
                 duration = 19,
                 viewerCounter = 4324
@@ -79,7 +79,7 @@ class Repository @Inject constructor(val api:WebService) {
                 "Penalties vs Columbia",
                 "",
                 "file:///android_asset/5.png",
-                baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8",
+                arrayOf(baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8"),
                 startTime = substractDays(3),
                 duration = 29,
                 viewerCounter = 54354
@@ -88,7 +88,7 @@ class Repository @Inject constructor(val api:WebService) {
         list.add(
             StreamResponse(
                 6, "Media Day with M&S", "The squad has been selected", "",
-                "file:///android_asset/6.png", baseUrl + "6. Media Day.mp4/playlist.m3u8",
+                "file:///android_asset/6.png", arrayOf(baseUrl + "6. Media Day.mp4/playlist.m3u8"),
                 startTime = substractDays(4),
                 duration = 35,
                 viewerCounter = 234
@@ -101,7 +101,7 @@ class Repository @Inject constructor(val api:WebService) {
                 "FT Reev and Theo Baker",
                 "",
                 "file:///android_asset/7.png",
-                baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8",
+                arrayOf(baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8"),
                 startTime = substractDays(6),
                 duration = 40,
                 viewerCounter = 123

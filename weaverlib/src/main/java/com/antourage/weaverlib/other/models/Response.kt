@@ -41,7 +41,7 @@ data class StreamResponse(
     @field:SerializedName("creatorFullName") val creatorFullname: String = "",
     @field:SerializedName("creatorNickname") var creatorNickname: String = "",
     @field:SerializedName("thumbnailUrl") val thumbnailUrl: String = "",
-    @field:SerializedName("hlsUrl") val hlsUrl: String = "",
+    @field:SerializedName("url") val hlsUrl: Array<String> = arrayOf(),
     @field:SerializedName("startTime") val startTime: String = "",
     val duration: Int = -1,
     var isLive: Boolean = false,

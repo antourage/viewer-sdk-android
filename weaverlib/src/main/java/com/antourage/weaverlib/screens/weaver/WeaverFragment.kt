@@ -283,7 +283,7 @@ class WeaverFragment : ChatFragment<WeaverViewModel>() {
     }
 
     private fun startPlayingStream() {
-        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.hlsUrl)
+        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.hlsUrl[0])
         playerControls.player = playerView.player
     }
 

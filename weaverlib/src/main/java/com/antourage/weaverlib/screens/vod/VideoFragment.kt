@@ -127,7 +127,7 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
 
     fun startPlayingStream() {
         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl)
+        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(0))
         playerControls.player = playerView.player
     }
 

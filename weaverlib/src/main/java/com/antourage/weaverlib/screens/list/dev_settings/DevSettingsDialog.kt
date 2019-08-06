@@ -14,7 +14,7 @@ class DevSettingsDialog(context: Context, private val listener: OnDevSettingsCha
 
     companion object{
         const val BASE_URL_LOCAL = "http://192.168.20.196:3000/"
-        const val BASE_URL_DEV = "https://api-myra.net/"
+        const val BASE_URL_DEV = "http://35.156.199.125"
         const val BASE_URL_STAGING = "https://staging-myra.com/"
         const val BASE_URL_PROD = "https://myra.technology/"
     }

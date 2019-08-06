@@ -90,7 +90,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         val list: List<StreamResponse> = repository.getListOfVideos()
         val mediaSources = arrayOfNulls<MediaSource>(list.size)
         for (i in 0 until list.size) {
-            mediaSources[i] = buildSimpleMediaSource(list[i].hlsUrl)
+            mediaSources[i] = buildSimpleMediaSource(list[i].hlsUrl[0])
         }
         return ConcatenatingMediaSource(*mediaSources)
     }

@@ -6,6 +6,9 @@ import com.antourage.weaverlib.other.networking.base.ApiResponse
 import retrofit2.http.GET
 
 interface WebService {
-    @GET("channels/live")
+    @GET("streams")
+    //TODO 06/08/2019 on old backend was this way
+    //TODO new back end set up to dev
+    //GET("channels/live")
     fun getLiveStreams(): LiveData<ApiResponse<List<StreamResponse>>>
 }
