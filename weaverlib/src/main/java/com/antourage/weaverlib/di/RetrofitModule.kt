@@ -24,7 +24,7 @@ object RetrofitModule {
     @Provides
     @Singleton
     fun provideApiClient(): WebService = Retrofit.Builder()
-        .baseUrl(BASE_URL + "api/v1/")
+        .baseUrl(BASE_URL + "/api/v1/")
         .client(OkHttpClient.Builder().addInterceptor { chain ->
             val request = chain.request().newBuilder()
                 .addHeader(HEADER_LANGUAGE, "en")

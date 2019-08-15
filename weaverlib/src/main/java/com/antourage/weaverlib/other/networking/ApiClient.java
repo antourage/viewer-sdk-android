@@ -20,7 +20,7 @@ public class ApiClient {
         OkHttpClient client = defaultClient();
 
         retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL + "api/v1/")
+                .baseUrl(BASE_URL + "/api/v1/")
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(new LiveDataCallAdapterFactory())
