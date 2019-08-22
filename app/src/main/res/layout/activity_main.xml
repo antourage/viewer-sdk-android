@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:overScrollMode="never"
         tools:context=".MainActivity">
+
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:overScrollMode="never"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-    >
+            app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="fitXY"
-
                 android:adjustViewBounds="true"
-                android:src="@drawable/landing_page_main"
-        />
+                android:scaleType="fitXY"
+                android:src="@drawable/landing_page_main" />
     </ScrollView>
 
     <com.antourage.weaverlib.ui.fab.AntourageFab

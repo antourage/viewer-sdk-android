@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.other.models
 
-
 import android.support.annotation.Keep
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
@@ -14,18 +13,21 @@ class MessageType {
         const val USER: Int = 1
     }
 }
+
 @Keep
-open class FirestoreModel(@get:Exclude var id:String = "")
+open class FirestoreModel(@get:Exclude var id: String = "")
+
 @Keep
 data class Message(
     var avatarUrl: String? = null,
     var email: String? = null,
     var nickname: String? = null,
     var text: String? = null,
-    var type:Int?=null,
+    var type: Int? = null,
     var timestamp: Timestamp? = null,
-    var userID:String? = null
-):FirestoreModel()
+    var userID: String? = null
+) : FirestoreModel()
+
 @Keep
 @IgnoreExtraProperties
 class Poll : FirestoreModel() {
@@ -35,24 +37,29 @@ class Poll : FirestoreModel() {
     var isActive: Boolean = false
     var endTimestamp: Timestamp? = null
     var answers: List<String>? = null
-    @get:Exclude var isAnswered:Boolean = false
+    @get:Exclude
+    var isAnswered: Boolean = false
 }
+
 @Keep
 data class AnsweredUser(
-    var choosenAnswer:Int? = null,
-    var timestamp:Timestamp? = null
-):FirestoreModel()
+    var choosenAnswer: Int? = null,
+    var timestamp: Timestamp? = null
+) : FirestoreModel()
+
 @Keep
-data class AnswersCombined(val answerText:String, var numberAnswered:Int)
+data class AnswersCombined(val answerText: String, var numberAnswered: Int)
 
 @Keep
 @IgnoreExtraProperties
-data class Stream(@get:Exclude val streamId:Int,
-                  @get:PropertyName("isChatActive")
-                  var isChatActive:Boolean,
-                  val teamID: Int,
-                  val userID:Int,
-                  val viewersCount:Int,
-                  @get:Exclude val messages:List<Message>){
-    constructor():this(-1,false,-1,-1,-1, mutableListOf())
+data class Stream(
+    @get:Exclude val streamId: Int,
+    @get:PropertyName("isChatActive")
+    var isChatActive: Boolean,
+    val teamID: Int,
+    val userID: Int,
+    val viewersCount: Int,
+    @get:Exclude val messages: List<Message>
+) {
+    constructor() : this(-1, false, -1, -1, -1, mutableListOf())
 }

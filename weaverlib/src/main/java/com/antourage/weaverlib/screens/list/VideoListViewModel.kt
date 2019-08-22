@@ -8,8 +8,8 @@ import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
-import com.antourage.weaverlib.other.networking.base.Resource
-import com.antourage.weaverlib.other.networking.base.State
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
@@ -39,11 +39,9 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     }
 
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
-        when (resource.state) {
-            State.LOADING -> {
-            }
-            State.SUCCESS -> {
-                val list = (resource.data)?.toMutableList()
+        when (resource.status) {
+            is Status.Success -> {
+                val list = (resource.status.data)?.toMutableList()
                 list?.let {
                     for (i in 0 until list.size) {
                         list[i].isLive = true
@@ -55,14 +53,13 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
                 list?.addAll(repository.getListOfVideos())
                 listOfStreams.postValue(list)
             }
-            State.FAILURE -> {
-                error.postValue(resource.message)
+            is Status.Failure -> {
+                error.postValue(resource.status.errorMessage)
             }
         }
     }
 
-    override fun onVODReceived() {
-    }
+    override fun onVODReceived() {}
 
     //region backend choice
     companion object {
@@ -72,7 +69,8 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
 
     private val showBeDialogLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var numberOfLogoClicks: Int = 0
-    private val beDebouncer: Debouncer = Debouncer(Runnable { numberOfLogoClicks = 0 }, BE_CHOICE_TIMEOUT)
+    private val beDebouncer: Debouncer =
+        Debouncer(Runnable { numberOfLogoClicks = 0 }, BE_CHOICE_TIMEOUT)
 
     init {
         showBeDialogLiveData.postValue(false)
@@ -97,7 +95,8 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
 
     override fun onBeChanged(choice: String?) {
         choice?.let {
-            UserCache.newInstance().updateBEChoice(getApplication<Application>().applicationContext, choice)
+            UserCache.newInstance()
+                .updateBEChoice(getApplication<Application>().applicationContext, choice)
             BASE_URL = choice
         }
     }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 
-
 class VideosLayoutManager(context: Context?) : LinearLayoutManager(context) {
 
     override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams? {

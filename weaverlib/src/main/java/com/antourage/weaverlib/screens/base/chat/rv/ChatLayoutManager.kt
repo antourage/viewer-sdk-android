@@ -16,8 +16,8 @@ class ChatLayoutManager(context: Context?) : LinearLayoutManager(context) {
     override fun onItemsAdded(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
         super.onItemsAdded(recyclerView, positionStart, itemCount)
         val pos = findLastCompletelyVisibleItemPosition()
-        if ((pos+1) == (recyclerView.adapter?.itemCount?.minus(1))) {
-                recyclerView.scrollToPosition(positionStart)
+        if ((pos + 1) == (recyclerView.adapter?.itemCount?.minus(1))) {
+            recyclerView.scrollToPosition(positionStart)
         }
     }
 }

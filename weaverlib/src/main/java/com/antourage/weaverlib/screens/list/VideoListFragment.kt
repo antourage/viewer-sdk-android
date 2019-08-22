@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.screens.list
 
-
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.ActivityInfo
@@ -22,7 +21,6 @@ import com.antourage.weaverlib.screens.list.rv.VideosLayoutManager
 import com.antourage.weaverlib.screens.vod.VideoFragment
 import com.antourage.weaverlib.screens.weaver.WeaverFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
-
 
 class VideoListFragment : Fragment() {
 
@@ -50,7 +48,11 @@ class VideoListFragment : Fragment() {
     //endregion
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_videos_list, container, false)
     }
 
@@ -88,7 +90,7 @@ class VideoListFragment : Fragment() {
             if (it.isLive) {
                 replaceFragment(WeaverFragment.newInstance(it), R.id.mainContent, true)
             } else {
-                context?.let {context->
+                context?.let { context ->
                     UserCache.newInstance().saveVideoToSeen(context, it.streamId)
                 }
                 replaceFragment(VideoFragment.newInstance(it), R.id.mainContent, true)
@@ -107,5 +109,4 @@ class VideoListFragment : Fragment() {
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
     }
-
 }

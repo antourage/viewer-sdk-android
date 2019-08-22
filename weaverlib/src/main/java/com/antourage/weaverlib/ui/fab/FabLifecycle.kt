@@ -41,10 +41,11 @@ object AntourageFabLifecycleObserver : LifecycleObserver {
         this.actionHandler?.onStop()
     }
 }
+
 @Keep
 interface FabActionHandler {
-    fun onPause()
-    fun onResume()
-    fun onStart()
-    fun onStop()
+    fun onPause() {}
+    fun onResume() {}
+    fun onStart() {}
+    fun onStop() {}
 }

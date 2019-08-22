@@ -44,7 +44,7 @@ class KeyboardEventListener(
 
     private fun dispatchKeyboardEvent(isOpen: Boolean) {
         when {
-            isOpen  -> callback(true)
+            isOpen -> callback(true)
             !isOpen -> callback(false)
         }
     }

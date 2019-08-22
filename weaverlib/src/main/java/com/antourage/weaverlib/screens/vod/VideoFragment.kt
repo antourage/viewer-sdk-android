@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.screens.vod
 
-
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
@@ -11,6 +10,8 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -31,7 +32,6 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
-
 
 class VideoFragment : ChatFragment<VideoViewModel>() {
 
@@ -76,14 +76,20 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.let {
             tvStreamName.text = video.streamTitle
-            tvBroadcastedBy.text = video.creatorFullname
-            context?.let {context->
+            tvBroadcastedBy.text = video.creatorFullName
+            context?.let { context ->
                 tvWasLive.text = video.startTime.parseDate(context)
                 UserCache.newInstance().saveVideoToSeen(context, it.streamId)
             }
             tvControllerStreamName.text = video.streamTitle
-            tvControllerBroadcastedBy.text = video.creatorFullname
+            tvControllerBroadcastedBy.text = video.creatorFullName
             txtNumberOfViewers.text = video.viewerCounter.toString()
+        }
+    }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
+            viewModel.onNetworkGained()
         }
     }
 
@@ -99,7 +105,10 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
-
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
     }
 
     override fun initUi(view: View?) {
@@ -110,7 +119,8 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         ll_wrapper.visibility = View.INVISIBLE
         if (context != null)
             tvWasLive.text =
-                arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+                arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)
+                    ?.startTime?.parseDate(context!!)
     }
 
     override fun onControlsVisible() {
@@ -126,8 +136,11 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     }
 
     fun startPlayingStream() {
-        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-        playerView.player = viewModel.getExoPlayer(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(0))
+        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+            ?.streamId?.let { viewModel.setCurrentPlayerPosition(it) }
+        playerView.player = viewModel.getExoPlayer(
+            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(0)
+        )
         playerControls.player = playerView.player
     }
 
@@ -184,35 +197,28 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         if (isLandscape) {
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
                 resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
-                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0)
+                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0
+            )
             controls.findViewById<TextView>(R.id.exo_position).setMargins(
                 resources.getDimension(R.dimen.margin_time_landscape).toInt(), 0,
-                0, resources.getDimension(R.dimen.margin_time_landscape).toInt())
-            ivScreenSize.setMargins(0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
-                resources.getDimension(R.dimen.margin_size_landscape).toInt())
+                0, resources.getDimension(R.dimen.margin_time_landscape).toInt()
+            )
+            ivScreenSize.setMargins(
+                0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
+                resources.getDimension(R.dimen.margin_size_landscape).toInt()
+            )
         } else {
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
             context?.let { _ ->
                 controls.findViewById<TextView>(R.id.exo_position).setMargins(
-                     resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
+                    resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
                     0, resources.getDimension(R.dimen.margin_portrait).toInt()
                 )
                 ivScreenSize.setMargins(
-                    0, 0,  resources.getDimension(R.dimen.margin_portrait).toInt(),
-                     resources.getDimension(R.dimen.margin_portrait).toInt()
+                    0, 0, resources.getDimension(R.dimen.margin_portrait).toInt(),
+                    resources.getDimension(R.dimen.margin_portrait).toInt()
                 )
             }
         }
     }
-
-    override fun onNetworkConnectionLost() {
-
-    }
-
-    override fun onNetworkConnectionAvailable() {
-        viewModel.onNetworkGained()
-
-    }
-
-
 }

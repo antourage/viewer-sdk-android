@@ -96,7 +96,8 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                     orientationEventListener.disable()
                 if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     isPortrait = false
-                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                    activity?.requestedOrientation =
+                        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
                 } else {
                     isPortrait = true
@@ -197,16 +198,18 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                             epsilonCheck(orientation, rightLandscape, epsilon)
                         ) {
 
-                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-                            Handler(Looper.getMainLooper()).postDelayed({isPortrait = null},100)
+                            activity?.requestedOrientation =
+                                ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                            Handler(Looper.getMainLooper()).postDelayed({ isPortrait = null }, 100)
                         }
                     } else if (epsilonCheck(orientation, topPortrait, epsilon) ||
                         epsilonCheck(orientation, bottomPortrait, epsilon)
                     ) {
-                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                        Handler(Looper.getMainLooper()).postDelayed({isPortrait = null},100)
+                        activity?.requestedOrientation =
+                            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                        Handler(Looper.getMainLooper()).postDelayed({ isPortrait = null }, 100)
                     }
-                } else{
+                } else {
 
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
                 }
@@ -216,7 +219,11 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     }
 
     private fun isRotationOn(): Boolean {
-        return Settings.System.getInt(activity?.contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0) == 1
+        return Settings.System.getInt(
+            activity?.contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION,
+            0
+        ) == 1
     }
 
     override fun onResume() {
@@ -244,7 +251,8 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 newConfig.screenHeightDp
             )
             context?.let { context ->
-                ivScreenSize.background = ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
+                ivScreenSize.background =
+                    ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
             }
             controllerHeaderLayout.visibility = View.VISIBLE
             activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
@@ -255,7 +263,8 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                 newConfig.screenHeightDp
             )
             context?.let { context ->
-                ivScreenSize.background = ContextCompat.getDrawable(context, R.drawable.ic_full_screen)
+                ivScreenSize.background =
+                    ContextCompat.getDrawable(context, R.drawable.ic_full_screen)
             }
             controllerHeaderLayout.visibility = View.GONE
             setPlayerSizePortrait()

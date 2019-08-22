@@ -26,7 +26,6 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         const val VIEW_SEPARATOR = 2
     }
 
-
     fun setStreamList(list: List<StreamResponse>) {
 
         val tempList: MutableList<StreamResponse?> = list.toMutableList()
@@ -40,9 +39,21 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         if (viewType == VIEW_VOD)
-            return VideoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_video, parent, false))
+            return VideoViewHolder(
+                LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_video,
+                    parent,
+                    false
+                )
+            )
         else if (viewType == VIEW_LIVE)
-            return VideoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_broadcast, parent, false))
+            return VideoViewHolder(
+                LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_broadcast,
+                    parent,
+                    false
+                )
+            )
         else
             return SeparatorViewHolder(
                 LayoutInflater.from(parent.context).inflate(
@@ -75,11 +86,16 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
         if (payloads.size > 0 && payloads[0] is Bundle) {
             if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP, false)) {
                 if (holder is VideoViewHolder) {
-                    holder.txtNumberOfViewers.text = listOfStreams[position]?.viewerCounter.toString()
+                    holder.txtNumberOfViewers.text =
+                        listOfStreams[position]?.viewerCounter.toString()
                     holder.txtWasLive.text = listOfStreams[position]?.startTime?.parseDate(context)
                 }
             }
@@ -110,5 +126,4 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         } else
             return VIEW_VOD
     }
-
 }

@@ -3,9 +3,8 @@ package com.antourage.weaverlib.screens.base.streaming
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import android.view.Surface
-import com.antourage.weaverlib.screens.base.AntourageActivity
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
@@ -145,9 +144,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
     //region Listeners
     val streamAnalyticsListener = object : AnalyticsListener {
-        override fun onSeekProcessed(eventTime: AnalyticsListener.EventTime?) {
-
-        }
+        override fun onSeekProcessed(eventTime: AnalyticsListener.EventTime?) {}
 
         override fun onPlaybackParametersChanged(
             eventTime: AnalyticsListener.EventTime?,
@@ -156,15 +153,15 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
         }
 
-        override fun onPlayerError(eventTime: AnalyticsListener.EventTime?, error: ExoPlaybackException?) {
+        override fun onPlayerError(
+            eventTime: AnalyticsListener.EventTime?,
+            error: ExoPlaybackException?
+        ) {
         }
 
-        override fun onSeekStarted(eventTime: AnalyticsListener.EventTime?) {
-        }
+        override fun onSeekStarted(eventTime: AnalyticsListener.EventTime?) {}
 
-        override fun onLoadingChanged(eventTime: AnalyticsListener.EventTime?, isLoading: Boolean) {
-
-        }
+        override fun onLoadingChanged(eventTime: AnalyticsListener.EventTime?, isLoading: Boolean) {}
 
         override fun onDownstreamFormatChanged(
             eventTime: AnalyticsListener.EventTime?,
@@ -172,17 +169,17 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         ) {
         }
 
-        override fun onDrmKeysLoaded(eventTime: AnalyticsListener.EventTime?) {
+        override fun onDrmKeysLoaded(eventTime: AnalyticsListener.EventTime?) {}
+
+        override fun onMediaPeriodCreated(eventTime: AnalyticsListener.EventTime?) {}
+
+        override fun onRenderedFirstFrame(
+            eventTime: AnalyticsListener.EventTime?,
+            surface: Surface?
+        ) {
         }
 
-        override fun onMediaPeriodCreated(eventTime: AnalyticsListener.EventTime?) {
-        }
-
-        override fun onRenderedFirstFrame(eventTime: AnalyticsListener.EventTime?, surface: Surface?) {
-        }
-
-        override fun onReadingStarted(eventTime: AnalyticsListener.EventTime?) {
-        }
+        override fun onReadingStarted(eventTime: AnalyticsListener.EventTime?) {}
 
         override fun onBandwidthEstimate(
             eventTime: AnalyticsListener.EventTime?,
@@ -201,8 +198,7 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         ) {
         }
 
-        override fun onDrmKeysRestored(eventTime: AnalyticsListener.EventTime?) {
-        }
+        override fun onDrmKeysRestored(eventTime: AnalyticsListener.EventTime?) {}
 
         override fun onDecoderDisabled(
             eventTime: AnalyticsListener.EventTime?,
@@ -211,7 +207,10 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         ) {
         }
 
-        override fun onShuffleModeChanged(eventTime: AnalyticsListener.EventTime?, shuffleModeEnabled: Boolean) {
+        override fun onShuffleModeChanged(
+            eventTime: AnalyticsListener.EventTime?,
+            shuffleModeEnabled: Boolean
+        ) {
         }
 
         override fun onDecoderInputFormatChanged(
@@ -221,10 +220,16 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
         ) {
         }
 
-        override fun onAudioSessionId(eventTime: AnalyticsListener.EventTime?, audioSessionId: Int) {
+        override fun onAudioSessionId(
+            eventTime: AnalyticsListener.EventTime?,
+            audioSessionId: Int
+        ) {
         }
 
-        override fun onDrmSessionManagerError(eventTime: AnalyticsListener.EventTime?, error: Exception?) {
+        override fun onDrmSessionManagerError(
+            eventTime: AnalyticsListener.EventTime?,
+            error: Exception?
+        ) {
         }
 
         override fun onLoadStarted(
@@ -239,15 +244,11 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             trackGroups: TrackGroupArray?,
             trackSelections: TrackSelectionArray?
         ) {
-
         }
 
-        override fun onPositionDiscontinuity(eventTime: AnalyticsListener.EventTime?, reason: Int) {
+        override fun onPositionDiscontinuity(eventTime: AnalyticsListener.EventTime?, reason: Int) {}
 
-        }
-
-        override fun onRepeatModeChanged(eventTime: AnalyticsListener.EventTime?, repeatMode: Int) {
-        }
+        override fun onRepeatModeChanged(eventTime: AnalyticsListener.EventTime?, repeatMode: Int) {}
 
         override fun onUpstreamDiscarded(
             eventTime: AnalyticsListener.EventTime?,
@@ -325,11 +326,9 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             error: IOException?,
             wasCanceled: Boolean
         ) {
-
         }
 
-        override fun onMetadata(eventTime: AnalyticsListener.EventTime?, metadata: Metadata?) {
-        }
+        override fun onMetadata(eventTime: AnalyticsListener.EventTime?, metadata: Metadata?) {}
     }
 
     val playerEventListener = object : Player.EventListener {
@@ -337,29 +336,25 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
 
         }
 
-        override fun onTracksChanged(trackGroups: TrackGroupArray, trackSelections: TrackSelectionArray) {
-
+        override fun onTracksChanged(
+            trackGroups: TrackGroupArray,
+            trackSelections: TrackSelectionArray
+        ) {
         }
 
-        override fun onLoadingChanged(isLoading: Boolean) {
-
-        }
+        override fun onLoadingChanged(isLoading: Boolean) {}
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             onStreamStateChanged(playbackState)
             playbackStateLiveData.postValue(playbackState)
         }
 
-        override fun onRepeatModeChanged(repeatMode: Int) {
+        override fun onRepeatModeChanged(repeatMode: Int) {}
 
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-
-        }
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {}
 
         override fun onPlayerError(err: ExoPlaybackException) {
-            if (!AntourageActivity.isNetworkAvailable) {
+            if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 playbackPosition = player.currentPosition
                 currentWindow = player.currentWindowIndex
             }
@@ -375,15 +370,9 @@ abstract class StreamingViewModel(application: Application) : BaseViewModel(appl
             onVideoChanged()
         }
 
-        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {}
 
-        }
-
-        override fun onSeekProcessed() {
-
-        }
+        override fun onSeekProcessed() {}
     }
     //endregion
-
-
 }

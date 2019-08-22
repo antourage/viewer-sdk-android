@@ -2,30 +2,40 @@ package com.antourage.weaverlib
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import java.lang.ref.WeakReference
 
 /**
  * Using this way to get applicationContext to avoid asking parent app to initialize lib
  * Also connecting this way to Firebase does not require json file and is safer as keys are not hardcoded
  */
-class WeaverInitProvider : ContentProvider() {
+class ModuleResourcesProvider : ContentProvider() {
+    companion object {
+        var appContext: WeakReference<Context>? = null
+
+        fun getContext() = appContext?.get()
+    }
 
     override fun onCreate(): Boolean {
-        context?.let {
+        appContext = WeakReference(context.applicationContext)
+
+        appContext?.get()?.let {
             val options = FirebaseOptions.Builder()
                 .setApiKey(BuildConfig.FirebaseApiKey)
                 .setApplicationId(BuildConfig.ApplicationFirebaseId)
                 .setDatabaseUrl(BuildConfig.DatabaseUrl)
                 .setProjectId(BuildConfig.FirebaseProjectId)
                 .build()
-            FirebaseApp.initializeApp(it.applicationContext, options, BuildConfig.FirebaseName)
+            FirebaseApp.initializeApp(it, options, BuildConfig.FirebaseName)
+            ConnectionStateMonitor(it)
         }
         return true
     }
-
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         return null
@@ -41,7 +51,12 @@ class WeaverInitProvider : ContentProvider() {
         return null
     }
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int {
+    override fun update(
+        uri: Uri,
+        values: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<String>?
+    ): Int {
         return -1
     }
 

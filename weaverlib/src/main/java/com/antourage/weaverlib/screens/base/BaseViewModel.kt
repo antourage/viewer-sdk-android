@@ -10,5 +10,4 @@ open class BaseViewModel constructor(application: Application) : AndroidViewMode
         var warning: MutableLiveData<String?> = MutableLiveData()
         var success: MutableLiveData<String?> = MutableLiveData()
     }
-
 }

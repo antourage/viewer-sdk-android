@@ -10,9 +10,10 @@ import com.antourage.weaverlib.UserCache
 
 import kotlinx.android.synthetic.main.dialog_bechoice.*
 
-class DevSettingsDialog(context: Context, private val listener: OnDevSettingsChangedListener) : Dialog(context) {
+class DevSettingsDialog(context: Context, private val listener: OnDevSettingsChangedListener) :
+    Dialog(context) {
 
-    companion object{
+    companion object {
         const val BASE_URL_LOCAL = "http://192.168.20.196:3000/"
         const val BASE_URL_DEV = "http://35.156.199.125"
         const val BASE_URL_STAGING = "https://staging-myra.com/"
@@ -36,17 +37,14 @@ class DevSettingsDialog(context: Context, private val listener: OnDevSettingsCha
     }
 
     private fun initBECheckedBtn(beChoice: String?) {
-        val radioButton: RadioButton?
-        when (beChoice) {
-            BASE_URL_LOCAL -> radioButton = findViewById(R.id.rb_local)
-            BASE_URL_DEV -> radioButton = findViewById(R.id.rb_dev)
-            BASE_URL_STAGING -> radioButton = findViewById(R.id.rb_staging)
-            BASE_URL_PROD -> radioButton = findViewById(R.id.rb_production)
-            else -> radioButton = findViewById(R.id.rb_production)
+        val radioButton: RadioButton? = when (beChoice) {
+            BASE_URL_LOCAL -> findViewById(R.id.rb_local)
+            BASE_URL_DEV -> findViewById(R.id.rb_dev)
+            BASE_URL_STAGING -> findViewById(R.id.rb_staging)
+            BASE_URL_PROD -> findViewById(R.id.rb_production)
+            else -> findViewById(R.id.rb_production)
         }
         if (radioButton != null)
             radioButton.isChecked = true
     }
-
-
 }

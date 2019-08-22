@@ -13,17 +13,18 @@ import android.widget.LinearLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
-import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
-import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
+import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
+import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 
 /**
  * handles Chat visibility
  */
-abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),CustomDrawerLayout.DrawerTouchListener {
+abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),
+    CustomDrawerLayout.DrawerTouchListener {
 
-    protected var isChatDismissed:Boolean = false
+    protected var isChatDismissed: Boolean = false
 
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
@@ -33,7 +34,7 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
     }
     //endregion
 
-    private lateinit var rvMessages:RecyclerView
+    private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var llMessageWrapper: LinearLayout
@@ -54,38 +55,42 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
             initNavigationView()
         }
     }
-    private fun initNavigationView(){
+
+    private fun initNavigationView() {
         drawerLayout.setScrimColor(Color.TRANSPARENT)
         drawerLayout.openDrawer(navigationView)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
-        navigationView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        navigationView.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 if (activity != null) {
-                    val drawerToggle = object : ActionBarDrawerToggle(activity, drawerLayout, null, 0, 0) {
-                        override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                            super.onDrawerSlide(drawerView, slideOffset)
-                            val orientation = resources.configuration.orientation
-                            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                llMessageWrapper.alpha = slideOffset
-                                if (slideOffset == 0.0f) {
-                                    etMessage.isEnabled = false
-                                    isChatDismissed = true
+                    val drawerToggle =
+                        object : ActionBarDrawerToggle(activity, drawerLayout, null, 0, 0) {
+                            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                                super.onDrawerSlide(drawerView, slideOffset)
+                                val orientation = resources.configuration.orientation
+                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                                    llMessageWrapper.alpha = slideOffset
+                                    if (slideOffset == 0.0f) {
+                                        etMessage.isEnabled = false
+                                        isChatDismissed = true
+                                    }
+                                    if (slideOffset == 1.0f) {
+                                        etMessage.isEnabled = true
+                                        isChatDismissed = false
+                                    }
+                                } else {
+                                    drawerLayout.openDrawer(navigationView, false)
                                 }
-                                if (slideOffset == 1.0f) {
-                                    etMessage.isEnabled = true
-                                    isChatDismissed = false
-                                }
-                            } else{
-                                drawerLayout.openDrawer(navigationView,false)
                             }
                         }
-                    }
                     drawerLayout.addDrawerListener(drawerToggle)
                     navigationView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }
             }
         })
     }
+
     private fun initMessagesRV() {
         val linearLayoutManager = ChatLayoutManager(
             context
@@ -96,6 +101,7 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
         rvMessages.layoutManager = linearLayoutManager
         rvMessages.adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
     }
+
     override fun subscribeToObservers() {
         viewModel.getMessagesLiveData().observe(this.viewLifecycleOwner, messagesObserver)
     }
@@ -107,7 +113,7 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),Custom
             rvMessages.isVerticalFadingEdgeEnabled = true
             rvMessages.adapter =
                 MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
-            if(viewModel.getMessagesLiveData().value != null)
+            if (viewModel.getMessagesLiveData().value != null)
                 (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
             rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)

@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.other.networking;
 
-import com.antourage.weaverlib.other.networking.base.LiveDataCallAdapterFactory;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -8,13 +7,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
-
-    public static  String BASE_URL = "";
+    public static String BASE_URL = "";
     private static final String HEADER_LANGUAGE = "Accept-Language";
 
     private static WebService webService;
     private static Retrofit retrofit;
-
+    private static ApiClient apiClient;
 
     private ApiClient() {
         OkHttpClient client = defaultClient();
@@ -26,13 +24,14 @@ public class ApiClient {
                 .addCallAdapterFactory(new LiveDataCallAdapterFactory())
                 .build();
         webService = retrofit.create(WebService.class);
-
     }
 
-    public static ApiClient getInitialClient() {
-        return new ApiClient();
+    public static ApiClient getClient() {
+        if (apiClient == null) {
+            apiClient = new ApiClient();
+        }
+        return apiClient;
     }
-
 
     public static Retrofit getRetrofitInstance() {
         return retrofit;

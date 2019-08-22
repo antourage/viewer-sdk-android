@@ -13,7 +13,6 @@ import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.trueWidth
 
-
 class PollAnswersAdapter(
     private val listOfAnswers: List<AnswersCombined>,
     private val isAnswered: Boolean,
@@ -29,7 +28,6 @@ class PollAnswersAdapter(
             add(R.drawable.rounded_green_bg)
         }
     }
-
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = viewGroup.context
@@ -71,8 +69,6 @@ class PollAnswersAdapter(
                 }
                 viewHolder.tvPollLength.layoutParams = params
             }
-
-
         }
     }
 
@@ -118,7 +114,6 @@ class PollAnswersAdapter(
     }
 
     companion object {
-
         private const val VIEW_UNANSWERED_POLL = 0
         private const val VIEW_ANSWERED_POLL = 1
     }

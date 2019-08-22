@@ -5,8 +5,8 @@ import android.os.Handler
 import android.support.annotation.Keep
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient
-import com.antourage.weaverlib.other.networking.base.Resource
-import com.antourage.weaverlib.other.networking.base.State
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
 
 /**
@@ -15,34 +15,33 @@ import com.antourage.weaverlib.screens.base.Repository
 @Keep
 class ReceivingVideosManager {
 
-
     companion object {
         private var callback: ReceivingVideoCallback? = null
         const val STREAMS_REQUEST_DELAY = 5000L
         private var lastReceivedData: Resource<List<StreamResponse>>? = null
 
-        fun setReceivingVideoCallback(callback: ReceivingVideoCallback){
+        fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
             if (lastReceivedData != null)
                 ReceivingVideosManager.callback?.onLiveBroadcastReceived(lastReceivedData!!)
         }
+
         val handlerCall = Handler()
 
         fun startReceivingVideos() {
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
-                    //TODO 4/7/2019 change through DI
-                    val streamResponse = Repository(ApiClient.getInitialClient().webService).getListOfStreams()
-                    streamResponse.observeForever(object : Observer<Resource<List<StreamResponse>>> {
+                    val streamResponse =
+                        Repository(ApiClient.getClient().webService).getListOfStreams()
+                    streamResponse.observeForever(object :
+                        Observer<Resource<List<StreamResponse>>> {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                             if (resource != null) {
                                 callback?.onLiveBroadcastReceived(resource)
-                                when (resource.state) {
-                                    State.FAILURE, State.SUCCESS -> {
+                                when (resource.status) {
+                                    is Status.Failure, is Status.Success -> {
                                         lastReceivedData = resource
                                         streamResponse.removeObserver(this)
-                                    }
-                                    else -> {
                                     }
                                 }
                             }

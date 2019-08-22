@@ -9,8 +9,8 @@ import android.os.Handler
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.networking.base.Resource
-import com.antourage.weaverlib.other.networking.base.State
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -23,7 +23,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
-class WeaverViewModel @Inject constructor(application: Application, val repository: Repository) : ChatViewModel(application) {
+class WeaverViewModel @Inject constructor(application: Application, val repository: Repository) :
+    ChatViewModel(application) {
 
     companion object {
         const val NEW_POLL_DELAY_MS = 15000L
@@ -59,42 +60,51 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
         postAnsweredUsers = false
     }
 
-    private val messagesObserver: Observer<Resource<List<Message>>> =
-        object : Observer<Resource<List<Message>>> {
-            override fun onChanged(data: Resource<List<Message>>?) {
-                if (data?.data != null && isChatTurnedOn)
-                    if (isChatContainsNonstatusMsg(data.data)) {
-                        chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-                        messagesLiveData.postValue(data.data)
-                    } else {
-                        chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
-                    }
+    private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
+        resource?.status?.let {
+            if (it is Status.Success && it.data != null && isChatTurnedOn) {
+                if (isChatContainsNonstatusMsg(it.data)) {
+                    chatStatusLiveData.postValue(ChatStatus.ChatMessages)
+                    messagesLiveData.postValue(it.data)
+                } else {
+                    chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
+                }
             }
-        }
-    private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { data ->
-        if (data?.state == State.SUCCESS) {
-            if (data.data != null && data.data.isNotEmpty()) {
-                postAnsweredUsers = false
-                pollStatusLiveData.postValue(PollStatus.ActivePoll(data.data[0]))
-                currentPoll = data.data[0]
-            } else {
-                postAnsweredUsers = false
-                pollStatusLiveData.postValue(PollStatus.NoPoll)
-                currentPoll = null
-            }
-        } else if (data?.state == State.FAILURE) {
-            error.value = data.message
         }
     }
-    private val streamObserver: Observer<Resource<Stream>> = Observer { data ->
-        if (data?.data != null) {
-            isChatTurnedOn = data.data.isChatActive
-            if (!data.data.isChatActive) {
-                //TODO 17/06/2019 wth does not actually remove observer
-                repository.getMessages(streamId).removeObserver(messagesObserver)
-                chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
-            } else {
-                repository.getMessages(streamId).observeForever(messagesObserver)
+
+    private val activePollObserver: Observer<Resource<List<Poll>>> = Observer { resource ->
+        resource?.status?.let {
+            when (it) {
+                is Status.Success -> {
+                    if (it.data != null && it.data.isNotEmpty()) {
+                        postAnsweredUsers = false
+                        pollStatusLiveData.postValue(PollStatus.ActivePoll(it.data[0]))
+                        currentPoll = it.data[0]
+                    } else {
+                        postAnsweredUsers = false
+                        pollStatusLiveData.postValue(PollStatus.NoPoll)
+                        currentPoll = null
+                    }
+                }
+                is Status.Failure -> {
+                    error.value = it.errorMessage
+                }
+            }
+        }
+    }
+
+    private val streamObserver: Observer<Resource<Stream>> = Observer { resource ->
+        resource?.status?.let {
+            if (it is Status.Success && it.data != null) {
+                isChatTurnedOn = it.data.isChatActive
+                if (!isChatTurnedOn) {
+                    //TODO 17/06/2019 wth does not actually remove observer
+                    repository.getMessages(streamId).removeObserver(messagesObserver)
+                    chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
+                } else {
+                    repository.getMessages(streamId).observeForever(messagesObserver)
+                }
             }
         }
     }
@@ -145,22 +155,30 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
 
     fun observeAnsweredUsers() {
         currentPoll?.let { poll ->
-            repository.getAnsweredUsers(streamId, poll.id).observeForever {
-                if (it?.data != null) {
-                    if (wasAnswered(it.data)) {
-                        postAnsweredUsers = true
-                    }
-                    if (postAnsweredUsers && it.data.isNotEmpty())
-                        pollStatusLiveData.postValue(
-                            PollStatus.ActivePollDismissed(
-                                getApplication<Application>().getString(
-                                    R.string.number_answers,
-                                    it.data.size
+            repository.getAnsweredUsers(streamId, poll.id).observeForever { resource ->
+                resource?.status?.let {
+                    if (it is Status.Success && it.data != null) {
+                        if (wasAnswered(it.data)) {
+                            postAnsweredUsers = true
+                        }
+                        if (postAnsweredUsers && it.data.isNotEmpty())
+                            pollStatusLiveData.postValue(
+                                PollStatus.ActivePollDismissed(
+                                    getApplication<Application>().getString(
+                                        R.string.number_answers,
+                                        it.data.size
+                                    )
                                 )
                             )
-                        )
-                    else
-                        pollStatusLiveData.postValue(PollStatus.ActivePollDismissed(getApplication<Application>().getString(R.string.new_poll)))
+                        else
+                            pollStatusLiveData.postValue(
+                                PollStatus.ActivePollDismissed(
+                                    getApplication<Application>().getString(
+                                        R.string.new_poll
+                                    )
+                                )
+                            )
+                    }
                 }
             }
         }
@@ -201,5 +219,4 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
         player.seekTo(player.duration)
 
     }
-
 }

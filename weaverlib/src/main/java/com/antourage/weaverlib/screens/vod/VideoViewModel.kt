@@ -6,46 +6,42 @@ import android.arch.lifecycle.MutableLiveData
 import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.util.Util
 import com.antourage.weaverlib.other.models.MessageType
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.util.Util
 import com.google.firebase.Timestamp
 import okhttp3.OkHttpClient
 import java.util.*
-import okhttp3.Interceptor
-import okhttp3.Response
-import java.io.IOException
 import javax.inject.Inject
 
+class VideoViewModel @Inject constructor(application: Application, val repository: Repository) :
+    ChatViewModel(application) {
 
-class VideoViewModel @Inject constructor(application: Application, val repository: Repository) : ChatViewModel(application) {
-
-    fun onVideoStarted(streamId:Int){
+    fun onVideoStarted(streamId: Int) {
         val handler = Handler()
 
         val runnable = object : Runnable {
             override fun run() {
-                    val pos = (player.currentPosition / 1000) - 1
-                    val list = repository.getMessagesList(currentWindow + 1)
-                    val listToDisplay = mutableListOf<Message>()
-                    for (i in 0 until list.size) {
-                        if ((list[i].timestamp - 1) <= pos) {
-                            val msg = Message(
-                                "", list[i].nickname,
-                                list[i].nickname, list[i].text, MessageType.USER, Timestamp(Date())
-                            )
-                            msg.id = list[i].timestamp.toString()
-                            listToDisplay.add(msg)
-                        }
+                val pos = (player.currentPosition / 1000) - 1
+                val list = repository.getMessagesList(currentWindow + 1)
+                val listToDisplay = mutableListOf<Message>()
+                for (i in 0 until list.size) {
+                    if ((list[i].timestamp - 1) <= pos) {
+                        val msg = Message(
+                            "", list[i].nickname,
+                            list[i].nickname, list[i].text, MessageType.USER, Timestamp(Date())
+                        )
+                        msg.id = list[i].timestamp.toString()
+                        listToDisplay.add(msg)
                     }
-                    messagesLiveData.value = listToDisplay
+                }
+                messagesLiveData.value = listToDisplay
                 // Repeat every  seconds
                 handler.postDelayed(this, 500)
             }
@@ -53,7 +49,6 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
         handler.post(runnable)
     }
-
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
@@ -104,17 +99,16 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
      */
     private fun buildSimpleMediaSource(uri: String): MediaSource {
 
-        val okHttpClient = OkHttpClient.Builder ()
+        val okHttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor { chain ->
                 val request = chain.request().newBuilder().addHeader("Connection", "close").build()
                 chain.proceed(request)
             }
             .build()
 
-        val dataSourceFactory = OkHttpDataSourceFactory(okHttpClient,Util.getUserAgent(getApplication(), "Exo2"))
+        val dataSourceFactory =
+            OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(Uri.parse(uri))
     }
-
-
 }

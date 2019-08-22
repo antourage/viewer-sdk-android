@@ -1,12 +1,10 @@
-package com.antourage.weaverlib.other.networking.base
+package com.antourage.weaverlib.other.networking
 
 import com.antourage.weaverlib.other.models.APIError
-import com.antourage.weaverlib.other.networking.ApiClient
 import retrofit2.Response
 import java.io.IOException
 
 object ErrorUtils {
-
     fun parseError(response: Response<*>): APIError? {
         val converter = ApiClient.getRetrofitInstance()
             .responseBodyConverter<APIError>(APIError::class.java, arrayOfNulls(0))

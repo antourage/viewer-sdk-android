@@ -17,7 +17,6 @@ import android.util.Property
 import android.view.animation.OvershootInterpolator
 import com.antourage.weaverlib.R
 
-
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
 private val COUNT_STATE = BadgeFab::class.java.name + ".COUNT_STATE"
 
@@ -41,17 +40,18 @@ class BadgeFab @JvmOverloads constructor(
     defStyleAttr: Int = R.attr.floatingActionButtonStyle
 ) : FloatingActionButton(context, attrs, defStyleAttr) {
 
-    private val animationProperty = object : Property<BadgeFab, Float>(Float::class.java, "animation") {
+    private val animationProperty =
+        object : Property<BadgeFab, Float>(Float::class.java, "animation") {
 
-        override fun set(badgeFab: BadgeFab, value: Float) {
-            animationFactor = value
-            postInvalidateOnAnimation()
-        }
+            override fun set(badgeFab: BadgeFab, value: Float) {
+                animationFactor = value
+                postInvalidateOnAnimation()
+            }
 
-        override fun get(badgeFab: BadgeFab): Float {
-            return 0f
+            override fun get(badgeFab: BadgeFab): Float {
+                return 0f
+            }
         }
-    }
 
     private val textSize = TEXT_SIZE_DP * resources.displayMetrics.density
     private val textPadding = TEXT_PADDING_DP * resources.displayMetrics.density
@@ -99,9 +99,14 @@ class BadgeFab @JvmOverloads constructor(
         val styledAttributes = context.theme.obtainStyledAttributes(
             attrs, R.styleable.BadgeFab, 0, 0
         )
-        textPaint.color = styledAttributes.getColor(R.styleable.BadgeFab_badgeTextColor, Color.WHITE)
-        circlePaint.color = styledAttributes.getColor(R.styleable.BadgeFab_badgeBackgroundColor, getDefaultBadgeColor())
-        badgePosition = styledAttributes.getInt(R.styleable.BadgeFab_badgePosition, RIGHT_TOP_POSITION)
+        textPaint.color =
+            styledAttributes.getColor(R.styleable.BadgeFab_badgeTextColor, Color.WHITE)
+        circlePaint.color = styledAttributes.getColor(
+            R.styleable.BadgeFab_badgeBackgroundColor,
+            getDefaultBadgeColor()
+        )
+        badgePosition =
+            styledAttributes.getInt(R.styleable.BadgeFab_badgePosition, RIGHT_TOP_POSITION)
         styledAttributes.recycle()
 
         updateCountText()
@@ -158,7 +163,12 @@ class BadgeFab @JvmOverloads constructor(
             circleBounds.set(circleStart, circleStart, circleEnd, circleEnd)
         } else {
             val circleStart = 0
-            circleBounds.set(circleStart, circleStart, (circleRadius * 2).toInt(), (circleRadius * 2).toInt())
+            circleBounds.set(
+                circleStart,
+                circleStart,
+                (circleRadius * 2).toInt(),
+                (circleRadius * 2).toInt()
+            )
         }
     }
 
@@ -199,19 +209,19 @@ class BadgeFab @JvmOverloads constructor(
                 // Solid rectangle with rounded corners
                 var left = cx - radius
                 var right = cx + radius
-                if(textBadge.length == 2){
+                if (textBadge.length == 2) {
                     left -= 5f
                     right += 5f
                 }
-                if(textBadge.length>=3){
+                if (textBadge.length >= 3) {
                     left -= 10f
                     right += 10f
                 }
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     val rect = RectF(left, cy + radius, right, cy - radius)
                     canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
-                }else
-                    canvas.drawCircle(cx, cy, radius+10, circlePaint)
+                } else
+                    canvas.drawCircle(cx, cy, radius + 10, circlePaint)
                 // Count text
                 textPaint.textSize = textSize * animationFactor
                 canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)

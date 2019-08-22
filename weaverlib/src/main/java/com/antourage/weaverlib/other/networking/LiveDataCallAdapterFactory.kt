@@ -1,12 +1,13 @@
-package com.antourage.weaverlib.other.networking.base
+package com.antourage.weaverlib.other.networking
 
 import android.arch.lifecycle.LiveData
 import retrofit2.CallAdapter
+import retrofit2.CallAdapter.Factory
 import retrofit2.Retrofit
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
-class LiveDataCallAdapterFactory : CallAdapter.Factory() {
+class LiveDataCallAdapterFactory : Factory() {
     override fun get(
         returnType: Type,
         annotations: Array<Annotation>,

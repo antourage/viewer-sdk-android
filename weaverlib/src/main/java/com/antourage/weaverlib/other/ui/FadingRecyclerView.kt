@@ -14,6 +14,4 @@ class FadingRecyclerView @JvmOverloads constructor(
     override fun getBottomFadingEdgeStrength(): Float {
         return 0.0f
     }
-
-
 }

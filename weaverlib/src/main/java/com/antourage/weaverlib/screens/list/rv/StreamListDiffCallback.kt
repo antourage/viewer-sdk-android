@@ -9,8 +9,8 @@ class StreamListDiffCallback(
     private val newList: List<StreamResponse?>
 ) : DiffUtil.Callback() {
 
-    companion object{
-       const val ARGS_REFRESH_TIMESTAMP = "refresh_timestamp"
+    companion object {
+        const val ARGS_REFRESH_TIMESTAMP = "refresh_timestamp"
     }
 
     override fun getOldListSize(): Int {
@@ -34,7 +34,7 @@ class StreamListDiffCallback(
     }
 
     override fun getChangePayload(oldPos: Int, newPos: Int): Any? {
-        if(prevList[oldPos]?.viewerCounter != newList[newPos]?.viewerCounter) {
+        if (prevList[oldPos]?.viewerCounter != newList[newPos]?.viewerCounter) {
             val bundle = Bundle()
             bundle.putBoolean(ARGS_REFRESH_TIMESTAMP, true)
             return bundle
