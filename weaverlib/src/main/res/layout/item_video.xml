@@ -1,83 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                   xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-                                                   android:layout_height="wrap_content"
-                                                   xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <ImageView
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
             android:layout_height="170dp"
-            android:scaleType="centerCrop"
             android:foreground="@drawable/bg_gradient_bottom"
-            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="ContentDescription"/>
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
     <TextView
             android:id="@+id/tvWasLive"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:textAllCaps="false"
-            android:textStyle="normal"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingLeft="4dp"
+            android:paddingEnd="4dp"
+            android:paddingRight="4dp"
             android:text="1 day ago"
-    />
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
             android:id="@+id/txtStatus"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:textColor="@android:color/white"
-            tools:text="1:02"
-            android:gravity="center"
-            android:textAllCaps="false"
-            android:textStyle="normal"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
             android:layout_margin="8dp"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingLeft="4dp"
+            android:paddingEnd="4dp"
+            android:paddingRight="4dp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
             android:textSize="14sp"
-            app:layout_constraintTop_toTopOf="@id/thumbnail"
+            android:textStyle="normal"
             app:layout_constraintStart_toEndOf="@id/tvWasLive"
-    />
+            app:layout_constraintTop_toTopOf="@id/thumbnail"
+            tools:text="1:02" />
+
     <TextView
             android:id="@+id/txtNumberOfViewers"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
-            android:textSize="14sp"
-            tools:text="6,385"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_semitransparent_bg"
+            android:drawableStart="@drawable/ic_watcher"
+            android:drawableLeft="@drawable/ic_watcher"
+            android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:gravity="center"
-            android:layout_marginStart="8dp"
-            app:layout_constraintStart_toEndOf="@+id/txtStatus"
-            app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
-            android:drawableStart="@drawable/ic_watcher"
             android:textColor="@android:color/white"
-            android:drawableLeft="@drawable/ic_watcher"/>
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
+            app:layout_constraintStart_toEndOf="@+id/txtStatus"
+            tools:text="6,385" />
 
     <TextView
             android:id="@+id/txtTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-    />
+            app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

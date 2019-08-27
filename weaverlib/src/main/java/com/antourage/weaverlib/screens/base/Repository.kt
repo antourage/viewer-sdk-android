@@ -34,7 +34,7 @@ class Repository @Inject constructor(val api: WebService) {
                 "Heading Out for Training",
                 "",
                 "file:///android_asset/1.png",
-                substractDays(0),
+                subtractDays(0),
                 arrayOf("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8"),
                 duration = 30,
                 viewerCounter = 13553
@@ -43,7 +43,7 @@ class Repository @Inject constructor(val api: WebService) {
         list.add(
             StreamResponse(
                 2, "Roommates with Head and Shoulders", "Kyle Walker and John Stones", "",
-                substractDays(0, 60 * 60 * 4000),
+                subtractDays(0, 60 * 60 * 4000),
                 "file:///android_asset/2.png", arrayOf(baseUrl + "2. Roommates.mp4/playlist.m3u8"),
                 duration = 19,
                 viewerCounter = 14555
@@ -56,7 +56,7 @@ class Repository @Inject constructor(val api: WebService) {
                 "England Women vs Sweden Women",
                 "",
                 "file:///android_asset/3.png",
-                substractDays(1, 60 * 60 * 4000),
+                subtractDays(1, 60 * 60 * 4000),
                 arrayOf(baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8"),
                 duration = 26,
                 viewerCounter = 14235
@@ -69,7 +69,7 @@ class Repository @Inject constructor(val api: WebService) {
                 "U21 5-a-side game",
                 "",
                 "file:///android_asset/4.png",
-                substractDays(2),
+                subtractDays(2),
                 arrayOf(baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8"),
                 duration = 19,
                 viewerCounter = 4324
@@ -82,7 +82,7 @@ class Repository @Inject constructor(val api: WebService) {
                 "Penalties vs Columbia",
                 "",
                 "file:///android_asset/5.png",
-                substractDays(3),
+                subtractDays(3),
                 arrayOf(baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8"),
                 duration = 29,
                 viewerCounter = 54354
@@ -91,7 +91,7 @@ class Repository @Inject constructor(val api: WebService) {
         list.add(
             StreamResponse(
                 6, "Media Day with M&S", "The squad has been selected", "",
-                substractDays(4),
+                subtractDays(4),
                 "file:///android_asset/6.png", arrayOf(baseUrl + "6. Media Day.mp4/playlist.m3u8"),
                 duration = 35,
                 viewerCounter = 234
@@ -104,7 +104,7 @@ class Repository @Inject constructor(val api: WebService) {
                 "FT Reev and Theo Baker",
                 "",
                 "file:///android_asset/7.png",
-                substractDays(6),
+                subtractDays(6),
                 arrayOf(baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8"),
                 duration = 40,
                 viewerCounter = 123
@@ -114,7 +114,7 @@ class Repository @Inject constructor(val api: WebService) {
         return list
     }
 
-    private fun substractDays(numberOfDays: Int, minusMin: Int = 0): String {
+    private fun subtractDays(numberOfDays: Int, minusMin: Int = 0): String {
         val cal = GregorianCalendar.getInstance()
         cal.time = Date()
         cal.add(Calendar.DAY_OF_YEAR, -numberOfDays)

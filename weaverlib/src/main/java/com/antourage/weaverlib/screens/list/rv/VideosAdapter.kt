@@ -82,7 +82,6 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
             }
             holder.txtNumberOfViewers.text = listOfStreams[position]?.viewerCounter.toString()
             holder.txtWasLive.text = listOfStreams[position]?.startTime?.parseDate(context)
-
         }
     }
 

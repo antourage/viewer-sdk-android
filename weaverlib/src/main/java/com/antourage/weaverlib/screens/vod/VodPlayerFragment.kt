@@ -33,39 +33,38 @@ import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
 
-class VideoFragment : ChatFragment<VideoViewModel>() {
+class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
 
-        fun newInstance(stream: StreamResponse): VideoFragment {
+        fun newInstance(stream: StreamResponse): VodPlayerFragment {
+            val fragment = VodPlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
-            val fragment = VideoFragment()
             fragment.arguments = bundle
             return fragment
         }
     }
 
-    override fun getLayoutId(): Int {
-        return R.layout.fragment_video
-    }
+    override fun getLayoutId() = R.layout.fragment_video
 
     //region Observers
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
+                Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                     }
-                    viewModel.onVideoStarted(arguments?.getParcelable<StreamResponse>(ARGS_STREAM)!!.streamId)
+                    arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+                        ?.streamId?.let { streamId ->
+                        viewModel.onVideoStarted(streamId)
+                    }
                 }
-                Player.STATE_BUFFERING -> showLoading()
-                Player.STATE_IDLE -> {
-                    hideLoading()
-                }
+                Player.STATE_IDLE -> hideLoading()
                 Player.STATE_ENDED -> {
                     viewModel.removeStatisticsListeners()
                     hideLoading()
@@ -74,16 +73,16 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
     }
 
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
-        video?.let {
-            tvStreamName.text = video.streamTitle
-            tvBroadcastedBy.text = video.creatorFullName
+        video?.apply {
+            tvStreamName.text = streamTitle
+            tvBroadcastedBy.text = creatorFullName
+            tvControllerStreamName.text = streamTitle
+            tvControllerBroadcastedBy.text = creatorFullName
+            txtNumberOfViewers.text = viewerCounter.toString()
             context?.let { context ->
-                tvWasLive.text = video.startTime.parseDate(context)
-                UserCache.newInstance().saveVideoToSeen(context, it.streamId)
+                tvWasLive.text = startTime.parseDate(context)
+                UserCache.newInstance().saveVideoToSeen(context, streamId)
             }
-            tvControllerStreamName.text = video.streamTitle
-            tvControllerBroadcastedBy.text = video.creatorFullName
-            txtNumberOfViewers.text = video.viewerCounter.toString()
         }
     }
 
@@ -117,17 +116,19 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         startPlayingStream()
         handleChat()
         ll_wrapper.visibility = View.INVISIBLE
-        if (context != null)
-            tvWasLive.text =
+        tvWasLive.text =
+            context?.let {
                 arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-                    ?.startTime?.parseDate(context!!)
+                    ?.startTime?.parseDate(it)
+            }
     }
 
     override fun onControlsVisible() {
-//        if(context != null)
-//            tvWasLive.text = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+        tvWasLive.text = context?.let { context ->
+            arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
+                ?.startTime?.parseDate(context)
+        }
     }
-
 
     private fun handleChat() {
         etMessage.isEnabled = false
@@ -135,15 +136,14 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         etMessage.hint = getString(R.string.chat_not_available)
     }
 
-    fun startPlayingStream() {
-        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-            ?.streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-        playerView.player = viewModel.getExoPlayer(
-            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(0)
-        )
+    private fun startPlayingStream() {
+        val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+        streamResponse?.apply {
+            viewModel.setCurrentPlayerPosition(streamId)
+            playerView.player = viewModel.getExoPlayer(hlsUrl[0])
+        }
         playerControls.player = playerView.player
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -190,7 +190,6 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
                 drawerLayout.closeDrawer(navView)
             }
         }
-
     }
 
     private fun changeControlsView(isLandscape: Boolean) {

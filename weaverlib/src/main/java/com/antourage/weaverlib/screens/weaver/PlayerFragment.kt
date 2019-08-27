@@ -253,10 +253,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     override fun onControlsVisible() {
-        tvWasLive.text = context?.let {
+        setWasLiveText(context?.let {
             arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
                 ?.startTime?.parseDate(it)
-        }
+        })
     }
 
     private fun onPollDetailsClicked() {
@@ -414,7 +414,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle
             tvControllerBroadcastedBy.text = creatorFullName
-            tvWasLive.text = context?.let { startTime.parseDate(it) }
+            setWasLiveText(context?.let { startTime.parseDate(it) })
         }
     }
 
@@ -434,5 +434,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun hideFullScreenIcon() {
         ivScreenSize.visibility = View.GONE
+    }
+
+    private fun setWasLiveText(text: String?) {
+        if (text != null && text.isNotEmpty()) {
+            tvWasLive.text = text
+            tvWasLive.visibility = View.VISIBLE
+        } else {
+            tvWasLive.visibility = View.GONE
+        }
     }
 }

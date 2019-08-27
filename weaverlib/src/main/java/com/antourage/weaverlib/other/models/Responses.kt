@@ -29,7 +29,6 @@ class SimpleResponse {
     @SerializedName("success")
     @Expose
     var success: Boolean? = null
-
 }
 
 @Parcelize

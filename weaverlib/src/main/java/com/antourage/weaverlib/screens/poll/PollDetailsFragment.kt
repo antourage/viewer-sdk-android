@@ -60,9 +60,7 @@ class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
 
     }
 
-    override fun getLayoutId(): Int {
-        return R.layout.fragment_poll_details
-    }
+    override fun getLayoutId() = R.layout.fragment_poll_details
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
