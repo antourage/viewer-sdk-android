@@ -19,7 +19,7 @@ import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import com.antourage.weaverlib.screens.list.rv.VideosLayoutManager
 import com.antourage.weaverlib.screens.vod.VideoFragment
-import com.antourage.weaverlib.screens.weaver.WeaverFragment
+import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 
 class VideoListFragment : Fragment() {
@@ -88,7 +88,7 @@ class VideoListFragment : Fragment() {
     private fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = {
             if (it.isLive) {
-                replaceFragment(WeaverFragment.newInstance(it), R.id.mainContent, true)
+                replaceFragment(PlayerFragment.newInstance(it), R.id.mainContent, true)
             } else {
                 context?.let { context ->
                     UserCache.newInstance().saveVideoToSeen(context, it.streamId)

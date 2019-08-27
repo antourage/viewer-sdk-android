@@ -4,7 +4,7 @@ import android.app.Application
 import com.antourage.weaverlib.screens.list.VideoListViewModel
 import com.antourage.weaverlib.screens.poll.PollDetailsViewModel
 import com.antourage.weaverlib.screens.vod.VideoViewModel
-import com.antourage.weaverlib.screens.weaver.WeaverViewModel
+import com.antourage.weaverlib.screens.weaver.PlayerViewModel
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -33,7 +33,7 @@ interface ApplicationComponent {
 
     fun getVideoViewModelFactory(): ViewModelFactory<VideoViewModel>
 
-    fun getWeaverViewModelFactory(): ViewModelFactory<WeaverViewModel>
+    fun getWeaverViewModelFactory(): ViewModelFactory<PlayerViewModel>
 
     fun getPollViewModelFactory(): ViewModelFactory<PollDetailsViewModel>
 

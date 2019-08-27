@@ -2,11 +2,7 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +13,7 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import com.antourage.weaverlib.screens.weaver.WeaverFragment
+import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 
 class AntourageActivity : AppCompatActivity() {
@@ -30,7 +26,7 @@ class AntourageActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.mainContent,
-                    WeaverFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))
+                    PlayerFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))
                 )
                 .commit()
         } else

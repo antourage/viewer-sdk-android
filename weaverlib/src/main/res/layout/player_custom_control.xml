@@ -1,112 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:elevation="6dp"
-             android:background="@color/semitransparent"
-             xmlns:tools="http://schemas.android.com/tools">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/semitransparent"
+        android:elevation="6dp">
 
     <ImageButton
             android:id="@+id/ivClose"
-            android:src="@drawable/ic_close"
-            android:background="@drawable/image_btn_bg"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_gravity="top|end"
-            tools:ignore="ContentDescription"/>
+            android:background="@drawable/image_btn_bg"
+            android:src="@drawable/ic_close"
+            tools:ignore="ContentDescription" />
 
     <ImageButton
             android:id="@+id/exo_play"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_play_arrow"
             android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
-            android:scaleType="fitXY"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_play_arrow" />
 
     <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start|top"
             android:orientation="horizontal">
+
         <TextView
                 android:id="@+id/txtStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/rounded_pink_bg"
-                android:textColor="@android:color/white"
+                android:padding="2dp"
+                android:paddingStart="4dp"
+                android:paddingLeft="4dp"
+                android:paddingEnd="4dp"
+                android:paddingRight="4dp"
                 android:text="@string/live"
                 android:textAllCaps="true"
-                android:padding="2dp"
-                android:textStyle="bold"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
+                android:textColor="@android:color/white"
                 android:textSize="14sp"
-                app:layout_constraintTop_toTopOf="@id/thumbnail"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="@id/thumbnail"
-        />
+                app:layout_constraintTop_toTopOf="@id/thumbnail" />
+
         <TextView
                 android:id="@+id/tvWasLive"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:textSize="14sp"
-                android:paddingLeft="4dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
-                android:paddingRight="4dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/rounded_semitransparent_bg"
                 android:gravity="center"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:textColor="@android:color/white"
-                />
+                android:textSize="14sp" />
 
         <TextView
                 android:id="@+id/txtNumberOfViewers"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
-                android:textSize="14sp"
-                android:text="6,385"
-                android:paddingLeft="4dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
-                android:paddingRight="4dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/rounded_semitransparent_bg"
-                android:gravity="center"
                 android:drawableStart="@drawable/ic_watcher"
+                android:drawableLeft="@drawable/ic_watcher"
+                android:gravity="center"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="6,385"
                 android:textColor="@android:color/white"
-                android:drawableLeft="@drawable/ic_watcher"/>
+                android:textSize="14sp" />
     </LinearLayout>
+
     <Button
             android:id="@+id/btnChooseTrack"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_marginStart="200dp"
-            android:visibility="gone"
             android:text="Choose Track"
-    />
+            android:visibility="gone" />
+
     <ImageButton
             android:id="@+id/exo_pause"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_pause"
             android:background="@drawable/rounded_semitransparent_bg"
             android:padding="10dp"
-            android:scaleType="fitXY"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_pause" />
 
     <ImageView
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_full_screen"
             android:layout_gravity="end|bottom"
-    />
+            android:layout_margin="10dp"
+            android:background="@drawable/ic_full_screen" />
 
-    <include layout="@layout/controller_header"/>
+    <include layout="@layout/controller_header" />
 </FrameLayout>

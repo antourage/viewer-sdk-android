@@ -150,25 +150,29 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     }
 
     protected fun showLoading() {
-        if (loader != null && !loader!!.isRunning) {
-            loader?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    ivLoader.post { loader?.start() }
-                }
-            })
-            loader?.start()
-            isLoaderShowing = true
-            ivLoader.visibility = View.VISIBLE
-            playerControls.hide()
+        loader?.let {
+            if (!it.isRunning) {
+                it.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                    override fun onAnimationEnd(drawable: Drawable?) {
+                        ivLoader.post { it.start() }
+                    }
+                })
+                it.start()
+                isLoaderShowing = true
+                ivLoader.visibility = View.VISIBLE
+                playerControls.hide()
+            }
         }
     }
 
     protected fun hideLoading() {
-        if (ivLoader.visibility == View.VISIBLE && (loader != null && loader!!.isRunning)) {
-            ivLoader.visibility = View.GONE
-            loader?.clearAnimationCallbacks()
-            loader?.stop()
-            isLoaderShowing = false
+        loader?.let {
+            if (ivLoader.visibility == View.VISIBLE && it.isRunning) {
+                ivLoader.visibility = View.GONE
+                it.clearAnimationCallbacks()
+                it.stop()
+                isLoaderShowing = false
+            }
         }
     }
 

@@ -23,24 +23,11 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
-class WeaverViewModel @Inject constructor(application: Application, val repository: Repository) :
+class PlayerViewModel @Inject constructor(application: Application, val repository: Repository) :
     ChatViewModel(application) {
 
     companion object {
         const val NEW_POLL_DELAY_MS = 15000L
-    }
-
-    sealed class PollStatus {
-        object NoPoll : PollStatus()
-        class ActivePoll(val poll: Poll) : PollStatus()
-        class ActivePollDismissed(val pollStatus: String?) : PollStatus()
-        class PollDetails(val pollId: String) : PollStatus()
-    }
-
-    sealed class ChatStatus {
-        object ChatTurnedOff : ChatStatus()
-        object ChatNoMessages : ChatStatus()
-        object ChatMessages : ChatStatus()
     }
 
     var wasStreamInitialized = false
@@ -63,7 +50,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
         resource?.status?.let {
             if (it is Status.Success && it.data != null && isChatTurnedOn) {
-                if (isChatContainsNonstatusMsg(it.data)) {
+                if (isChatContainsNonStatusMsg(it.data)) {
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                     messagesLiveData.postValue(it.data)
                 } else {
@@ -110,7 +97,6 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
     }
 
     fun initUi(streamId: Int?) {
-
         streamId?.let {
             this.streamId = it
             repository.getPollLiveData(streamId).observeForever(activePollObserver)
@@ -124,7 +110,7 @@ class WeaverViewModel @Inject constructor(application: Application, val reposito
         }
     }
 
-    private fun isChatContainsNonstatusMsg(list: List<Message>): Boolean {
+    private fun isChatContainsNonStatusMsg(list: List<Message>): Boolean {
         for (message in list) {
             if (message.type == MessageType.USER) {
                 return true

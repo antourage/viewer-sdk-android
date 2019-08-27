@@ -15,7 +15,7 @@ import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.weaver.WeaverFragment
+import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import kotlinx.android.synthetic.main.controller_header.*
@@ -119,13 +119,13 @@ class VideoFragment : ChatFragment<VideoViewModel>() {
         ll_wrapper.visibility = View.INVISIBLE
         if (context != null)
             tvWasLive.text =
-                arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)
+                arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
                     ?.startTime?.parseDate(context!!)
     }
 
     override fun onControlsVisible() {
 //        if(context != null)
-//            tvWasLive.text = arguments?.getParcelable<StreamResponse>(WeaverFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
+//            tvWasLive.text = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)?.startTime?.parseDate(context!!)
     }
 
 
