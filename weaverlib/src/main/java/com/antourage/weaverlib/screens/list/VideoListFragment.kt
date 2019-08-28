@@ -47,7 +47,6 @@ class VideoListFragment : Fragment() {
 
     //endregion
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

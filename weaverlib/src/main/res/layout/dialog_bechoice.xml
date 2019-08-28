@@ -32,8 +32,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:textColor="@android:color/white"
-            tools:text="@string/local_link"/>
+            android:textColor="@android:color/white"/>
 
         <RadioButton
             android:id="@+id/rb_dev"
@@ -41,8 +40,15 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:textColor="@android:color/white"
-            tools:text="@string/development_link" />
+            android:textColor="@android:color/white"/>
+
+        <RadioButton
+            android:id="@+id/rb_dev_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:textColor="@android:color/white"/>
 
         <RadioButton
             android:id="@+id/rb_staging"
@@ -50,8 +56,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:textColor="@android:color/white"
-            tools:text="@string/staging_link" />
+            android:textColor="@android:color/white" />
 
         <RadioButton
             android:id="@+id/rb_production"
@@ -59,8 +64,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
-            android:textColor="@android:color/white"
-            tools:text="@string/production_link" />
+            android:textColor="@android:color/white" />
 
     </RadioGroup>
     <TextView

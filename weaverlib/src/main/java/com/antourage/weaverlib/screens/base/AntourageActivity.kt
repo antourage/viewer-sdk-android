@@ -21,7 +21,7 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        BASE_URL = UserCache.newInstance().getBeChoice(this)!!
+        BASE_URL = UserCache.newInstance().getBeChoice(this)
         if (intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null) {
             supportFragmentManager.beginTransaction()
                 .replace(

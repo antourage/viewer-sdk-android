@@ -25,7 +25,6 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
 import javax.inject.Inject
@@ -87,8 +86,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     init {
-        BASE_URL = BASE_URL_DEV
         DaggerCacheComponent.create().injectCache(this)
+        BASE_URL = userCache.getBeChoice(context)
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)

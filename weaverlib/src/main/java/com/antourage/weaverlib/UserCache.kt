@@ -3,17 +3,15 @@ package com.antourage.weaverlib
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.preference.PreferenceManager
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV_2
 import java.util.*
 import javax.inject.Inject
 
 class UserCache @Inject constructor() {
     companion object {
-
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val ANT_PREF = "ant_pref"
         private const val SP_BE_CHOICE = "sp_be_choice"
-
         fun newInstance() = UserCache()
     }
 
@@ -44,7 +42,7 @@ class UserCache @Inject constructor() {
 
     fun getBeChoice(context: Context): String? {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-        return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
+        return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV_2)
     }
 
     fun updateBEChoice(context: Context, link: String) {

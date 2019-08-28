@@ -86,7 +86,6 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
             if (numberOfLogoClicks == 1) {
                 showBeDialogLiveData.postValue(false)
                 beDebouncer.run()
-
             }
         }
     }

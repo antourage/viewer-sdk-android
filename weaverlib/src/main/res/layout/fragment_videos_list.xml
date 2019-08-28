@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                       xmlns:tools="http://schemas.android.com/tools"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="match_parent"
-                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                       android:id="@+id/videoRefreshLayout"
-                                                       android:background="@color/bg_color"
-                                                       tools:context=".screens.list.VideoListFragment">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/videoRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_color"
+        tools:context=".screens.list.VideoListFragment">
+
     <android.support.constraint.ConstraintLayout
-            android:layout_height="match_parent"
             android:layout_width="match_parent"
-    >
+            android:layout_height="match_parent">
 
         <ImageButton
                 android:id="@+id/ivClose"
-                android:src="@drawable/ic_close"
-                android:background="@drawable/image_btn_bg"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:background="@drawable/image_btn_bg"
+                android:src="@drawable/ic_close"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription"/>
+                tools:ignore="ContentDescription" />
+
         <View
                 android:id="@+id/viewBEChoice"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-        />
+                app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
                 android:layout_marginStart="40dp"
                 android:layout_marginEnd="40dp"
                 android:text="@string/main_title"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ivClose"
-        />
+                app:layout_constraintTop_toBottomOf="@+id/ivClose" />
+
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/videosRV"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="96dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="96dp"
                 android:layout_marginEnd="20dp"
                 android:paddingLeft="18dp"
                 android:paddingRight="18dp"
-                app:layout_constraintTop_toBottomOf="@+id/tvTitle"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:listitem="@layout/item_broadcast"
-        />
+                app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+                tools:listitem="@layout/item_broadcast" />
     </android.support.constraint.ConstraintLayout>
 </android.support.v4.widget.SwipeRefreshLayout>
