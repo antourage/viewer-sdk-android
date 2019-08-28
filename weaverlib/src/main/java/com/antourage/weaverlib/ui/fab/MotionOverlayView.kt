@@ -21,7 +21,12 @@ class MotionOverlayView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : MotionLayout(context, attrs, defStyleAttr) {
-    private var motionLayout: MotionLayout
+    private var motionLayout: MotionLayout = LayoutInflater.from(context).inflate(
+        R.layout.layout_motion_fab,
+        this,
+        false
+    ) as MotionLayout
+
     private val touchableArea: View
 
     private val clickableArea: View
@@ -35,17 +40,10 @@ class MotionOverlayView @JvmOverloads constructor(
     }
 
     init {
-        motionLayout = LayoutInflater.from(context).inflate(
-            R.layout.layout_motion_fab,
-            this,
-            false
-        ) as MotionLayout
         addView(motionLayout)
-
         touchableArea = motionLayout.findViewById(R.id.fabExpantion)
         clickableArea = motionLayout.findViewById(R.id.fabExpantion)
     }
-
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val isInProgress = (motionLayout.progress > 0.0f && motionLayout.progress < 1.0f)

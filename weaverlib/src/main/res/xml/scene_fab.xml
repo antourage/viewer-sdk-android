@@ -1,16 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:motion="http://schemas.android.com/apk/res-auto">
+        xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition
-            motion:constraintSetStart="@id/start"
             motion:constraintSetEnd="@id/end"
+            motion:constraintSetStart="@id/start"
             motion:duration="1000">
         <OnSwipe
-                motion:touchAnchorId="@+id/fabExpantion"
+                motion:dragDirection="dragLeft"
                 motion:maxAcceleration="25"
-                motion:touchAnchorSide="left"
-                motion:dragDirection="dragLeft" />
+                motion:touchAnchorId="@+id/fabExpantion"
+                motion:touchAnchorSide="left" />
+        <KeyFrameSet>
+            <KeyAttribute
+                    android:alpha="0"
+                    android:scaleX="0.5"
+                    motion:framePosition="70"
+                    motion:motionTarget="@id/tvStreamName" />
+            <KeyAttribute
+                    android:alpha="1"
+                    android:scaleX="1"
+                    motion:framePosition="100"
+                    motion:motionTarget="@id/tvStreamName" />
+
+            <KeyAttribute
+                    android:alpha="0"
+                    android:scaleX="0.5"
+                    motion:framePosition="70"
+                    motion:motionTarget="@id/tvViewers" />
+            <KeyAttribute
+                    android:alpha="1"
+                    android:scaleX="1"
+                    motion:framePosition="100"
+                    motion:motionTarget="@id/tvViewers" />
+
+            <KeyAttribute
+                    android:alpha="0"
+                    android:scaleX="0.5"
+                    motion:framePosition="70"
+                    android:translationX="-40dp"
+                    motion:motionTarget="@id/tvStreamTitle" />
+            <KeyAttribute
+                    android:alpha="1"
+                    android:scaleX="1"
+                    android:translationX="0dp"
+                    motion:framePosition="100"
+                    motion:motionTarget="@id/tvStreamTitle" />
+        </KeyFrameSet>
     </Transition>
     <ConstraintSet android:id="@+id/start">
         <Constraint
@@ -20,31 +56,28 @@
                 android:layout_marginEnd="8dp"
                 motion:layout_constraintBottom_toBottomOf="parent"
                 motion:layout_constraintEnd_toEndOf="parent"
-                motion:layout_constraintTop_toTopOf="parent"/>
+                motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
                 android:id="@+id/tvStreamName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 motion:layout_constraintEnd_toEndOf="@id/fabExpantion"
-                motion:layout_constraintTop_toTopOf="@id/fabExpantion"
-        />
+                motion:layout_constraintTop_toTopOf="@id/fabExpantion" />
         <Constraint
                 android:id="@+id/tvViewers"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 motion:layout_constraintEnd_toEndOf="@id/fabExpantion"
-                motion:layout_constraintTop_toTopOf="@id/fabExpantion"
-        />
+                motion:layout_constraintTop_toTopOf="@id/fabExpantion" />
         <Constraint
                 android:id="@+id/tvStreamTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 motion:layout_constraintEnd_toEndOf="@id/fabExpantion"
-                motion:layout_constraintTop_toTopOf="@id/fabExpantion"
-        />
+                motion:layout_constraintTop_toTopOf="@id/fabExpantion" />
 
     </ConstraintSet>
 
@@ -56,31 +89,31 @@
                 android:layout_marginEnd="8dp"
                 motion:layout_constraintBottom_toBottomOf="parent"
                 motion:layout_constraintEnd_toEndOf="parent"
-                motion:layout_constraintTop_toTopOf="parent"
-        />
+                motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
                 android:id="@+id/tvStreamName"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="visible"
-                motion:layout_constraintTop_toTopOf="@+id/fabExpantion"
+                motion:layout_constraintEnd_toStartOf="@+id/tvViewers"
                 motion:layout_constraintStart_toStartOf="@+id/fabExpantion"
-        />
+                motion:layout_constraintTop_toTopOf="@+id/fabExpantion" />
         <Constraint
                 android:id="@+id/tvViewers"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="80dp"
                 android:visibility="visible"
-                motion:layout_constraintTop_toTopOf="@+id/fabExpantion"
                 motion:layout_constraintEnd_toEndOf="@+id/fabExpantion"
-        />
+                motion:layout_constraintStart_toEndOf="@+id/tvStreamName"
+                motion:layout_constraintTop_toTopOf="@+id/fabExpantion" />
         <Constraint
                 android:id="@+id/tvStreamTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="visible"
-                motion:layout_constraintTop_toBottomOf="@+id/tvStreamName"
+                motion:layout_constraintEnd_toEndOf="@+id/fabExpantion"
                 motion:layout_constraintStart_toStartOf="@+id/fabExpantion"
-        />
+                motion:layout_constraintTop_toBottomOf="@+id/tvStreamName" />
     </ConstraintSet>
 </MotionScene>

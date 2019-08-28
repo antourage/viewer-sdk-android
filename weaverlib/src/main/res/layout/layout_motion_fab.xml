@@ -1,63 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.motion.MotionLayout
+<android.support.constraint.motion.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/expandableLayout"
-        app:layoutDescription="@xml/scene_fab"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:visibility="invisible"
-        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools">
+        app:layoutDescription="@xml/scene_fab"
+        tools:visibility="visible">
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/fabExpantion"
-            android:background="@drawable/rounded_fab_bg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-    />
+            android:background="@drawable/rounded_fab_bg" />
+
     <TextView
             android:id="@+id/tvStreamName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/new_stream"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
             android:paddingStart="24dp"
-            android:paddingEnd="4dp"
             android:paddingTop="8dp"
+            android:paddingEnd="4dp"
+            android:text="@string/new_stream"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            app:layout_constraintTop_toTopOf="@+id/fabExpantion"
+            app:layout_constraintEnd_toStartOf="@+id/tvViewers"
             app:layout_constraintStart_toStartOf="@+id/fabExpantion"
-    />
+            app:layout_constraintTop_toTopOf="@+id/fabExpantion" />
     <!--If hardcoded text deleted, no text shows up on extention after integrating to RN-->
     <TextView
             android:id="@+id/tvViewers"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="6453 Viewers"
+            android:layout_marginEnd="100dp"
+            android:ellipsize="end"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
             android:paddingStart="4dp"
-            android:paddingEnd="80dp"
-            android:paddingBottom="4dp"
             android:paddingTop="8dp"
+            android:paddingBottom="4dp"
+            android:text="6453 Viewers"
             android:textColor="@android:color/white"
-            tools:textColor="@android:color/black"
             android:textSize="12sp"
-            app:layout_constraintTop_toTopOf="@+id/fabExpantion"
             app:layout_constraintEnd_toEndOf="@+id/fabExpantion"
-    />
+            app:layout_constraintStart_toEndOf="@+id/tvStreamName"
+            app:layout_constraintTop_toTopOf="@+id/fabExpantion" />
+
     <TextView
             android:id="@+id/tvStreamTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Naked players on the field"
-            android:textColor="@android:color/white"
+            android:ellipsize="end"
             android:lines="1"
             android:maxWidth="250dp"
-            android:ellipsize="end"
-            android:textSize="16sp"
+            android:maxLines="1"
             android:paddingStart="24dp"
-            android:paddingEnd="76dp"
-            android:paddingBottom="4dp"
             android:paddingTop="4dp"
-            app:layout_constraintTop_toBottomOf="@+id/tvStreamName"
+            android:paddingEnd="90dp"
+            android:paddingBottom="4dp"
+            android:text="Naked players on the field"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@id/fabExpantion"
             app:layout_constraintStart_toStartOf="@id/fabExpantion"
-    />
+            app:layout_constraintTop_toBottomOf="@+id/tvStreamName" />
 </android.support.constraint.motion.MotionLayout>
