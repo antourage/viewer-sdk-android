@@ -41,8 +41,8 @@ class MotionOverlayView @JvmOverloads constructor(
 
     init {
         addView(motionLayout)
-        touchableArea = motionLayout.findViewById(R.id.fabExpantion)
-        clickableArea = motionLayout.findViewById(R.id.fabExpantion)
+        touchableArea = motionLayout.findViewById(R.id.fabExpansion)
+        clickableArea = motionLayout.findViewById(R.id.fabExpansion)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {

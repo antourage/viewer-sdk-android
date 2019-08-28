@@ -10,64 +10,67 @@
         app:layoutDescription="@xml/scene_fab"
         tools:visibility="visible">
 
-    <android.support.constraint.ConstraintLayout
-            android:id="@+id/fabExpantion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <View
+            android:id="@+id/fabExpansion"
+            android:layout_width="274dp"
+            android:layout_height="60dp"
             android:background="@drawable/rounded_fab_bg" />
 
     <TextView
             android:id="@+id/tvStreamName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_light"
             android:includeFontPadding="false"
             android:maxLines="1"
             android:paddingStart="24dp"
-            android:paddingTop="8dp"
             android:paddingEnd="4dp"
             android:text="@string/new_stream"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/tvViewers"
-            app:layout_constraintStart_toStartOf="@+id/fabExpantion"
-            app:layout_constraintTop_toTopOf="@+id/fabExpantion" />
+            app:layout_constraintStart_toStartOf="@id/fabExpansion"
+            app:layout_constraintTop_toTopOf="@id/fabExpansion" />
     <!--If hardcoded text deleted, no text shows up on extention after integrating to RN-->
     <TextView
             android:id="@+id/tvViewers"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="100dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="90dp"
             android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_light"
             android:gravity="end"
             android:includeFontPadding="false"
             android:maxLines="1"
             android:paddingStart="4dp"
-            android:paddingTop="8dp"
             android:paddingBottom="4dp"
             android:text="6453 Viewers"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/fabExpantion"
+            app:layout_constraintEnd_toEndOf="@+id/fabExpansion"
             app:layout_constraintStart_toEndOf="@+id/tvStreamName"
-            app:layout_constraintTop_toTopOf="@+id/fabExpantion" />
+            app:layout_constraintTop_toTopOf="@+id/fabExpansion" />
 
     <TextView
             android:id="@+id/tvStreamTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="100dp"
             android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_regular"
             android:lines="1"
-            android:maxWidth="250dp"
+            android:maxWidth="200dp"
             android:maxLines="1"
             android:paddingStart="24dp"
             android:paddingTop="4dp"
-            android:paddingEnd="90dp"
             android:paddingBottom="4dp"
             android:text="Naked players on the field"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="@id/fabExpantion"
-            app:layout_constraintStart_toStartOf="@id/fabExpantion"
+            app:layout_constraintEnd_toEndOf="@id/fabExpansion"
+            app:layout_constraintStart_toStartOf="@id/fabExpansion"
             app:layout_constraintTop_toBottomOf="@+id/tvStreamName" />
 </android.support.constraint.motion.MotionLayout>
