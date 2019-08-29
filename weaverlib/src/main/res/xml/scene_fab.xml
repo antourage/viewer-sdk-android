@@ -5,7 +5,7 @@
     <Transition
             motion:constraintSetEnd="@id/end"
             motion:constraintSetStart="@id/start"
-            motion:duration="1000">
+            motion:duration="800">
         <OnSwipe
                 motion:dragDirection="dragLeft"
                 motion:maxAcceleration="25"
@@ -51,12 +51,11 @@
     <ConstraintSet android:id="@+id/start">
         <Constraint
                 android:id="@+id/fabExpansion"
-                android:layout_width="54.8dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="10dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="14dp"
                 motion:layout_constraintBottom_toBottomOf="parent"
-                motion:layout_constraintEnd_toEndOf="parent"
-                motion:layout_constraintTop_toTopOf="parent" />
+                motion:layout_constraintEnd_toEndOf="parent" />
         <Constraint
                 android:id="@+id/tvStreamName"
                 android:layout_width="0dp"
@@ -86,11 +85,8 @@
                 android:id="@+id/fabExpansion"
                 android:layout_width="274dp"
                 android:layout_height="60dp"
-                android:layout_marginEnd="8dp"
                 motion:layout_constraintBottom_toBottomOf="parent"
-                motion:layout_constraintEnd_toEndOf="parent"
-                motion:layout_constraintStart_toStartOf="parent"
-                motion:layout_constraintTop_toTopOf="parent" />
+                motion:layout_constraintEnd_toEndOf="parent" />
         <Constraint
                 android:id="@+id/tvStreamName"
                 android:layout_width="0dp"

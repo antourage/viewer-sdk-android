@@ -1,151 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:background="@color/semitransparent"
-             android:id="@+id/exo_controller"
-             android:layout_width="match_parent" android:layout_height="match_parent">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/exo_controller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/semitransparent">
 
     <ImageButton
             android:id="@+id/ivClose"
-            android:src="@drawable/ic_close"
-            android:background="@drawable/image_btn_bg"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_gravity="top|end"
-            tools:ignore="ContentDescription"/>
-    <Button
-            android:id="@+id/btnChooseTrack"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:visibility="gone"
-            android:layout_marginStart="200dp"
-            android:text="Choose Track"
-    />
+            android:background="@drawable/image_btn_bg"
+            android:src="@drawable/ic_close"
+            app:layout_constraintBottom_toBottomOf="@+id/llTopLeftLabels"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/llTopLeftLabels" />
+
     <LinearLayout
+            android:id="@+id/llTopLeftLabels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:orientation="horizontal">
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="12dp"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
         <TextView
                 android:id="@+id/tvWasLive"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:textColor="@android:color/white"
-                android:gravity="center"
-                android:textAllCaps="false"
-                android:textStyle="normal"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp"
-        />
+                style="@style/PlayerControlsTxt"
+                tools:text="3 days ago" />
+
         <TextView
                 android:id="@+id/exo_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:textColor="@android:color/white"
-                android:gravity="center"
-                android:textAllCaps="false"
-                android:textStyle="normal"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp"
-        />
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="4dp"
+                tools:text="12:45" />
+
         <TextView
                 android:id="@+id/txtNumberOfViewers"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:textSize="14sp"
-                tools:text="6,385"
-                android:paddingLeft="4dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                android:paddingRight="4dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:gravity="center"
-                android:drawableStart="@drawable/ic_watcher"
-                android:textColor="@android:color/white"/>
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="4dp"
+                android:drawableStart="@drawable/ic_watcher_12dp"
+                android:drawablePadding="4dp"
+                tools:text="6,385" />
     </LinearLayout>
+
     <ImageButton
             android:id="@+id/exo_play"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
+            style="@style/PlayBtn"
             android:src="@drawable/ic_play_arrow"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="10dp"
-            android:scaleType="fitXY"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+            android:id="@+id/exo_pause"
+            style="@style/PlayBtn"
+            android:src="@drawable/ic_pause"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
             android:id="@+id/exo_next"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            style="@style/PlayerNavigationBtn"
             android:src="@drawable/ic_navigate_next"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:layout_gravity="center|end"
-    />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <ImageButton
             android:id="@+id/exo_prev"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            style="@style/PlayerNavigationBtn"
             android:src="@drawable/ic_navigate_prev"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="5dp"
-            android:scaleType="fitXY"
-            android:layout_gravity="center|start"
-    />
-    <ImageButton
-            android:id="@+id/exo_pause"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_pause"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="10dp"
-            android:scaleType="fitXY"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginBottom="@dimen/margin_portrait"
-            android:layout_marginEnd="@dimen/margin_portrait"
+            android:layout_marginRight="12dp"
             android:background="@drawable/ic_full_screen"
-            android:layout_gravity="end|bottom"
-            tools:ignore="ContentDescription"/>
+            app:layout_constraintBottom_toTopOf="@+id/exo_progress"
+            app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
             android:id="@+id/exo_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:fontFamily="@font/roboto_condensed_regular"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginStart="@dimen/margin_portrait"
-            android:layout_marginBottom="@dimen/margin_portrait"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            app:layout_constraintBottom_toTopOf="@+id/exo_progress"
+            app:layout_constraintLeft_toLeftOf="parent" />
 
     <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@+id/exo_progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             app:buffered_color="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:played_color="@color/pink"
             app:scrubber_color="@android:color/darker_gray"
-            app:unplayed_color="@android:color/white"/>
-    <include layout="@layout/controller_header"/>
-</FrameLayout>
+            app:unplayed_color="@android:color/white" />
+
+    <include
+            layout="@layout/controller_header"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/llTopLeftLabels" />
+</android.support.constraint.ConstraintLayout>

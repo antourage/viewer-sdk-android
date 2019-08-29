@@ -12,11 +12,9 @@ import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.ImageView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
@@ -39,7 +37,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
     private lateinit var ivScreenSize: ImageView
-    private lateinit var btnChooseTrack: Button
     protected lateinit var playerControls: PlayerControlView
     private lateinit var controllerHeaderLayout: ConstraintLayout
 
@@ -71,7 +68,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
             playerView = view.findViewById(R.id.playerView)
             constraintLayoutParent = view.findViewById(R.id.constraintLayoutParent)
             ivScreenSize = view.findViewById(R.id.ivScreenSize)
-            btnChooseTrack = view.findViewById(R.id.btnChooseTrack)
             playerControls = view.findViewById(R.id.controls)
             controllerHeaderLayout = view.findViewById(R.id.controllerHeaderLayout)
             controllerHeaderLayout.visibility = View.GONE
@@ -104,19 +100,6 @@ abstract class StreamingFragment<VM : StreamingViewModel> : BaseFragment<VM>() {
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 }
-            }
-            btnChooseTrack.setOnClickListener {
-                val arrayResolution = viewModel.getStreamGroups()
-                val str: MutableList<String> = mutableListOf()
-                for (i in 0 until arrayResolution.size) {
-                    str.add(arrayResolution[i].width.toString() + "x" + arrayResolution[i].height)
-                }
-                val builder = AlertDialog.Builder(activity!!)
-                builder.setTitle("Pick a resolution")
-                builder.setItems(str.toTypedArray()) { _, which ->
-                    viewModel.onResolutionChanged(which)
-                }
-                builder.show()
             }
         }
     }

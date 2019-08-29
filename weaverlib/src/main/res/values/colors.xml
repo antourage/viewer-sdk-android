@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorAccent">#E36B9D</color>
+    <color name="white">#FFFFFF</color>
     <color name="bg_color_widget">#FF464646</color>
     <color name="bg_color_widget_expantion">#131313</color>
     <color name="bg_color">#222</color>
@@ -10,6 +11,7 @@
     <color name="gray_lighter">#FF848484</color>
     <color name="semitransparent">#66424242</color>
     <color name="halftransparent">#80000000</color>
+    <color name="dark_gray_a40">#66000000</color>
     <color name="green">#04A854</color>
     <color name="bleak_pink">#F8BFAD</color>
     <color name="orange">#F8BC6D</color>

@@ -4,7 +4,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:paddingBottom="20dp">
 
     <com.antourage.weaverlib.ui.fab.BadgeFab
             android:id="@+id/floatingActionButton"
@@ -19,16 +20,16 @@
             app:badgeTextColor="@android:color/white"
             app:borderWidth="0dp"
             app:fabSize="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintLeft_toRightOf="@+id/motionOverlayView"
+            app:layout_constraintRight_toRightOf="@+id/motionOverlayView"
+            app:layout_constraintTop_toTopOf="@+id/motionOverlayView" />
 
     <com.antourage.weaverlib.ui.fab.MotionOverlayView
             android:id="@+id/motionOverlayView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="20dp"
-            app:layout_constraintEnd_toEndOf="@+id/floatingActionButton"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="100dp"
+            android:layout_marginRight="54dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

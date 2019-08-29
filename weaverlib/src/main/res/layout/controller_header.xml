@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tool="http://schemas.android.com/tools"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/controllerHeaderLayout"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="42dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerView">
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp"
+        tools:background="@color/bg_color">
 
     <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivControllerUserPhoto"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="2dp"
             android:src="@drawable/ic_default_user"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,31 +24,34 @@
             android:id="@+id/tvControllerStreamName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginLeft="16dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_regular"
+            android:includeFontPadding="false"
+            android:maxLines="2"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/tvControllerBroadcastedBy"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toTopOf="@+id/tvControllerBroadcastedBy"
             app:layout_constraintLeft_toRightOf="@id/ivControllerUserPhoto"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/ivControllerUserPhoto"
-            app:layout_constraintVertical_chainStyle="packed"
-            tool:text="Olena Soluk" />
+            tools:text="Olena Soluk" />
 
     <TextView
             android:id="@+id/tvControllerBroadcastedBy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="16dp"
             android:ellipsize="end"
-            android:lines="1"
+            android:fontFamily="@font/roboto_condensed_light"
+            android:includeFontPadding="false"
+            android:maxLines="1"
             android:textColor="@android:color/white"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@id/ivControllerUserPhoto"
             app:layout_constraintLeft_toRightOf="@id/ivControllerUserPhoto"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvControllerStreamName"
-            tool:text="my nicname" />
+            tools:text="my nicname" />
+
 </android.support.constraint.ConstraintLayout>

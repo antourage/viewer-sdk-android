@@ -193,31 +193,31 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     }
 
     private fun changeControlsView(isLandscape: Boolean) {
-        if (isLandscape) {
-            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
-                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
-                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0
-            )
-            controls.findViewById<TextView>(R.id.exo_position).setMargins(
-                resources.getDimension(R.dimen.margin_time_landscape).toInt(), 0,
-                0, resources.getDimension(R.dimen.margin_time_landscape).toInt()
-            )
-            ivScreenSize.setMargins(
-                0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
-                resources.getDimension(R.dimen.margin_size_landscape).toInt()
-            )
-        } else {
-            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
-            context?.let { _ ->
-                controls.findViewById<TextView>(R.id.exo_position).setMargins(
-                    resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
-                    0, resources.getDimension(R.dimen.margin_portrait).toInt()
-                )
-                ivScreenSize.setMargins(
-                    0, 0, resources.getDimension(R.dimen.margin_portrait).toInt(),
-                    resources.getDimension(R.dimen.margin_portrait).toInt()
-                )
-            }
-        }
+//        if (isLandscape) {
+//            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
+//                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
+//                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0
+//            )
+//            controls.findViewById<TextView>(R.id.exo_position).setMargins(
+//                resources.getDimension(R.dimen.margin_time_landscape).toInt(), 0,
+//                0, resources.getDimension(R.dimen.margin_time_landscape).toInt()
+//            )
+//            ivScreenSize.setMargins(
+//                0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
+//                resources.getDimension(R.dimen.margin_size_landscape).toInt()
+//            )
+//        } else {
+//            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
+//            context?.let { _ ->
+//                controls.findViewById<TextView>(R.id.exo_position).setMargins(
+//                    resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
+//                    0, resources.getDimension(R.dimen.margin_portrait).toInt()
+//                )
+//                ivScreenSize.setMargins(
+//                    0, 0, resources.getDimension(R.dimen.margin_portrait).toInt(),
+//                    resources.getDimension(R.dimen.margin_portrait).toInt()
+//                )
+//            }
+//        }
     }
 }
