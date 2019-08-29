@@ -5,13 +5,12 @@
         android:id="@+id/constraintLayoutParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bg_color">
-
+        android:background="#000000">
 
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="match_parent"
             android:layout_gravity="top"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -24,7 +23,6 @@
             android:layout_height="0dp"
             android:elevation="10dp"
             app:auto_show="true"
-            app:controller_layout_id="@layout/custom_video_controls"
             app:hide_on_touch="true"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
@@ -43,24 +41,34 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
+    <include
+            layout="@layout/layout_poll_suggestion"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:importantForAccessibility="yes"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <android.support.constraint.ConstraintLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="12dp"
-            android:paddingTop="12dp"
-            android:paddingRight="12dp"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playerView">
 
         <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivUserPhoto"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="2dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:elevation="2dp"
                 android:src="@drawable/ic_default_user"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -70,10 +78,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginRight="10dp"
                 android:textColor="@android:color/white"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
                 app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
                 app:layout_constraintRight_toRightOf="parent"
@@ -87,66 +95,48 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="12dp"
                 android:ellipsize="end"
-                android:gravity="start"
                 android:lines="1"
                 android:textColor="@android:color/white"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
-                app:layout_constraintEnd_toStartOf="@+id/btnShare"
-                app:layout_constraintStart_toEndOf="@id/ivUserPhoto"
+                app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
                 app:layout_constraintTop_toBottomOf="@id/tvStreamName"
-                tools:text=" change often or at alll" />
+                tools:text="my nicname" />
 
-        <ImageButton
-                android:id="@+id/btnShare"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_share_white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <View
-                android:id="@+id/devider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/light_gray_transparent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy" />
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/bottomLayout"
-            android:layout_width="0dp"
+            android:layout_width="300dp"
             android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_gray_bg"
+            android:elevation="5dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playerView" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     <com.antourage.weaverlib.other.ui.CustomDrawerLayout
             android:id="@+id/drawerLayout"
-            android:layout_width="0dp"
+            android:layout_width="300dp"
             android:layout_height="0dp"
+            android:layout_marginTop="20dp"
             android:background="@android:color/transparent"
             android:clickable="false"
             android:elevation="3dp"
             android:focusable="false"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+            app:layout_constraintTop_toTopOf="parent">
 
         <android.support.design.widget.NavigationView
                 android:id="@+id/navView"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:layout_marginRight="-64dp"
@@ -156,9 +146,13 @@
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:clickable="false"
                     android:fadingEdge="horizontal"
                     android:fadingEdgeLength="150dp"
                     android:fillViewport="false"
+                    android:focusable="false"
+                    android:paddingBottom="6dp"
                     android:requiresFadingEdge="vertical" />
         </android.support.design.widget.NavigationView>
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
@@ -167,31 +161,38 @@
             android:id="@+id/deviderChat"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="4dp"
             android:background="@color/light_gray_transparent"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
             android:id="@+id/ll_wrapper"
-            android:layout_width="match_parent"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:background="@color/bg_color"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_semitransparent_bg"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintBottom_toBottomOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="@id/playerView">
 
         <EditText
                 android:id="@+id/etMessage"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="50dp"
                 android:layout_weight="10"
                 android:background="@android:color/transparent"
                 android:hint="@string/say_something"
                 android:imeOptions="flagNoExtractUi"
+                android:inputType="text"
+                android:maxLength="@integer/max_length_message_input"
                 android:paddingStart="8dp"
-                android:paddingLeft="8dp"
                 android:textColor="@android:color/white"
                 android:textColorHint="@color/light_gray_transparent"
                 tools:ignore="RtlSymmetry" />
@@ -200,10 +201,39 @@
                 android:id="@+id/btnSend"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_weight="1"
+                android:layout_weight="0.2"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription" />
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/llPollStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/rounded_green_bg"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                android:src="@drawable/ic_poll_white_transparent"
+                tools:ignore="ContentDescription" />
+
+        <TextView
+                android:id="@+id/txtPollStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

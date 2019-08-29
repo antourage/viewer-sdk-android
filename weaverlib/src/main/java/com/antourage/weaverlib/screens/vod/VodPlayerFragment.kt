@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -13,20 +12,16 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.parseDate
-import com.antourage.weaverlib.other.setMargins
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.DefaultTimeBar
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
-import kotlinx.android.synthetic.main.fragment_chat.etMessage
-import kotlinx.android.synthetic.main.fragment_video.*
-import kotlinx.android.synthetic.main.fragment_video.btnSend
-import kotlinx.android.synthetic.main.fragment_video.deviderChat
-import kotlinx.android.synthetic.main.fragment_video.drawerLayout
-import kotlinx.android.synthetic.main.fragment_video.ll_wrapper
-import kotlinx.android.synthetic.main.fragment_video.navView
+import kotlinx.android.synthetic.main.fragment_vod_player.*
+import kotlinx.android.synthetic.main.fragment_vod_player.btnSend
+import kotlinx.android.synthetic.main.fragment_vod_player.drawerLayout
+import kotlinx.android.synthetic.main.fragment_vod_player.ll_wrapper
+import kotlinx.android.synthetic.main.fragment_vod_player.navView
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
@@ -47,7 +42,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         }
     }
 
-    override fun getLayoutId() = R.layout.fragment_video
+    override fun getLayoutId() = R.layout.fragment_vod_player
 
     //region Observers
     private val streamStateObserver: Observer<Int> = Observer { state ->
@@ -176,12 +171,12 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             etMessage.visibility = View.GONE
             btnSend.visibility = View.GONE
-            deviderChat.visibility = View.GONE
+            dividerChat.visibility = View.GONE
             changeControlsView(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             etMessage.visibility = View.VISIBLE
             btnSend.visibility = View.VISIBLE
-            deviderChat.visibility = View.VISIBLE
+            dividerChat.visibility = View.VISIBLE
             changeControlsView(false)
         }
         ll_wrapper.visibility = View.INVISIBLE

@@ -221,6 +221,7 @@
                         android:fadingEdge="horizontal"
                         android:fadingEdgeLength="150dp"
                         android:fillViewport="false"
+                        android:paddingBottom="6dp"
                         android:requiresFadingEdge="vertical"
                         app:layout_constraintStart_toStartOf="parent" />
             </android.support.constraint.ConstraintLayout>
@@ -273,6 +274,5 @@
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription" />
     </LinearLayout>
-
 
 </android.support.constraint.ConstraintLayout>
