@@ -1,80 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                   xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-                                                   android:layout_height="wrap_content"
-                                                   xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ImageView
-            android:id="@+id/thumbnail"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="0dp">
+
+    <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:scaleType="centerCrop"
-            android:foreground="@drawable/bg_gradient_bottom"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-    />
-    <TextView
-            android:id="@+id/txtStatus"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_pink_bg"
-            android:textColor="@android:color/white"
-            android:text="@string/live"
-            android:textAllCaps="true"
-            android:padding="2dp"
-            android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:layout_margin="8dp"
-            android:textSize="10sp"
-            app:layout_constraintTop_toTopOf="@id/thumbnail"
-            app:layout_constraintStart_toStartOf="@id/thumbnail"
-    />
-    <TextView
-            android:id="@+id/tvWasLive"
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:textSize="14sp"
-            android:paddingLeft="4dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="8dp"
-            android:paddingRight="4dp"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            app:layout_constraintStart_toEndOf="@+id/txtStatus"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
-    />
+            android:foreground="?android:attr/selectableItemBackgroundBorderless">
+
+        <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="0dp"
+                android:layout_height="197dp"
+                android:foreground="@drawable/bg_gradient_bottom"
+                android:scaleType="centerCrop"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+                android:id="@+id/txtStatus"
+                style="@style/PlayerControlsTxt"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_rounded_corners_pink"
+                android:text="@string/live"
+                android:textAllCaps="true"
+                app:layout_constraintLeft_toLeftOf="@+id/thumbnail"
+                app:layout_constraintTop_toTopOf="@+id/thumbnail" />
+
+        <TextView
+                android:id="@+id/tvWasLive"
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
+                app:layout_constraintLeft_toRightOf="@+id/txtStatus"
+                app:layout_constraintTop_toTopOf="@+id/txtStatus"
+                tools:text="5 m ago" />
+
         <TextView
                 android:id="@+id/txtNumberOfViewers"
-                android:layout_width="wrap_content"
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="8dp"
+                android:drawableStart="@drawable/ic_watcher_12dp"
+                android:drawablePadding="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
+                app:layout_constraintLeft_toRightOf="@+id/tvWasLive"
+                app:layout_constraintTop_toTopOf="@+id/txtStatus"
+                tools:text="6,385" />
+
+        <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                tools:text="6,385"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:gravity="center"
-                android:layout_marginStart="8dp"
-                android:drawableStart="@drawable/ic_watcher"
+                android:layout_margin="10dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_condensed_regular"
+                android:maxLines="2"
                 android:textColor="@android:color/white"
-                app:layout_constraintStart_toEndOf="@+id/tvWasLive"
-                app:layout_constraintBottom_toBottomOf="@+id/tvWasLive"
-        />
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:text="Naked players on the field" />
 
-    <TextView
-            android:id="@+id/txtTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_margin="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-    />
-
-</android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>
