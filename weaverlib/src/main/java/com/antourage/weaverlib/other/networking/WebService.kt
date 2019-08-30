@@ -10,4 +10,7 @@ interface WebService {
     //TODO new back end set up to dev
     //GET("channels/live")
     fun getLiveStreams(): LiveData<ApiResponse<List<StreamResponse>>>
+
+    @GET("VODs")
+    fun getVODs(): LiveData<ApiResponse<List<StreamResponse>>>
 }

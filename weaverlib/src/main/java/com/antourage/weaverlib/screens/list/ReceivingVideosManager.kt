@@ -18,12 +18,29 @@ class ReceivingVideosManager {
     companion object {
         private var callback: ReceivingVideoCallback? = null
         const val STREAMS_REQUEST_DELAY = 5000L
-        private var lastReceivedData: Resource<List<StreamResponse>>? = null
+        private var liveVideos: Resource<List<StreamResponse>>? = null
+        private var vods: Resource<List<StreamResponse>>? = null
 
         fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
-            if (lastReceivedData != null)
-                ReceivingVideosManager.callback?.onLiveBroadcastReceived(lastReceivedData!!)
+        }
+
+        fun loadVODs() {
+            val response = Repository(ApiClient.getClient().webService).getVODs()
+            response.observeForever(object :
+                Observer<Resource<List<StreamResponse>>> {
+                override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                    if (resource != null) {
+                        callback?.onVODReceived(resource)
+                        when (resource.status) {
+                            is Status.Failure, is Status.Success -> {
+                                vods = resource
+                                response.removeObserver(this)
+                            }
+                        }
+                    }
+                }
+            })
         }
 
         val handlerCall = Handler()
@@ -32,15 +49,16 @@ class ReceivingVideosManager {
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
                     val streamResponse =
-                        Repository(ApiClient.getClient().webService).getListOfStreams()
+                        Repository(ApiClient.getClient().webService).getLiveVideos()
                     streamResponse.observeForever(object :
                         Observer<Resource<List<StreamResponse>>> {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                             if (resource != null) {
-                                callback?.onLiveBroadcastReceived(resource)
                                 when (resource.status) {
-                                    is Status.Failure, is Status.Success -> {
-                                        lastReceivedData = resource
+                                    is Status.Failure -> streamResponse.removeObserver(this)
+                                    is Status.Success -> {
+                                        callback?.onLiveBroadcastReceived(resource)
+                                        liveVideos = resource
                                         streamResponse.removeObserver(this)
                                     }
                                 }
@@ -62,6 +80,6 @@ class ReceivingVideosManager {
     interface ReceivingVideoCallback {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
-        fun onVODReceived()
+        fun onVODReceived(resource: Resource<List<StreamResponse>>) {}
     }
 }

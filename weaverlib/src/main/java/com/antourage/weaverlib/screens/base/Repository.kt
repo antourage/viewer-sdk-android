@@ -15,11 +15,17 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(val api: WebService) {
 
-    fun getListOfStreams(): LiveData<Resource<List<StreamResponse>>> {
+    fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>, List<StreamResponse>>() {
             override fun shouldFetch(data: List<StreamResponse>?) = true
-
             override fun createCall() = api.getLiveStreams()
+        }.asLiveData()
+    }
+
+    fun getVODs(): LiveData<Resource<List<StreamResponse>>> {
+        return object : NetworkBoundResource<List<StreamResponse>, List<StreamResponse>>() {
+            override fun shouldFetch(data: List<StreamResponse>?) = true
+            override fun createCall() = api.getVODs()
         }.asLiveData()
     }
 

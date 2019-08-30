@@ -35,10 +35,8 @@ class VideoListFragment : Fragment() {
 
     //region Observers
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
-        if (list != null)
-            videoAdapter.setStreamList(list)
+        list?.let { videoAdapter.setStreamList(it) }
         videoRefreshLayout.isRefreshing = false
-
     }
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
@@ -81,7 +79,7 @@ class VideoListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        viewModel.getStreams()
+        viewModel.subscribeToLiveStreams()
     }
 
     private fun initUi(view: View?) {
@@ -103,7 +101,7 @@ class VideoListFragment : Fragment() {
         )
         videosRV.addItemDecoration(dividerItemDecoration)
         videoRefreshLayout.setOnRefreshListener {
-            viewModel.getStreams()
+            viewModel.refreshVODs()
         }
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }

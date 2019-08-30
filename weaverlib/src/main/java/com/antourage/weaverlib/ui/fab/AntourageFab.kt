@@ -222,6 +222,4 @@ class AntourageFab @JvmOverloads constructor(
             }
         }
     }
-
-    override fun onVODReceived() {}
 }

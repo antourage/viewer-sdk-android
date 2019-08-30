@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.util.Log
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.generateRandomViewerNumber
@@ -18,18 +19,21 @@ import javax.inject.Inject
 class VideoListViewModel @Inject constructor(application: Application, val repository: Repository) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
-
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
-    val receivingVideosManager = ReceivingVideosManager()
+    var liveVideos: MutableList<StreamResponse>? = null
+    var vods: List<StreamResponse>? = null
 
+    var liveVideosUpdated = false
+    var vodsUpdated = false
 
-    fun getStreams() {
+    fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
+        refreshVODs()
     }
 
-    fun getListOfVideos() {
-        listOfStreams.postValue(repository.getListOfVideos())
+    fun refreshVODs() {
+        ReceivingVideosManager.loadVODs()
     }
 
     fun onStop() {
@@ -41,25 +45,57 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
         when (resource.status) {
             is Status.Success -> {
-                val list = (resource.status.data)?.toMutableList()
-                list?.let {
-                    for (i in 0 until list.size) {
-                        list[i].isLive = true
-                        list[i].viewerCounter = generateRandomViewerNumber()
+                liveVideos = (resource.status.data)?.toMutableList()
+                Log.d("VOD_TEST", "onLiveVideoReceived: ${liveVideos?.size}")
+                liveVideos?.let {
+                    for (i in 0 until (liveVideos?.size ?: 0)) {
+                        liveVideos?.get(i)?.isLive = true
+                        liveVideos?.get(i)?.viewerCounter = generateRandomViewerNumber()
+                    }
+                    liveVideosUpdated = true
+                    if (vodsUpdated) {
+                        updateVideosList()
                     }
                 }
-                if (list?.size != 0)
-                    list?.add(StreamResponse(-1))
-                list?.addAll(repository.getListOfVideos())
-                listOfStreams.postValue(list)
             }
+            is Status.Loading -> liveVideosUpdated = false
             is Status.Failure -> {
                 error.postValue(resource.status.errorMessage)
             }
         }
     }
 
-    override fun onVODReceived() {}
+    override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
+        when (resource.status) {
+            is Status.Success -> {
+                vods = (resource.status.data)?.toMutableList()
+                vods?.let {
+                    for (i in 0 until (vods?.size ?: 0)) {
+                        vods?.get(i)?.viewerCounter = generateRandomViewerNumber()
+                    }
+                    vodsUpdated = true
+                    if (liveVideosUpdated) {
+                        updateVideosList()
+                    }
+                }
+            }
+            is Status.Loading -> vodsUpdated = false
+            is Status.Failure -> {
+                error.postValue(resource.status.errorMessage)
+            }
+        }
+    }
+
+    private fun updateVideosList() {
+        val resultList = mutableListOf<StreamResponse>()
+        liveVideos?.let { resultList.addAll(it) }
+        if (resultList.size > 0) {
+            Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
+            resultList.add(StreamResponse(-1))
+        }
+        vods?.let { resultList.addAll(it) }
+        listOfStreams.postValue(resultList)
+    }
 
     //region backend choice
     companion object {

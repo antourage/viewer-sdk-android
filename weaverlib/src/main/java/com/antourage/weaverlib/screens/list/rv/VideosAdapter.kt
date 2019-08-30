@@ -2,7 +2,6 @@ package com.antourage.weaverlib.screens.list.rv
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -27,41 +26,36 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     }
 
     fun setStreamList(list: List<StreamResponse>) {
-
-        val tempList: MutableList<StreamResponse?> = list.toMutableList()
-        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
-            StreamListDiffCallback(listOfStreams, tempList)
-        )
-        diffResult.dispatchUpdatesTo(this)
-        this.listOfStreams = tempList
+        listOfStreams.clear()
+        listOfStreams.addAll(list)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
-        if (viewType == VIEW_VOD)
-            return VideoViewHolder(
+        when (viewType) {
+            VIEW_VOD -> return VideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_video,
                     parent,
                     false
                 )
             )
-        else if (viewType == VIEW_LIVE)
-            return VideoViewHolder(
+            VIEW_LIVE -> return VideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_broadcast,
                     parent,
                     false
                 )
             )
-        else
-            return SeparatorViewHolder(
+            else -> return SeparatorViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_separator,
                     parent,
                     false
                 )
             )
+        }
     }
 
     override fun getItemCount(): Int {
