@@ -414,6 +414,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle
             tvControllerBroadcastedBy.text = creatorFullName
+            //TODO: set real viewers number
+            txtNumberOfViewers.text = kotlin.random.Random.nextInt(0, 400).toString()
             setWasLiveText(context?.let { startTime.parseDate(it) })
         }
     }

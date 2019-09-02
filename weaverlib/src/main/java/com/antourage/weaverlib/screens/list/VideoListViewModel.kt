@@ -46,7 +46,6 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
         when (resource.status) {
             is Status.Success -> {
                 liveVideos = (resource.status.data)?.toMutableList()
-                Log.d("VOD_TEST", "onLiveVideoReceived: ${liveVideos?.size}")
                 liveVideos?.let {
                     for (i in 0 until (liveVideos?.size ?: 0)) {
                         liveVideos?.get(i)?.isLive = true
@@ -60,6 +59,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
             }
             is Status.Loading -> liveVideosUpdated = false
             is Status.Failure -> {
+                liveVideosUpdated = true
                 error.postValue(resource.status.errorMessage)
             }
         }
@@ -81,6 +81,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
             }
             is Status.Loading -> vodsUpdated = false
             is Status.Failure -> {
+                vodsUpdated = true
                 error.postValue(resource.status.errorMessage)
             }
         }

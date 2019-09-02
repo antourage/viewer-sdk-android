@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -9,104 +9,80 @@
 
     <ImageButton
             android:id="@+id/ivClose"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_gravity="top|end"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@drawable/image_btn_bg"
             android:src="@drawable/ic_close"
-            tools:ignore="ContentDescription" />
-
-    <ImageButton
-            android:id="@+id/exo_play"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="10dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_play_arrow" />
+            app:layout_constraintBottom_toBottomOf="@+id/llTopLeftLabels"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/llTopLeftLabels" />
 
     <LinearLayout
+            android:id="@+id/llTopLeftLabels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:orientation="horizontal">
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="12dp"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
         <TextView
                 android:id="@+id/txtStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_pink_bg"
-                android:padding="2dp"
-                android:paddingStart="4dp"
-                android:paddingLeft="4dp"
-                android:paddingEnd="4dp"
-                android:paddingRight="4dp"
+                style="@style/PlayerControlsTxt"
+                android:background="@drawable/bg_rounded_corners_pink"
                 android:text="@string/live"
-                android:textAllCaps="true"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="@id/thumbnail"
-                app:layout_constraintTop_toTopOf="@id/thumbnail" />
+                android:textAllCaps="true" />
 
         <TextView
                 android:id="@+id/tvWasLive"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:gravity="center"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="4dp"
+                tools:text="12:45" />
 
         <TextView
                 android:id="@+id/txtNumberOfViewers"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/rounded_semitransparent_bg"
-                android:drawableStart="@drawable/ic_watcher"
-                android:drawableLeft="@drawable/ic_watcher"
-                android:gravity="center"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="6,385"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                style="@style/PlayerControlsTxt"
+                android:layout_marginLeft="4dp"
+                android:drawableStart="@drawable/ic_watcher_12dp"
+                android:drawablePadding="4dp"
+                tools:text="6,385" />
     </LinearLayout>
 
-    <Button
-            android:id="@+id/btnChooseTrack"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginStart="200dp"
-            android:text="Choose Track"
-            android:visibility="gone" />
+    <ImageButton
+            android:id="@+id/exo_play"
+            style="@style/PlayBtn"
+            android:src="@drawable/ic_play_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
             android:id="@+id/exo_pause"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:background="@drawable/rounded_semitransparent_bg"
-            android:padding="10dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_pause" />
+            style="@style/PlayBtn"
+            android:src="@drawable/ic_pause"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_full_screen" />
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/ic_full_screen"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
-    <include layout="@layout/controller_header" />
-</FrameLayout>
+    <include
+            layout="@layout/controller_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/llTopLeftLabels" />
+</android.support.constraint.ConstraintLayout>

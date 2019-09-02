@@ -5,6 +5,7 @@ import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.networking.ApiResponse
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.WebService
@@ -16,15 +17,13 @@ import javax.inject.Inject
 class Repository @Inject constructor(val api: WebService) {
 
     fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
-        return object : NetworkBoundResource<List<StreamResponse>, List<StreamResponse>>() {
-            override fun shouldFetch(data: List<StreamResponse>?) = true
+        return object : NetworkBoundResource<List<StreamResponse>>() {
             override fun createCall() = api.getLiveStreams()
         }.asLiveData()
     }
 
     fun getVODs(): LiveData<Resource<List<StreamResponse>>> {
-        return object : NetworkBoundResource<List<StreamResponse>, List<StreamResponse>>() {
-            override fun shouldFetch(data: List<StreamResponse>?) = true
+        return object : NetworkBoundResource<List<StreamResponse>>() {
             override fun createCall() = api.getVODs()
         }.asLiveData()
     }

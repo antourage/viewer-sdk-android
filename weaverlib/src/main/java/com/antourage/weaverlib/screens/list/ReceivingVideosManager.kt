@@ -31,9 +31,13 @@ class ReceivingVideosManager {
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                     if (resource != null) {
-                        callback?.onVODReceived(resource)
                         when (resource.status) {
-                            is Status.Failure, is Status.Success -> {
+                            is Status.Failure -> {
+                                callback?.onVODReceived(resource)
+                                response.removeObserver(this)
+                            }
+                            is Status.Success -> {
+                                callback?.onVODReceived(resource)
                                 vods = resource
                                 response.removeObserver(this)
                             }
@@ -55,7 +59,10 @@ class ReceivingVideosManager {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                             if (resource != null) {
                                 when (resource.status) {
-                                    is Status.Failure -> streamResponse.removeObserver(this)
+                                    is Status.Failure -> {
+                                        callback?.onLiveBroadcastReceived(resource)
+                                        streamResponse.removeObserver(this)
+                                    }
                                     is Status.Success -> {
                                         callback?.onLiveBroadcastReceived(resource)
                                         liveVideos = resource
