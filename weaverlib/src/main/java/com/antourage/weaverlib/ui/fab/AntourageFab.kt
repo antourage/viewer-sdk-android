@@ -17,7 +17,6 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.DaggerCacheComponent
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -106,6 +105,7 @@ class AntourageFab @JvmOverloads constructor(
         expandableLayout.setTransitionListener(transitionListener)
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
+        ReceivingVideosManager.loadVODs()
     }
 
     override fun onPause() {
@@ -127,8 +127,7 @@ class AntourageFab @JvmOverloads constructor(
 
     fun manageVideos() {
         val seenVideos = userCache.getSeenVideos(context)
-        val nonSeenNumber =
-            Repository.vods?.size ?: 0 - seenVideos.size
+        val nonSeenNumber = (Repository.vods?.size ?: 0) - seenVideos.size
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
         } else
@@ -213,6 +212,23 @@ class AntourageFab @JvmOverloads constructor(
                     listOfStreams = list
                     changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                 } else {
+                    manageVideos()
+                }
+            }
+            is Status.Failure -> {
+                changeBadgeStatus(WidgetStatus.Inactive)
+                BaseViewModel.error.postValue(resource.status.errorMessage)
+            }
+        }
+    }
+
+    override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
+        super.onVODReceived(resource)
+        when (resource.status) {
+            is Status.Success -> {
+                val list = (resource.status.data)?.toMutableList()
+                if (list != null && list.size > 0) {
+                    Repository.vods = list
                     manageVideos()
                 }
             }
