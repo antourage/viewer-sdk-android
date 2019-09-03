@@ -69,7 +69,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
         when (resource.status) {
             is Status.Success -> {
                 vods = (resource.status.data)?.toMutableList()
-                repository.vods = vods
+                Repository.vods = vods
                 vods?.let {
                     for (i in 0 until (vods?.size ?: 0)) {
                         vods?.get(i)?.viewerCounter = generateRandomViewerNumber()

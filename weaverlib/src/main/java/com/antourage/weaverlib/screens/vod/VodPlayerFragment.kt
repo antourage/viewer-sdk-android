@@ -8,6 +8,7 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
+import com.antourage.weaverlib.other.gone
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
@@ -69,13 +70,15 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
-            tvStreamName.text = streamTitle
+            tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorFullName
-            tvControllerStreamName.text = streamTitle
+            tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewerCounter.toString()
             context?.let { context ->
-                tvWasLive.text = startTime?.parseDate(context)
+                val formattedStartTime = startTime?.parseDate(context)
+                tvWasLive.text = formattedStartTime
+                tvWasLive.gone(formattedStartTime.isNullOrEmpty())
                 id?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
             }
         }
@@ -135,8 +138,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
             id?.let { viewModel.setCurrentPlayerPosition(it) }
-//            playerView.player = viewModel.getExoPlayer(videoURL)
-            playerView.player = viewModel.getExoPlayer("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8")
+            playerView.player = viewModel.getExoPlayer(videoURL)
         }
         playerControls.player = playerView.player
     }

@@ -57,7 +57,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     override fun onVideoChanged() {
-        val list: List<StreamResponse> = repository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         messagesLiveData.value = mutableListOf()
         currentVideo.postValue(list[currentWindow])
         player.playWhenReady = true
@@ -68,7 +68,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     private fun findVideoPositionById(videoId: Int): Int {
-        val list: List<StreamResponse> = repository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         for (i in 0 until list.size) {
             if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
@@ -82,17 +82,15 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
      * using this to create playlist. For now, was approved
      */
     override fun getMediaSource(streamUrl: String?): MediaSource? {
-        val list: List<StreamResponse>? = repository.vods
+        val list: List<StreamResponse>? = Repository.vods
         val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
         for (i in 0 until (list?.size ?: 0)) {
-            mediaSources[i] = list?.get(i)?.hlsUrl?.get(0)?.let { buildSimpleMediaSource(it) }
+            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
         }
         return ConcatenatingMediaSource(*mediaSources)
     }
 
-    override fun onStreamStateChanged(playbackState: Int) {
-
-    }
+    override fun onStreamStateChanged(playbackState: Int) {}
 
     /**
      * videos do not play on Android 5 without this additional header. IDK why

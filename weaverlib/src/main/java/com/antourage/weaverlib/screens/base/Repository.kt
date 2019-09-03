@@ -15,7 +15,9 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(val api: WebService) {
 
-    var vods: List<StreamResponse>? = null
+    companion object {
+        var vods: List<StreamResponse>? = null
+    }
 
     fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>>() {
@@ -140,8 +142,9 @@ class Repository @Inject constructor(val api: WebService) {
     data class MessageEmulation(val timestamp: Int, val nickname: String, val text: String)
 
     fun getMessagesList(streamId: Int): List<MessageEmulation> {
-        val map = getChatMapping()
-        return map[streamId] ?: error("no such item")
+//        val map = getChatMapping()
+//        return map[streamId] ?: error("no such item")
+        return listOf()
     }
 
     private fun getChatMapping(): Map<Int, List<MessageEmulation>> {

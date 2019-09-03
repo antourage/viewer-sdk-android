@@ -128,7 +128,7 @@ class AntourageFab @JvmOverloads constructor(
     fun manageVideos() {
         val seenVideos = userCache.getSeenVideos(context)
         val nonSeenNumber =
-            Repository(ApiClient.getClient().webService).vods?.size ?: 0 - seenVideos.size
+            Repository.vods?.size ?: 0 - seenVideos.size
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
         } else
