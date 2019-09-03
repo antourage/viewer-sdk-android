@@ -75,7 +75,7 @@ class AntourageFab @JvmOverloads constructor(
                 if (isSwipeInProgress) {
                     listOfStreams?.let { listOfStreams ->
                         for (stream in listOfStreams) {
-                            setOfDismissed.add(stream.streamId)
+                            stream.id?.let { setOfDismissed.add(it) }
                         }
                     }
                     handlerFab.removeCallbacksAndMessages(null)
@@ -128,7 +128,7 @@ class AntourageFab @JvmOverloads constructor(
     fun manageVideos() {
         val seenVideos = userCache.getSeenVideos(context)
         val nonSeenNumber =
-            Repository(ApiClient.getClient().webService).getListOfVideos().size - seenVideos.size
+            Repository(ApiClient.getClient().webService).vods?.size ?: 0 - seenVideos.size
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
         } else
@@ -154,7 +154,7 @@ class AntourageFab @JvmOverloads constructor(
                                 if (counter > (listOfStreams.size - 1)) {
                                     counter = 0
                                 }
-                                if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
+                                if (!setOfDismissed.contains(listOfStreams[counter].id)) {
                                     currentlyDisplayedStream = listOfStreams[counter]
                                     findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
                                         R.id.tvStreamTitle

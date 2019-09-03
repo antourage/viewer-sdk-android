@@ -55,7 +55,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                         playerControls.show()
                     }
                     arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                        ?.streamId?.let { streamId ->
+                        ?.id?.let { streamId ->
                         viewModel.onVideoStarted(streamId)
                     }
                 }
@@ -75,8 +75,8 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewerCounter.toString()
             context?.let { context ->
-                tvWasLive.text = startTime.parseDate(context)
-                UserCache.newInstance().saveVideoToSeen(context, streamId)
+                tvWasLive.text = startTime?.parseDate(context)
+                id?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
             }
         }
     }
@@ -134,8 +134,9 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     private fun startPlayingStream() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
-            viewModel.setCurrentPlayerPosition(streamId)
-            playerView.player = viewModel.getExoPlayer(hlsUrl[0])
+            id?.let { viewModel.setCurrentPlayerPosition(it) }
+//            playerView.player = viewModel.getExoPlayer(videoURL)
+            playerView.player = viewModel.getExoPlayer("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8")
         }
         playerControls.player = playerView.player
     }

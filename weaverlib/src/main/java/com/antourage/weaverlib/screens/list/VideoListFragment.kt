@@ -83,14 +83,18 @@ class VideoListFragment : Fragment() {
     }
 
     private fun initUi(view: View?) {
-        val onClick: (stream: StreamResponse) -> Unit = {
-            if (it.isLive) {
-                replaceFragment(PlayerFragment.newInstance(it), R.id.mainContent, true)
+        val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
+            if (streamResponse.isLive) {
+                replaceFragment(PlayerFragment.newInstance(streamResponse), R.id.mainContent, true)
             } else {
                 context?.let { context ->
-                    UserCache.newInstance().saveVideoToSeen(context, it.streamId)
+                    streamResponse.id?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
                 }
-                replaceFragment(VodPlayerFragment.newInstance(it), R.id.mainContent, true)
+                replaceFragment(
+                    VodPlayerFragment.newInstance(streamResponse),
+                    R.id.mainContent,
+                    true
+                )
             }
         }
         videoAdapter = VideosAdapter(onClick)

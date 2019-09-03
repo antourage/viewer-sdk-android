@@ -136,7 +136,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         }
                     }
                     if (childFragmentManager.backStackEntryCount == 0)
-                        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let {
+                        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id?.let {
                             PollDetailsFragment.newInstance(
                                 it,
                                 state.pollId
@@ -179,7 +179,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         )
         message.userID =
             FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
-        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { streamId ->
+        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id?.let { streamId ->
             viewModel.addMessage(
                 message,
                 streamId
@@ -409,14 +409,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
-            viewModel.initUi(streamId)
+            viewModel.initUi(id)
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle
             tvControllerBroadcastedBy.text = creatorFullName
             //TODO: set real viewers number
             txtNumberOfViewers.text = kotlin.random.Random.nextInt(0, 400).toString()
-            setWasLiveText(context?.let { startTime.parseDate(it) })
+            setWasLiveText(context?.let { startTime?.parseDate(it) })
         }
     }
 

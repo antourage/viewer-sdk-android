@@ -69,6 +69,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
         when (resource.status) {
             is Status.Success -> {
                 vods = (resource.status.data)?.toMutableList()
+                repository.vods = vods
                 vods?.let {
                     for (i in 0 until (vods?.size ?: 0)) {
                         vods?.get(i)?.viewerCounter = generateRandomViewerNumber()
@@ -92,7 +93,14 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
         liveVideos?.let { resultList.addAll(it) }
         if (resultList.size > 0) {
             Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
-            resultList.add(StreamResponse(-1))
+            resultList.add(
+                StreamResponse(
+                    -1, null, null, null,
+                    null, null, null, null,
+                    null, null, null, null, null,
+                    null, null, false, 0
+                )
+            )
         }
         vods?.let { resultList.addAll(it) }
         listOfStreams.postValue(resultList)

@@ -22,7 +22,7 @@ class StreamListDiffCallback(
     }
 
     override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean {
-        return prevList[oldPos]?.streamId == newList[newPos]?.streamId
+        return prevList[oldPos]?.id == newList[newPos]?.id
     }
 
     override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {

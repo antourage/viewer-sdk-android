@@ -34,20 +34,20 @@
                 android:id="@+id/txtStatus"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/tvWasLive"
+                android:layout_marginTop="8dp"
                 app:layout_constraintLeft_toRightOf="@+id/tvWasLive"
-                app:layout_constraintTop_toTopOf="@+id/tvWasLive"
+                app:layout_constraintTop_toTopOf="@+id/thumbnail"
                 tools:text="1:02" />
 
         <TextView
                 android:id="@+id/txtNumberOfViewers"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
                 android:drawableStart="@drawable/ic_watcher_12dp"
                 android:drawablePadding="4dp"
-                app:layout_constraintBottom_toBottomOf="@+id/txtStatus"
                 app:layout_constraintLeft_toRightOf="@+id/txtStatus"
-                app:layout_constraintTop_toTopOf="@+id/txtStatus"
+                app:layout_constraintTop_toTopOf="@+id/thumbnail"
                 tools:text="6,385" />
 
         <TextView

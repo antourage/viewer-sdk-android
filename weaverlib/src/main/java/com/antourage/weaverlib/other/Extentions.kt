@@ -131,3 +131,11 @@ fun <T : View> T.setMargins(left: Int, top: Int, right: Int, bottom: Int) {
         this.requestLayout()
     }
 }
+
+fun View.visible(visible: Boolean) {
+    this.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+}
+
+fun View.gone(gone: Boolean) {
+    this.visibility = if (gone) View.GONE else View.VISIBLE
+}

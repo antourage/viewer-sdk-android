@@ -5,7 +5,6 @@ import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.networking.ApiResponse
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.WebService
@@ -15,6 +14,8 @@ import java.util.*
 import javax.inject.Inject
 
 class Repository @Inject constructor(val api: WebService) {
+
+    var vods: List<StreamResponse>? = null
 
     fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
         return object : NetworkBoundResource<List<StreamResponse>>() {
@@ -29,103 +30,103 @@ class Repository @Inject constructor(val api: WebService) {
     }
 
     //region videos with chat simulation
-    fun getListOfVideos(): List<StreamResponse> {
-        val list = mutableListOf<StreamResponse>()
-        val baseUrl = "http://18.185.126.11:1935/vod/"
-        list.add(
-            StreamResponse(
-                streamId = 1,
-                streamTitle = "Inside England, with Vauxhall",
-                creatorFullName = "Heading Out for Training",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/1.png",
-                startTime = subtractDays(0),
-                hlsUrl = arrayOf("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8"),
-                duration = 30,
-                viewerCounter = 13553
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 2,
-                streamTitle = "Roommates with Head and Shoulders",
-                creatorFullName = "Kyle Walker and John Stones",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/2.png",
-                startTime = subtractDays(0, 60 * 60 * 4000),
-                hlsUrl = arrayOf(baseUrl + "2. Roommates.mp4/playlist.m3u8"),
-                duration = 19,
-                viewerCounter = 14555
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 3,
-                streamTitle = "Live Coverage",
-                creatorFullName = "England Women vs Sweden Women",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/3.png",
-                startTime = subtractDays(1, 60 * 60 * 4000),
-                hlsUrl = arrayOf(baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8"),
-                duration = 26,
-                viewerCounter = 14235
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 4,
-                streamTitle = "Stars of the Future with Nike",
-                creatorFullName = "U21 5-a-side game",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/4.png",
-                startTime = subtractDays(2),
-                hlsUrl = arrayOf(baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8"),
-                duration = 19,
-                viewerCounter = 4324
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 5,
-                streamTitle = "SupporterReporter",
-                creatorFullName = "Penalties vs Columbia",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/5.png",
-                startTime = subtractDays(3),
-                hlsUrl = arrayOf(baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8"),
-                duration = 29,
-                viewerCounter = 54354
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 6,
-                streamTitle = "Media Day with M&S",
-                creatorFullName = "The squad has been selected",
-                creatorNickname = "",
-                startTime = subtractDays(4),
-                thumbnailUrl = "file:///android_asset/6.png",
-                hlsUrl = arrayOf(baseUrl + "6. Media Day.mp4/playlist.m3u8"),
-                duration = 35,
-                viewerCounter = 234
-            )
-        )
-        list.add(
-            StreamResponse(
-                streamId = 7,
-                streamTitle = "Bud Light’s Alternative Commentary",
-                creatorFullName = "FT Reev and Theo Baker",
-                creatorNickname = "",
-                thumbnailUrl = "file:///android_asset/7.png",
-                startTime = subtractDays(6),
-                hlsUrl = arrayOf(baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8"),
-                duration = 40,
-                viewerCounter = 123
-            )
-        )
-
-        return list
-    }
+//    fun getListOfVideos(): List<StreamResponse> {
+//        val list = mutableListOf<StreamResponse>()
+//        val baseUrl = "http://18.185.126.11:1935/vod/"
+//        list.add(
+//            StreamResponse(
+//                id = 1,
+//                streamTitle = "Inside England, with Vauxhall",
+//                creatorFullName = "Heading Out for Training",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/1.png",
+//                startTime = subtractDays(0),
+//                hlsUrl = arrayOf("http://d382pphprxgdpj.cloudfront.net/ant_api_target_dev_8/channels/000003/index.m3u8"),
+//                duration = "30",
+//                viewerCounter = 13553
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 2,
+//                streamTitle = "Roommates with Head and Shoulders",
+//                creatorFullName = "Kyle Walker and John Stones",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/2.png",
+//                startTime = subtractDays(0, 60 * 60 * 4000),
+//                hlsUrl = arrayOf(baseUrl + "2. Roommates.mp4/playlist.m3u8"),
+//                duration = "19",
+//                viewerCounter = 14555
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 3,
+//                streamTitle = "Live Coverage",
+//                creatorFullName = "England Women vs Sweden Women",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/3.png",
+//                startTime = subtractDays(1, 60 * 60 * 4000),
+//                hlsUrl = arrayOf(baseUrl + "3. England v Sweden LIVE.mp4/playlist.m3u8"),
+//                duration = "26",
+//                viewerCounter = 14235
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 4,
+//                streamTitle = "Stars of the Future with Nike",
+//                creatorFullName = "U21 5-a-side game",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/4.png",
+//                startTime = subtractDays(2),
+//                hlsUrl = arrayOf(baseUrl + "4. England U21 5_a_side.mp4/playlist.m3u8"),
+//                duration = "19",
+//                viewerCounter = 4324
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 5,
+//                streamTitle = "SupporterReporter",
+//                creatorFullName = "Penalties vs Columbia",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/5.png",
+//                startTime = subtractDays(3),
+//                hlsUrl = arrayOf(baseUrl + "5. %23SupporterReporter vs Columbia.mp4/playlist.m3u8"),
+//                duration = "29",
+//                viewerCounter = 54354
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 6,
+//                streamTitle = "Media Day with M&S",
+//                creatorFullName = "The squad has been selected",
+//                creatorNickname = "",
+//                startTime = subtractDays(4),
+//                thumbnailUrl = "file:///android_asset/6.png",
+//                hlsUrl = arrayOf(baseUrl + "6. Media Day.mp4/playlist.m3u8"),
+//                duration = "36",
+//                viewerCounter = 234
+//            )
+//        )
+//        list.add(
+//            StreamResponse(
+//                id = 7,
+//                streamTitle = "Bud Light’s Alternative Commentary",
+//                creatorFullName = "FT Reev and Theo Baker",
+//                creatorNickname = "",
+//                thumbnailUrl = "file:///android_asset/7.png",
+//                startTime = subtractDays(6),
+//                hlsUrl = arrayOf(baseUrl + "7. Alternative Commentary, FT Reev and Theo Baker.mp4/playlist.m3u8"),
+//                duration = "40",
+//                viewerCounter = 123
+//            )
+//        )
+//
+//        return list
+//    }
 
     private fun subtractDays(numberOfDays: Int, minusMin: Int = 0): String {
         val cal = GregorianCalendar.getInstance()

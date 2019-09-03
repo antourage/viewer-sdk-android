@@ -57,7 +57,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     override fun onVideoChanged() {
-        val list: List<StreamResponse> = repository.getListOfVideos()
+        val list: List<StreamResponse> = repository.vods ?: arrayListOf()
         messagesLiveData.value = mutableListOf()
         currentVideo.postValue(list[currentWindow])
         player.playWhenReady = true
@@ -68,9 +68,9 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     private fun findVideoPositionById(videoId: Int): Int {
-        val list: List<StreamResponse> = repository.getListOfVideos()
+        val list: List<StreamResponse> = repository.vods ?: arrayListOf()
         for (i in 0 until list.size) {
-            if (list[i].streamId == videoId) {
+            if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
                 return i
             }
@@ -82,10 +82,10 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
      * using this to create playlist. For now, was approved
      */
     override fun getMediaSource(streamUrl: String?): MediaSource? {
-        val list: List<StreamResponse> = repository.getListOfVideos()
-        val mediaSources = arrayOfNulls<MediaSource>(list.size)
-        for (i in 0 until list.size) {
-            mediaSources[i] = buildSimpleMediaSource(list[i].hlsUrl[0])
+        val list: List<StreamResponse>? = repository.vods
+        val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
+        for (i in 0 until (list?.size ?: 0)) {
+            mediaSources[i] = list?.get(i)?.hlsUrl?.get(0)?.let { buildSimpleMediaSource(it) }
         }
         return ConcatenatingMediaSource(*mediaSources)
     }
