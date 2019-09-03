@@ -11,6 +11,7 @@ import android.os.Parcelable
 import android.support.annotation.Keep
 import android.support.design.stateful.ExtendableSavedState
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.util.Property
@@ -63,7 +64,7 @@ class BadgeFab @JvmOverloads constructor(
         style = Style.FILL_AND_STROKE
         textSize = this@BadgeFab.textSize
         textAlign = Paint.Align.CENTER
-        typeface = Typeface.SANS_SERIF
+        typeface = ResourcesCompat.getFont(context, R.font.roboto_condensed_regular)
     }
     private val textBounds: Rect = run {
         val maxCountText = NORMAL_MAX_COUNT_TEXT
