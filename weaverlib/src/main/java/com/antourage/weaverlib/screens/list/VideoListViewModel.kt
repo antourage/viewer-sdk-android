@@ -36,7 +36,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
         ReceivingVideosManager.loadVODs()
     }
 
-    fun onStop() {
+    fun onPause() {
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()

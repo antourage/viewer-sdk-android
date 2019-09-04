@@ -71,15 +71,15 @@ class VideoListFragment : Fragment() {
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
     }
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.onStop()
-    }
-
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         viewModel.subscribeToLiveStreams()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.onPause()
     }
 
     private fun initUi(view: View?) {
