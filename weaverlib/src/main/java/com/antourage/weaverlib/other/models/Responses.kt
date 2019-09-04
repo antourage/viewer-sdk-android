@@ -48,6 +48,7 @@ data class StreamResponse(
     @field:SerializedName("organisationId") val organisationId: Int?,
     @field:SerializedName("channelId") val channelId: Int?,
     @field:SerializedName("duration") val duration: String?,
+    @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
     var isLive: Boolean = false,
     var viewerCounter: Int = 6385
 ) : Parcelable

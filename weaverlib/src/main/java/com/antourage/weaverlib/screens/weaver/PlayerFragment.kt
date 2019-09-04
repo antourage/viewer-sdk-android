@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.Player
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
@@ -414,6 +415,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle
             tvControllerBroadcastedBy.text = creatorFullName
+            Picasso.get().load(broadcasterPicUrl)
+                .placeholder(R.drawable.ic_default_user)
+                .error(R.drawable.ic_default_user)
+                .into(ivUserPhoto)
+            Picasso.get().load(broadcasterPicUrl)
+                .placeholder(R.drawable.ic_default_user)
+                .error(R.drawable.ic_default_user)
+                .into(ivControllerUserPhoto)
             //TODO: set real viewers number
             txtNumberOfViewers.text = kotlin.random.Random.nextInt(0, 400).toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })

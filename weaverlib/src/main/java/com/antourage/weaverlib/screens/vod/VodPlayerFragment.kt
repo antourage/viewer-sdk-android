@@ -16,6 +16,7 @@ import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_vod_player.*
@@ -75,6 +76,14 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewerCounter.toString()
+            Picasso.get().load(broadcasterPicUrl)
+                .placeholder(R.drawable.ic_default_user)
+                .error(R.drawable.ic_default_user)
+                .into(ivUserPhoto)
+            Picasso.get().load(broadcasterPicUrl)
+                .placeholder(R.drawable.ic_default_user)
+                .error(R.drawable.ic_default_user)
+                .into(ivControllerUserPhoto)
             context?.let { context ->
                 val formattedStartTime = startTime?.parseDate(context)
                 tvWasLive.text = formattedStartTime

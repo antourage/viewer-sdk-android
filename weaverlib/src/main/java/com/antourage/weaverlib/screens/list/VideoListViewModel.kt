@@ -98,7 +98,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
                     -1, null, null, null,
                     null, null, null, null,
                     null, null, null, null, null,
-                    null, null, false, 0
+                    null, null, null, false, 0
                 )
             )
         }
