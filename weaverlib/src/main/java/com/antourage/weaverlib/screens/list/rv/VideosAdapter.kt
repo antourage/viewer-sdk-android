@@ -67,7 +67,9 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         if (holder is VideoViewHolder) {
             val videoItem = listOfStreams[position]
             videoItem?.apply {
-                Picasso.get().load(thumbnailUrl).into(holder.thumbnail)
+                if (!thumbnailUrl.isNullOrEmpty()) {
+                    Picasso.get().load(thumbnailUrl).into(holder.thumbnail)
+                }
                 holder.itemView.setOnClickListener {
                     if (holder.adapterPosition >= 0 && holder.adapterPosition < listOfStreams.size &&
                         holder.adapterPosition != -1
@@ -88,7 +90,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                     }
                     VIEW_VOD -> {
                         holder.txtTitle.text = videoName
-                        holder.txtStatus.text = duration
+                        holder.txtStatus.text = duration?.take(8)
                         holder.txtStatus.gone(duration == null || duration.isEmpty())
                     }
                 }

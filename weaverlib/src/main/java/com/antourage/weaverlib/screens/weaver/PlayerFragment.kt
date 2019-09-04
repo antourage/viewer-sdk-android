@@ -415,14 +415,16 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle
             tvControllerBroadcastedBy.text = creatorFullName
-            Picasso.get().load(broadcasterPicUrl)
-                .placeholder(R.drawable.ic_default_user)
-                .error(R.drawable.ic_default_user)
-                .into(ivUserPhoto)
-            Picasso.get().load(broadcasterPicUrl)
-                .placeholder(R.drawable.ic_default_user)
-                .error(R.drawable.ic_default_user)
-                .into(ivControllerUserPhoto)
+            if (!broadcasterPicUrl.isNullOrEmpty()) {
+                Picasso.get().load(broadcasterPicUrl)
+                    .placeholder(R.drawable.ic_default_user)
+                    .error(R.drawable.ic_default_user)
+                    .into(ivUserPhoto)
+                Picasso.get().load(broadcasterPicUrl)
+                    .placeholder(R.drawable.ic_default_user)
+                    .error(R.drawable.ic_default_user)
+                    .into(ivControllerUserPhoto)
+            }
             //TODO: set real viewers number
             txtNumberOfViewers.text = kotlin.random.Random.nextInt(0, 400).toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })

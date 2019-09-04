@@ -76,14 +76,16 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewerCounter.toString()
-            Picasso.get().load(broadcasterPicUrl)
-                .placeholder(R.drawable.ic_default_user)
-                .error(R.drawable.ic_default_user)
-                .into(ivUserPhoto)
-            Picasso.get().load(broadcasterPicUrl)
-                .placeholder(R.drawable.ic_default_user)
-                .error(R.drawable.ic_default_user)
-                .into(ivControllerUserPhoto)
+            if (!broadcasterPicUrl.isNullOrEmpty()) {
+                Picasso.get().load(broadcasterPicUrl)
+                    .placeholder(R.drawable.ic_default_user)
+                    .error(R.drawable.ic_default_user)
+                    .into(ivUserPhoto)
+                Picasso.get().load(broadcasterPicUrl)
+                    .placeholder(R.drawable.ic_default_user)
+                    .error(R.drawable.ic_default_user)
+                    .into(ivControllerUserPhoto)
+            }
             context?.let { context ->
                 val formattedStartTime = startTime?.parseDate(context)
                 tvWasLive.text = formattedStartTime
