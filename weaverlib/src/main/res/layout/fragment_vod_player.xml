@@ -5,6 +5,7 @@
         android:id="@+id/constraintLayoutParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:background="@color/bg_color">
 
     <com.google.android.exoplayer2.ui.PlayerView
@@ -12,6 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_gravity="top"
+            android:animateLayoutChanges="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:resize_mode="fit"
@@ -21,6 +23,7 @@
             android:id="@+id/controls"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:animateLayoutChanges="true"
             android:elevation="10dp"
             app:auto_show="true"
             app:controller_layout_id="@layout/custom_video_controls"
@@ -141,31 +144,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-            <android.support.constraint.ConstraintLayout
-                    android:id="@+id/llNoChat"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                <include
-                        layout="@layout/layout_no_chat"
+                <android.support.constraint.ConstraintLayout
+                        android:id="@+id/llNoChat"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-            </android.support.constraint.ConstraintLayout>
+                        android:layout_height="match_parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
 
-            <com.antourage.weaverlib.other.ui.FadingRecyclerView
-                    android:id="@+id/rvMessages"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fadingEdge="horizontal"
-                    android:fadingEdgeLength="150dp"
-                    android:fillViewport="false"
-                    android:paddingBottom="6dp"
-                    android:requiresFadingEdge="vertical" />
+                    <include
+                            layout="@layout/layout_no_chat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+
+                <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                        android:id="@+id/rvMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fadingEdge="horizontal"
+                        android:fadingEdgeLength="150dp"
+                        android:fillViewport="false"
+                        android:paddingBottom="6dp"
+                        android:requiresFadingEdge="vertical" />
             </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.NavigationView>
 
