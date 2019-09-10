@@ -136,6 +136,27 @@
                 android:layout_marginRight="-64dp"
                 android:background="@android:color/transparent">
 
+            <android.support.constraint.ConstraintLayout
+                    android:id="@+id/clNavView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+            <android.support.constraint.ConstraintLayout
+                    android:id="@+id/llNoChat"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                <include
+                        layout="@layout/layout_no_chat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+
             <com.antourage.weaverlib.other.ui.FadingRecyclerView
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
@@ -145,7 +166,7 @@
                     android:fillViewport="false"
                     android:paddingBottom="6dp"
                     android:requiresFadingEdge="vertical" />
-
+            </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>

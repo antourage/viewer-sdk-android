@@ -28,7 +28,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
     private var isChatTurnedOn = false
     private var streamId: Int? = null
-    private val chatStatusLiveData: MutableLiveData<ChatStatus>? = null
+    private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private var streamMessagesLiveData: QuerySnapshotLiveData<Message>? = null
 
     private val streamObserver: Observer<Resource<Stream>> = Observer { resource ->
@@ -37,7 +37,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
                 status.data?.apply {
                     isChatTurnedOn = isChatActive
                     if (!isChatTurnedOn) {
-                        chatStatusLiveData?.postValue(ChatStatus.ChatTurnedOff)
+                        chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                     } else {
                         streamMessagesLiveData = repository.getMessages(streamId)
                         streamMessagesLiveData?.observeOnce(messagesObserver)
@@ -53,10 +53,10 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
                 status.data?.let { messages ->
                     if (isChatTurnedOn) {
                         if (chatContainsNonStatusMsg(messages)) {
-                            chatStatusLiveData?.postValue(ChatStatus.ChatMessages)
+                            chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                             messagesLiveData.postValue(messages)
                         } else {
-                            chatStatusLiveData?.postValue(ChatStatus.ChatNoMessages)
+                            chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                         }
                     }
                 }
@@ -74,9 +74,11 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     }
 
     override fun onVideoChanged() {
-        //TODO: handle messages
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
-        currentVideo.postValue(list[currentWindow])
+        val currentVod = list[currentWindow]
+        this.streamId = currentVod.streamId
+        currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
+        currentVideo.postValue(currentVod)
         player.playWhenReady = true
     }
 

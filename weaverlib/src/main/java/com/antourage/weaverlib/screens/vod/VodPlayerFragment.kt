@@ -4,6 +4,9 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.annotation.DrawableRes
+import android.support.annotation.StringRes
+import android.support.v4.content.ContextCompat
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -13,7 +16,9 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.parseDate
+import com.antourage.weaverlib.other.reObserve
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
+import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.squareup.picasso.Picasso
@@ -22,13 +27,12 @@ import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_vod_player.*
 import kotlinx.android.synthetic.main.fragment_vod_player.btnSend
 import kotlinx.android.synthetic.main.fragment_vod_player.drawerLayout
+import kotlinx.android.synthetic.main.fragment_vod_player.etMessage
+import kotlinx.android.synthetic.main.fragment_vod_player.ivUserPhoto
 import kotlinx.android.synthetic.main.fragment_vod_player.ll_wrapper
 import kotlinx.android.synthetic.main.fragment_vod_player.navView
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvBroadcastedBy
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.tvStreamName
+import kotlinx.android.synthetic.main.fragment_vod_player.rvMessages
+import kotlinx.android.synthetic.main.layout_no_chat.*
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
@@ -47,6 +51,26 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     override fun getLayoutId() = R.layout.fragment_vod_player
 
     //region Observers
+    private val chatStateObserver: Observer<ChatStatus> = Observer { state ->
+        if (state != null)
+            when (state) {
+                is ChatStatus.ChatTurnedOff -> {
+                    disableChatUI()
+                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                }
+                is ChatStatus.ChatMessages -> {
+                    enableChatUI()
+                    showRvMessages()
+                    showChatTurnedOffPlaceholder(false)
+                }
+                is ChatStatus.ChatNoMessages -> {
+                    enableChatUI()
+                    hideRvMessages()
+                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                }
+            }
+    }
+
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
             when (state) {
@@ -112,6 +136,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
+        viewModel.getChatStatusLiveData()?.observe(this.viewLifecycleOwner, chatStateObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
             networkStateObserver
@@ -173,6 +198,8 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 drawerLayout.closeDrawer(navView)
             }
         }
+        viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
+        viewModel.getChatStatusLiveData()?.reObserve(this.viewLifecycleOwner, chatStateObserver)
     }
 
     private fun chatUiToLandscape(landscape: Boolean) {
@@ -202,6 +229,69 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         }
         playerControls.player = playerView.player
     }
+
+    //region chatUI helper func
+
+    private fun enableMessageInput(enable: Boolean) {
+        etMessage.isEnabled = enable
+    }
+
+    private fun hideMessageInput() {
+        ll_wrapper.visibility = View.INVISIBLE
+    }
+
+    private fun showMessageInput() {
+        ll_wrapper.visibility = View.VISIBLE
+    }
+
+    private fun removeMessageInput() {
+        ll_wrapper.visibility = View.GONE
+    }
+
+    private fun orientation() = resources.configuration.orientation
+
+    private fun showChatTurnedOffPlaceholder(show: Boolean) {
+        llNoChat.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun setUpNoChatPlaceholder(@DrawableRes drawable: Int, @StringRes text: Int) {
+        ivNoChat.background =
+            context?.let {
+                ContextCompat.getDrawable(
+                    it,
+                    drawable
+                )
+            }
+        txtNoChat.text = getString(text)
+    }
+
+    private fun showRvMessages() {
+        rvMessages.visibility = View.VISIBLE
+    }
+
+    private fun hideRvMessages() {
+        rvMessages.visibility = View.INVISIBLE
+    }
+
+    private fun enableChatUI() {
+        setUpNoChatPlaceholder(
+            R.drawable.ic_chat_no_comments_yet,
+            R.string.no_comments_yet
+        )
+        enableMessageInput(true)
+        showMessageInput()
+    }
+
+    private fun disableChatUI() {
+        setUpNoChatPlaceholder(
+            R.drawable.ic_chat_off_layered,
+            R.string.commenting_off
+        )
+        enableMessageInput(false)
+        hideMessageInput()
+    }
+
+    //endregion
 
     private fun changeControlsView(isLandscape: Boolean) {
 //        if (isLandscape) {
