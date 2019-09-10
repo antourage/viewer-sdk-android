@@ -74,7 +74,7 @@ class AntourageFab @JvmOverloads constructor(
                 if (isSwipeInProgress) {
                     listOfStreams?.let { listOfStreams ->
                         for (stream in listOfStreams) {
-                            stream.id?.let { setOfDismissed.add(it) }
+                            stream.streamId?.let { setOfDismissed.add(it) }
                         }
                     }
                     handlerFab.removeCallbacksAndMessages(null)
@@ -153,7 +153,7 @@ class AntourageFab @JvmOverloads constructor(
                                 if (counter > (listOfStreams.size - 1)) {
                                     counter = 0
                                 }
-                                if (!setOfDismissed.contains(listOfStreams[counter].id)) {
+                                if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
                                     currentlyDisplayedStream = listOfStreams[counter]
                                     findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
                                         R.id.tvStreamTitle

@@ -26,7 +26,35 @@ data class Message(
     var type: Int? = null,
     var timestamp: Timestamp? = null,
     var userID: String? = null
-) : FirestoreModel()
+) : FirestoreModel() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Message
+
+        if (avatarUrl != other.avatarUrl) return false
+        if (email != other.email) return false
+        if (nickname != other.nickname) return false
+        if (text != other.text) return false
+        if (type != other.type) return false
+        if (timestamp != other.timestamp) return false
+        if (userID != other.userID) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = avatarUrl?.hashCode() ?: 0
+        result = 31 * result + (email?.hashCode() ?: 0)
+        result = 31 * result + (nickname?.hashCode() ?: 0)
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (type ?: 0)
+        result = 31 * result + (timestamp?.hashCode() ?: 0)
+        result = 31 * result + (userID?.hashCode() ?: 0)
+        return result
+    }
+}
 
 @Keep
 @IgnoreExtraProperties

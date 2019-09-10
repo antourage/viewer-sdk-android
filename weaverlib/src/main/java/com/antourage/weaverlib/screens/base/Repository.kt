@@ -19,17 +19,16 @@ class Repository @Inject constructor(val api: WebService) {
         var vods: List<StreamResponse>? = null
     }
 
-    fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
-        return object : NetworkBoundResource<List<StreamResponse>>() {
+    fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
+        object : NetworkBoundResource<List<StreamResponse>>() {
             override fun createCall() = api.getLiveStreams()
         }.asLiveData()
-    }
 
-    fun getVODs(): LiveData<Resource<List<StreamResponse>>> {
-        return object : NetworkBoundResource<List<StreamResponse>>() {
+
+    fun getVODs(): LiveData<Resource<List<StreamResponse>>> =
+        object : NetworkBoundResource<List<StreamResponse>>() {
             override fun createCall() = api.getVODs()
         }.asLiveData()
-    }
 
     //region videos with chat simulation
 //    fun getListOfVideos(): List<StreamResponse> {
@@ -140,12 +139,6 @@ class Repository @Inject constructor(val api: WebService) {
     }
 
     data class MessageEmulation(val timestamp: Int, val nickname: String, val text: String)
-
-    fun getMessagesList(streamId: Int): List<MessageEmulation> {
-//        val map = getChatMapping()
-//        return map[streamId] ?: error("no such item")
-        return listOf()
-    }
 
     private fun getChatMapping(): Map<Int, List<MessageEmulation>> {
         return mapOf(
@@ -571,12 +564,12 @@ class Repository @Inject constructor(val api: WebService) {
         )
     }
 
-    fun getStreamLiveData(streamId: Int): QuerySnapshotValueLiveData<Stream> {
+    fun getStream(streamId: Int): QuerySnapshotValueLiveData<Stream> {
         val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
         return QuerySnapshotValueLiveData(docRef, Stream::class.java)
     }
 
-    fun getPollLiveData(streamId: Int): QuerySnapshotLiveData<Poll> {
+    fun getPoll(streamId: Int): QuerySnapshotLiveData<Poll> {
         return QuerySnapshotLiveData(
             FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive", true),
             Poll::class.java

@@ -15,16 +15,21 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
-import com.antourage.weaverlib.screens.base.streaming.StreamingFragment
+import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
 import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
 
 /**
  * handles Chat visibility
  */
-abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),
+abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
     protected var isChatDismissed: Boolean = false
+
+    private lateinit var rvMessages: RecyclerView
+    private lateinit var drawerLayout: CustomDrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var llMessageWrapper: LinearLayout
 
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
@@ -32,12 +37,8 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),
             (rvMessages.adapter as MessagesAdapter).setMessageList(list)
         }
     }
-    //endregion
 
-    private lateinit var rvMessages: RecyclerView
-    private lateinit var drawerLayout: CustomDrawerLayout
-    private lateinit var navigationView: NavigationView
-    private lateinit var llMessageWrapper: LinearLayout
+    //endregion
 
     override fun onDrawerTouch() {
         handleControlsVisibility()
@@ -45,21 +46,47 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),
 
     override fun initUi(view: View?) {
         super.initUi(view)
-        if (view != null) {
-            drawerLayout = view.findViewById(R.id.drawerLayout)
-            drawerLayout.touchListener = this
-            navigationView = view.findViewById(R.id.navView)
-            rvMessages = view.findViewById(R.id.rvMessages)
-            llMessageWrapper = view.findViewById(R.id.ll_wrapper)
-            initMessagesRV()
-            initNavigationView()
+        view?.apply {
+            drawerLayout = findViewById(R.id.drawerLayout)
+            drawerLayout.touchListener = this@ChatFragment
+            navigationView = findViewById(R.id.navView)
+            rvMessages = findViewById(R.id.rvMessages)
+            llMessageWrapper = findViewById(R.id.ll_wrapper)
+        }
+        initMessagesRV()
+        initNavigationView()
+    }
+
+    override fun subscribeToObservers() {
+        viewModel.getMessagesLiveData().observe(this.viewLifecycleOwner, messagesObserver)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val newOrientation = newConfig.orientation
+        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            rvMessages.isVerticalFadingEdgeEnabled = true
+            rvMessages.adapter =
+                MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
+            if (viewModel.getMessagesLiveData().value != null)
+                (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
+            rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            rvMessages.isVerticalFadingEdgeEnabled = false
+            rvMessages.adapter =
+                MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
+            (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
         }
     }
 
     private fun initNavigationView() {
-        drawerLayout.setScrimColor(Color.TRANSPARENT)
-        drawerLayout.openDrawer(navigationView)
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+        drawerLayout.apply {
+            setScrimColor(Color.TRANSPARENT)
+            openDrawer(navigationView)
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+        }
         navigationView.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -92,37 +119,13 @@ abstract class ChatFragment<VM : ChatViewModel> : StreamingFragment<VM>(),
     }
 
     private fun initMessagesRV() {
-        val linearLayoutManager = ChatLayoutManager(
-            context
-        )
+        val linearLayoutManager = ChatLayoutManager(context)
         linearLayoutManager.stackFromEnd = true
-        rvMessages.overScrollMode = View.OVER_SCROLL_NEVER
-        rvMessages.isVerticalFadingEdgeEnabled = false
-        rvMessages.layoutManager = linearLayoutManager
-        rvMessages.adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
-    }
-
-    override fun subscribeToObservers() {
-        viewModel.getMessagesLiveData().observe(this.viewLifecycleOwner, messagesObserver)
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        val newOrientation = newConfig.orientation
-        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            rvMessages.isVerticalFadingEdgeEnabled = true
-            rvMessages.adapter =
-                MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
-            if (viewModel.getMessagesLiveData().value != null)
-                (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
-            rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            rvMessages.isVerticalFadingEdgeEnabled = false
-            rvMessages.adapter =
-                MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
-            (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+        rvMessages.apply {
+            overScrollMode = View.OVER_SCROLL_NEVER
+            isVerticalFadingEdgeEnabled = false
+            layoutManager = linearLayoutManager
+            adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
         }
     }
 }

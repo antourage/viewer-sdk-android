@@ -10,17 +10,20 @@ import com.google.firebase.auth.FirebaseAuth
  * Need to figure out a way to handle login error
  */
 class FirebaseLoginService {
-    private var auth: FirebaseAuth = FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
+    private var auth: FirebaseAuth =
+        FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
 
-    fun handleSignIn(){
-        if (!isLoggedInToFirebase()){
+    fun handleSignIn() {
+        if (!isLoggedInToFirebase()) {
             signInAnonymously()
         }
     }
-    private fun isLoggedInToFirebase():Boolean{
+
+    private fun isLoggedInToFirebase(): Boolean {
         val currentUser = auth.currentUser
         return currentUser != null
     }
+
     private fun signInAnonymously() {
         auth.signInAnonymously()
             .addOnSuccessListener {

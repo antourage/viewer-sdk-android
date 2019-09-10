@@ -88,7 +88,7 @@ class VideoListFragment : Fragment() {
                 replaceFragment(PlayerFragment.newInstance(streamResponse), R.id.mainContent, true)
             } else {
                 context?.let { context ->
-                    streamResponse.id?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
+                    streamResponse.streamId?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
                 }
                 replaceFragment(
                     VodPlayerFragment.newInstance(streamResponse),

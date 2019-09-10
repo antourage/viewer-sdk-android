@@ -127,7 +127,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
 
     override fun getItemViewType(position: Int): Int {
         if (position < itemCount) {
-            if (listOfStreams[position]?.id == -1) {
+            if (listOfStreams[position]?.streamId == -1) {
                 return VIEW_SEPARATOR
             }
             if (listOfStreams[position]?.isLive == true) {

@@ -3,65 +3,88 @@ package com.antourage.weaverlib.screens.vod
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.net.Uri
-import android.os.Handler
+import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.MessageType
+import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
-import com.google.firebase.Timestamp
 import okhttp3.OkHttpClient
-import java.util.*
 import javax.inject.Inject
 
 class VideoViewModel @Inject constructor(application: Application, val repository: Repository) :
     ChatViewModel(application) {
 
-    fun onVideoStarted(streamId: Int) {
-        val handler = Handler()
+    private var isChatTurnedOn = false
+    private var streamId: Int? = null
+    private val chatStatusLiveData: MutableLiveData<ChatStatus>? = null
+    private var streamMessagesLiveData: QuerySnapshotLiveData<Message>? = null
 
-        val runnable = object : Runnable {
-            override fun run() {
-                val pos = (player.currentPosition / 1000) - 1
-                val list = repository.getMessagesList(currentWindow + 1)
-                val listToDisplay = mutableListOf<Message>()
-                for (i in 0 until list.size) {
-                    if ((list[i].timestamp - 1) <= pos) {
-                        val msg = Message(
-                            "", list[i].nickname,
-                            list[i].nickname, list[i].text, MessageType.USER, Timestamp(Date())
-                        )
-                        msg.id = list[i].timestamp.toString()
-                        listToDisplay.add(msg)
+    private val streamObserver: Observer<Resource<Stream>> = Observer { resource ->
+        when (val status = resource?.status) {
+            is Status.Success -> {
+                status.data?.apply {
+                    isChatTurnedOn = isChatActive
+                    if (!isChatTurnedOn) {
+                        chatStatusLiveData?.postValue(ChatStatus.ChatTurnedOff)
+                    } else {
+                        streamMessagesLiveData = repository.getMessages(streamId)
+                        streamMessagesLiveData?.observeOnce(messagesObserver)
                     }
                 }
-                messagesLiveData.value = listToDisplay
-                // Repeat every  seconds
-                handler.postDelayed(this, 500)
             }
         }
+    }
 
-        handler.post(runnable)
+    private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
+        when (val status = resource?.status) {
+            is Status.Success -> {
+                status.data?.let { messages ->
+                    if (isChatTurnedOn) {
+                        if (chatContainsNonStatusMsg(messages)) {
+                            chatStatusLiveData?.postValue(ChatStatus.ChatMessages)
+                            messagesLiveData.postValue(messages)
+                        } else {
+                            chatStatusLiveData?.postValue(ChatStatus.ChatNoMessages)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
-    fun getCurrentVideo(): LiveData<StreamResponse> {
-        return currentVideo
+    fun initUi(streamId: Int?) {
+        streamId?.let {
+            this.streamId = it
+            repository.getStream(streamId).observeOnce(streamObserver)
+        }
     }
 
     override fun onVideoChanged() {
+        //TODO: handle messages
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
-        messagesLiveData.value = mutableListOf()
         currentVideo.postValue(list[currentWindow])
         player.playWhenReady = true
     }
+
+    fun getChatStatusLiveData(): MutableLiveData<ChatStatus>? = chatStatusLiveData
+
+    fun onVideoStarted(streamId: Int) {}
+
+    fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
 
     fun setCurrentPlayerPosition(videoId: Int) {
         currentWindow = findVideoPositionById(videoId)
@@ -70,7 +93,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     private fun findVideoPositionById(videoId: Int): Int {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         for (i in 0 until list.size) {
-            if (list[i].id == videoId) {
+            if (list[i].streamId == videoId) {
                 currentVideo.postValue(list[i])
                 return i
             }
@@ -96,7 +119,6 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
      * videos do not play on Android 5 without this additional header. IDK why
      */
     private fun buildSimpleMediaSource(uri: String): MediaSource {
-
         val okHttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor { chain ->
                 val request = chain.request().newBuilder().addHeader("Connection", "close").build()

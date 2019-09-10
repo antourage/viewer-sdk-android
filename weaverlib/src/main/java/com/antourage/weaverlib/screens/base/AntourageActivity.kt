@@ -22,25 +22,25 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         BASE_URL = UserCache.newInstance().getBeChoice(this)
-        if (intent?.extras?.getParcelable<StreamResponse>(ARGS_STREAM_SELECTED) != null) {
-            supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.mainContent,
-                    PlayerFragment.newInstance(intent.getParcelableExtra(ARGS_STREAM_SELECTED))
-                )
-                .commit()
-        } else
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.mainContent, VideoListFragment.newInstance()).commit()
+
+        val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.mainContent,
+                if (streamToWatch != null)
+                    PlayerFragment.newInstance(streamToWatch)
+                else VideoListFragment.newInstance()
+            )
+            .commit()
+
         FirebaseLoginService().handleSignIn()
         setupKeyboardListener(findViewById(R.id.mainContent))
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupKeyboardListener(view: View) {
-
-        if (!(view is EditText)) {
-            view.setOnTouchListener { v, event ->
+        if (view !is EditText) {
+            view.setOnTouchListener { _, _ ->
                 hideSoftKeyboard()
                 false
             }
@@ -53,21 +53,18 @@ class AntourageActivity : AppCompatActivity() {
     }
 
     fun hideSoftKeyboard() {
-        val inputMethodManager = getSystemService(
-            Activity.INPUT_METHOD_SERVICE
-        ) as InputMethodManager
-        if (currentFocus != null)
-            inputMethodManager.hideSoftInputFromWindow(
-                currentFocus?.windowToken, 0
-            )
-
+        val inputMethodManager =
+            getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (currentFocus != null) {
+            inputMethodManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
     }
 
     // in branch additional_features
     override fun onUserLeaveHint() {
         //TODO uncomment and enable
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-//            && supportFragmentManager.findFragmentById(R.id.mainContent) is StreamingFragment<*>
+//            && supportFragmentManager.findFragmentById(R.id.mainContent) is BasePlayerFragment<*>
 //        ) {
 //            enterPictureInPictureMode(
 //                with(PictureInPictureParams.Builder()) {

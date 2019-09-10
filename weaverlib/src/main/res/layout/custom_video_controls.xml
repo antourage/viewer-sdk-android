@@ -33,6 +33,8 @@
                 style="@style/PlayerControlsTxt"
                 tools:text="3 days ago" />
 
+        <!--        this TextView's text value is set buy exo player lib, that is why-->
+        <!--        you should not change its id-->
         <TextView
                 android:id="@+id/exo_duration"
                 style="@style/PlayerControlsTxt"

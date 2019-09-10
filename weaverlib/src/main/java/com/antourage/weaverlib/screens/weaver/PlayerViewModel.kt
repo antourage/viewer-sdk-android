@@ -50,7 +50,7 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
         resource?.status?.let {
             if (it is Status.Success && it.data != null && isChatTurnedOn) {
-                if (isChatContainsNonStatusMsg(it.data)) {
+                if (chatContainsNonStatusMsg(it.data)) {
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                     messagesLiveData.postValue(it.data)
                 } else {
@@ -99,8 +99,8 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
     fun initUi(streamId: Int?) {
         streamId?.let {
             this.streamId = it
-            repository.getPollLiveData(streamId).observeForever(activePollObserver)
-            repository.getStreamLiveData(streamId).observeForever(streamObserver)
+            repository.getPoll(streamId).observeForever(activePollObserver)
+            repository.getStream(streamId).observeForever(streamObserver)
         }
     }
 
@@ -108,15 +108,6 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
         currentPoll?.let {
             pollStatusLiveData.value = (PollStatus.PollDetails(it.id))
         }
-    }
-
-    private fun isChatContainsNonStatusMsg(list: List<Message>): Boolean {
-        for (message in list) {
-            if (message.type == MessageType.USER) {
-                return true
-            }
-        }
-        return false
     }
 
     fun startNewPollCoundown() {

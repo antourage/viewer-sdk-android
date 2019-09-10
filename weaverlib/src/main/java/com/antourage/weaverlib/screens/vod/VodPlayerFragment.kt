@@ -57,7 +57,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                         playerControls.show()
                     }
                     arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                        ?.id?.let { streamId ->
+                        ?.streamId?.let { streamId ->
                         viewModel.onVideoStarted(streamId)
                     }
                 }
@@ -90,7 +90,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 val formattedStartTime = startTime?.parseDate(context)
                 tvWasLive.text = formattedStartTime
                 tvWasLive.gone(formattedStartTime.isNullOrEmpty())
-                id?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
+                streamId?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
             }
         }
     }
@@ -100,7 +100,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             viewModel.onNetworkGained()
         }
     }
-
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,33 +124,11 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         startPlayingStream()
         handleChat()
         ll_wrapper.visibility = View.INVISIBLE
-        tvWasLive.text =
-            context?.let {
-                arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-                    ?.startTime?.parseDate(it)
-            }
-    }
-
-    override fun onControlsVisible() {
-        tvWasLive.text = context?.let { context ->
-            arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-                ?.startTime?.parseDate(context)
-        }
-    }
-
-    private fun handleChat() {
-        etMessage.isEnabled = false
-        btnSend.isEnabled = false
-        etMessage.hint = getString(R.string.chat_not_available)
-    }
-
-    private fun startPlayingStream() {
-        val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+        val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
-            id?.let { viewModel.setCurrentPlayerPosition(it) }
-            playerView.player = viewModel.getExoPlayer(videoURL)
+            tvWasLive.text = context?.let { startTime?.parseDate(it) }
+            viewModel.initUi(streamId)
         }
-        playerControls.player = playerView.player
     }
 
     override fun onResume() {
@@ -179,26 +156,51 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         viewModel.releasePlayer()
     }
 
+    override fun onControlsVisible() {
+        tvWasLive.text = context?.let { context ->
+            arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
+                ?.startTime?.parseDate(context)
+        }
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
-        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            etMessage.visibility = View.GONE
-            btnSend.visibility = View.GONE
-            dividerChat.visibility = View.GONE
-            changeControlsView(true)
-        } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            etMessage.visibility = View.VISIBLE
-            btnSend.visibility = View.VISIBLE
-            dividerChat.visibility = View.VISIBLE
-            changeControlsView(false)
-        }
+        chatUiToLandscape(newOrientation == Configuration.ORIENTATION_LANDSCAPE)
         ll_wrapper.visibility = View.INVISIBLE
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (isChatDismissed) {
                 drawerLayout.closeDrawer(navView)
             }
         }
+    }
+
+    private fun chatUiToLandscape(landscape: Boolean) {
+        if (landscape) {
+            etMessage.visibility = View.GONE
+            btnSend.visibility = View.GONE
+            dividerChat.visibility = View.GONE
+        } else {
+            etMessage.visibility = View.VISIBLE
+            btnSend.visibility = View.VISIBLE
+            dividerChat.visibility = View.VISIBLE
+        }
+        changeControlsView(landscape)
+    }
+
+    private fun handleChat() {
+        etMessage.isEnabled = false
+        btnSend.isEnabled = false
+        etMessage.hint = getString(R.string.chat_not_available)
+    }
+
+    private fun startPlayingStream() {
+        val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+        streamResponse?.apply {
+            streamId?.let { viewModel.setCurrentPlayerPosition(it) }
+            playerView.player = viewModel.getExoPlayer(videoURL)
+        }
+        playerControls.player = playerView.player
     }
 
     private fun changeControlsView(isLandscape: Boolean) {

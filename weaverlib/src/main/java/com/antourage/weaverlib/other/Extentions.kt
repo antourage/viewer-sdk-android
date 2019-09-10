@@ -16,6 +16,8 @@ import android.view.ViewTreeObserver
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -138,4 +140,15 @@ fun View.visible(visible: Boolean) {
 
 fun View.gone(gone: Boolean) {
     this.visibility = if (gone) View.GONE else View.VISIBLE
+}
+
+fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
+    observeForever(object : Observer<Resource<T>> {
+        override fun onChanged(resource: Resource<T>?) {
+            observer.onChanged(resource)
+            when (resource?.status) {
+                is Status.Success, is Status.Failure -> removeObserver(this)
+            }
+        }
+    })
 }
