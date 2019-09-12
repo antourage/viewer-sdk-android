@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.list.rv
 
 import android.content.Context
 import android.os.Bundle
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,7 @@ import com.squareup.picasso.Picasso
 
 class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var listOfStreams: MutableList<StreamResponse?> = mutableListOf()
+    private var listOfStreams: MutableList<StreamResponse?> = mutableListOf()
     lateinit var context: Context
 
     companion object {
@@ -26,10 +27,13 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         const val VIEW_SEPARATOR = 2
     }
 
-    fun setStreamList(list: List<StreamResponse>) {
-        listOfStreams.clear()
-        listOfStreams.addAll(list)
-        notifyDataSetChanged()
+    fun setStreamList(newListOfStreams: List<StreamResponse>) {
+        val diffCallback = StreamItemDiffCallback(this.listOfStreams, newListOfStreams)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        this.listOfStreams.clear()
+        this.listOfStreams.addAll(newListOfStreams)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

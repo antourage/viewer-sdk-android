@@ -95,7 +95,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
             Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
             resultList.add(
                 StreamResponse(
-                    -1, null, null, null,
+                    -1, -1, null, null,
                     null, null, null, null,
                     null, null, null, null, null,
                     null, null, null, false, 0

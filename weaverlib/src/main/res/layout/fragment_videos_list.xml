@@ -5,12 +5,14 @@
         android:id="@+id/videoRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:background="@color/bg_color"
         tools:context=".screens.list.VideoListFragment">
 
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true">
 
         <ImageButton
                 android:id="@+id/ivClose"
