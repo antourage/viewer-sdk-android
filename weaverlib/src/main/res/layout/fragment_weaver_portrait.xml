@@ -5,8 +5,8 @@
         android:id="@+id/constraintLayoutParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bg_color"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:background="@color/bg_color">
 
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
@@ -32,6 +32,17 @@
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@id/playerView" />
+
+    <TextView
+            android:id="@+id/txtLabelLive"
+            style="@style/PlayerControlsTxt"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_rounded_corners_pink"
+            android:text="@string/live"
+            android:textAllCaps="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
             android:id="@+id/ivLoader"

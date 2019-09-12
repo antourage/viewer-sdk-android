@@ -22,6 +22,7 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
+import com.antourage.weaverlib.other.ui.keyboard.convertDpToPx
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
@@ -37,6 +38,7 @@ import kotlinx.android.synthetic.main.layout_no_chat.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_control.*
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * Be careful not to create multiple instances of player
@@ -215,6 +217,24 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initStreamInfo(arguments?.getParcelable<StreamResponse>(ARGS_STREAM))
         initClickListeners()
         initKeyboardListener()
+        initLabelLive()
+    }
+
+    /**
+     * method used to position player controls in proper way according to "Live" label's location
+     * as this label should not disappear with all the other player controls (so they are
+     * located in different layouts, but at the same time
+     * other views should depend ot "Live" label's size
+     * */
+    private fun initLabelLive() {
+        txtLabelLive.post {
+            val marginLeft =
+                (txtLabelLive?.width ?: 0) + (context?.convertDpToPx(12f)?.roundToInt() ?: 0)
+            val marginTop = (context?.convertDpToPx(10f)?.roundToInt() ?: 0)
+            if (marginLeft > 0) {
+                llTopLeftLabels.setMargins(marginLeft, marginTop, 0, 0)
+            }
+        }
     }
 
     private fun initKeyboardListener() {
