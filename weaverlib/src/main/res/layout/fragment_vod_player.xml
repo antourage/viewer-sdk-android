@@ -190,6 +190,7 @@
             android:layout_height="wrap_content"
             android:background="@color/bg_color"
             android:orientation="horizontal"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 

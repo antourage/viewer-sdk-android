@@ -132,7 +132,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
         startPlayingStream()
         handleChat()
-        ll_wrapper.visibility = View.INVISIBLE
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
@@ -181,7 +180,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
         chatUiToLandscape(newOrientation == Configuration.ORIENTATION_LANDSCAPE)
-        ll_wrapper.visibility = View.INVISIBLE
 
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
