@@ -17,6 +17,7 @@ import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
@@ -38,27 +39,36 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     private val messagesHandler = Handler()
     private val messagesRunnable = object : Runnable {
         override fun run() {
-            val shownMessagesOldSize = shownMessages.size
-            shownMessages.clear()
-            if (userProcessedMessages.isNotEmpty()) {
-                for (message in userProcessedMessages) {
-                    message.pushTimeMills?.let { pushedTimeMills ->
-                        if (player.currentPosition >= pushedTimeMills) {
-                            shownMessages.add(message)
-                        }
+            manageShownMessages()
+            messagesHandler.postDelayed(this, 100)
+        }
+    }
+
+    private val messagesSingleEventRunnable = Runnable {
+        manageShownMessages()
+        messagesHandler.removeCallbacksAndMessages(null)
+    }
+
+    private fun manageShownMessages() {
+        val shownMessagesOldSize = shownMessages.size
+        shownMessages.clear()
+        if (userProcessedMessages.isNotEmpty()) {
+            for (message in userProcessedMessages) {
+                message.pushTimeMills?.let { pushedTimeMills ->
+                    if (player.currentPosition >= pushedTimeMills) {
+                        shownMessages.add(message)
                     }
                 }
             }
-            val shownMessagesNewSize = shownMessages.size
-            if (shownMessagesOldSize == 0 && shownMessagesNewSize > 0) {
-                chatStateLiveData.postValue(false)
-            } else if (shownMessagesOldSize > 0 && shownMessagesNewSize == 0) {
-                chatStateLiveData.postValue(true)
-            }
-            shownMessages.sortBy { it.pushTimeMills }
-            messagesLiveData.postValue(shownMessages)
-            messagesHandler.postDelayed(this, 100)
         }
+        val shownMessagesNewSize = shownMessages.size
+        if (shownMessagesOldSize == 0 && shownMessagesNewSize > 0) {
+            chatStateLiveData.postValue(false)
+        } else if (shownMessagesOldSize > 0 && shownMessagesNewSize == 0) {
+            chatStateLiveData.postValue(true)
+        }
+        shownMessages.sortBy { it.pushTimeMills }
+        messagesLiveData.postValue(shownMessages)
     }
 
     private val streamObserver: Observer<Resource<Stream>> = Observer { resource ->
@@ -106,17 +116,17 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
-        player.playWhenReady = true
+        if (player.playWhenReady && player.playbackState == Player.STATE_READY)
+            player.playWhenReady = true
     }
 
     fun onVideoStarted(streamId: Int) {
-        if (player.playWhenReady) {
-            messagesHandler.post(messagesRunnable)
-        }
+        messagesHandler.post(messagesRunnable)
     }
 
     fun onVideoPausedOrStopped() {
-        stopMonitoringChatMessages()
+        messagesHandler.post(messagesSingleEventRunnable)
+//        stopMonitoringChatMessages()
     }
 
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
