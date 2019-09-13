@@ -5,60 +5,71 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.net.Uri
+import android.os.Handler
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.observeOnce
+import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
-import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import okhttp3.OkHttpClient
+import java.util.*
 import javax.inject.Inject
 
 class VideoViewModel @Inject constructor(application: Application, val repository: Repository) :
     ChatViewModel(application) {
 
-    private var isChatTurnedOn = false
     private var streamId: Int? = null
-    private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
-    private var streamMessagesLiveData: QuerySnapshotLiveData<Message>? = null
+    private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
+    private var startTime: Date? = null
+    private var userProcessedMessages = mutableListOf<Message>()
+    private var shownMessages = mutableListOf<Message>()
+    private val messagesHandler = Handler()
+    private val messagesRunnable = object : Runnable {
+        override fun run() {
+            shownMessages.clear()
+            if (userProcessedMessages.isNotEmpty()) {
+                for (message in userProcessedMessages) {
+                    message.pushTimeMills?.let { pushedTimeMills ->
+                        if (player.currentPosition >= pushedTimeMills) {
+                            shownMessages.add(message)
+                        }
+                    }
+                }
+            }
+            shownMessages.sortBy { it.pushTimeMills }
+            messagesLiveData.postValue(shownMessages)
+            messagesHandler.postDelayed(this, 100)
+        }
+    }
 
     private val streamObserver: Observer<Resource<Stream>> = Observer { resource ->
         when (val status = resource?.status) {
             is Status.Success -> {
                 status.data?.apply {
-                    isChatTurnedOn = isChatActive
-                    if (!isChatTurnedOn) {
-                        chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
-                    } else {
-                        streamMessagesLiveData = repository.getMessages(streamId)
-                        streamMessagesLiveData?.observeOnce(messagesObserver)
-                    }
+                    chatDataLiveData =
+                        this@VideoViewModel.streamId?.let { repository.getMessages(it) }
+                    chatDataLiveData?.observeOnce(chatDataObserver)
                 }
             }
         }
     }
 
-    private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
+    private val chatDataObserver: Observer<Resource<List<Message>>> = Observer { resource ->
         when (val status = resource?.status) {
             is Status.Success -> {
                 status.data?.let { messages ->
-                    if (isChatTurnedOn) {
-                        if (chatContainsNonStatusMsg(messages)) {
-                            chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-                            messagesLiveData.postValue(messages)
-                        } else {
-                            chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
-                        }
-                    }
+                    processVODsChat(messages)
                 }
             }
         }
@@ -66,11 +77,17 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
-    fun initUi(streamId: Int?) {
+    fun initUi(streamId: Int?, startTime: String?) {
+        this.startTime = startTime?.parseToDate()
         streamId?.let {
             this.streamId = it
             repository.getStream(streamId).observeOnce(streamObserver)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopMonitoringChatMessages()
     }
 
     override fun onVideoChanged() {
@@ -82,9 +99,15 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         player.playWhenReady = true
     }
 
-    fun getChatStatusLiveData(): MutableLiveData<ChatStatus>? = chatStatusLiveData
+    fun onVideoStarted(streamId: Int) {
+        if (player.playWhenReady) {
+            messagesHandler.post(messagesRunnable)
+        }
+    }
 
-    fun onVideoStarted(streamId: Int) {}
+    fun onVideoPausedOrStopped() {
+        stopMonitoringChatMessages()
+    }
 
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
 
@@ -133,4 +156,23 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(Uri.parse(uri))
     }
+
+    private fun processVODsChat(
+        messages: List<Message>
+    ) {
+        val pushedMessages = mutableListOf<Message>()
+        pushedMessages.addAll(messagesLiveData.value ?: mutableListOf())
+        val userMessages = messages.filter { it.type == MessageType.USER }
+        for (message in userMessages) {
+            message.pushTimeMills = ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
+        }
+        userProcessedMessages.clear()
+        userProcessedMessages.addAll(userMessages)
+    }
+
+    private fun stopMonitoringChatMessages() {
+        messagesHandler.removeCallbacksAndMessages(null)
+    }
 }
+
+

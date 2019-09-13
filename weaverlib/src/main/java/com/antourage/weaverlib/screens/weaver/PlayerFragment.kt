@@ -5,6 +5,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat

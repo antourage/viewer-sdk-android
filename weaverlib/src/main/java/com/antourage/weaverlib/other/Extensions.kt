@@ -19,6 +19,9 @@ import com.antourage.weaverlib.di.DaggerApplicationComponent
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
@@ -151,4 +154,8 @@ fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
             }
         }
     })
+}
+
+fun String.parseToDate(): Date? {
+    return convertUtcToLocal(this)
 }

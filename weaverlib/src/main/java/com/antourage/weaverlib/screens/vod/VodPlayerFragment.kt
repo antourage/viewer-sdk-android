@@ -25,13 +25,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.controller_header.*
 import kotlinx.android.synthetic.main.custom_video_controls.*
 import kotlinx.android.synthetic.main.fragment_vod_player.*
-import kotlinx.android.synthetic.main.fragment_vod_player.btnSend
-import kotlinx.android.synthetic.main.fragment_vod_player.drawerLayout
-import kotlinx.android.synthetic.main.fragment_vod_player.etMessage
-import kotlinx.android.synthetic.main.fragment_vod_player.ivUserPhoto
-import kotlinx.android.synthetic.main.fragment_vod_player.ll_wrapper
-import kotlinx.android.synthetic.main.fragment_vod_player.navView
-import kotlinx.android.synthetic.main.fragment_vod_player.rvMessages
 import kotlinx.android.synthetic.main.layout_no_chat.*
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
@@ -79,15 +72,18 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                     hideLoading()
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
-                    }
-                    arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                        ?.streamId?.let { streamId ->
-                        viewModel.onVideoStarted(streamId)
+                        viewModel.onVideoPausedOrStopped()
+                    } else {
+                        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+                            ?.streamId?.let { streamId ->
+                            viewModel.onVideoStarted(streamId)
+                        }
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
                 Player.STATE_ENDED -> {
                     viewModel.removeStatisticsListeners()
+                    viewModel.onVideoPausedOrStopped()
                     hideLoading()
                 }
             }
@@ -136,7 +132,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
-        viewModel.getChatStatusLiveData()?.observe(this.viewLifecycleOwner, chatStateObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
             networkStateObserver
@@ -152,7 +147,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
-            viewModel.initUi(streamId)
+            viewModel.initUi(streamId, startTime)
         }
     }
 
@@ -199,7 +194,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             }
         }
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
-        viewModel.getChatStatusLiveData()?.reObserve(this.viewLifecycleOwner, chatStateObserver)
     }
 
     private fun chatUiToLandscape(landscape: Boolean) {

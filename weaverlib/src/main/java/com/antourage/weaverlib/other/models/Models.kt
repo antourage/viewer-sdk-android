@@ -25,7 +25,8 @@ data class Message(
     var text: String? = null,
     var type: Int? = null,
     var timestamp: Timestamp? = null,
-    var userID: String? = null
+    var userID: String? = null,
+    var pushTimeMills: Long? = null
 ) : FirestoreModel() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

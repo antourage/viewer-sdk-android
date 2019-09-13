@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base.player
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.util.Log
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
@@ -41,7 +42,7 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         }
     }
 
-    fun onPause() {
+    open fun onPause() {
         removeStatisticsListeners()
         player.playWhenReady = false
     }
