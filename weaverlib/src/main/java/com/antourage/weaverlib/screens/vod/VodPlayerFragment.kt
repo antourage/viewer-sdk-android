@@ -18,7 +18,6 @@ import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.reObserve
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.squareup.picasso.Picasso
@@ -42,27 +41,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     }
 
     override fun getLayoutId() = R.layout.fragment_vod_player
-
-    //region Observers
-    private val chatStateObserver: Observer<ChatStatus> = Observer { state ->
-        if (state != null)
-            when (state) {
-                is ChatStatus.ChatTurnedOff -> {
-                    disableChatUI()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
-                }
-                is ChatStatus.ChatMessages -> {
-                    enableChatUI()
-                    showRvMessages()
-                    showChatTurnedOffPlaceholder(false)
-                }
-                is ChatStatus.ChatNoMessages -> {
-                    enableChatUI()
-                    hideRvMessages()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
-                }
-            }
-    }
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -115,6 +93,16 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         }
     }
 
+    private val chatStateObserver: Observer<Boolean> = Observer { showNoMessagesPlaceholder ->
+        if (showNoMessagesPlaceholder == true) {
+            if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+                showChatTurnedOffPlaceholder(true)
+            }
+        } else {
+            showChatTurnedOffPlaceholder(false)
+        }
+    }
+
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             viewModel.onNetworkGained()
@@ -132,6 +120,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
+        viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
             networkStateObserver
@@ -149,6 +138,11 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
             viewModel.initUi(streamId, startTime)
         }
+        setUpNoChatPlaceholder(
+            R.drawable.ic_chat_no_comments_yet,
+            R.string.no_comments_yet
+        )
+//        showChatTurnedOffPlaceholder(orientation() ==  Configuration.ORIENTATION_PORTRAIT)
     }
 
     override fun onResume() {
@@ -188,11 +182,21 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val newOrientation = newConfig.orientation
         chatUiToLandscape(newOrientation == Configuration.ORIENTATION_LANDSCAPE)
         ll_wrapper.visibility = View.INVISIBLE
-        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (isChatDismissed) {
-                drawerLayout.closeDrawer(navView)
+
+        when (newOrientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                if (isChatDismissed) {
+                    drawerLayout.closeDrawer(navView)
+                }
+                showChatTurnedOffPlaceholder(false)
+            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                if (viewModel.getChatStateLiveData().value == true) {
+                    showChatTurnedOffPlaceholder(true)
+                }
             }
         }
+
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
     }
 

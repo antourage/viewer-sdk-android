@@ -31,12 +31,14 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
     private var streamId: Int? = null
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
+    private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
     private var userProcessedMessages = mutableListOf<Message>()
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private val messagesRunnable = object : Runnable {
         override fun run() {
+            val shownMessagesOldSize = shownMessages.size
             shownMessages.clear()
             if (userProcessedMessages.isNotEmpty()) {
                 for (message in userProcessedMessages) {
@@ -46,6 +48,12 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
                         }
                     }
                 }
+            }
+            val shownMessagesNewSize = shownMessages.size
+            if (shownMessagesOldSize == 0 && shownMessagesNewSize > 0) {
+                chatStateLiveData.postValue(false)
+            } else if (shownMessagesOldSize > 0 && shownMessagesNewSize == 0) {
+                chatStateLiveData.postValue(true)
             }
             shownMessages.sortBy { it.pushTimeMills }
             messagesLiveData.postValue(shownMessages)
@@ -83,6 +91,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
             this.streamId = it
             repository.getStream(streamId).observeOnce(streamObserver)
         }
+        chatStateLiveData.postValue(true)
     }
 
     override fun onPause() {
@@ -115,6 +124,8 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     fun setCurrentPlayerPosition(videoId: Int) {
         currentWindow = findVideoPositionById(videoId)
     }
+
+    fun getChatStateLiveData() = chatStateLiveData
 
     private fun findVideoPositionById(videoId: Int): Int {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
@@ -165,7 +176,8 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         pushedMessages.addAll(messagesLiveData.value ?: mutableListOf())
         val userMessages = messages.filter { it.type == MessageType.USER }
         for (message in userMessages) {
-            message.pushTimeMills = ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
+            message.pushTimeMills =
+                ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
         }
         userProcessedMessages.clear()
         userProcessedMessages.addAll(userMessages)
