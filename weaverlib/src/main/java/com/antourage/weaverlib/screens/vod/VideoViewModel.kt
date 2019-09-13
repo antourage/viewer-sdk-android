@@ -94,6 +94,7 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         this.streamId = currentVod.streamId
+        this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
         player.playWhenReady = true
