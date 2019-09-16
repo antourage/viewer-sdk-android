@@ -11,8 +11,10 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
+import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
@@ -126,6 +128,10 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
             adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
+            val dividerItemDecoration = MarginItemDecoration(
+                dp2px(context, 20f).toInt()
+            )
+            addItemDecoration(dividerItemDecoration)
         }
     }
 }

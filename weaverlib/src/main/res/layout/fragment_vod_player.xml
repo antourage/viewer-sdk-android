@@ -167,8 +167,8 @@
                         android:fadingEdge="horizontal"
                         android:fadingEdgeLength="150dp"
                         android:fillViewport="false"
-                        android:paddingBottom="6dp"
-                        android:requiresFadingEdge="vertical" />
+                        android:requiresFadingEdge="vertical"
+                        tools:listitem="@layout/item_message" />
             </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.NavigationView>
 
