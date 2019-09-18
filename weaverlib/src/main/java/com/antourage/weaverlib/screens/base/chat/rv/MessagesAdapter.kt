@@ -44,8 +44,8 @@ class MessagesAdapter(var list: List<Message>, val orientation: Int) :
         val userMessagesList = newList.filter { it.type == MessageType.USER }
         val diffResult = DiffUtil.calculateDiff(MessageListDiffUtilCallback(list, userMessagesList))
 
-        this.list = userMessagesList
         diffResult.dispatchUpdatesTo(this)
+        this.list = userMessagesList
     }
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

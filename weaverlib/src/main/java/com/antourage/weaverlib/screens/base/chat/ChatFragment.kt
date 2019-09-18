@@ -39,7 +39,7 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
-            updateMessagesList(list)
+            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
         }
     }
 
