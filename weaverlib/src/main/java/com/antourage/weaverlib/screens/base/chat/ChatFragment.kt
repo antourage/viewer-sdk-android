@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.base.chat
 
 import android.arch.lifecycle.Observer
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.support.design.widget.NavigationView
@@ -13,12 +14,14 @@ import android.widget.LinearLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.orientation
+import com.antourage.weaverlib.other.ui.ChatItemDecoratorLandscape
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
 /**
  * handles Chat visibility
@@ -36,7 +39,7 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
-            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
+            updateMessagesList(list)
         }
     }
 
@@ -67,19 +70,14 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            rvMessages.isVerticalFadingEdgeEnabled = true
-            rvMessages.adapter =
-                MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
-            if (viewModel.getMessagesLiveData().value != null)
-                (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
-            rvMessages.smoothScrollToPosition(rvMessages.adapter!!.itemCount)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            context?.let { setLandscapeUI(it) }
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
             rvMessages.adapter =
                 MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
-            (rvMessages.adapter as MessagesAdapter).setMessageList(viewModel.getMessagesLiveData().value!!)
+            updateMessagesList(viewModel.getMessagesLiveData().value!!)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+            context?.let { initMessagesDivider(it, false) }
         }
     }
 
@@ -128,10 +126,46 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
             adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
-            val dividerItemDecoration = MarginItemDecoration(
-                dp2px(context, 20f).toInt()
-            )
-            addItemDecoration(dividerItemDecoration)
+            initMessagesDivider(context, orientation() == Configuration.ORIENTATION_LANDSCAPE)
+        }
+    }
+
+    private fun setLandscapeUI(context: Context) {
+        rvMessages.apply {
+            isVerticalFadingEdgeEnabled = true
+            adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
+
+            val messages = viewModel.getMessagesLiveData().value
+            updateMessagesList(messages?.let { it } ?: listOf())
+
+//            rvMessages.adapter?.itemCount?.let { smoothScrollToPosition(it) }
+        }
+        initMessagesDivider(context, true)
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    }
+
+    private fun initMessagesDivider(context: Context, landscape: Boolean) {
+        val dividerDecorator = if (landscape) ChatItemDecoratorLandscape(
+            dp2px(context, 5f).toInt(),
+            dp2px(context, 12f).toInt(),
+            dp2px(context, 0f).toInt(),
+            dp2px(context, 12f).toInt(),
+            dp2px(context, 5f).toInt()
+        ) else MarginItemDecoration(
+            dp2px(context, 20f).toInt()
+        )
+        rvMessages.apply {
+            if (itemDecorationCount > 0)
+                removeItemDecorationAt(0)
+            addItemDecoration(dividerDecorator)
+        }
+    }
+
+    private fun updateMessagesList(list: List<Message>) {
+        rvMessages.apply {
+            val recyclerViewState = layoutManager?.onSaveInstanceState()
+            (adapter as MessagesAdapter).setMessageList(list)
+            layoutManager?.onRestoreInstanceState(recyclerViewState)
         }
     }
 }

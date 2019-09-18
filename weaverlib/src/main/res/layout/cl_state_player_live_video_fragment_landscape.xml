@@ -107,7 +107,7 @@
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
     <View
-            android:id="@+id/deviderChat"
+            android:id="@+id/dividerChat"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="4dp"

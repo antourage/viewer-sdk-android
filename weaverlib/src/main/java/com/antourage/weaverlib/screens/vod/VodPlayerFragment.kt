@@ -11,6 +11,7 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
+import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.gone
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
@@ -21,10 +22,11 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.controller_header.*
-import kotlinx.android.synthetic.main.custom_video_controls.*
-import kotlinx.android.synthetic.main.fragment_vod_player.*
-import kotlinx.android.synthetic.main.layout_no_chat.*
+import kotlinx.android.synthetic.main.broadcaster_header.*
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
+import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
+import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import kotlin.math.roundToInt
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
@@ -40,7 +42,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         }
     }
 
-    override fun getLayoutId() = R.layout.fragment_vod_player
+    override fun getLayoutId() = R.layout.fragment_player_vod_portrait
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -129,7 +131,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
     override fun initUi(view: View?) {
         super.initUi(view)
-        constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_video_screen)
+        constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_vod)
         startPlayingStream()
         handleChat()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
@@ -290,7 +292,15 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     //endregion
 
     private fun changeControlsView(isLandscape: Boolean) {
-//        if (isLandscape) {
+        context?.apply {
+            rvMessages.setPadding(
+                dp2px(this, 0f).roundToInt(),
+                dp2px(this, 0f).roundToInt(),
+                dp2px(this, 0f).roundToInt(),
+                dp2px(this, if (isLandscape) 15f else 0f).roundToInt()
+            )
+        }
+        if (isLandscape) {
 //            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
 //                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
 //                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0
@@ -303,7 +313,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 //                0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
 //                resources.getDimension(R.dimen.margin_size_landscape).toInt()
 //            )
-//        } else {
+        } else {
 //            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
 //            context?.let { _ ->
 //                controls.findViewById<TextView>(R.id.exo_position).setMargins(
@@ -315,6 +325,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 //                    resources.getDimension(R.dimen.margin_portrait).toInt()
 //                )
 //            }
-//        }
+        }
     }
 }

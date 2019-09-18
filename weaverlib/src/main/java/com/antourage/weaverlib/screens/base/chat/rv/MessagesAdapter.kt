@@ -19,7 +19,7 @@ class MessagesAdapter(var list: List<Message>, val orientation: Int) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MessageViewHolder(
         LayoutInflater.from(parent.context).inflate(
             if (orientation == Configuration.ORIENTATION_PORTRAIT)
-                R.layout.item_message else R.layout.item_message_fullscreen,
+                R.layout.item_message_portrait else R.layout.item_message_landscape,
             parent, false
         )
     )
@@ -42,11 +42,10 @@ class MessagesAdapter(var list: List<Message>, val orientation: Int) :
 
     fun setMessageList(newList: List<Message>) {
         val userMessagesList = newList.filter { it.type == MessageType.USER }
-        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(
-            MessageListDiffUtilCallback(list, userMessagesList)
-        )
-        diffResult.dispatchUpdatesTo(this)
+        val diffResult = DiffUtil.calculateDiff(MessageListDiffUtilCallback(list, userMessagesList))
+
         this.list = userMessagesList
+        diffResult.dispatchUpdatesTo(this)
     }
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

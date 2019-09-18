@@ -58,7 +58,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-                tools:listitem="@layout/item_broadcast" />
+                tools:listitem="@layout/item_live_video" />
 
     </android.support.constraint.ConstraintLayout>
 

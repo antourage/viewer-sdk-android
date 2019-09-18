@@ -27,7 +27,7 @@
             android:layout_height="0dp"
             android:animateLayoutChanges="true"
             android:elevation="10dp"
-            app:controller_layout_id="@layout/player_custom_control"
+            app:controller_layout_id="@layout/player_custom_controls_live_video"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
@@ -165,7 +165,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />
 
     <View
-            android:id="@+id/devider"
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="20dp"
@@ -199,7 +199,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/devider">
+            app:layout_constraintTop_toBottomOf="@+id/divider">
 
         <android.support.design.widget.NavigationView
                 android:id="@+id/navView"
@@ -222,7 +222,7 @@
                         app:layout_constraintStart_toStartOf="parent">
 
                     <include
-                            layout="@layout/layout_no_chat"
+                            layout="@layout/layout_empty_chat_placeholder"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -246,7 +246,7 @@
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
     <View
-            android:id="@+id/deviderChat"
+            android:id="@+id/dividerChat"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="4dp"

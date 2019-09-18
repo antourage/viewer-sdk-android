@@ -5,7 +5,6 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
@@ -32,12 +31,12 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.controller_header.*
+import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
-import kotlinx.android.synthetic.main.fragment_weaver_portrait.*
-import kotlinx.android.synthetic.main.layout_no_chat.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
-import kotlinx.android.synthetic.main.player_custom_control.*
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -62,7 +61,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    override fun getLayoutId() = R.layout.fragment_weaver_portrait
+    override fun getLayoutId() = R.layout.fragment_player_live_video_portrait
 
     //region Observers
     private val streamStateObserver: Observer<Int> = Observer { state ->
@@ -212,7 +211,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     override fun initUi(view: View?) {
         super.initUi(view)
         hidePollStatusLayout()
-        constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_screen)
+        constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
 
         initStreamInfo(arguments?.getParcelable<StreamResponse>(ARGS_STREAM))
@@ -325,14 +324,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         ContextCompat.getDrawable(it, R.drawable.rounded_semitransparent_bg)
                     }
                 txtPollStatus.visibility = View.VISIBLE
-                devider.visibility = View.GONE
+                divider.visibility = View.GONE
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 context?.let { ContextCompat.getColor(it, R.color.bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
                 }
                 txtPollStatus.visibility = View.GONE
-                devider.visibility = View.VISIBLE
+                divider.visibility = View.VISIBLE
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)

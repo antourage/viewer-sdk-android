@@ -54,7 +54,7 @@
                         tools:ignore="ContentDescription"/>
             </LinearLayout>
             <View
-                    android:id="@+id/devider"
+                    android:id="@+id/divider"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_alignBottom="@+id/pollHeaderLayout"
@@ -66,7 +66,7 @@
                     android:padding="18dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/devider"
+                    android:layout_below="@+id/divider"
                     tools:listitem="@layout/item_unanswered_poll"
                     tools:itemCount="4"
             />
@@ -80,7 +80,7 @@
             android:layout_alignParentBottom="true"
     >
         <View
-                android:id="@+id/deviderBottom"
+                android:id="@+id/dividerBottom"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_gravity="top"

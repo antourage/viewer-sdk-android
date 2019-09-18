@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:cardCornerRadius="5dp">
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="3dp"
+                android:src="@drawable/ic_default_user"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+                android:id="@+id/txtUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxWidth="200dp"
+                android:textColor="@color/card_gray_background"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/ivAvatar"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="fan_number_one" />
+
+        <TextView
+                android:id="@+id/txtMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="3dp"
+                android:maxWidth="200dp"
+                android:textColor="@color/card_gray_background"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/ivAvatar"
+                app:layout_constraintTop_toBottomOf="@id/txtUser"
+                tools:text="Hey, it'll be a great game game game game game game game" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>

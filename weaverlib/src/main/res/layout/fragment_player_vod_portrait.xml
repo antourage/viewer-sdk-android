@@ -26,7 +26,7 @@
             android:animateLayoutChanges="true"
             android:elevation="10dp"
             app:auto_show="true"
-            app:controller_layout_id="@layout/custom_video_controls"
+            app:controller_layout_id="@layout/player_custom_controls_vod"
             app:hide_on_touch="true"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
@@ -152,7 +152,7 @@
                         app:layout_constraintStart_toStartOf="parent">
 
                     <include
-                            layout="@layout/layout_no_chat"
+                            layout="@layout/layout_empty_chat_placeholder"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -164,11 +164,12 @@
                         android:id="@+id/rvMessages"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
                         android:fadingEdge="horizontal"
                         android:fadingEdgeLength="150dp"
                         android:fillViewport="false"
                         android:requiresFadingEdge="vertical"
-                        tools:listitem="@layout/item_message" />
+                        tools:listitem="@layout/item_message_portrait" />
             </android.support.constraint.ConstraintLayout>
         </android.support.design.widget.NavigationView>
 

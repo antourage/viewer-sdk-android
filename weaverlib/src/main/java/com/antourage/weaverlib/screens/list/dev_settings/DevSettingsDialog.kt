@@ -8,7 +8,7 @@ import android.widget.RadioButton
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 
-import kotlinx.android.synthetic.main.dialog_bechoice.*
+import kotlinx.android.synthetic.main.dialog_backend_choice.*
 
 class DevSettingsDialog(context: Context, private val listener: OnDevSettingsChangedListener) :
     Dialog(context) {
@@ -24,7 +24,7 @@ class DevSettingsDialog(context: Context, private val listener: OnDevSettingsCha
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.dialog_bechoice)
+        setContentView(R.layout.dialog_backend_choice)
         initBECheckedBtn(UserCache.newInstance().getBeChoice(context.applicationContext))
         rb_dev.text = BASE_URL_DEV
         rb_dev_2.text = BASE_URL_DEV_2

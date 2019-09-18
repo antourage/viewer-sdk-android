@@ -16,5 +16,5 @@ class MessageListDiffUtilCallback(
     override fun getNewListSize() = newList.size
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-        prevList[oldItemPosition].equals(newList[newItemPosition])
+        prevList[oldItemPosition] == newList[newItemPosition]
 }

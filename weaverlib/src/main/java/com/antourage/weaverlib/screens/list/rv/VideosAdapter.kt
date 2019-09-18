@@ -41,14 +41,14 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         when (viewType) {
             VIEW_VOD -> return VideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
-                    R.layout.item_video,
+                    R.layout.item_vod,
                     parent,
                     false
                 )
             )
             VIEW_LIVE -> return VideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
-                    R.layout.item_broadcast,
+                    R.layout.item_live_video,
                     parent,
                     false
                 )

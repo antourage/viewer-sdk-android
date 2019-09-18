@@ -159,3 +159,5 @@ fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
 fun String.parseToDate(): Date? {
     return convertUtcToLocal(this)
 }
+
+fun Fragment.orientation() = resources.configuration.orientation
