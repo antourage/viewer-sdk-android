@@ -11,16 +11,14 @@ import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
-import com.antourage.weaverlib.other.dp2px
-import com.antourage.weaverlib.other.gone
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.parseDate
-import com.antourage.weaverlib.other.reObserve
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
@@ -300,31 +298,11 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 dp2px(this, if (isLandscape) 15f else 0f).roundToInt()
             )
         }
-        if (isLandscape) {
-//            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
-//                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0,
-//                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt(), 0
-//            )
-//            controls.findViewById<TextView>(R.id.exo_position).setMargins(
-//                resources.getDimension(R.dimen.margin_time_landscape).toInt(), 0,
-//                0, resources.getDimension(R.dimen.margin_time_landscape).toInt()
-//            )
-//            ivScreenSize.setMargins(
-//                0, 0, resources.getDimension(R.dimen.margin_size_landscape).toInt(),
-//                resources.getDimension(R.dimen.margin_size_landscape).toInt()
-//            )
-        } else {
-//            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(0, 0, 0, 0)
-//            context?.let { _ ->
-//                controls.findViewById<TextView>(R.id.exo_position).setMargins(
-//                    resources.getDimension(R.dimen.margin_portrait).toInt(), 0,
-//                    0, resources.getDimension(R.dimen.margin_portrait).toInt()
-//                )
-//                ivScreenSize.setMargins(
-//                    0, 0, resources.getDimension(R.dimen.margin_portrait).toInt(),
-//                    resources.getDimension(R.dimen.margin_portrait).toInt()
-//                )
-//            }
-        }
+        controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
+            if (isLandscape)
+                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt() else 0, 0,
+            if (isLandscape)
+                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt() else 0, 0
+        )
     }
 }

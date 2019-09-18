@@ -157,7 +157,7 @@ abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>()
     protected fun hideLoading() {
         loader?.apply {
             if (ivLoader.visibility == View.VISIBLE && isRunning) {
-                ivLoader.visibility = View.GONE
+                ivLoader.visibility = View.INVISIBLE
                 clearAnimationCallbacks()
                 stop()
                 isLoaderShowing = false
