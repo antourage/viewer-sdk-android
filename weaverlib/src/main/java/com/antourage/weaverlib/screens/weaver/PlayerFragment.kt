@@ -92,6 +92,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
                     disableChatUI()
+                    hideRvMessages()
                     showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
                 }
                 is ChatStatus.ChatMessages -> {
