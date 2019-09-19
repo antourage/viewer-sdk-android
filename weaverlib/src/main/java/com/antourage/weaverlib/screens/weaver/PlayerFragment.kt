@@ -35,7 +35,6 @@ import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
-import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import java.util.*
 import kotlin.math.roundToInt
@@ -97,7 +96,6 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 is ChatStatus.ChatMessages -> {
                     enableChatUI()
-                    showRvMessages()
                     showChatTurnedOffPlaceholder(false)
                 }
                 is ChatStatus.ChatNoMessages -> {
@@ -124,7 +122,6 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hidePollPopup()
                     if (bottomLayout.visibility == View.GONE)
                         showPollStatusLayout()
-                    txtPollStatus.text = state.pollStatus?.let { it }
                 }
                 is PollStatus.PollDetails -> {
                     (activity as AntourageActivity).hideSoftKeyboard()
@@ -151,9 +148,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             )
                         }
                     childFragmentManager.addOnBackStackChangedListener {
-                        if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
+                        val childFragment = childFragmentManager.findFragmentById(R.id.bottomLayout)
+                        if ((childFragment !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
-                            showMessageInput()
+//                            showMessageInput()
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
                                 viewModel.startNewPollCoundown()
@@ -324,14 +322,12 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     context?.let {
                         ContextCompat.getDrawable(it, R.drawable.rounded_semitransparent_bg)
                     }
-                txtPollStatus.visibility = View.VISIBLE
                 divider.visibility = View.GONE
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 context?.let { ContextCompat.getColor(it, R.color.bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
                 }
-                txtPollStatus.visibility = View.GONE
                 divider.visibility = View.VISIBLE
             }
         }
@@ -352,14 +348,6 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun enableMessageInput(enable: Boolean) {
         etMessage.isEnabled = enable
-    }
-
-    private fun hideMessageInput() {
-        ll_wrapper.visibility = View.INVISIBLE
-    }
-
-    private fun showMessageInput() {
-        ll_wrapper.visibility = View.VISIBLE
     }
 
     private fun removeMessageInput() {
@@ -397,7 +385,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             R.string.no_comments_yet
         )
         enableMessageInput(true)
-        showMessageInput()
+        ll_wrapper.visibility = View.VISIBLE
+        showRvMessages()
     }
 
     private fun disableChatUI() {
@@ -406,26 +395,26 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             R.string.commenting_off
         )
         enableMessageInput(false)
-        hideMessageInput()
+        ll_wrapper.visibility = View.INVISIBLE
     }
 
     //endregion
 
     //region polUI helper func
     private fun showPollStatusLayout() {
-        llPollStatus.visibility = View.VISIBLE
+//        llPollStatus.visibility = View.VISIBLE
     }
 
     private fun hidePollStatusLayout() {
-        llPollStatus.visibility = View.GONE
+//        llPollStatus.visibility = View.GONE
     }
 
     private fun showPollPopup() {
-        pollPopupLayout.visibility = View.VISIBLE
+//        pollPopupLayout.visibility = View.VISIBLE
     }
 
     private fun hidePollPopup() {
-        pollPopupLayout.visibility = View.GONE
+//        pollPopupLayout.visibility = View.GONE
     }
     //endregion
 
@@ -454,8 +443,11 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
-        ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
-        llPollStatus.setOnClickListener { onPollDetailsClicked() }
+        ivDismissPoll.setOnClickListener {
+            motionLayout.transitionToEnd()
+            viewModel.startNewPollCoundown()
+        }
+//        llPollStatus.setOnClickListener { onPollDetailsClicked() }
         pollPopupLayout.setOnClickListener {
             playerControls.hide()
             onPollDetailsClicked()
