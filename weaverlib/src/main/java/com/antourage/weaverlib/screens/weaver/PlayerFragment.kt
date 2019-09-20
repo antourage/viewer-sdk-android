@@ -32,8 +32,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
-import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import java.util.*
@@ -111,22 +111,18 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is PollStatus.NoPoll -> {
                     hidePollPopup()
-                    hidePollStatusLayout()
                 }
                 is PollStatus.ActivePoll -> {
                     tvPollTitle.text = state.poll.question
                     showPollPopup()
-                    hidePollStatusLayout()
                 }
                 is PollStatus.ActivePollDismissed -> {
-                    hidePollPopup()
                     if (bottomLayout.visibility == View.GONE)
-                        showPollStatusLayout()
+                        showPollPopup()
                 }
                 is PollStatus.PollDetails -> {
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollPopup()
-                    hidePollStatusLayout()
                     removeMessageInput()
                     bottomLayout.visibility = View.VISIBLE
                     wasDrawerClosed = false
@@ -148,12 +144,11 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             )
                         }
                     childFragmentManager.addOnBackStackChangedListener {
-                        val childFragment = childFragmentManager.findFragmentById(R.id.bottomLayout)
-                        if ((childFragment !is PollDetailsFragment)) {
+                        if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
 //                            showMessageInput()
                             if (viewModel.currentPoll != null) {
-                                showPollStatusLayout()
+                                showPollPopup()
                                 viewModel.startNewPollCoundown()
                             }
                             if (wasDrawerClosed)
@@ -209,7 +204,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun initUi(view: View?) {
         super.initUi(view)
-        hidePollStatusLayout()
+        hidePollPopup()
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
 
@@ -244,7 +239,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if (it) {
                             etMessage.requestFocus()
                             if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
-                                hidePollStatusLayout()
+                                hidePollPopup()
                             }
                             hideFullScreenIcon()
                             val anim = ResizeWidthAnimation(
@@ -255,7 +250,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             ll_wrapper.startAnimation(anim)
                         } else {
                             if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
-                                showPollStatusLayout()
+                                showPollPopup()
                             }
                             showFullScreenIcon()
                             val anim = ResizeWidthAnimation(
@@ -401,20 +396,24 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     //endregion
 
     //region polUI helper func
-    private fun showPollStatusLayout() {
-//        llPollStatus.visibility = View.VISIBLE
-    }
-
-    private fun hidePollStatusLayout() {
-//        llPollStatus.visibility = View.GONE
-    }
-
     private fun showPollPopup() {
-//        pollPopupLayout.visibility = View.VISIBLE
+        if (pollPopupLayout.visibility == View.GONE) {
+            pollPopupLayout.visibility = View.VISIBLE
+            pollAnnouncement.visibility = View.VISIBLE
+            tvPollTitle.visibility = View.VISIBLE
+            ic_poll_hor.visibility = View.VISIBLE
+            ivDismissPoll.visibility = View.VISIBLE
+        }
     }
 
     private fun hidePollPopup() {
-//        pollPopupLayout.visibility = View.GONE
+        if (pollPopupLayout.visibility == View.VISIBLE) {
+            pollPopupLayout.visibility = View.GONE
+            pollAnnouncement.visibility = View.GONE
+            tvPollTitle.visibility = View.GONE
+            ic_poll_hor.visibility = View.GONE
+            ivDismissPoll.visibility = View.GONE
+        }
     }
     //endregion
 
@@ -447,7 +446,6 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             motionLayout.transitionToEnd()
             viewModel.startNewPollCoundown()
         }
-//        llPollStatus.setOnClickListener { onPollDetailsClicked() }
         pollPopupLayout.setOnClickListener {
             playerControls.hide()
             onPollDetailsClicked()

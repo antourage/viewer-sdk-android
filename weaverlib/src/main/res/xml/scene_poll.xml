@@ -22,6 +22,10 @@
                     android:alpha="0"
                     motion:framePosition="10"
                     motion:motionTarget="@id/ivDismissPoll" />
+            <KeyAttribute
+                    android:alpha="0"
+                    motion:framePosition="100"
+                    motion:motionTarget="@id/ivDismissPoll" />
         </KeyFrameSet>
     </Transition>
     <ConstraintSet android:id="@+id/pollStartScene">
@@ -36,7 +40,8 @@
                 motion:layout_constraintBottom_toBottomOf="@+id/tvPollTitle"
                 motion:layout_constraintLeft_toLeftOf="parent"
                 motion:layout_constraintRight_toRightOf="parent"
-                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/pollAnnouncement"
@@ -47,7 +52,8 @@
                 android:paddingTop="0dp"
                 motion:layout_constraintBottom_toTopOf="@+id/tvPollTitle"
                 motion:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
-                motion:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />
+                motion:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/tvPollTitle"
@@ -58,7 +64,8 @@
                 android:layout_marginBottom="10dp"
                 motion:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
                 motion:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"
-                motion:layout_constraintTop_toBottomOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/ic_poll_hor"
@@ -67,7 +74,8 @@
                 android:layout_marginLeft="10dp"
                 motion:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"
                 motion:layout_constraintLeft_toLeftOf="@+id/pollPopupLayout"
-                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/ivDismissPoll"
@@ -78,7 +86,17 @@
                 android:src="@drawable/ic_close"
                 motion:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"
                 motion:layout_constraintRight_toRightOf="@+id/pollPopupLayout"
-                motion:layout_constraintTop_toTopOf="@id/pollPopupLayout" />
+                motion:layout_constraintTop_toTopOf="@id/pollPopupLayout"
+                motion:visibilityMode="ignore" />
+
+        <Constraint
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                motion:layout_constraintEnd_toEndOf="parent"
+                motion:layout_constraintStart_toStartOf="parent"
+                motion:layout_constraintTop_toBottomOf="@id/pollPopupLayout" />
 
     </ConstraintSet>
 
@@ -90,7 +108,8 @@
                 motion:layout_constraintBottom_toBottomOf="@+id/pollAnnouncement"
                 motion:layout_constraintLeft_toLeftOf="@+id/ic_poll_hor"
                 motion:layout_constraintRight_toRightOf="@+id/pollAnnouncement"
-                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/pollAnnouncement"
@@ -102,7 +121,8 @@
                 android:paddingBottom="0dp"
                 motion:layout_constraintBottom_toBottomOf="@+id/ivUserPhoto"
                 motion:layout_constraintRight_toRightOf="parent"
-                motion:layout_constraintTop_toTopOf="@+id/ivUserPhoto" />
+                motion:layout_constraintTop_toTopOf="@+id/ivUserPhoto"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/tvPollTitle"
@@ -116,7 +136,8 @@
                 android:visibility="gone"
                 motion:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
                 motion:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"
-                motion:layout_constraintTop_toBottomOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/ic_poll_hor"
@@ -125,7 +146,8 @@
                 android:layout_marginRight="6dp"
                 motion:layout_constraintBottom_toBottomOf="@+id/pollAnnouncement"
                 motion:layout_constraintRight_toLeftOf="@+id/pollAnnouncement"
-                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
+                motion:layout_constraintTop_toTopOf="@+id/pollAnnouncement"
+                motion:visibilityMode="ignore" />
 
         <Constraint
                 android:id="@+id/ivDismissPoll"
@@ -133,8 +155,19 @@
                 android:layout_height="24dp"
                 android:layout_marginRight="10dp"
                 android:visibility="gone"
+                android:alpha="0"
                 motion:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"
                 motion:layout_constraintRight_toRightOf="@+id/pollPopupLayout"
-                motion:layout_constraintTop_toTopOf="@id/pollPopupLayout" />
+                motion:layout_constraintTop_toTopOf="@id/pollPopupLayout"
+                motion:visibilityMode="ignore" />
+
+        <Constraint
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                motion:layout_constraintEnd_toEndOf="parent"
+                motion:layout_constraintStart_toStartOf="parent"
+                motion:layout_constraintTop_toBottomOf="@id/tvBroadcastedBy" />
     </ConstraintSet>
 </MotionScene>

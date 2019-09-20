@@ -235,7 +235,6 @@
                 android:paddingBottom="10dp"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
                 app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"
                 app:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"
@@ -258,85 +257,84 @@
                 android:layout_marginRight="10dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_close"
-                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"
                 app:layout_constraintRight_toRightOf="@+id/pollPopupLayout"
                 app:layout_constraintTop_toTopOf="@id/pollPopupLayout" />
         <!--        endregion-->
 
-<!--        region expanded layout-->
-<!--        <View-->
-<!--                android:id="@+id/pollPopupLayout"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_marginLeft="20dp"-->
-<!--                android:layout_marginRight="20dp"-->
-<!--                android:background="@drawable/rounded_green_bg"-->
-<!--                android:focusable="true"-->
-<!--                android:focusableInTouchMode="true"-->
-<!--                android:importantForAccessibility="yes"-->
-<!--                android:visibility="visible"-->
-<!--                app:layout_constraintBottom_toBottomOf="@+id/tvPollTitle"-->
-<!--                app:layout_constraintLeft_toLeftOf="parent"-->
-<!--                app:layout_constraintRight_toRightOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement"-->
-<!--                tools:visibility="visible" />-->
+        <!--        region expanded layout-->
+        <!--        <View-->
+        <!--                android:id="@+id/pollPopupLayout"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="0dp"-->
+        <!--                android:layout_marginLeft="20dp"-->
+        <!--                android:layout_marginRight="20dp"-->
+        <!--                android:background="@drawable/rounded_green_bg"-->
+        <!--                android:focusable="true"-->
+        <!--                android:focusableInTouchMode="true"-->
+        <!--                android:importantForAccessibility="yes"-->
+        <!--                android:visibility="visible"-->
+        <!--                app:layout_constraintBottom_toBottomOf="@+id/tvPollTitle"-->
+        <!--                app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--                app:layout_constraintRight_toRightOf="parent"-->
+        <!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement"-->
+        <!--                tools:visibility="visible" />-->
 
-<!--        <TextView-->
-<!--                android:id="@+id/pollAnnouncement"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginLeft="16dp"-->
-<!--                android:layout_marginTop="30dp"-->
-<!--                android:fontFamily="@font/roboto_condensed_light"-->
-<!--                android:paddingTop="10dp"-->
-<!--                android:text="@string/new_poll"-->
-<!--                android:textColor="@android:color/white"-->
-<!--                android:textSize="14sp"-->
-<!--                app:layout_constraintBottom_toTopOf="@+id/tvPollTitle"-->
-<!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
-<!--                app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />-->
+        <!--        <TextView-->
+        <!--                android:id="@+id/pollAnnouncement"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginLeft="16dp"-->
+        <!--                android:layout_marginTop="30dp"-->
+        <!--                android:fontFamily="@font/roboto_condensed_light"-->
+        <!--                android:paddingTop="10dp"-->
+        <!--                android:text="@string/new_poll"-->
+        <!--                android:textColor="@android:color/white"-->
+        <!--                android:textSize="14sp"-->
+        <!--                app:layout_constraintBottom_toTopOf="@+id/tvPollTitle"-->
+        <!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
+        <!--                app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />-->
 
-<!--        <TextView-->
-<!--                android:id="@+id/tvPollTitle"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginLeft="16dp"-->
-<!--                android:layout_marginTop="4dp"-->
-<!--                android:layout_marginRight="16dp"-->
-<!--                android:layout_marginBottom="10dp"-->
-<!--                android:ellipsize="end"-->
-<!--                android:fontFamily="@font/roboto_condensed_regular"-->
-<!--                android:maxLines="4"-->
-<!--                android:paddingBottom="10dp"-->
-<!--                android:textColor="@android:color/white"-->
-<!--                android:textSize="18sp"-->
-<!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
-<!--                app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"-->
-<!--                app:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"-->
-<!--                tools:text="New interesting poll" />-->
+        <!--        <TextView-->
+        <!--                android:id="@+id/tvPollTitle"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginLeft="16dp"-->
+        <!--                android:layout_marginTop="4dp"-->
+        <!--                android:layout_marginRight="16dp"-->
+        <!--                android:layout_marginBottom="10dp"-->
+        <!--                android:ellipsize="end"-->
+        <!--                android:fontFamily="@font/roboto_condensed_regular"-->
+        <!--                android:maxLines="4"-->
+        <!--                android:paddingBottom="10dp"-->
+        <!--                android:textColor="@android:color/white"-->
+        <!--                android:textSize="18sp"-->
+        <!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
+        <!--                app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"-->
+        <!--                app:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"-->
+        <!--                tools:text="New interesting poll" />-->
 
-<!--        <ImageView-->
-<!--                android:id="@+id/ic_poll_hor"-->
-<!--                android:layout_width="40dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:layout_marginLeft="10dp"-->
-<!--                android:src="@drawable/ic_poll_white_transparent"-->
-<!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
-<!--                app:layout_constraintLeft_toLeftOf="@+id/pollPopupLayout"-->
-<!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />-->
+        <!--        <ImageView-->
+        <!--                android:id="@+id/ic_poll_hor"-->
+        <!--                android:layout_width="40dp"-->
+        <!--                android:layout_height="24dp"-->
+        <!--                android:layout_marginLeft="10dp"-->
+        <!--                android:src="@drawable/ic_poll_white_transparent"-->
+        <!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
+        <!--                app:layout_constraintLeft_toLeftOf="@+id/pollPopupLayout"-->
+        <!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />-->
 
-<!--        <ImageButton-->
-<!--                android:id="@+id/ivDismissPoll"-->
-<!--                android:layout_width="24dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:layout_marginRight="10dp"-->
-<!--                android:background="@android:color/transparent"-->
-<!--                android:src="@drawable/ic_close"-->
-<!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
-<!--                app:layout_constraintRight_toRightOf="@+id/pollPopupLayout"-->
-<!--                app:layout_constraintTop_toTopOf="@id/pollPopupLayout" />-->
-<!--        endregion-->
+        <!--        <ImageButton-->
+        <!--                android:id="@+id/ivDismissPoll"-->
+        <!--                android:layout_width="24dp"-->
+        <!--                android:layout_height="24dp"-->
+        <!--                android:layout_marginRight="10dp"-->
+        <!--                android:background="@android:color/transparent"-->
+        <!--                android:src="@drawable/ic_close"-->
+        <!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
+        <!--                app:layout_constraintRight_toRightOf="@+id/pollPopupLayout"-->
+        <!--                app:layout_constraintTop_toTopOf="@id/pollPopupLayout" />-->
+        <!--        endregion-->
 
         <View
                 android:id="@+id/divider"
