@@ -146,7 +146,9 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
-//                            showMessageInput()
+                            if (viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff)
+                                ll_wrapper.visibility = View.INVISIBLE else ll_wrapper.visibility =
+                                View.VISIBLE
                             if (viewModel.currentPoll != null) {
                                 showPollPopup()
                                 viewModel.startNewPollCoundown()
@@ -443,13 +445,18 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
         ivDismissPoll.setOnClickListener {
-            motionLayout.transitionToEnd()
             viewModel.startNewPollCoundown()
+            motionLayout.transitionToEnd()
         }
-        pollPopupLayout.setOnClickListener {
-            playerControls.hide()
-            onPollDetailsClicked()
-        }
+        pollPopupLayout.setOnClickListener { openPollDetails() }
+        pollAnnouncement.setOnClickListener { openPollDetails() }
+        tvPollTitle.setOnClickListener { openPollDetails() }
+        ic_poll_hor.setOnClickListener { openPollDetails() }
+    }
+
+    private fun openPollDetails() {
+        playerControls.hide()
+        onPollDetailsClicked()
     }
 
     private fun showFullScreenIcon() {

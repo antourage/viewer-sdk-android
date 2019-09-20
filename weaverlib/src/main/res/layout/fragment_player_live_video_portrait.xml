@@ -410,7 +410,6 @@
                             android:fadingEdge="horizontal"
                             android:fadingEdgeLength="150dp"
                             android:fillViewport="false"
-                            android:paddingBottom="6dp"
                             android:requiresFadingEdge="vertical"
                             app:layout_constraintStart_toStartOf="parent" />
                 </android.support.constraint.ConstraintLayout>
@@ -421,7 +420,6 @@
                 android:id="@+id/dividerChat"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="4dp"
                 android:background="@color/light_gray_transparent"
                 app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
                 app:layout_constraintEnd_toEndOf="parent"
