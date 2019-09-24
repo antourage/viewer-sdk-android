@@ -128,6 +128,7 @@
             android:layout_marginBottom="8dp"
             android:background="@drawable/rounded_semitransparent_bg"
             android:orientation="horizontal"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView">
 

@@ -55,412 +55,241 @@
             app:layout_constraintTop_toTopOf="@+id/playerView"
             tools:ignore="ContentDescription" />
 
-    <android.support.constraint.motion.MotionLayout
-            android:id="@+id/motionLayout"
+    <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/ivUserPhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/ic_default_user"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playerView" />
+
+    <TextView
+            android:id="@+id/tvStreamName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="10dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_regular"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
+            app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
+            app:layout_constraintRight_toLeftOf="@id/llPollStatus"
+            app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Stream name" />
+
+    <TextView
+            android:id="@+id/tvBroadcastedBy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="10dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/roboto_condensed_light"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
+            app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
+            app:layout_constraintRight_toLeftOf="@id/llPollStatus"
+            app:layout_constraintTop_toBottomOf="@id/tvStreamName"
+            tools:text="my nicname sometimes gets messed up" />
+
+    <ImageButton
+            android:id="@+id/btnShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_share_white"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
+            tools:ignore="ContentDescription" />
+
+    <LinearLayout
+            android:id="@+id/llPollStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/rounded_green_bg"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            app:layout_constraintEnd_toStartOf="@id/btnShare"
+            app:layout_constraintTop_toBottomOf="@id/playerView">
+
+        <ImageView
+                android:layout_width="28dp"
+                android:layout_height="20dp"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                android:src="@drawable/ic_poll_white_transparent"
+                tools:ignore="ContentDescription" />
+
+        <TextView
+                android:id="@+id/txtPollStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/roboto_condensed_regular"
+                android:gravity="center"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:text="@string/new_poll"
+                tools:visibility="visible" />
+
+    </LinearLayout>
+
+    <include
+            layout="@layout/layout_poll_suggestion"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:importantForAccessibility="yes"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />
+
+    <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/light_gray_transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pollPopupLayout" />
+
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/bottomLayout"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layoutDescription="@xml/scene_poll"
+            android:background="@drawable/rounded_gray_bg"
+            android:elevation="5dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerView" />
+
+    <com.antourage.weaverlib.other.ui.CustomDrawerLayout
+            android:id="@+id/drawerLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:elevation="3dp"
+            android:focusable="false"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/playerView">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/ivUserPhoto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:src="@drawable/ic_default_user"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-                android:id="@+id/tvStreamName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="10dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:includeFontPadding="false"
-                android:maxLines="2"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
-                app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-                app:layout_constraintRight_toLeftOf="@id/pollCollapsedPlaceholder"
-                app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
-                app:layout_constraintVertical_chainStyle="packed"
-                tools:text="Stream name" />
-
-        <TextView
-                android:id="@+id/tvBroadcastedBy"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="10dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_light"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
-                app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-                app:layout_constraintRight_toLeftOf="@id/pollCollapsedPlaceholder"
-                app:layout_constraintTop_toBottomOf="@id/tvStreamName"
-                tools:text="my nicname sometimes gets messed up" />
-
-        <!--        region endScene placeholder-->
-
-        <View
-                android:id="@+id/pollCollapsedPlaceholder"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/rounded_green_bg"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:importantForAccessibility="yes"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="@+id/pollAnnouncementPlaceholder"
-                app:layout_constraintLeft_toLeftOf="@+id/ic_poll_hor_placeholder"
-                app:layout_constraintRight_toRightOf="@+id/pollAnnouncementPlaceholder"
-                app:layout_constraintTop_toTopOf="@+id/pollAnnouncementPlaceholder" />
-
-        <TextView
-                android:id="@+id/pollAnnouncementPlaceholder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:fontFamily="@font/roboto_condensed_light"
-                android:paddingTop="6dp"
-                android:paddingRight="6dp"
-                android:paddingBottom="6dp"
-                android:text="@string/new_poll"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ivUserPhoto" />
-
-        <TextView
-                android:id="@+id/tvPollTitlePlaceholder"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="10dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:maxLines="4"
-                android:paddingBottom="10dp"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:visibility="gone"
-                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor_placeholder"
-                app:layout_constraintRight_toLeftOf="@+id/ivDismissPollPlaceholder"
-                app:layout_constraintTop_toBottomOf="@+id/pollAnnouncementPlaceholder"
-                tools:text="New interesting poll" />
-
-        <ImageView
-                android:id="@+id/ic_poll_hor_placeholder"
-                android:layout_width="20dp"
-                android:layout_height="12dp"
-                android:layout_marginRight="6dp"
-                android:src="@drawable/ic_poll_white_transparent"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="@+id/pollAnnouncementPlaceholder"
-                app:layout_constraintRight_toLeftOf="@+id/pollAnnouncementPlaceholder"
-                app:layout_constraintTop_toTopOf="@+id/pollAnnouncementPlaceholder" />
-
-        <ImageButton
-                android:id="@+id/ivDismissPollPlaceholder"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginRight="10dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_close"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/pollCollapsedPlaceholder"
-                app:layout_constraintRight_toRightOf="@+id/pollCollapsedPlaceholder"
-                app:layout_constraintTop_toTopOf="@id/pollCollapsedPlaceholder" />
-
-        <!--        endregion-->
-
-        <!--        region test-->
-        <View
-                android:id="@+id/pollPopupLayout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/rounded_green_bg"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:importantForAccessibility="yes"
-                app:layout_constraintBottom_toBottomOf="@+id/pollAnnouncement"
-                app:layout_constraintLeft_toLeftOf="@+id/ic_poll_hor"
-                app:layout_constraintRight_toRightOf="@+id/pollAnnouncement"
-                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
-
-        <TextView
-                android:id="@+id/pollAnnouncement"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:fontFamily="@font/roboto_condensed_light"
-                android:paddingTop="6dp"
-                android:paddingRight="6dp"
-                android:paddingBottom="6dp"
-                android:text="@string/new_poll"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ivUserPhoto" />
-
-        <TextView
-                android:id="@+id/tvPollTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="6dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:maxLines="4"
-                android:paddingBottom="10dp"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
-                app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"
-                app:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"
-                tools:text="New interesting poll" />
-
-        <ImageView
-                android:id="@+id/ic_poll_hor"
-                android:layout_width="20dp"
-                android:layout_height="12dp"
-                android:layout_marginRight="6dp"
-                android:src="@drawable/ic_poll_white_transparent"
-                app:layout_constraintBottom_toBottomOf="@+id/pollAnnouncement"
-                app:layout_constraintRight_toLeftOf="@+id/pollAnnouncement"
-                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />
-
-        <ImageButton
-                android:id="@+id/ivDismissPoll"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginRight="10dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_close"
-                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"
-                app:layout_constraintRight_toRightOf="@+id/pollPopupLayout"
-                app:layout_constraintTop_toTopOf="@id/pollPopupLayout" />
-        <!--        endregion-->
-
-        <!--        region expanded layout-->
-        <!--        <View-->
-        <!--                android:id="@+id/pollPopupLayout"-->
-        <!--                android:layout_width="0dp"-->
-        <!--                android:layout_height="0dp"-->
-        <!--                android:layout_marginLeft="20dp"-->
-        <!--                android:layout_marginRight="20dp"-->
-        <!--                android:background="@drawable/rounded_green_bg"-->
-        <!--                android:focusable="true"-->
-        <!--                android:focusableInTouchMode="true"-->
-        <!--                android:importantForAccessibility="yes"-->
-        <!--                android:visibility="visible"-->
-        <!--                app:layout_constraintBottom_toBottomOf="@+id/tvPollTitle"-->
-        <!--                app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--                app:layout_constraintRight_toRightOf="parent"-->
-        <!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement"-->
-        <!--                tools:visibility="visible" />-->
-
-        <!--        <TextView-->
-        <!--                android:id="@+id/pollAnnouncement"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_marginLeft="16dp"-->
-        <!--                android:layout_marginTop="30dp"-->
-        <!--                android:fontFamily="@font/roboto_condensed_light"-->
-        <!--                android:paddingTop="10dp"-->
-        <!--                android:text="@string/new_poll"-->
-        <!--                android:textColor="@android:color/white"-->
-        <!--                android:textSize="14sp"-->
-        <!--                app:layout_constraintBottom_toTopOf="@+id/tvPollTitle"-->
-        <!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
-        <!--                app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />-->
-
-        <!--        <TextView-->
-        <!--                android:id="@+id/tvPollTitle"-->
-        <!--                android:layout_width="0dp"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_marginLeft="16dp"-->
-        <!--                android:layout_marginTop="4dp"-->
-        <!--                android:layout_marginRight="16dp"-->
-        <!--                android:layout_marginBottom="10dp"-->
-        <!--                android:ellipsize="end"-->
-        <!--                android:fontFamily="@font/roboto_condensed_regular"-->
-        <!--                android:maxLines="4"-->
-        <!--                android:paddingBottom="10dp"-->
-        <!--                android:textColor="@android:color/white"-->
-        <!--                android:textSize="18sp"-->
-        <!--                app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"-->
-        <!--                app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"-->
-        <!--                app:layout_constraintTop_toBottomOf="@+id/pollAnnouncement"-->
-        <!--                tools:text="New interesting poll" />-->
-
-        <!--        <ImageView-->
-        <!--                android:id="@+id/ic_poll_hor"-->
-        <!--                android:layout_width="40dp"-->
-        <!--                android:layout_height="24dp"-->
-        <!--                android:layout_marginLeft="10dp"-->
-        <!--                android:src="@drawable/ic_poll_white_transparent"-->
-        <!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
-        <!--                app:layout_constraintLeft_toLeftOf="@+id/pollPopupLayout"-->
-        <!--                app:layout_constraintTop_toTopOf="@+id/pollAnnouncement" />-->
-
-        <!--        <ImageButton-->
-        <!--                android:id="@+id/ivDismissPoll"-->
-        <!--                android:layout_width="24dp"-->
-        <!--                android:layout_height="24dp"-->
-        <!--                android:layout_marginRight="10dp"-->
-        <!--                android:background="@android:color/transparent"-->
-        <!--                android:src="@drawable/ic_close"-->
-        <!--                app:layout_constraintBottom_toBottomOf="@+id/pollPopupLayout"-->
-        <!--                app:layout_constraintRight_toRightOf="@+id/pollPopupLayout"-->
-        <!--                app:layout_constraintTop_toTopOf="@id/pollPopupLayout" />-->
-        <!--        endregion-->
-
-        <View
-                android:id="@+id/divider"
+        <android.support.design.widget.NavigationView
+                android:id="@+id/navView"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="@color/light_gray_transparent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/pollPopupLayout" />
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:layout_marginRight="-64dp"
+                android:background="@android:color/transparent">
 
-        <android.support.constraint.ConstraintLayout
-                android:id="@+id/bottomLayout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/rounded_gray_bg"
-                android:elevation="5dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <com.antourage.weaverlib.other.ui.CustomDrawerLayout
-                android:id="@+id/drawerLayout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@android:color/transparent"
-                android:clickable="false"
-                android:elevation="3dp"
-                android:focusable="false"
-                app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/divider">
-
-            <android.support.design.widget.NavigationView
-                    android:id="@+id/navView"
+            <android.support.constraint.ConstraintLayout
+                    android:id="@+id/clNavView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="start"
-                    android:layout_marginRight="-64dp"
-                    android:background="@android:color/transparent">
+                    android:layout_height="match_parent">
 
                 <android.support.constraint.ConstraintLayout
-                        android:id="@+id/clNavView"
+                        android:id="@+id/llNoChat"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
 
-                    <android.support.constraint.ConstraintLayout
-                            android:id="@+id/llNoChat"
+                    <include
+                            layout="@layout/layout_empty_chat_placeholder"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent">
-
-                        <include
-                                layout="@layout/layout_empty_chat_placeholder"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                    </android.support.constraint.ConstraintLayout>
-
-                    <com.antourage.weaverlib.other.ui.FadingRecyclerView
-                            android:id="@+id/rvMessages"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="8dp"
-                            android:fadingEdge="horizontal"
-                            android:fadingEdgeLength="150dp"
-                            android:fillViewport="false"
-                            android:requiresFadingEdge="vertical"
-                            app:layout_constraintStart_toStartOf="parent" />
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
                 </android.support.constraint.ConstraintLayout>
-            </android.support.design.widget.NavigationView>
-        </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
-        <View
-                android:id="@+id/dividerChat"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/light_gray_transparent"
-                app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                        android:id="@+id/rvMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:fadingEdge="horizontal"
+                        android:fadingEdgeLength="150dp"
+                        android:fillViewport="false"
+                        android:paddingBottom="6dp"
+                        android:requiresFadingEdge="vertical"
+                        app:layout_constraintStart_toStartOf="parent" />
+            </android.support.constraint.ConstraintLayout>
+        </android.support.design.widget.NavigationView>
+    </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
-        <LinearLayout
-                android:id="@+id/ll_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/bg_color"
-                android:elevation="6dp"
-                android:orientation="horizontal"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+    <View
+            android:id="@+id/dividerChat"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/light_gray_transparent"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <EditText
-                    android:id="@+id/etMessage"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="10"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/say_something"
-                    android:imeOptions="flagNoExtractUi"
-                    android:inputType="text"
-                    android:maxLength="@integer/max_length_message_input"
-                    android:paddingStart="8dp"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@color/light_gray_transparent"
-                    tools:ignore="RtlSymmetry" />
+    <LinearLayout
+            android:id="@+id/ll_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bg_color"
+            android:elevation="6dp"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-            <ImageButton
-                    android:id="@+id/btnSend"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="0.2"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_send"
-                    tools:ignore="ContentDescription" />
-        </LinearLayout>
-    </android.support.constraint.motion.MotionLayout>
+        <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                android:layout_weight="10"
+                android:background="@android:color/transparent"
+                android:hint="@string/say_something"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="text"
+                android:maxLength="@integer/max_length_message_input"
+                android:paddingStart="8dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="@color/light_gray_transparent"
+                tools:ignore="RtlSymmetry" />
+
+        <ImageButton
+                android:id="@+id/btnSend"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_weight="0.2"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_send"
+                tools:ignore="ContentDescription" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

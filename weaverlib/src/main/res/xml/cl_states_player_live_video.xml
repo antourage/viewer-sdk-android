@@ -3,7 +3,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <State
             android:id="@+id/constraintStatePortrait"
-            app:constraints="@layout/fragment_player_vod_portrait" />
+            app:constraints="@layout/fragment_player_live_video_portrait" />
     <State
             android:id="@+id/constraintStateLandscape"
             app:constraints="@layout/cl_state_player_live_video_fragment_landscape" />
