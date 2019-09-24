@@ -8,7 +8,10 @@ import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.AnsweredUser
+import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.other.models.Stream
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
@@ -141,8 +144,9 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
                         if (postAnsweredUsers && it.data.isNotEmpty())
                             pollStatusLiveData.postValue(
                                 PollStatus.ActivePollDismissed(
-                                    getApplication<Application>().getString(
-                                        R.string.number_answers,
+                                    getApplication<Application>().resources.getQuantityString(
+                                        R.plurals.number_answers,
+                                        it.data.size,
                                         it.data.size
                                     )
                                 )
