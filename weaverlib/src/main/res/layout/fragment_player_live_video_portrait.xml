@@ -234,11 +234,9 @@
                         android:id="@+id/rvMessages"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
                         android:fadingEdge="horizontal"
                         android:fadingEdgeLength="150dp"
                         android:fillViewport="false"
-                        android:paddingBottom="6dp"
                         android:requiresFadingEdge="vertical"
                         app:layout_constraintStart_toStartOf="parent" />
             </android.support.constraint.ConstraintLayout>
