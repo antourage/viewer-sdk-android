@@ -200,16 +200,12 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val onUserSettingsClicked = View.OnClickListener {
         toggleUserSettingsDialog()
-        etDisplayName.clearFocus()
-        etMessage.clearFocus()
         hideKeyboard()
     }
 
     private val onCancelClicked = View.OnClickListener {
         etDisplayName.setText("")
         toggleUserSettingsDialog()
-        etDisplayName.clearFocus()
-        etMessage.clearFocus()
         hideKeyboard()
     }
 
