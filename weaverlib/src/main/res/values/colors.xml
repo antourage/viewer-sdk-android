@@ -19,4 +19,10 @@
     <color name="blue">#3596C5</color>
     <color name="transparant">#32000000</color>
     <color name="grayed_text">#464646</color>
+    <color name="light_gray">#D8D8D8</color>
+    <color name="color_dark_gray_text">#3D3D3D</color>
+    <color name="color_dark_gray_text_a60">#993D3D3D</color>
+    <color name="color_dark_gray_text_a10">#1A3D3D3D</color>
+    <color name="green_disabled">#CCEDDC</color>
+    <color name="green_enabled">#05A854</color>
 </resources>

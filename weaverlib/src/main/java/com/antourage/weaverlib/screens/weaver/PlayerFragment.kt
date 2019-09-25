@@ -9,6 +9,8 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.BuildConfig
@@ -32,6 +34,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
+import kotlinx.android.synthetic.main.dialog_user_authorization.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
@@ -39,6 +42,7 @@ import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import java.util.*
 import kotlin.math.roundToInt
+
 
 /**
  * Be careful not to create multiple instances of player
@@ -194,6 +198,21 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         etMessage.setText("")
     }
 
+    private val onUserSettingsClicked = View.OnClickListener {
+        toggleUserSettingsDialog()
+        etDisplayName.clearFocus()
+        etMessage.clearFocus()
+        hideKeyboard()
+    }
+
+    private val onCancelClicked = View.OnClickListener {
+        etDisplayName.setText("")
+        toggleUserSettingsDialog()
+        etDisplayName.clearFocus()
+        etMessage.clearFocus()
+        hideKeyboard()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, activity?.injector?.getWeaverViewModelFactory())
@@ -221,6 +240,11 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initClickListeners()
         initKeyboardListener()
         initLabelLive()
+
+        etDisplayName.afterTextChanged {
+            txtLabelDefaultName.visibility = if (it.isEmptyTrimmed()) View.VISIBLE else View.GONE
+            btnConfirm.isEnabled = !it.isEmptyTrimmed()
+        }
     }
 
     /**
@@ -460,6 +484,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
+        btnUserSettings.setOnClickListener(onUserSettingsClicked)
+        btnCancel.setOnClickListener(onCancelClicked)
         ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
         pollPopupLayout.setOnClickListener {
@@ -483,5 +509,13 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         } else {
             tvWasLive.visibility = View.GONE
         }
+    }
+
+    private fun toggleUserSettingsDialog() {
+        clUserSettings.visibility =
+            if (clUserSettings.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        btnUserSettings.setImageResource(
+            if (clUserSettings.visibility == View.VISIBLE) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
+        )
     }
 }

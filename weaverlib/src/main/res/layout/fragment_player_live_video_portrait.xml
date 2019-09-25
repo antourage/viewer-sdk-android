@@ -262,7 +262,8 @@
             android:orientation="horizontal"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible">
 
         <EditText
                 android:id="@+id/etMessage"
@@ -288,6 +289,25 @@
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_send"
                 tools:ignore="ContentDescription" />
+
+        <ImageButton
+                android:id="@+id/btnUserSettings"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_weight="0.2"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_user_settings"
+                tools:ignore="ContentDescription" />
     </LinearLayout>
+
+    <include
+            android:id="@+id/clUserSettings"
+            layout="@layout/dialog_user_authorization"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/dividerChat"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
