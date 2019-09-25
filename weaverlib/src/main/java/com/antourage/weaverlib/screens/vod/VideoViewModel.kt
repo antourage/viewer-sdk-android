@@ -19,9 +19,10 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import okhttp3.OkHttpClient
 import java.util.*
@@ -126,7 +127,6 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
 
     fun onVideoPausedOrStopped() {
         messagesHandler.post(messagesSingleEventRunnable)
-//        stopMonitoringChatMessages()
     }
 
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
@@ -151,13 +151,23 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     /**
      * using this to create playlist. For now, was approved
      */
+//    override fun getMediaSource(streamUrl: String?): MediaSource? {
+//        val list: List<StreamResponse>? = Repository.vods
+//        val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
+//        for (i in 0 until (list?.size ?: 0)) {
+//            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
+//        }
+//        return ConcatenatingMediaSource(*mediaSources)
+//    }
+
     override fun getMediaSource(streamUrl: String?): MediaSource? {
-        val list: List<StreamResponse>? = Repository.vods
-        val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
-        for (i in 0 until (list?.size ?: 0)) {
-            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
-        }
-        return ConcatenatingMediaSource(*mediaSources)
+        val defaultBandwidthMeter = DefaultBandwidthMeter()
+        val dataSourceFactory = DefaultDataSourceFactory(
+            getApplication(),
+            Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter
+        )
+        return HlsMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(Uri.parse(streamUrl))
     }
 
     override fun onStreamStateChanged(playbackState: Int) {}
