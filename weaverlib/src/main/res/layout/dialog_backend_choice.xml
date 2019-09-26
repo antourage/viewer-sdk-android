@@ -27,14 +27,6 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_title_dialog">
 
         <RadioButton
-            android:id="@+id/rb_local"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@android:color/white"/>
-
-        <RadioButton
             android:id="@+id/rb_dev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,23 +35,7 @@
             android:textColor="@android:color/white"/>
 
         <RadioButton
-            android:id="@+id/rb_dev_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@android:color/white"/>
-
-        <RadioButton
             android:id="@+id/rb_staging"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@android:color/white" />
-
-        <RadioButton
-            android:id="@+id/rb_production"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"

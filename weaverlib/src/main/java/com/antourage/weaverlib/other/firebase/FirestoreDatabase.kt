@@ -12,9 +12,6 @@ import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_STAGING
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV_2
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_LOCAL
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_PROD
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.CollectionReference
@@ -28,11 +25,8 @@ class FirestoreDatabase {
 
     private fun getMainDocumentPath(): DocumentReference {
         return when (BASE_URL) {
-            BASE_URL_LOCAL -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_LOCAL)
             BASE_URL_DEV -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
-            BASE_URL_DEV_2 -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
             BASE_URL_STAGING -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_STAGING)
-            BASE_URL_PROD -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_PROD)
             else -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
         }
     }
