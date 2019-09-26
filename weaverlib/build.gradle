@@ -28,15 +28,15 @@ android {
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
             buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
-            resValue('string',"gcm_defaultSenderId","1090288296965")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
             buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
-            resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
-            resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
-            resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
-            resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
             buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
-            resValue('string',"project_id","leobit-antourage")
+            resValue('string', "project_id", "leobit-antourage")
 
             buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
@@ -49,15 +49,15 @@ android {
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
             buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
-            resValue('string',"gcm_defaultSenderId","1090288296965")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
             buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
-            resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
-            resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
-            resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
-            resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
             buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
-            resValue('string',"project_id","leobit-antourage")
+            resValue('string', "project_id", "leobit-antourage")
 
             buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
@@ -68,15 +68,15 @@ android {
             resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
             buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
             resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
-            resValue('string',"gcm_defaultSenderId","1090288296965")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
             buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
-            resValue('string',"google_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
             buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
-            resValue('string',"google_app_id","1:1090288296965:android:e9d14e6292648f90")
-            resValue('string',"google_crash_reporting_api_key","AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
-            resValue('string',"google_storage_bucket","leobit-antourage.appspot.com")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
             buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
-            resValue('string',"project_id","leobit-antourage")
+            resValue('string', "project_id", "leobit-antourage")
 
             buildConfigField('String', "FirebaseName", "\"secondary\"")
         }
@@ -136,7 +136,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.anko:anko:$anko_version"
 }
 repositories {
     mavenCentral()

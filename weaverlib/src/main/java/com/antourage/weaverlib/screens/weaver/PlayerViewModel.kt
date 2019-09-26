@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.BuildConfig
@@ -41,6 +42,10 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     var currentPoll: Poll? = null
+
+    var newAvatar: Bitmap? = null
+    var avatarDeleted = false
+    var profileInfo: UserInfo? = null
 
     fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
@@ -105,6 +110,16 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
             repository.getPoll(streamId).observeForever(activePollObserver)
             repository.getStream(streamId).observeForever(streamObserver)
         }
+    }
+
+    fun onAvatarChanged(it: Bitmap) {
+        avatarDeleted = false
+        newAvatar = it
+    }
+
+    fun onAvatarDeleted() {
+        avatarDeleted = true
+        newAvatar = null
     }
 
     fun seePollDetails() {

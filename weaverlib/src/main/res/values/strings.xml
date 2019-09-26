@@ -43,4 +43,9 @@
     <string name="confirm">Confirm</string>
     <string name="type_your_display_name">Type your display name</string>
     <string name="your_default_name_is">Your default name is %s</string>
+
+    <string name="choose_image_source">Add image</string>
+    <string name="delete_image">Delete image</string>
+    <string name="from_gallery">From gallery</string>
+    <string name="from_camera">From camera</string>
 </resources>

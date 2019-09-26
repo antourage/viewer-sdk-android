@@ -20,8 +20,9 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
-    var liveVideos: MutableList<StreamResponse>? = null
-    var vods: List<StreamResponse>? = null
+    var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var liveVideos: MutableList<StreamResponse>? = null
+    private var vods: List<StreamResponse>? = null
 
     var liveVideosUpdated = false
     var vodsUpdated = false
@@ -57,7 +58,9 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
                     }
                 }
             }
-            is Status.Loading -> liveVideosUpdated = false
+            is Status.Loading -> {
+                liveVideosUpdated = false
+            }
             is Status.Failure -> {
                 liveVideosUpdated = true
                 error.postValue(resource.status.errorMessage)
@@ -80,9 +83,13 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
                     }
                 }
             }
-            is Status.Loading -> vodsUpdated = false
+            is Status.Loading -> {
+                vodsUpdated = false
+                loaderLiveData.postValue(true)
+            }
             is Status.Failure -> {
                 vodsUpdated = true
+                loaderLiveData.postValue(false)
                 error.postValue(resource.status.errorMessage)
             }
         }
@@ -103,6 +110,7 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
             )
         }
         vods?.let { resultList.addAll(it) }
+        loaderLiveData.postValue(false)
         listOfStreams.postValue(resultList)
     }
 

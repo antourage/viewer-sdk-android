@@ -41,6 +41,9 @@ class ReceivingVideosManager {
                                 vods = resource
                                 response.removeObserver(this)
                             }
+                            is Status.Loading -> {
+                                callback?.onVODReceived(resource)
+                            }
                         }
                     }
                 }

@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base.player
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.graphics.Bitmap
 import android.util.Log
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.screens.base.BaseViewModel

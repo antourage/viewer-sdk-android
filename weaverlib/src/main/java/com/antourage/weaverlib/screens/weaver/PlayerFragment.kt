@@ -3,14 +3,14 @@ package com.antourage.weaverlib.screens.weaver
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import com.antourage.weaverlib.BuildConfig
@@ -22,6 +22,7 @@ import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
+import com.antourage.weaverlib.other.ui.AvatarChooser
 import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.other.ui.keyboard.convertDpToPx
@@ -42,7 +43,6 @@ import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import java.util.*
 import kotlin.math.roundToInt
-
 
 /**
  * Be careful not to create multiple instances of player
@@ -66,6 +66,22 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     override fun getLayoutId() = R.layout.fragment_player_live_video_portrait
+
+    private val avatarChooser by lazy { context?.let { AvatarChooser(it) } }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        avatarChooser?.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        avatarChooser?.onActivityResult(requestCode, resultCode, data)
+    }
 
     //region Observers
     private val streamStateObserver: Observer<Int> = Observer { state ->
@@ -207,6 +223,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         etDisplayName.setText("")
         toggleUserSettingsDialog()
         hideKeyboard()
+    }
+
+    private val onUserPhotoClicked = View.OnClickListener {
+        showImagePickerDialog()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -482,6 +502,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnSend.setOnClickListener(onBtnSendClicked)
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
         btnCancel.setOnClickListener(onCancelClicked)
+        ivSetUserPhoto.setOnClickListener(onUserPhotoClicked)
+        avatarChooser?.setListener { setNewAvatar(it) }
         ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
         pollPopupLayout.setOnClickListener {
@@ -513,5 +535,23 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnUserSettings.setImageResource(
             if (clUserSettings.visibility == View.VISIBLE) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
         )
+    }
+
+    private fun showImagePickerDialog() {
+        if (viewModel.avatarDeleted || viewModel.profileInfo?.imagePath == null) {
+            avatarChooser?.showChoose(this)
+        } else {
+            avatarChooser?.showChooseDelete(this)
+        }
+    }
+
+    private fun setNewAvatar(it: Bitmap?) {
+        it?.let {
+            ivSetUserPhoto.setImageBitmap(it)
+            viewModel.onAvatarChanged(it)
+        } ?: run {
+            ivSetUserPhoto.setImageResource(R.drawable.ic_user_grayed)
+            viewModel.onAvatarDeleted()
+        }
     }
 }

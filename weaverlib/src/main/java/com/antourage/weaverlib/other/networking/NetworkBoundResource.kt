@@ -5,15 +5,24 @@ import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.antourage.weaverlib.ModuleResourcesProvider
+import java.util.*
+import kotlin.concurrent.schedule
 
 abstract class NetworkBoundResource<ResultType>
 @MainThread constructor() {
 
     private val result = MutableLiveData<Resource<ResultType>>()
+    private var start: Long? = null
+    private var end: Long? = null
 
     init {
         val context = ModuleResourcesProvider.getContext()
-        result.value = Resource.loading()
+        start = Date().time
+        end = Date().time
+        Timer().schedule(1000) {
+            if ((end ?: 0) - (start ?: 0) > 1000)
+                result.value = Resource.loading()
+        }
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                 fetchFromNetwork()
@@ -36,6 +45,7 @@ abstract class NetworkBoundResource<ResultType>
         apiResponse.observeForever { response ->
             when (response) {
                 is ApiSuccessResponse -> {
+                    end = Date().time
                     AppExecutors.diskIO().execute {
                         AppExecutors.mainThread().execute {
                             result.setValue(
