@@ -11,7 +11,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         MultiDex.install(this)
         setContentView(R.layout.activity_main)
-        //AntourageFabLifecycleObserver.registerLifecycle(lifecycle)
     }
 
     override fun onPause() {

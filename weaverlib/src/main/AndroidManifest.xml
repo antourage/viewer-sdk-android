@@ -5,6 +5,9 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
             android:largeHeap="true"
@@ -16,11 +19,25 @@
                 android:supportsPictureInPicture="true"
                 android:theme="@style/Theme.AppCompat.NoActionBar"
                 android:windowSoftInputMode="adjustResize"
-                tools:targetApi="n"/>
+                tools:targetApi="n" />
+
         <provider
                 android:name=".ModuleResourcesProvider"
                 android:authorities="${applicationId}.ModuleResourcesProvider"
                 android:exported="false" />
+
+        <provider
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="com.antourage.weaverlib.provider"
+                android:exported="false"
+                android:grantUriPermissions="true"
+                tools:replace="android:authorities">
+            <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/provider_paths"
+                    tools:replace="android:resource" />
+        </provider>
+
     </application>
 
 </manifest>
