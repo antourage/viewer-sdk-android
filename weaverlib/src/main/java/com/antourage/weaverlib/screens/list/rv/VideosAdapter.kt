@@ -72,7 +72,10 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
             val videoItem = listOfStreams[position]
             videoItem?.apply {
                 if (!thumbnailUrl.isNullOrEmpty()) {
-                    Picasso.get().load(thumbnailUrl).into(holder.thumbnail)
+                    Picasso.get()
+                        .load(thumbnailUrl)
+                        .placeholder(R.drawable.placeholder_white_noise)
+                        .into(holder.thumbnail)
                 }
                 holder.itemView.setOnClickListener {
                     if (holder.adapterPosition >= 0 && holder.adapterPosition < listOfStreams.size &&

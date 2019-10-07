@@ -9,9 +9,10 @@ import javax.inject.Inject
 
 class UserCache @Inject constructor() {
     companion object {
-        private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val ANT_PREF = "ant_pref"
+        private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val SP_BE_CHOICE = "sp_be_choice"
+        private const val SP_TOKEN = "sp_token"
         fun newInstance() = UserCache()
     }
 
@@ -50,5 +51,17 @@ class UserCache @Inject constructor() {
         val editor = sharedPref.edit()
         editor.putString(SP_BE_CHOICE, link)
         editor.apply()
+    }
+
+    fun saveToken(context: Context, token: String) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+        sharedPref.edit()
+            .putString(SP_TOKEN, token)
+            .apply()
+    }
+
+    fun getToken(context: Context): String? {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+        return sharedPref.getString(SP_TOKEN, null)
     }
 }

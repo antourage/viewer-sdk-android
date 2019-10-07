@@ -101,6 +101,7 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:swiperefreshlayout:28.0.0'
+    implementation 'com.android.support:exifinterface:28.0.0'
     //Constraint layout
     //Do not update as there is some weird bug with adjustResize
     implementation 'com.android.support.constraint:constraint-layout:2.0.0-beta1'
