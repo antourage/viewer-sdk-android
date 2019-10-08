@@ -26,7 +26,7 @@ class ReceivingVideosManager {
         }
 
         fun loadVODs() {
-            val response = Repository(ApiClient.getClient().webService).getVODs()
+            val response = Repository(ApiClient.getWebClient(false).webService).getVODs()
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -56,7 +56,7 @@ class ReceivingVideosManager {
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
                     val streamResponse =
-                        Repository(ApiClient.getClient().webService).getLiveVideos()
+                        Repository(ApiClient.getWebClient(false).webService).getLiveVideos()
                     streamResponse.observeForever(object :
                         Observer<Resource<List<StreamResponse>>> {
                         override fun onChanged(resource: Resource<List<StreamResponse>>?) {

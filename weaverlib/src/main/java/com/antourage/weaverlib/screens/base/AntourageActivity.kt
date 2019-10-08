@@ -13,6 +13,7 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.VideoListFragment
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 
@@ -21,7 +22,7 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        BASE_URL = UserCache.getInstance(this)?.getBeChoice()
+        BASE_URL = UserCache.getInstance(this)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         supportFragmentManager.beginTransaction()
