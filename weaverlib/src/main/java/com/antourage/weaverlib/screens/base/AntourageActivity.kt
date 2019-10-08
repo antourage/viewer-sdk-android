@@ -21,7 +21,7 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        BASE_URL = UserCache.newInstance().getBeChoice(this)
+        BASE_URL = UserCache.getInstance(this)?.getBeChoice()
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         supportFragmentManager.beginTransaction()

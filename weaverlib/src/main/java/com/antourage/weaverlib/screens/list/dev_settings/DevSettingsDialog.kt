@@ -22,7 +22,7 @@ class DevSettingsDialog(context: Context, private val listener: OnDevSettingsCha
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
-        initBECheckedBtn(UserCache.newInstance().getBeChoice(context.applicationContext))
+        initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
         rb_dev.text = BASE_URL_DEV
         rb_staging.text = BASE_URL_STAGING
         setTxt.setOnClickListener { v ->

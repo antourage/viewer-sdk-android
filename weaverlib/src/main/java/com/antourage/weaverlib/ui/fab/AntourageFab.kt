@@ -14,7 +14,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.di.DaggerCacheComponent
 import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
@@ -26,7 +25,6 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
-import javax.inject.Inject
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
@@ -47,8 +45,7 @@ class AntourageFab @JvmOverloads constructor(
         const val ARGS_STREAM_SELECTED = "args_stream_selected"
     }
 
-    @Inject
-    lateinit var userCache: UserCache
+    private var userCache: UserCache? = UserCache.getInstance(context)
     private lateinit var currentlyDisplayedStream: StreamResponse
     private var listOfStreams: List<StreamResponse>? = null
     val handlerFab: Handler = Handler(Looper.getMainLooper())
@@ -85,8 +82,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     init {
-        DaggerCacheComponent.create().injectCache(this)
-        BASE_URL = userCache.getBeChoice(context)
+        BASE_URL = userCache?.getBeChoice()
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
@@ -125,16 +121,16 @@ class AntourageFab @JvmOverloads constructor(
         isSwipeInProgress = true
     }
 
-    fun manageVideos() {
-        val seenVideos = userCache.getSeenVideos(context)
-        val nonSeenNumber = (Repository.vods?.size ?: 0) - seenVideos.size
+    private fun manageVideos() {
+        val seenVideos = userCache?.getSeenVideos()
+        val nonSeenNumber = (Repository.vods?.size ?: 0) - (seenVideos?.size ?: 0)
         if (nonSeenNumber > 0) {
             changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
         } else
             changeBadgeStatus(WidgetStatus.Inactive)
     }
 
-    fun changeBadgeStatus(status: WidgetStatus) {
+    private fun changeBadgeStatus(status: WidgetStatus) {
         when (status) {
             is WidgetStatus.Inactive -> {
                 handlerFab.removeCallbacksAndMessages(null)

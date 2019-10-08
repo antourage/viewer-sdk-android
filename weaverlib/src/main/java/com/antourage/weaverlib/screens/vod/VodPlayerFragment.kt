@@ -88,7 +88,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 val formattedStartTime = startTime?.parseDate(context)
                 tvWasLive.text = formattedStartTime
                 tvWasLive.gone(formattedStartTime.isNullOrEmpty())
-                streamId?.let { UserCache.newInstance().saveVideoToSeen(context, it) }
+                streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
         }
     }

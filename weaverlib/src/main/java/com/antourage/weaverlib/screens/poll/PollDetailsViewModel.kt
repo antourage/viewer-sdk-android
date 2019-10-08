@@ -61,7 +61,7 @@ class PollDetailsViewModel @Inject constructor(
         FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
             .currentUser?.let {
             val userAnswer = AnsweredUser()
-            userAnswer.choosenAnswer = pos
+            userAnswer.chosenAnswer = pos
             userAnswer.timestamp = Timestamp(Date())
             userAnswer.id = it.uid
             repository.vote(streamId, pollId, userAnswer)
@@ -85,7 +85,7 @@ class PollDetailsViewModel @Inject constructor(
                         ) {
                             isAnswered = true
                         }
-                        if (answeredUsers[j].choosenAnswer == i)
+                        if (answeredUsers[j].chosenAnswer == i)
                             counter++
                     }
                     val combinedAns = AnswersCombined(poll.answers?.get(i) ?: "", counter)

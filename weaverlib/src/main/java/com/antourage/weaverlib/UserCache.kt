@@ -2,35 +2,48 @@ package com.antourage.weaverlib
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
+import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
 
-class UserCache @Inject constructor() {
+class UserCache private constructor(context: Context) {
+    private var contextRef: WeakReference<Context>? = null
+    private var prefs: SharedPreferences? = null
+
+    init {
+        this.contextRef = WeakReference(context)
+        this.prefs = contextRef?.get()?.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
+    }
+
     companion object {
         private const val ANT_PREF = "ant_pref"
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
-        fun newInstance() = UserCache()
+        private val INSTANCE: UserCache? = null
+
+        @Synchronized
+        fun getInstance(context: Context): UserCache? {
+            return INSTANCE ?: UserCache(context)
+        }
     }
 
-    fun saveVideoToSeen(context: Context, seenVideoId: Int) {
-        val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
+    fun saveVideoToSeen(seenVideoId: Int) {
         val str = StringBuilder()
-        val alreadySeenVideos = getSeenVideos(context).toMutableSet()
+        val alreadySeenVideos = getSeenVideos().toMutableSet()
         if (!alreadySeenVideos.contains(seenVideoId))
             alreadySeenVideos.add(seenVideoId)
         alreadySeenVideos.forEach {
             str.append(it).append(",")
         }
-        prefs.edit().putString(SP_SEEN_VIDEOS, str.toString()).apply()
+        prefs?.edit()?.putString(SP_SEEN_VIDEOS, str.toString())?.apply()
     }
 
-    fun getSeenVideos(context: Context): Set<Int> {
-        val prefs = context.getSharedPreferences(ANT_PREF, MODE_PRIVATE)
-        val savedString = prefs.getString(SP_SEEN_VIDEOS, "")
+    fun getSeenVideos(): Set<Int> {
+        val savedString = prefs?.getString(SP_SEEN_VIDEOS, "")
         val st = StringTokenizer(savedString, ",")
         val savedList = MutableList(st.countTokens()) { 0 }
         var i = 0
@@ -41,27 +54,25 @@ class UserCache @Inject constructor() {
         return savedList.toHashSet()
     }
 
-    fun getBeChoice(context: Context): String? {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+    fun getBeChoice(): String? {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(contextRef?.get())
         return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
     }
 
-    fun updateBEChoice(context: Context, link: String) {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
+    fun updateBEChoice(link: String) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(contextRef?.get())
         val editor = sharedPref.edit()
         editor.putString(SP_BE_CHOICE, link)
         editor.apply()
     }
 
-    fun saveToken(context: Context, token: String) {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-        sharedPref.edit()
-            .putString(SP_TOKEN, token)
-            .apply()
+    fun saveToken(token: String) {
+        prefs?.edit()
+            ?.putString(SP_TOKEN, token)
+            ?.apply()
     }
 
-    fun getToken(context: Context): String? {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
-        return sharedPref.getString(SP_TOKEN, null)
+    fun getToken(): String? {
+        return prefs?.getString(SP_TOKEN, null)
     }
 }

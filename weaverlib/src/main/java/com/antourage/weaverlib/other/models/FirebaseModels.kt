@@ -72,7 +72,7 @@ class Poll : FirestoreModel() {
 
 @Keep
 data class AnsweredUser(
-    var choosenAnswer: Int? = null,
+    var chosenAnswer: Int? = null,
     var timestamp: Timestamp? = null
 ) : FirestoreModel()
 

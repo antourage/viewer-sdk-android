@@ -102,7 +102,7 @@ class VideoListFragment : Fragment() {
             } else {
                 context?.let { context ->
                     streamResponse.streamId?.let {
-                        UserCache.newInstance().saveVideoToSeen(context, it)
+                        UserCache.getInstance(context)?.saveVideoToSeen(it)
                     }
                 }
                 replaceFragment(

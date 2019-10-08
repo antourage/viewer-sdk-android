@@ -147,8 +147,8 @@ class VideoListViewModel @Inject constructor(application: Application, val repos
 
     override fun onBeChanged(choice: String?) {
         choice?.let {
-            UserCache.newInstance()
-                .updateBEChoice(getApplication<Application>().applicationContext, choice)
+            UserCache.getInstance(getApplication<Application>().applicationContext)
+                ?.updateBEChoice(choice)
             BASE_URL = choice
         }
     }

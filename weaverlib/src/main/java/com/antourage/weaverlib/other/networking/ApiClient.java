@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
     public static String BASE_URL = "";
+    public static final String HEADER_TOKEN = "Authorization";
     private static final String HEADER_LANGUAGE = "Accept-Language";
 
     private static WebService webService;
@@ -37,6 +38,15 @@ public class ApiClient {
         return retrofit;
     }
 
+    public static String getTokenForRequest() {
+        String token = "";
+//        if (App.Companion.getPrefsHelper() != null){
+//            token = App.Companion.getPrefsHelper().getToken();
+//            if (token == null) token = "";
+//        }
+        return token;
+    }
+
     public WebService getWebService() {
         return webService;
     }
@@ -44,6 +54,7 @@ public class ApiClient {
     private OkHttpClient defaultClient() {
         return new OkHttpClient.Builder().addInterceptor(chain -> {
             Request request = chain.request().newBuilder()
+                    .addHeader(HEADER_TOKEN, getTokenForRequest())
                     .addHeader(HEADER_LANGUAGE, "en")
                     .build();
             return chain.proceed(request);

@@ -52,3 +52,10 @@ data class StreamResponse(
     var isLive: Boolean = false,
     var viewerCounter: Int = 6385
 ) : Parcelable
+
+data class User(
+    @field:SerializedName("id") val id: Int?,
+    @field:SerializedName("token") val token: String?,
+    @field:SerializedName("displayName") val displayName: String?
+)
+
