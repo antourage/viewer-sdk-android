@@ -19,4 +19,10 @@ interface WebService {
 
     @POST("users/name")
     fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("statistic/livestream")
+    fun statisticWatchLiveStream(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("statistic/vod")
+    fun statisticWatchVOD(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
 }

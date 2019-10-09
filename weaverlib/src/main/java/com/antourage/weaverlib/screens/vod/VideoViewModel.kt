@@ -27,7 +27,7 @@ import okhttp3.OkHttpClient
 import java.util.*
 import javax.inject.Inject
 
-class VideoViewModel @Inject constructor(application: Application, val repository: Repository) :
+class VideoViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
     private var streamId: Int? = null
@@ -37,6 +37,8 @@ class VideoViewModel @Inject constructor(application: Application, val repositor
     private var userProcessedMessages = mutableListOf<Message>()
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
+    private var repository = Repository()
+
     private val messagesRunnable = object : Runnable {
         override fun run() {
             manageShownMessages()

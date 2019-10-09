@@ -16,7 +16,7 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import javax.inject.Inject
 
-class VideoListViewModel @Inject constructor(application: Application, val repository: Repository) :
+class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()

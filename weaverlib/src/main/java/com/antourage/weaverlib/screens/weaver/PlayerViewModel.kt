@@ -9,10 +9,11 @@ import android.net.Uri
 import android.os.Handler
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.AnsweredUser
-import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.Poll
-import com.antourage.weaverlib.other.models.Stream
+import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
+import com.antourage.weaverlib.UserCache.Companion.DEFAULT_DISPLAY_NAME_PREFIX
+import com.antourage.weaverlib.other.isEmptyTrimmed
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
@@ -27,7 +28,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
-class PlayerViewModel @Inject constructor(application: Application, val repository: Repository) :
+class PlayerViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
     companion object {
@@ -38,9 +39,15 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
     var streamId: Int = 0
     private var isChatTurnedOn = false
     private var postAnsweredUsers = false
+    private var user: User? = null
+
+    private var repository = Repository()
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
+    private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
+    private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
+
     var currentPoll: Poll? = null
 
     var newAvatar: Bitmap? = null
@@ -49,6 +56,8 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
 
     fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
+    fun getUserInfoLiveData(): LiveData<User> = userInfoLiveData
+    fun getLoaderLiveData(): LiveData<Boolean> = loaderLiveData
 
     init {
         pollStatusLiveData.value = PollStatus.NoPoll
@@ -206,13 +215,57 @@ class PlayerViewModel @Inject constructor(application: Application, val reposito
             .createMediaSource(Uri.parse(streamUrl))
     }
 
-    override fun onVideoChanged() {
-
-    }
+    override fun onVideoChanged() {}
 
     override fun onResume() {
         super.onResume()
         player.seekTo(player.duration)
+    }
 
+    fun initUser() {
+        UserCache.getInstance(getApplication())?.getUserId()?.let {
+            val response = repository.getUser(it, API_KEY_2)
+            response.observeForever(object : Observer<Resource<User>> {
+                override fun onChanged(it: Resource<User>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            user = responseStatus.data
+                            userInfoLiveData.postValue(user)
+                        }
+                        is Status.Failure -> response.removeObserver(this)
+                    }
+                }
+            })
+        }
+    }
+
+    fun noDisplayNameSet() =
+        user == null || user?.displayName == null || user?.displayName?.isEmptyTrimmed() == true
+
+    fun generateUserDefaultDisplayName(): String {
+        return "$DEFAULT_DISPLAY_NAME_PREFIX${user?.id?.plus(4)?.times(8)}"
+    }
+
+    fun changeUserDisplayName(newDisplayName: String = generateUserDefaultDisplayName()) {
+        if (newDisplayName != user?.displayName) {
+            val response = repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
+            response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                override fun onChanged(it: Resource<SimpleResponse>?) {
+                    when (it?.status) {
+                        is Status.Loading -> loaderLiveData.postValue(true)
+                        is Status.Success -> {
+                            loaderLiveData.postValue(false)
+                            user?.displayName = newDisplayName
+                            userInfoLiveData.postValue(user)
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            loaderLiveData.postValue(false)
+                            response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
     }
 }

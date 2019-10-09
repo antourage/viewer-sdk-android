@@ -5,13 +5,14 @@ import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.WebService
 import com.google.firebase.firestore.Query
 import javax.inject.Inject
 
-class Repository @Inject constructor(val api: WebService) {
+class Repository {
 
     companion object {
         var vods: List<StreamResponse>? = null
@@ -19,28 +20,28 @@ class Repository @Inject constructor(val api: WebService) {
 
     fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
         object : NetworkBoundResource<List<StreamResponse>>() {
-            override fun createCall() = api.getLiveStreams()
+            override fun createCall() = ApiClient.getWebClient().webService.getLiveStreams()
         }.asLiveData()
 
 
     fun getVODs(): LiveData<Resource<List<StreamResponse>>> =
         object : NetworkBoundResource<List<StreamResponse>>() {
-            override fun createCall() = api.getVODs()
+            override fun createCall() = ApiClient.getWebClient().webService.getVODs()
         }.asLiveData()
 
     fun generateUser(body: UserRequest): LiveData<Resource<User>> =
         object : NetworkBoundResource<User>() {
-            override fun createCall() = api.generateUser(body)
+            override fun createCall() = ApiClient.getWebClient(false).webService.generateUser(body)
         }.asLiveData()
 
     fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
         object : NetworkBoundResource<User>() {
-            override fun createCall() = api.getUser(id, apiKey)
+            override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
         }.asLiveData()
 
     fun updateDisplayName(body: UpdateDisplayNameRequest): LiveData<Resource<SimpleResponse>> =
         object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() = api.updateDisplayName(body)
+            override fun createCall() = ApiClient.getWebClient().webService.updateDisplayName(body)
         }.asLiveData()
 
     //region Firebase

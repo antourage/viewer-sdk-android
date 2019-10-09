@@ -41,6 +41,7 @@
 
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="use_default">Use default</string>
     <string name="type_your_display_name">Type your display name</string>
     <string name="your_default_name_is">Your default name is %s</string>
 

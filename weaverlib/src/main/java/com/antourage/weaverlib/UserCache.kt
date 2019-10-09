@@ -22,7 +22,9 @@ class UserCache private constructor(context: Context) {
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
-        private val INSTANCE: UserCache? = null
+        private const val SP_USER_ID = "sp_user_id"
+        internal const val DEFAULT_DISPLAY_NAME_PREFIX = "SuperFan#"
+        private var INSTANCE: UserCache? = null
 
         //TODO: delete
         const val API_KEY_1 = "a5f76ee9-bc76-4f76-a042-933b8993fc2c"
@@ -30,7 +32,10 @@ class UserCache private constructor(context: Context) {
 
         @Synchronized
         fun getInstance(context: Context): UserCache? {
-            return INSTANCE ?: UserCache(context)
+            if (INSTANCE == null){
+                INSTANCE = UserCache(context)
+            }
+            return INSTANCE
         }
 
         @Synchronized
@@ -74,13 +79,18 @@ class UserCache private constructor(context: Context) {
         editor.apply()
     }
 
-    fun saveToken(token: String) {
+    fun saveUserAuthInfo(token: String, userId: Int) {
         prefs?.edit()
             ?.putString(SP_TOKEN, token)
+            ?.putInt(SP_USER_ID, userId)
             ?.apply()
     }
 
     fun getToken(): String? {
         return prefs?.getString(SP_TOKEN, null)
+    }
+
+    fun getUserId(): Int? {
+        return prefs?.getInt(SP_USER_ID, -1)
     }
 }

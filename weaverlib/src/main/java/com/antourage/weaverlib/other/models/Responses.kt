@@ -56,6 +56,6 @@ data class StreamResponse(
 data class User(
     @field:SerializedName("id") val id: Int?,
     @field:SerializedName("token") val token: String?,
-    @field:SerializedName("displayName") val displayName: String?
+    @field:SerializedName("displayName") var displayName: String?
 )
 

@@ -20,6 +20,7 @@ import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.User
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.AvatarChooser
@@ -128,6 +129,21 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
     }
 
+    private val userInfoObserver: Observer<User> = Observer {
+        if (viewModel.noDisplayNameSet()) {
+            enableMessageInput(false)
+            txtLabelDefaultName.visibility = View.VISIBLE
+            txtLabelDefaultName.text = resources.getString(
+                R.string.your_default_name_is,
+                viewModel.generateUserDefaultDisplayName()
+            )
+        } else {
+            enableMessageInput(true)
+            etDisplayName.setText(it?.displayName)
+            txtLabelDefaultName.visibility = View.GONE
+        }
+    }
+
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
             when (state) {
@@ -219,6 +235,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         hideKeyboard()
     }
 
+    private val onMessageETClicked = View.OnClickListener {
+        checkIfRequireDisplayNameSetting()
+    }
+
     private val onCancelClicked = View.OnClickListener {
         etDisplayName.setText("")
         toggleUserSettingsDialog()
@@ -240,6 +260,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getPollStatusLiveData().observe(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getChatStatusLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
+        viewModel.getUserInfoLiveData().observe(this.viewLifecycleOwner, userInfoObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
             networkStateObserver
@@ -248,6 +269,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun initUi(view: View?) {
         super.initUi(view)
+        initUser()
         hidePollStatusLayout()
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
@@ -259,7 +281,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         etDisplayName.afterTextChanged {
             txtLabelDefaultName.visibility = if (it.isEmptyTrimmed()) View.VISIBLE else View.GONE
-            btnConfirm.isEnabled = !it.isEmptyTrimmed()
+            btnConfirm.text =
+                resources.getString(if (it.isEmptyTrimmed()) R.string.use_default else R.string.confirm)
         }
     }
 
@@ -329,6 +352,15 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun onPollDetailsClicked() {
         viewModel.seePollDetails()
+    }
+
+    private fun onConfirmClicked() {
+        if (etDisplayName.text.isEmptyTrimmed()) {
+            viewModel.changeUserDisplayName()
+        } else {
+            viewModel.changeUserDisplayName(etDisplayName.text.toString())
+        }
+        showUserSettingsDialog(false)
     }
 
     private fun startPlayingStream() {
@@ -500,12 +532,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
+        etMessage.setOnClickListener(onMessageETClicked)
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
         btnCancel.setOnClickListener(onCancelClicked)
         ivSetUserPhoto.setOnClickListener(onUserPhotoClicked)
         avatarChooser?.setListener { setNewAvatar(it) }
         ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
+        btnConfirm.setOnClickListener { onConfirmClicked() }
         pollPopupLayout.setOnClickListener {
             playerControls.hide()
             onPollDetailsClicked()
@@ -530,10 +564,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun toggleUserSettingsDialog() {
+        showUserSettingsDialog(clUserSettings.visibility == View.GONE)
+    }
+
+    private fun showUserSettingsDialog(show: Boolean) {
         clUserSettings.visibility =
-            if (clUserSettings.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if (show) View.VISIBLE else View.GONE
         btnUserSettings.setImageResource(
-            if (clUserSettings.visibility == View.VISIBLE) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
+            if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
         )
     }
 
@@ -552,6 +590,16 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         } ?: run {
             ivSetUserPhoto.setImageResource(R.drawable.ic_user_grayed)
             viewModel.onAvatarDeleted()
+        }
+    }
+
+    private fun initUser() {
+        viewModel.initUser()
+    }
+
+    private fun checkIfRequireDisplayNameSetting() {
+        if (viewModel.noDisplayNameSet()) {
+            showUserSettingsDialog(true)
         }
     }
 }

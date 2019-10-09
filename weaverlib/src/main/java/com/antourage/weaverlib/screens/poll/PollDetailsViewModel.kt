@@ -18,8 +18,7 @@ import java.util.*
 import javax.inject.Inject
 
 class PollDetailsViewModel @Inject constructor(
-    application: Application,
-    val repository: Repository
+    application: Application
 ) : BaseViewModel(application) {
 
     private val pollLiveData = MutableLiveData<Poll>()
@@ -27,6 +26,7 @@ class PollDetailsViewModel @Inject constructor(
     private var streamId: Int = -1
     private var pollId: String = ""
     var isAnswered: Boolean = false
+    private var repository = Repository()
 
     fun getPollLiveData(): LiveData<Poll> = pollLiveData
     fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
