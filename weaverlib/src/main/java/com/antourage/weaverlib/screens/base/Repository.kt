@@ -44,6 +44,16 @@ class Repository {
             override fun createCall() = ApiClient.getWebClient().webService.updateDisplayName(body)
         }.asLiveData()
 
+    fun statisticWatchVOD(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
+        object : NetworkBoundResource<SimpleResponse>() {
+            override fun createCall() = ApiClient.getWebClient().webService.statisticWatchVOD(body)
+        }.asLiveData()
+
+    fun statisticWatchLiveStream(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
+        object : NetworkBoundResource<SimpleResponse>() {
+            override fun createCall() = ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
+        }.asLiveData()
+
     //region Firebase
     fun addMessage(message: Message, streamId: Int) {
         FirestoreDatabase().getMessagesReferences(streamId).document().set(message)

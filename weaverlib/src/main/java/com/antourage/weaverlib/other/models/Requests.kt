@@ -14,7 +14,7 @@ data class UpdateDisplayNameRequest(
 
 data class StatisticWatchVideoRequest(
     @field:SerializedName("userId") val userId: String?,
-    @field:SerializedName("userId") val streamId: Int?,
+    @field:SerializedName("streamId") val streamId: Int?,
     @field:SerializedName("actionId") val actionId: Int?,
     @field:SerializedName("batteryLevel") val batteryLevel: Int?,
     @field:SerializedName("timeStamp") val timeStamp: String?,

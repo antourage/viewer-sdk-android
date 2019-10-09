@@ -4,17 +4,19 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
+import android.os.BatteryManager
 import android.os.Handler
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
-import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.MessageType
-import com.antourage.weaverlib.other.models.Stream
-import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.other.parseToDate
+import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -24,8 +26,10 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import okhttp3.OkHttpClient
+import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
+
 
 class VideoViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
@@ -38,6 +42,8 @@ class VideoViewModel @Inject constructor(application: Application) :
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var repository = Repository()
+
+    private var batteryStatus: Intent? = null
 
     private val messagesRunnable = object : Runnable {
         override fun run() {
@@ -106,9 +112,37 @@ class VideoViewModel @Inject constructor(application: Application) :
         chatStateLiveData.postValue(true)
     }
 
+    override fun onResume() {
+        super.onResume()
+        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            getApplication<Application>().registerReceiver(null, ifilter)
+        }
+        sendStatisticData(StatisticActions.JOINED)
+    }
+
+    private fun sendStatisticData(statisticAction: StatisticActions) {
+        repository.statisticWatchVOD(
+            StatisticWatchVideoRequest(
+                UserCache.getInstance(getApplication())?.getUserId().toString(),
+                streamId,
+                statisticAction.ordinal,
+                getBatteryLevel(),
+                Timestamp(System.currentTimeMillis()).toString(),
+                "00:30:00"
+            )
+        )
+    }
+
+    private fun getBatteryLevel(): Int? {
+        return batteryStatus?.let { intent ->
+            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         stopMonitoringChatMessages()
+        sendStatisticData(StatisticActions.LEFT)
     }
 
     override fun onVideoChanged() {
