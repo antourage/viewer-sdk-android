@@ -7,7 +7,6 @@ import android.preference.PreferenceManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
 import java.lang.ref.WeakReference
 import java.util.*
-import javax.inject.Inject
 
 class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
@@ -24,6 +23,10 @@ class UserCache private constructor(context: Context) {
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
         private val INSTANCE: UserCache? = null
+
+        //TODO: delete
+        const val API_KEY_1 = "a5f76ee9-bc76-4f76-a042-933b8993fc2c"
+        const val API_KEY_2 = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
 
         @Synchronized
         fun getInstance(context: Context): UserCache? {

@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.ui.fab
 
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
@@ -14,8 +15,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
 import com.antourage.weaverlib.other.generateRandomViewerNumber
+import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.User
+import com.antourage.weaverlib.other.models.UserRequest
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -26,6 +32,7 @@ import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.layout_motion_fab.view.*
+import java.util.*
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
@@ -52,6 +59,8 @@ class AntourageFab @JvmOverloads constructor(
     val handlerFab: Handler = Handler(Looper.getMainLooper())
     private val setOfDismissed = mutableListOf<Int>()
     var isSwipeInProgress = false
+
+    private var repo: Repository? = null
 
     var counter = 0
 
@@ -84,6 +93,7 @@ class AntourageFab @JvmOverloads constructor(
 
     init {
         BASE_URL = userCache?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
+        repo = Repository(ApiClient.getWebClient().webService)
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
@@ -96,6 +106,8 @@ class AntourageFab @JvmOverloads constructor(
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
         manageVideos()
         AntourageFabLifecycleObserver.registerActionHandler(this)
+
+        handleAuthorization()
     }
 
     override fun onResume() {
@@ -234,5 +246,48 @@ class AntourageFab @JvmOverloads constructor(
                 BaseViewModel.error.postValue(resource.status.errorMessage)
             }
         }
+    }
+
+    public fun authWith(
+        apiKey: String,
+        refUserId: String? = null,
+        nickname: String? = null,
+        callback: () -> Unit
+    ) {
+        authorizeUser(apiKey, refUserId, nickname, callback)
+    }
+
+    private fun handleAuthorization() {
+        val userCache = UserCache.getInstance(context)
+        val token = userCache?.getToken()
+        if (token == null || token.isEmptyTrimmed()) {
+            authorizeUser(API_KEY_2)
+        }
+    }
+
+    private fun authorizeUser(
+        apiKey: String,
+        refUserId: String? = null,
+        nickname: String? = null,
+        callback: (() -> Unit)? = null
+    ) {
+        repo = Repository(ApiClient.getWebClient(false).webService)
+        val response = repo?.generateUser(UserRequest(apiKey, refUserId))
+        response?.observeForever(object : Observer<Resource<User>> {
+            override fun onChanged(it: Resource<User>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        val user = responseStatus.data
+                        user?.token?.let { it1 ->
+                            UserCache.getInstance(context)?.saveToken(it1)
+                        }
+                        response.removeObserver(this)
+                    }
+                    is Status.Failure -> {
+                        response.removeObserver(this)
+                    }
+                }
+            }
+        })
     }
 }

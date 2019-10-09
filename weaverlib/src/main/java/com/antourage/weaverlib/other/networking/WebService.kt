@@ -1,9 +1,7 @@
 package com.antourage.weaverlib.other.networking
 
 import android.arch.lifecycle.LiveData
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.User
-import com.antourage.weaverlib.other.models.UserRequest
+import com.antourage.weaverlib.other.models.*
 import retrofit2.http.*
 
 interface WebService {
@@ -18,4 +16,7 @@ interface WebService {
 
     @GET("users/{id}")
     fun getUser(@Path("id") id: Int, @Query("apiKey") apiKey: String): LiveData<ApiResponse<User>>
+
+    @POST("users/name")
+    fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>
 }
