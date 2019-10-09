@@ -5,11 +5,14 @@ import com.antourage.weaverlib.other.models.*
 import retrofit2.http.*
 
 interface WebService {
-    @GET("streams")
+    @GET("live")
     fun getLiveStreams(): LiveData<ApiResponse<List<StreamResponse>>>
 
-    @GET("VODs")
-    fun getVODs(): LiveData<ApiResponse<List<StreamResponse>>>
+    @GET("vod")
+    fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
+
+    @GET("vod/new")
+    fun getNewVODsCount(): LiveData<ApiResponse<Int>>
 
     @POST("users/generate")
     fun generateUser(@Body body: UserRequest): LiveData<ApiResponse<User>>

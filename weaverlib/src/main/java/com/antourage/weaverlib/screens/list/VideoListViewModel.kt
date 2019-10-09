@@ -30,11 +30,11 @@ class VideoListViewModel @Inject constructor(application: Application) :
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
-        refreshVODs()
+        refreshVODs(vods?.size ?: 0)
     }
 
-    fun refreshVODs() {
-        ReceivingVideosManager.loadVODs()
+    fun refreshVODs(count: Int) {
+        ReceivingVideosManager.loadVODs(count)
     }
 
     fun onPause() {

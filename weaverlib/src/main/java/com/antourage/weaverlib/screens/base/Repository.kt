@@ -8,9 +8,7 @@ import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
-import com.antourage.weaverlib.other.networking.WebService
 import com.google.firebase.firestore.Query
-import javax.inject.Inject
 
 class Repository {
 
@@ -24,9 +22,14 @@ class Repository {
         }.asLiveData()
 
 
-    fun getVODs(): LiveData<Resource<List<StreamResponse>>> =
+    fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
         object : NetworkBoundResource<List<StreamResponse>>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getVODs()
+            override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
+        }.asLiveData()
+
+    fun getNewVODsCount(): LiveData<Resource<Int>> =
+        object : NetworkBoundResource<Int>() {
+            override fun createCall() = ApiClient.getWebClient().webService.getNewVODsCount()
         }.asLiveData()
 
     fun generateUser(body: UserRequest): LiveData<Resource<User>> =
@@ -51,7 +54,8 @@ class Repository {
 
     fun statisticWatchLiveStream(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
         object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() = ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
+            override fun createCall() =
+                ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
         }.asLiveData()
 
     //region Firebase

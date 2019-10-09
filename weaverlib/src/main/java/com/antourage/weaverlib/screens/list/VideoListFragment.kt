@@ -120,7 +120,7 @@ class VideoListFragment : Fragment() {
         )
         videosRV.addItemDecoration(dividerItemDecoration)
         videoRefreshLayout.setOnRefreshListener {
-            viewModel.refreshVODs()
+            viewModel.refreshVODs(0)
         }
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }

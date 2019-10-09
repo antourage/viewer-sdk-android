@@ -62,6 +62,8 @@ class AntourageFab @JvmOverloads constructor(
 
     var counter = 0
 
+    var newVideosCount = 0
+
     private val transitionListener = object : MotionLayout.TransitionListener {
         override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
 
@@ -101,7 +103,6 @@ class AntourageFab @JvmOverloads constructor(
             context.startActivity(intent)
         }
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
-        manageVideos()
         AntourageFabLifecycleObserver.registerActionHandler(this)
 
         handleAuthorization()
@@ -111,7 +112,7 @@ class AntourageFab @JvmOverloads constructor(
         expandableLayout.setTransitionListener(transitionListener)
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
-        ReceivingVideosManager.loadVODs()
+        ReceivingVideosManager.getNewVODsCount()
     }
 
     override fun onPause() {
@@ -131,13 +132,11 @@ class AntourageFab @JvmOverloads constructor(
         isSwipeInProgress = true
     }
 
-    private fun manageVideos() {
-        val seenVideos = userCache?.getSeenVideos()
-        val nonSeenNumber = (Repository.vods?.size ?: 0) - (seenVideos?.size ?: 0)
-        if (nonSeenNumber > 0) {
-            changeBadgeStatus(WidgetStatus.ActiveUnseenVideos(nonSeenNumber))
-        } else
-            changeBadgeStatus(WidgetStatus.Inactive)
+    private fun manageVideos(newVideosCount: Int) {
+        changeBadgeStatus(
+            if (newVideosCount > 0) WidgetStatus.ActiveUnseenVideos(newVideosCount)
+            else WidgetStatus.Inactive
+        )
     }
 
     private fun changeBadgeStatus(status: WidgetStatus) {
@@ -218,7 +217,7 @@ class AntourageFab @JvmOverloads constructor(
                     listOfStreams = list
                     changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                 } else {
-                    manageVideos()
+                    manageVideos(newVideosCount)
                 }
             }
             is Status.Failure -> {
@@ -228,19 +227,15 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
-        super.onVODReceived(resource)
-        when (resource.status) {
+    override fun onNewVideosCount(resource: Resource<Int>) {
+        super.onNewVideosCount(resource)
+        when (val status = resource.status) {
             is Status.Success -> {
-                val list = (resource.status.data)?.toMutableList()
-                if (list != null && list.size > 0) {
-                    Repository.vods = list
-                    manageVideos()
-                }
+                newVideosCount = status.data ?: 0
+                manageVideos(status.data ?: 0)
             }
             is Status.Failure -> {
                 changeBadgeStatus(WidgetStatus.Inactive)
-                BaseViewModel.error.postValue(resource.status.errorMessage)
             }
         }
     }

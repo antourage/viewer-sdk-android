@@ -4,7 +4,6 @@ import android.arch.lifecycle.Observer
 import android.os.Handler
 import android.support.annotation.Keep
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
@@ -25,8 +24,8 @@ class ReceivingVideosManager {
             ReceivingVideosManager.callback = callback
         }
 
-        fun loadVODs() {
-            val response = Repository().getVODs()
+        fun loadVODs(count: Int) {
+            val response = Repository().getVODs(count)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -84,6 +83,27 @@ class ReceivingVideosManager {
             handlerCall.removeCallbacksAndMessages(null)
             callback = null
         }
+
+        fun getNewVODsCount() {
+            val response = Repository().getNewVODsCount()
+            response.observeForever(object :
+                Observer<Resource<Int>> {
+                override fun onChanged(resource: Resource<Int>?) {
+                    if (resource != null) {
+                        when (resource.status) {
+                            is Status.Failure -> {
+                                callback?.onNewVideosCount(resource)
+                                response.removeObserver(this)
+                            }
+                            is Status.Success -> {
+                                callback?.onNewVideosCount(resource)
+                                response.removeObserver(this)
+                            }
+                        }
+                    }
+                }
+            })
+        }
     }
 
     @Keep
@@ -91,5 +111,7 @@ class ReceivingVideosManager {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
         fun onVODReceived(resource: Resource<List<StreamResponse>>) {}
+
+        fun onNewVideosCount(resource: Resource<Int>) {}
     }
 }
