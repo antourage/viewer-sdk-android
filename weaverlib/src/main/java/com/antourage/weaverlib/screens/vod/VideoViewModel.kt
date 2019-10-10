@@ -9,6 +9,8 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Handler
+import android.os.SystemClock
+import android.widget.Chronometer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.models.*
@@ -26,7 +28,9 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import okhttp3.OkHttpClient
+import org.jetbrains.anko.sdk27.coroutines.onChronometerTick
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -42,6 +46,11 @@ class VideoViewModel @Inject constructor(application: Application) :
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var repository = Repository()
+    private var resetChronometer = true
+
+    private lateinit var chronometer: Chronometer
+
+//    private var currentVODWatchingTime = Timestamp
 
     private var batteryStatus: Intent? = null
 
@@ -50,6 +59,10 @@ class VideoViewModel @Inject constructor(application: Application) :
             manageShownMessages()
             messagesHandler.postDelayed(this, 100)
         }
+    }
+
+    private fun updateWatchingTimeSpan(watchingTime: StatisticWatchVideoRequest) {
+        UserCache.getInstance(getApplication())?.updateVODWatchingTime(watchingTime)
     }
 
     private val messagesSingleEventRunnable = Runnable {
@@ -104,6 +117,18 @@ class VideoViewModel @Inject constructor(application: Application) :
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
     fun initUi(streamId: Int?, startTime: String?) {
+        chronometer = Chronometer(getApplication())
+        chronometer.onChronometerTick {
+            updateWatchingTimeSpan(
+                StatisticWatchVideoRequest(
+                    streamId,
+                    StatisticActions.LEFT.ordinal,
+                    getBatteryLevel(),
+                    Timestamp(System.currentTimeMillis()).toString(),
+                    getFormattedWatchingDuration()
+                )
+            )
+        }
         this.startTime = startTime?.parseToDate()
         streamId?.let {
             this.streamId = it
@@ -120,15 +145,14 @@ class VideoViewModel @Inject constructor(application: Application) :
         sendStatisticData(StatisticActions.JOINED)
     }
 
-    private fun sendStatisticData(statisticAction: StatisticActions) {
+    private fun sendStatisticData(statisticAction: StatisticActions, span: String? = "00:00:00") {
         repository.statisticWatchVOD(
             StatisticWatchVideoRequest(
-                UserCache.getInstance(getApplication())?.getUserId().toString(),
                 streamId,
                 statisticAction.ordinal,
                 getBatteryLevel(),
                 Timestamp(System.currentTimeMillis()).toString(),
-                "00:30:00"
+                span
             )
         )
     }
@@ -142,7 +166,8 @@ class VideoViewModel @Inject constructor(application: Application) :
     override fun onPause() {
         super.onPause()
         stopMonitoringChatMessages()
-        sendStatisticData(StatisticActions.LEFT)
+        chronometer.stop()
+        sendStatisticData(StatisticActions.LEFT, getFormattedWatchingDuration())
     }
 
     override fun onVideoChanged() {
@@ -195,7 +220,32 @@ class VideoViewModel @Inject constructor(application: Application) :
         return ConcatenatingMediaSource(*mediaSources)
     }
 
-    override fun onStreamStateChanged(playbackState: Int) {}
+    override fun onStreamStateChanged(playbackState: Int) {
+        when (playbackState) {
+            Player.STATE_READY -> {
+                if (isPlaybackPaused()) {
+                    chronometer.stop()
+                } else {
+                    if (resetChronometer) {
+                        chronometer.base = SystemClock.elapsedRealtime()
+                        resetChronometer = false
+                    }
+                    chronometer.start()
+                }
+            }
+            Player.STATE_ENDED, Player.STATE_IDLE -> {
+                chronometer.stop()
+            }
+        }
+    }
+
+    private fun getFormattedWatchingDuration(): String {
+        var outputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+        outputFmt.timeZone = TimeZone.getTimeZone("UTC")
+
+        val t = SystemClock.elapsedRealtime() - chronometer.base
+        return outputFmt.format(t)
+    }
 
     /**
      * videos do not play on Android 5 without this additional header. IDK why

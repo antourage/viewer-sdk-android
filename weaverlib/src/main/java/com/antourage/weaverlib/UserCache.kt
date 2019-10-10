@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
+import com.google.gson.Gson
 import java.lang.ref.WeakReference
 import java.util.*
+
 
 class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
@@ -23,6 +26,8 @@ class UserCache private constructor(context: Context) {
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
         private const val SP_USER_ID = "sp_user_id"
+        private const val SP_VOD_WATCHING_TIME = "sp_vod_watching_time"
+        private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
         internal const val DEFAULT_DISPLAY_NAME_PREFIX = "SuperFan#"
         private var INSTANCE: UserCache? = null
 
@@ -32,7 +37,7 @@ class UserCache private constructor(context: Context) {
 
         @Synchronized
         fun getInstance(context: Context): UserCache? {
-            if (INSTANCE == null){
+            if (INSTANCE == null) {
                 INSTANCE = UserCache(context)
             }
             return INSTANCE
@@ -92,5 +97,26 @@ class UserCache private constructor(context: Context) {
 
     fun getUserId(): Int? {
         return prefs?.getInt(SP_USER_ID, -1)
+    }
+
+    fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
+        val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
+        prefs?.edit()
+            ?.putString(SP_VOD_WATCHING_TIME, json)
+            ?.apply()
+    }
+
+    fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
+        val json = prefs?.getString("SP_VOD_WATCHING_TIME", null)
+        return if (json == null) null else Gson().fromJson(
+            json,
+            StatisticWatchVideoRequest::class.java
+        )
+    }
+
+    fun updateLiveStreamWatchingTime(watchingTimeSpan: String?) {
+        prefs?.edit()
+            ?.putString(SP_LIVE_STREAM_WATCHING_TIME, watchingTimeSpan)
+            ?.apply()
     }
 }
