@@ -14,4 +14,8 @@ class VideosLayoutManager(context: Context?) : LinearLayoutManager(context) {
         super.onItemsAdded(recyclerView, positionStart, itemCount)
         recyclerView.smoothScrollToPosition(positionStart)
     }
+
+    override fun canScrollVertically(): Boolean {
+        return false
+    }
 }

@@ -27,13 +27,15 @@ class VideoListViewModel @Inject constructor(application: Application) :
     var liveVideosUpdated = false
     var vodsUpdated = false
 
+    private val VODS_COUNT = 15
+
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
         refreshVODs(vods?.size ?: 0)
     }
 
-    fun refreshVODs(count: Int) {
+    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0) {
         ReceivingVideosManager.loadVODs(count)
     }
 
@@ -71,16 +73,48 @@ class VideoListViewModel @Inject constructor(application: Application) :
     override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
         when (resource.status) {
             is Status.Success -> {
-                vods = (resource.status.data)?.toMutableList()
-                Repository.vods = vods
-                vods?.let {
-                    for (i in 0 until (vods?.size ?: 0)) {
-                        vods?.get(i)?.viewerCounter = generateRandomViewerNumber()
-                    }
-                    vodsUpdated = true
-                    if (liveVideosUpdated) {
-                        updateVideosList()
-                    }
+                val list = mutableListOf<StreamResponse>()
+                Repository.vods?.let { list.addAll(it) }
+                val newList = (resource.status.data)?.toMutableList()
+                if (newList != null) {
+                    list.addAll(list.size, newList)
+                }
+                Repository.vods = list.toList()
+                if (newList?.size == VODS_COUNT)
+                    list.add(
+                        list.size, getStreamLoaderPlaceholder()
+                    )
+                vods = list
+                vodsUpdated = true
+                if (liveVideosUpdated) {
+                    updateVideosList()
+                }
+            }
+            is Status.Loading -> {
+                vodsUpdated = false
+                loaderLiveData.postValue(true)
+            }
+            is Status.Failure -> {
+                vodsUpdated = true
+                loaderLiveData.postValue(false)
+                error.postValue(resource.status.errorMessage)
+            }
+        }
+    }
+
+    override fun onVODReceivedInitial(resource: Resource<List<StreamResponse>>) {
+        when (resource.status) {
+            is Status.Success -> {
+                var newList = (resource.status.data)?.toMutableList()
+                Repository.vods = newList?.toList()
+                if (newList?.size == VODS_COUNT)
+                    newList.add(
+                        newList.size, getStreamLoaderPlaceholder()
+                    )
+                vods = newList
+                vodsUpdated = true
+                if (liveVideosUpdated) {
+                    updateVideosList()
                 }
             }
             is Status.Loading -> {
@@ -101,17 +135,30 @@ class VideoListViewModel @Inject constructor(application: Application) :
         if (resultList.size > 0) {
             Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
             resultList.add(
-                StreamResponse(
-                    -1, -1, null, null,
-                    null, null, null, null,
-                    null, null, null, null, null,
-                    null, null, null, false, 0
-                )
+                getStreamDividerPlaceholder()
             )
         }
-        vods?.let { resultList.addAll(it) }
+        vods?.let { resultList.addAll(it.toList()) }
         loaderLiveData.postValue(false)
-        listOfStreams.postValue(resultList)
+        listOfStreams.postValue(resultList.toList())
+    }
+
+    private fun getStreamDividerPlaceholder(): StreamResponse {
+        return StreamResponse(
+            -1, -1, null, null,
+            null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, false, 0
+        )
+    }
+
+    private fun getStreamLoaderPlaceholder(): StreamResponse {
+        return StreamResponse(
+            -2, -2, null, null,
+            null, null, null, null,
+            null, null, null, null, null,
+            null, null, null, false, 0
+        )
     }
 
     //region backend choice

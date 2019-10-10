@@ -148,9 +148,9 @@ class VideoViewModel @Inject constructor(application: Application) :
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
-        this.streamId = currentVod.streamId
-        this.startTime = currentVod.startTime?.parseToDate()
-        currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
+        this.streamId = currentVod?.streamId
+        this.startTime = currentVod?.startTime?.parseToDate()
+        currentVod?.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
         if (player.playWhenReady && player.playbackState == Player.STATE_READY)
             player.playWhenReady = true
@@ -175,7 +175,7 @@ class VideoViewModel @Inject constructor(application: Application) :
     private fun findVideoPositionById(videoId: Int): Int {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         for (i in 0 until list.size) {
-            if (list[i].streamId == videoId) {
+            if (list[i]?.streamId == videoId) {
                 currentVideo.postValue(list[i])
                 return i
             }

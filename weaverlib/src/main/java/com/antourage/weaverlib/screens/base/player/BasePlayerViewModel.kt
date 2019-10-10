@@ -48,7 +48,7 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         player.playWhenReady = false
     }
 
-    fun getExoPlayer(streamUrl: String?): SimpleExoPlayer? {
+    fun getExoPlayer(streamUrl: String): SimpleExoPlayer? {
         player = getSimpleExoPlayer()
         this.streamUrl = streamUrl
         player.playWhenReady = playWhenReady

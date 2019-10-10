@@ -221,7 +221,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
             streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-            playerView.player = viewModel.getExoPlayer(videoURL)
+            playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
         }
         playerControls.player = playerView.player
     }

@@ -4,8 +4,8 @@ import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse
 
 class StreamItemDiffCallback(
-    private val oldList: List<StreamResponse?>,
-    private val newList: List<StreamResponse?>
+    private val oldList: List<StreamResponse>,
+    private val newList: List<StreamResponse>
 ) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition]?.id == newList[newItemPosition]?.id

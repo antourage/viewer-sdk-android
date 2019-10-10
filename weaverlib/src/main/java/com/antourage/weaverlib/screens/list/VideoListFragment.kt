@@ -17,6 +17,7 @@ import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.other.ui.MyNestedScrollView
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -25,10 +26,19 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 
-class VideoListFragment : Fragment() {
+class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener {
+
+    override fun onBottomReached(view: View?) {
+        val total = rvLayoutManager.itemCount
+        val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
+        if (total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
+            viewModel.refreshVODs()
+        }
+    }
 
     private lateinit var videoAdapter: VideosAdapter
     private lateinit var viewModel: VideoListViewModel
+    private lateinit var rvLayoutManager: VideosLayoutManager
     private var loader: AnimatedVectorDrawableCompat? = null
 
     companion object {
@@ -39,7 +49,10 @@ class VideoListFragment : Fragment() {
 
     //region Observers
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
-        list?.let { videoAdapter.setStreamList(it) }
+        list?.let {
+            videoAdapter.setStreamList(it)
+            nestedSV.setBottomReachesListener(this@VideoListFragment)
+        }
         videoRefreshLayout.isRefreshing = false
     }
 
@@ -112,9 +125,15 @@ class VideoListFragment : Fragment() {
                 )
             }
         }
+
         videoAdapter = VideosAdapter(onClick)
+//        videoAdapter.setHasStableIds(true)
         videosRV.adapter = videoAdapter
-        videosRV.layoutManager = VideosLayoutManager(context)
+        videosRV.isNestedScrollingEnabled = false
+        rvLayoutManager = VideosLayoutManager(context)
+        rvLayoutManager.reverseLayout = false
+        videosRV.layoutManager = rvLayoutManager
+        nestedSV.isNestedScrollingEnabled = true
         val dividerItemDecoration = VerticalSpaceItemDecorator(
             dp2px(context!!, 30f).toInt()
         )

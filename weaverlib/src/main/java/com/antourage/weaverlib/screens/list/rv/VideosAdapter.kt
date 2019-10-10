@@ -18,13 +18,14 @@ import com.squareup.picasso.Picasso
 
 class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var listOfStreams: MutableList<StreamResponse?> = mutableListOf()
+    private var listOfStreams: MutableList<StreamResponse> = mutableListOf()
     lateinit var context: Context
 
     companion object {
         const val VIEW_LIVE: Int = 0
         const val VIEW_VOD: Int = 1
         const val VIEW_SEPARATOR = 2
+        const val VIEW_PROGRESS: Int = 3
     }
 
     fun setStreamList(newListOfStreams: List<StreamResponse>) {
@@ -35,6 +36,8 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         this.listOfStreams.addAll(newListOfStreams)
         diffResult.dispatchUpdatesTo(this)
     }
+
+    fun getStreams() = listOfStreams
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
@@ -53,6 +56,14 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                     false
                 )
             )
+            VIEW_PROGRESS -> return ProgressHolder(
+                LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_progress,
+                    parent,
+                    false
+                )
+            )
+
             else -> return SeparatorViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_separator,
@@ -130,14 +141,19 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         val txtWasLive: TextView = itemView.findViewById(R.id.tvWasLive)
     }
 
+    inner class ProgressHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
     class SeparatorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun getItemViewType(position: Int): Int {
         if (position < itemCount) {
-            if (listOfStreams[position]?.streamId == -1) {
+            if (listOfStreams[position].streamId == -1) {
                 return VIEW_SEPARATOR
             }
-            if (listOfStreams[position]?.isLive == true) {
+            if (listOfStreams[position].streamId == -2) {
+                return VIEW_PROGRESS
+            }
+            if (listOfStreams[position].isLive == true) {
                 return VIEW_LIVE
             } else {
                 return VIEW_VOD

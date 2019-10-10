@@ -36,7 +36,11 @@ class ReceivingVideosManager {
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
-                                callback?.onVODReceived(resource)
+                                if (count == 0) {
+                                    callback?.onVODReceivedInitial(resource)
+                                } else {
+                                    callback?.onVODReceived(resource)
+                                }
                                 vods = resource
                                 response.removeObserver(this)
                             }
@@ -111,6 +115,8 @@ class ReceivingVideosManager {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
         fun onVODReceived(resource: Resource<List<StreamResponse>>) {}
+
+        fun onVODReceivedInitial(resource: Resource<List<StreamResponse>>) {}
 
         fun onNewVideosCount(resource: Resource<Int>) {}
     }

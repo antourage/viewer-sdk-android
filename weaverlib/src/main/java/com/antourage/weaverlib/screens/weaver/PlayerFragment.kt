@@ -365,11 +365,13 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun startPlayingStream() {
         playerView.player =
-            viewModel.getExoPlayer(
-                arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(
-                    0
+            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(
+                0
+            )?.let {
+                viewModel.getExoPlayer(
+                    it
                 )
-            )
+            }
         playerControls.player = playerView.player
     }
 
