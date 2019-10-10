@@ -20,7 +20,7 @@ interface WebService {
     @GET("users/{id}")
     fun getUser(@Path("id") id: Int, @Query("apiKey") apiKey: String): LiveData<ApiResponse<User>>
 
-    @POST("users/name")
+    @PUT("users")
     fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>
 
     @POST("statistic/livestream")

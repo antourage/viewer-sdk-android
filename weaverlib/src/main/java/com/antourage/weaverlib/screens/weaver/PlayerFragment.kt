@@ -130,15 +130,15 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private val userInfoObserver: Observer<User> = Observer {
+        txtLabelDefaultName.text = resources.getString(
+            R.string.your_default_name_is,
+            viewModel.generateUserDefaultDisplayName()
+        )
         if (viewModel.noDisplayNameSet()) {
-            enableMessageInput(false)
             txtLabelDefaultName.visibility = View.VISIBLE
-            txtLabelDefaultName.text = resources.getString(
-                R.string.your_default_name_is,
-                viewModel.generateUserDefaultDisplayName()
-            )
         } else {
-            enableMessageInput(true)
+            etMessage.isFocusable = true
+            etMessage.isFocusableInTouchMode = true
             etDisplayName.setText(it?.displayName)
             txtLabelDefaultName.visibility = View.GONE
         }
@@ -216,8 +216,12 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val onBtnSendClicked = View.OnClickListener {
         val message = Message(
-            "", "osoluk@leobit.co", "my nic", etMessage.text.toString(),
-            MessageType.USER, Timestamp(Date())
+            "",
+            "osoluk@leobit.co",
+            viewModel.getUserInfoLiveData().value?.displayName,
+            etMessage.text.toString(),
+            MessageType.USER,
+            Timestamp(Date())
         )
         message.userID =
             FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
@@ -232,7 +236,8 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val onUserSettingsClicked = View.OnClickListener {
         toggleUserSettingsDialog()
-        hideKeyboard()
+        if (!etMessage.isFocused)
+            hideKeyboard()
     }
 
     private val onMessageETClicked = View.OnClickListener {
@@ -240,9 +245,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private val onCancelClicked = View.OnClickListener {
-        etDisplayName.setText("")
+        etDisplayName.setText(viewModel.getUserInfoLiveData().value?.displayName)
         toggleUserSettingsDialog()
-        hideKeyboard()
+        if (!etMessage.isFocused)
+            hideKeyboard()
     }
 
     private val onUserPhotoClicked = View.OnClickListener {
@@ -283,6 +289,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             txtLabelDefaultName.visibility = if (it.isEmptyTrimmed()) View.VISIBLE else View.GONE
             btnConfirm.text =
                 resources.getString(if (it.isEmptyTrimmed()) R.string.use_default else R.string.confirm)
+            btnConfirm.isEnabled = !viewModel.getUserInfoLiveData().value?.displayName.equals(it)
         }
     }
 
