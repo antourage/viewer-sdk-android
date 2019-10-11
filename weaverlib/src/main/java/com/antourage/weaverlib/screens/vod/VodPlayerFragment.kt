@@ -3,10 +3,17 @@ package com.antourage.weaverlib.screens.vod
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
+import android.support.constraint.ConstraintLayout
+import android.support.graphics.drawable.Animatable2Compat
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.GestureDetectorCompat
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -25,6 +32,7 @@ import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlin.math.roundToInt
+import android.support.constraint.ConstraintSet
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
@@ -41,6 +49,8 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     }
 
     override fun getLayoutId() = R.layout.fragment_player_vod_portrait
+    private var skipForwardVDrawable: AnimatedVectorDrawableCompat? = null
+    private var skipBackwardVDrawable: AnimatedVectorDrawableCompat? = null
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -130,6 +140,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
     override fun initUi(view: View?) {
         super.initUi(view)
+        initSkipAnimations()
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_vod)
         startPlayingStream()
         handleChat()
@@ -143,7 +154,73 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             R.drawable.ic_chat_no_comments_yet,
             R.string.no_comments_yet
         )
+        initSkipControls()
 //        showChatTurnedOffPlaceholder(orientation() ==  Configuration.ORIENTATION_PORTRAIT)
+    }
+
+    private fun initSkipControls() {
+        playerView.setOnTouchListener(object : View.OnTouchListener {
+            private val gestureDetector =
+                GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                        if (playerControls.isVisible) {
+                            playerControls.hide()
+                        } else {
+                            playerControls.show()
+                        }
+                        return super.onSingleTapConfirmed(e)
+                    }
+
+                    override fun onDoubleTap(e: MotionEvent?): Boolean {
+                        controls.hide()
+                        e?.x?.let {
+                            if (it > playerView.width / 2) {
+                                handleSkipForward()
+                            } else {
+                                handleSkipBackward()
+                            }
+                        }
+                        return super.onDoubleTap(e)
+                    }
+                })
+
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                gestureDetector.onTouchEvent(p1)
+                return true
+            }
+        })
+    }
+
+    private fun handleSkipForward() {
+        dimNextPrevButtons()
+        showSkipAnim(skipForwardVDrawable, skipForward)
+        viewModel.skipForward()
+    }
+
+    private fun handleSkipBackward() {
+        dimNextPrevButtons()
+        showSkipAnim(skipBackwardVDrawable, skipBackward)
+        viewModel.skipBackward()
+    }
+
+    private fun dimNextPrevButtons() {
+        exo_next.alpha = 0.3f
+        exo_prev.alpha = 0.3f
+    }
+
+    private fun brightenNextPrevButtons() {
+        exo_next.visibility = View.VISIBLE
+        exo_prev.visibility = View.VISIBLE
+        controls.hide()
+    }
+
+    private fun initSkipAnimations() {
+        skipForwardVDrawable =
+            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.skip_forward) }
+        skipBackwardVDrawable =
+            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.skip_back) }
+        skipForward.setImageDrawable(skipForwardVDrawable)
+        skipBackward.setImageDrawable(skipBackwardVDrawable)
     }
 
     override fun onResume() {
@@ -306,5 +383,21 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             if (isLandscape)
                 resources.getDimension(R.dimen.margin_seekbar_landscape).toInt() else 0, 0
         )
+    }
+
+    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View) {
+        vDrawable?.apply {
+            if (!isRunning) {
+                registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                    override fun onAnimationEnd(drawable: Drawable?) {
+                        iv.visibility = View.INVISIBLE
+                        brightenNextPrevButtons()
+                        clearAnimationCallbacks()
+                    }
+                })
+                start()
+                iv.visibility = View.VISIBLE
+            }
+        }
     }
 }

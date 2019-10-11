@@ -30,6 +30,10 @@ import javax.inject.Inject
 class VideoViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
+    companion object {
+        private const val SKIP_VIDEO_TIME_MILLS = 10000
+    }
+
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -128,6 +132,14 @@ class VideoViewModel @Inject constructor(application: Application) :
         currentVideo.postValue(currentVod)
         if (player.playWhenReady && player.playbackState == Player.STATE_READY)
             player.playWhenReady = true
+    }
+
+    fun skipForward() {
+        player.seekTo(player.currentPosition + SKIP_VIDEO_TIME_MILLS)
+    }
+
+    fun skipBackward() {
+        player.seekTo(player.currentPosition - SKIP_VIDEO_TIME_MILLS)
     }
 
     fun onVideoStarted(streamId: Int) {
