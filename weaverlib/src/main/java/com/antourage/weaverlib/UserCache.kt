@@ -73,8 +73,10 @@ class UserCache private constructor(context: Context) {
     }
 
     fun getBeChoice(): String? {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(contextRef?.get())
-        return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
+        contextRef?.get()?.applicationContext?.let {
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(it)
+            return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
+        } ?: return null
     }
 
     fun updateBEChoice(link: String) {

@@ -51,7 +51,7 @@ class AntourageFab @JvmOverloads constructor(
         const val ARGS_STREAM_SELECTED = "args_stream_selected"
     }
 
-    private var userCache: UserCache? = UserCache.getInstance(context)
+    private var userCache: UserCache? = null
     private lateinit var currentlyDisplayedStream: StreamResponse
     private var listOfStreams: List<StreamResponse>? = null
     val handlerFab: Handler = Handler(Looper.getMainLooper())
@@ -91,8 +91,11 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+
     init {
-        BASE_URL = userCache?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
+        if (BASE_URL.isEmptyTrimmed())
+            BASE_URL =
+                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
