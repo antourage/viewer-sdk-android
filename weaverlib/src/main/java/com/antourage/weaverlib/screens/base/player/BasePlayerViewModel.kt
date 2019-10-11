@@ -3,29 +3,48 @@ package com.antourage.weaverlib.screens.base.player
 import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.graphics.Bitmap
-import android.util.Log
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
+import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.statistic.StatisticActions
+import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
+import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.vod.VideoViewModel
+import com.antourage.weaverlib.screens.weaver.PlayerViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import java.sql.Timestamp
 
 abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
+    var streamId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
+
+    private var stopwatch = Stopwatch()
+    private var resetChronometer = true
 
     protected lateinit var player: SimpleExoPlayer
     private lateinit var trackSelector: DefaultTrackSelector
 
+    private var batteryStatus: Intent? = null
+
     init {
         currentWindow = 0
+    }
+
+    fun setStreamId(streamId: Int) {
+        this.streamId = streamId
     }
 
     fun getPlaybackState(): LiveData<Int> = playbackStateLiveData
@@ -41,11 +60,28 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         if (player.playbackState != Player.STATE_READY) {
             player.playWhenReady = true
         }
+        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
+            getApplication<Application>().registerReceiver(null, ifilter)
+        }
+        stopwatch.onTick {
+            updateWatchingTimeSpan(
+                StatisticWatchVideoRequest(
+                    streamId,
+                    StatisticActions.LEFT.ordinal,
+                    getBatteryLevel(),
+                    Timestamp(System.currentTimeMillis()).toString(),
+                    stopwatch.toString()
+                )
+            )
+        }
+        sendStatisticData(StatisticActions.JOINED)
     }
 
     open fun onPause() {
         removeStatisticsListeners()
         player.playWhenReady = false
+        stopwatch.stop()
+        sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
     }
 
     fun getExoPlayer(streamUrl: String): SimpleExoPlayer? {
@@ -128,12 +164,52 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         )
     }
 
+    private fun updateWatchingTimeSpan(watchingTime: StatisticWatchVideoRequest) {
+        UserCache.getInstance(getApplication())?.updateVODWatchingTime(watchingTime)
+    }
+
+    private fun getBatteryLevel(): Int? {
+        return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+    }
+
+    private fun sendStatisticData(statisticAction: StatisticActions, span: String? = "00:00:00") {
+        val statsItem = StatisticWatchVideoRequest(
+            streamId,
+            statisticAction.ordinal,
+            getBatteryLevel(),
+            Timestamp(System.currentTimeMillis()).toString(),
+            span
+        )
+        when (this) {
+            is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
+            is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
+        }
+    }
+
     //region Listeners
+
     private val streamAnalyticsListener = object : AnalyticsListener {}
 
     private val playerEventListener = object : Player.EventListener {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            when (playbackState) {
+                Player.STATE_READY -> {
+                    if (isPlaybackPaused()) {
+                        stopwatch.stop()
+                    } else {
+                        if (resetChronometer) {
+                            stopwatch.start()
+                            resetChronometer = false
+                        } else {
+                            stopwatch.resume()
+                        }
+                    }
+                }
+                Player.STATE_ENDED, Player.STATE_IDLE -> {
+                    stopwatch.stop()
+                }
+            }
             onStreamStateChanged(playbackState)
             playbackStateLiveData.postValue(playbackState)
         }
@@ -152,6 +228,7 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
 
         override fun onPositionDiscontinuity(reason: Int) {
             currentWindow = player.currentWindowIndex
+            resetChronometer = true
             onVideoChanged()
         }
     }

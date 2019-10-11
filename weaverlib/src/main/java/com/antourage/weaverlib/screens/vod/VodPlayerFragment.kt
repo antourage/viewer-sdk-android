@@ -90,6 +90,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 tvWasLive.gone(formattedStartTime.isNullOrEmpty())
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
+
         }
     }
 
@@ -136,6 +137,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         streamResponse?.apply {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
             viewModel.initUi(streamId, startTime)
+            streamId?.let { viewModel.setStreamId(it) }
         }
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_no_comments_yet,

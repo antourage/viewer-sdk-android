@@ -519,6 +519,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
             viewModel.initUi(streamId)
+            streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = streamTitle

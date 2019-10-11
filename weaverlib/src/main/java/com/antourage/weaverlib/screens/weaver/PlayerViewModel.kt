@@ -36,7 +36,6 @@ class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     var wasStreamInitialized = false
-    var streamId: Int = 0
     private var isChatTurnedOn = false
     private var postAnsweredUsers = false
     private var user: User? = null
@@ -104,10 +103,10 @@ class PlayerViewModel @Inject constructor(application: Application) :
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
                     //TODO 17/06/2019 wth does not actually remove observer
-                    repository.getMessages(streamId).removeObserver(messagesObserver)
+                    streamId?.let { it1 -> repository.getMessages(it1).removeObserver(messagesObserver) }
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                 } else {
-                    repository.getMessages(streamId).observeForever(messagesObserver)
+                    streamId?.let { it1 -> repository.getMessages(it1).observeForever(messagesObserver) }
                 }
             }
         }
@@ -159,30 +158,32 @@ class PlayerViewModel @Inject constructor(application: Application) :
 
     fun observeAnsweredUsers() {
         currentPoll?.let { poll ->
-            repository.getAnsweredUsers(streamId, poll.id).observeForever { resource ->
-                resource?.status?.let {
-                    if (it is Status.Success && it.data != null) {
-                        if (wasAnswered(it.data)) {
-                            postAnsweredUsers = true
+            streamId?.let {
+                repository.getAnsweredUsers(it, poll.id).observeForever { resource ->
+                    resource?.status?.let {
+                        if (it is Status.Success && it.data != null) {
+                            if (wasAnswered(it.data)) {
+                                postAnsweredUsers = true
+                            }
+                            if (postAnsweredUsers && it.data.isNotEmpty())
+                                pollStatusLiveData.postValue(
+                                    PollStatus.ActivePollDismissed(
+                                        getApplication<Application>().resources.getQuantityString(
+                                            R.plurals.number_answers,
+                                            it.data.size,
+                                            it.data.size
+                                        )
+                                    )
+                                )
+                            else
+                                pollStatusLiveData.postValue(
+                                    PollStatus.ActivePollDismissed(
+                                        getApplication<Application>().getString(
+                                            R.string.new_poll
+                                        )
+                                    )
+                                )
                         }
-                        if (postAnsweredUsers && it.data.isNotEmpty())
-                            pollStatusLiveData.postValue(
-                                PollStatus.ActivePollDismissed(
-                                    getApplication<Application>().resources.getQuantityString(
-                                        R.plurals.number_answers,
-                                        it.data.size,
-                                        it.data.size
-                                    )
-                                )
-                            )
-                        else
-                            pollStatusLiveData.postValue(
-                                PollStatus.ActivePollDismissed(
-                                    getApplication<Application>().getString(
-                                        R.string.new_poll
-                                    )
-                                )
-                            )
                     }
                 }
             }

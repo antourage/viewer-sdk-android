@@ -14,7 +14,7 @@ interface WebService {
     @GET("vod/new")
     fun getNewVODsCount(): LiveData<ApiResponse<Int>>
 
-    @POST("users/generate")
+    @POST("users")
     fun generateUser(@Body body: UserRequest): LiveData<ApiResponse<User>>
 
     @GET("users/{id}")
