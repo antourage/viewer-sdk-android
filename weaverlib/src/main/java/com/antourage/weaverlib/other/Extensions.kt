@@ -178,3 +178,15 @@ fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
 
 fun String.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
 fun CharSequence.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
+
+fun Long.formatDuration(): String {
+    val outputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+    outputFmt.timeZone = TimeZone.getTimeZone("UTC")
+    return outputFmt.format(this)
+}
+
+fun String.parseToMills(): Long {
+    val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+    inputFmt.timeZone = TimeZone.getTimeZone("UTC")
+    return inputFmt.parse(this).time
+}

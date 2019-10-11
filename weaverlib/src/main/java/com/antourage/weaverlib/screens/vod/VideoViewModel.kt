@@ -4,20 +4,16 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
-import android.os.BatteryManager
 import android.os.Handler
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
+import com.antourage.weaverlib.other.formatDuration
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.other.parseToDate
-import com.antourage.weaverlib.other.statistic.StatisticActions
-import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -27,7 +23,6 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import okhttp3.OkHttpClient
-import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
 
@@ -116,6 +111,11 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     override fun onPause() {
         super.onPause()
+        Repository().stopWatchingVOD(
+            StopWatchVodRequest(
+                streamId, player.currentPosition.formatDuration()
+            )
+        )
         stopMonitoringChatMessages()
     }
 

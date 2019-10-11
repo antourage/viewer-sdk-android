@@ -58,6 +58,12 @@ class Repository {
                 ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
         }.asLiveData()
 
+    fun stopWatchingVOD(body: StopWatchVodRequest): LiveData<Resource<SimpleResponse>> =
+        object : NetworkBoundResource<SimpleResponse>() {
+            override fun createCall() =
+                ApiClient.getWebClient().webService.stopWatchingVOD(body)
+        }.asLiveData()
+
     //region Firebase
     fun addMessage(message: Message, streamId: Int) {
         FirestoreDatabase().getMessagesReferences(streamId).document().set(message)

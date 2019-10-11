@@ -63,17 +63,17 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
             getApplication<Application>().registerReceiver(null, ifilter)
         }
-        stopwatch.onTick {
-            updateWatchingTimeSpan(
-                StatisticWatchVideoRequest(
-                    streamId,
-                    StatisticActions.LEFT.ordinal,
-                    getBatteryLevel(),
-                    Timestamp(System.currentTimeMillis()).toString(),
-                    stopwatch.toString()
-                )
-            )
-        }
+//        stopwatch.onTick {
+//            updateWatchingTimeSpan(
+//                StatisticWatchVideoRequest(
+//                    streamId,
+//                    StatisticActions.LEFT.ordinal,
+//                    getBatteryLevel(),
+//                    Timestamp(System.currentTimeMillis()).toString(),
+//                    stopwatch.toString()
+//                )
+//            )
+//        }
         sendStatisticData(StatisticActions.JOINED)
     }
 

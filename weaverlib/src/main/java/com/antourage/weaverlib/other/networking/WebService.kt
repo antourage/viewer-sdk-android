@@ -28,4 +28,7 @@ interface WebService {
 
     @POST("statistic/vod")
     fun statisticWatchVOD(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("vod/stopTime")
+    fun stopWatchingVOD(@Body body: StopWatchVodRequest): LiveData<ApiResponse<SimpleResponse>>
 }
