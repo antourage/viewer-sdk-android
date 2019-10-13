@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
-import android.support.constraint.ConstraintLayout
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
 import android.support.v4.content.ContextCompat
@@ -32,7 +31,6 @@ import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlin.math.roundToInt
-import android.support.constraint.ConstraintSet
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
@@ -83,7 +81,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             tvBroadcastedBy.text = creatorFullName
             tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
-            txtNumberOfViewers.text = viewerCounter.toString()
+            txtNumberOfViewers.text = viewsCount.toString()
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.ic_default_user)

@@ -52,7 +52,6 @@ class VideoListViewModel @Inject constructor(application: Application) :
                 liveVideos?.let {
                     for (i in 0 until (liveVideos?.size ?: 0)) {
                         liveVideos?.get(i)?.isLive = true
-                        liveVideos?.get(i)?.viewerCounter = generateRandomViewerNumber()
                     }
                     liveVideosUpdated = true
                     if (vodsUpdated) {
@@ -148,7 +147,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
             -1, -1, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, false, 0
+            null, null, null, null, false, null, false
         )
     }
 
@@ -157,7 +156,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
             -2, -2, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, false, 0
+            null, null, null, null, false, null, false
         )
     }
 

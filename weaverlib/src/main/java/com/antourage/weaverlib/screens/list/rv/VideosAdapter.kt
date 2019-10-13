@@ -95,9 +95,6 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
                 }
 
-                holder.txtNumberOfViewers.text = viewerCounter.toString()
-                holder.txtNumberOfViewers.gone(viewerCounter == null)
-
                 val formattedStartTime = startTime?.parseDate(context)
                 holder.txtWasLive.text = formattedStartTime
                 holder.txtWasLive.gone(formattedStartTime.isNullOrEmpty())
@@ -105,11 +102,15 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                 when (getItemViewType(position)) {
                     VIEW_LIVE -> {
                         holder.txtTitle.text = streamTitle
+                        holder.txtNumberOfViewers.text = viewersCount.toString()
+                        holder.txtNumberOfViewers.gone(viewersCount == null)
                     }
                     VIEW_VOD -> {
                         holder.txtTitle.text = videoName
                         holder.txtStatus.text = duration?.take(8)
                         holder.txtStatus.gone(duration == null || duration.isEmpty())
+                        holder.txtNumberOfViewers.text = viewsCount.toString()
+                        holder.txtNumberOfViewers.gone(viewsCount == null)
                     }
                 }
             }
@@ -125,8 +126,8 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
             if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP, false)) {
                 if (holder is VideoViewHolder) {
                     holder.txtNumberOfViewers.text =
-                        listOfStreams[position]?.viewerCounter.toString()
-                    holder.txtWasLive.text = listOfStreams[position]?.startTime?.parseDate(context)
+                        listOfStreams[position].viewsCount.toString()
+                    holder.txtWasLive.text = listOfStreams[position].startTime?.parseDate(context)
                 }
             }
         }
