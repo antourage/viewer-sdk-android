@@ -49,4 +49,5 @@
     <string name="delete_image">Delete image</string>
     <string name="from_gallery">From gallery</string>
     <string name="from_camera">From camera</string>
+    <string name="_new">New</string>
 </resources>

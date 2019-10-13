@@ -26,7 +26,10 @@
                 android:id="@+id/tvWasLive"
                 style="@style/PlayerControlsTxt"
                 android:layout_margin="8dp"
-                android:text="1 day ago"
+                android:background="@drawable/bg_rounded_blue"
+                android:text="@string/_new"
+                android:textAllCaps="true"
+                android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="@+id/thumbnail"
                 app:layout_constraintTop_toTopOf="@+id/thumbnail" />
 

@@ -81,7 +81,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is VideoViewHolder) {
             val videoItem = listOfStreams[position]
-            videoItem?.apply {
+            videoItem.apply {
                 if (!thumbnailUrl.isNullOrEmpty()) {
                     Picasso.get()
                         .load(thumbnailUrl)
@@ -95,15 +95,16 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
                 }
 
-                val formattedStartTime = startTime?.parseDate(context)
-                holder.txtWasLive.text = formattedStartTime
-                holder.txtWasLive.gone(formattedStartTime.isNullOrEmpty())
+                isNew?.let { holder.txtWasLive.gone(!it) }
 
                 when (getItemViewType(position)) {
                     VIEW_LIVE -> {
                         holder.txtTitle.text = streamTitle
                         holder.txtNumberOfViewers.text = viewersCount.toString()
                         holder.txtNumberOfViewers.gone(viewersCount == null)
+                        val formattedStartTime = startTime?.parseDate(context)
+                        holder.txtWasLive.text = formattedStartTime
+                        holder.txtWasLive.gone(formattedStartTime.isNullOrEmpty())
                     }
                     VIEW_VOD -> {
                         holder.txtTitle.text = videoName
@@ -127,7 +128,6 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                 if (holder is VideoViewHolder) {
                     holder.txtNumberOfViewers.text =
                         listOfStreams[position].viewsCount.toString()
-                    holder.txtWasLive.text = listOfStreams[position].startTime?.parseDate(context)
                 }
             }
         }
@@ -154,7 +154,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
             if (listOfStreams[position].streamId == -2) {
                 return VIEW_PROGRESS
             }
-            if (listOfStreams[position].isLive == true) {
+            if (listOfStreams[position].isLive) {
                 return VIEW_LIVE
             } else {
                 return VIEW_VOD
