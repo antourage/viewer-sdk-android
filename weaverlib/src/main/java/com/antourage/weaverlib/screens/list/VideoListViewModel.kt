@@ -147,7 +147,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
             -1, -1, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, null, false, null, false
+            null, null, null, null, false, null, false, null
         )
     }
 
@@ -156,7 +156,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
             -2, -2, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, null, false, null, false
+            null, null, null, null, false, null, false, null
         )
     }
 

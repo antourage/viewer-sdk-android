@@ -18,6 +18,7 @@ class StreamItemDiffCallback(
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition].streamId == newList[newItemPosition].streamId &&
                 oldList[oldItemPosition].viewersCount == newList[newItemPosition].viewersCount &&
-                oldList[oldItemPosition].isNew == newList[newItemPosition].isNew
+                oldList[oldItemPosition].isNew == newList[newItemPosition].isNew &&
+                oldList[oldItemPosition].stopTime.equals(newList[newItemPosition].stopTime)
     }
 }

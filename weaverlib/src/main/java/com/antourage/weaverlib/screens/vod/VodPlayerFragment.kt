@@ -145,7 +145,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
-            viewModel.initUi(streamId, startTime)
+            viewModel.initUi(streamId, startTime, id)
             streamId?.let { viewModel.setStreamId(it) }
         }
         setUpNoChatPlaceholder(

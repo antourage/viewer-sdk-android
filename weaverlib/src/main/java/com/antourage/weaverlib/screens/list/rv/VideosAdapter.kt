@@ -8,11 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.gone
+import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.parseDate
+import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
 import com.squareup.picasso.Picasso
 
@@ -92,7 +95,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                     if (holder.adapterPosition >= 0 && holder.adapterPosition < listOfStreams.size &&
                         holder.adapterPosition != -1
                     )
-                        listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
+                        listOfStreams[holder.adapterPosition].let { onClick.invoke(it) }
                 }
 
                 when (getItemViewType(position)) {
@@ -111,6 +114,12 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         holder.txtStatus.gone(duration == null || duration.isEmpty())
                         holder.txtNumberOfViewers.text = viewsCount.toString()
                         holder.txtNumberOfViewers.gone(viewsCount == null)
+                        if (stopTime != null && !stopTime.isEmptyTrimmed()) {
+                            holder.watchingProgress.progress =
+                                ((stopTime.parseToMills() * 100) / (duration?.parseToMills()
+                                    ?: 0)).toInt()
+                            holder.watchingProgress.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -139,6 +148,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         val txtStatus: TextView = itemView.findViewById(R.id.txtStatus)
         val txtNumberOfViewers: TextView = itemView.findViewById(R.id.txtNumberOfViewers)
         val txtWasLive: TextView = itemView.findViewById(R.id.tvWasLive)
+        val watchingProgress: ProgressBar = itemView.findViewById(R.id.watchingProgress)
     }
 
     inner class ProgressHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

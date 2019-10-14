@@ -24,6 +24,6 @@ data class StatisticWatchVideoRequest(
 ) : Parcelable
 
 data class StopWatchVodRequest(
-    @field:SerializedName("vodId") val vodId: Int?,
+    @field:SerializedName("vodId") val vodId: Int,
     @field:SerializedName("stopTime") val stopTime: String?
 )

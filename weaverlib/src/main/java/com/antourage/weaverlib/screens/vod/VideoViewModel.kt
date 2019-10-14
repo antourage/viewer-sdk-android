@@ -41,6 +41,7 @@ class VideoViewModel @Inject constructor(application: Application) :
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var repository = Repository()
+    private var vodId: Int? = null
 
     private val messagesRunnable = object : Runnable {
         override fun run() {
@@ -104,29 +105,40 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
-    fun initUi(streamId: Int?, startTime: String?) {
+    fun initUi(streamId: Int?, startTime: String?, vodId: Int?) {
         this.startTime = startTime?.parseToDate()
         streamId?.let {
             this.streamId = it
             repository.getStream(streamId).observeOnce(streamObserver)
         }
+        this.vodId = vodId
         chatStateLiveData.postValue(true)
     }
 
     override fun onPause() {
         super.onPause()
-        Repository().stopWatchingVOD(
-            StopWatchVodRequest(
-                streamId, player.currentPosition.formatDuration()
-            )
-        )
+        setVodStopWatchingTime()
         stopMonitoringChatMessages()
     }
 
+    private fun setVodStopWatchingTime() {
+        vodId?.let {
+            StopWatchVodRequest(
+                it, player.currentPosition.formatDuration()
+            )
+        }?.let {
+            Repository().stopWatchingVOD(
+                it
+            )
+        }
+    }
+
     override fun onVideoChanged() {
+        setVodStopWatchingTime()
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         this.streamId = currentVod.streamId
+        this.vodId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
