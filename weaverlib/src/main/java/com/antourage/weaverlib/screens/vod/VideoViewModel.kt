@@ -113,6 +113,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         }
         this.vodId = vodId
         chatStateLiveData.postValue(true)
+        markVODAsWatched()
     }
 
     override fun onPause() {
@@ -123,6 +124,7 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     private fun setVodStopWatchingTime() {
         vodId?.let {
+            setVODStopWatchingTimeLocally()
             StopWatchVodRequest(
                 it, player.currentPosition.formatDuration()
             )
@@ -228,6 +230,15 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     private fun stopMonitoringChatMessages() {
         messagesHandler.removeCallbacksAndMessages(null)
+    }
+
+    private fun markVODAsWatched() {
+        Repository.vods?.find { it.id?.equals(vodId) ?: false }?.isNew = false
+    }
+
+    private fun setVODStopWatchingTimeLocally() {
+        Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
+            ?.stopTime = player.currentPosition.formatDuration()
     }
 }
 

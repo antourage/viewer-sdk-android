@@ -52,8 +52,8 @@ data class StreamResponse(
     @field:SerializedName("viewsCount") val viewsCount: Int?,
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") val viewersCount: Int?,
-    @field:SerializedName("isNew") val isNew: Boolean?,
-    @field:SerializedName("stopTime") val stopTime: String?
+    @field:SerializedName("isNew") var isNew: Boolean?,
+    @field:SerializedName("stopTime") var stopTime: String?
 ) : Parcelable
 
 data class User(

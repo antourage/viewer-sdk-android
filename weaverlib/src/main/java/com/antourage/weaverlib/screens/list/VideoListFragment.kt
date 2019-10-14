@@ -101,6 +101,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         viewModel.subscribeToLiveStreams()
+        viewModel.refreshVODsLocally()
     }
 
     override fun onPause() {

@@ -6,7 +6,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
-import com.antourage.weaverlib.other.generateRandomViewerNumber
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
@@ -37,6 +36,30 @@ class VideoListViewModel @Inject constructor(application: Application) :
 
     fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0) {
         ReceivingVideosManager.loadVODs(count)
+    }
+
+    fun refreshVODsLocally() {
+        val resultList = mutableListOf<StreamResponse>()
+        liveVideos?.let { resultList.addAll(it) }
+        if (resultList.size > 0) {
+            resultList.add(
+                getStreamDividerPlaceholder()
+            )
+        }
+
+        var addBottomLoader = false
+        if (vods?.find { it.streamId == -2 } != null){
+            addBottomLoader = true
+        }
+
+        vods = mutableListOf()
+        Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
+        if (addBottomLoader){
+            (vods as MutableList<StreamResponse>).add(getStreamLoaderPlaceholder())
+        }
+
+        vods?.let { resultList.addAll(it.toList()) }
+        listOfStreams.postValue(resultList.toList())
     }
 
     fun onPause() {
