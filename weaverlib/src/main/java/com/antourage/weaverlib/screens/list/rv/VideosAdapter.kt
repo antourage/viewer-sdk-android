@@ -95,8 +95,6 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         listOfStreams[holder.adapterPosition]?.let { onClick.invoke(it) }
                 }
 
-                isNew?.let { holder.txtWasLive.gone(!it) }
-
                 when (getItemViewType(position)) {
                     VIEW_LIVE -> {
                         holder.txtTitle.text = streamTitle
@@ -107,6 +105,7 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         holder.txtWasLive.gone(formattedStartTime.isNullOrEmpty())
                     }
                     VIEW_VOD -> {
+                        isNew?.let { holder.txtWasLive.gone(!it) }
                         holder.txtTitle.text = videoName
                         holder.txtStatus.text = duration?.take(8)
                         holder.txtStatus.gone(duration == null || duration.isEmpty())

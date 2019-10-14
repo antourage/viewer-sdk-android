@@ -30,7 +30,8 @@ class StreamListDiffCallback(
         return prevList[oldPos].hlsUrl?.size == newList[newPos].hlsUrl?.size &&
                 prevList[oldPos].thumbnailUrl == newList[newPos].thumbnailUrl &&
                 prevList[oldPos].streamTitle == newList[newPos].streamTitle &&
-                prevList[oldPos].viewersCount == newList[newPos].viewersCount
+                prevList[oldPos].viewersCount == newList[newPos].viewersCount &&
+                prevList[oldPos].isNew == newList[newPos].isNew
     }
 
     override fun getChangePayload(oldPos: Int, newPos: Int): Any? {
