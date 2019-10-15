@@ -18,6 +18,7 @@ import javax.inject.Inject
 class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
+    private var canRefresh: Boolean = false
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
@@ -39,27 +40,30 @@ class VideoListViewModel @Inject constructor(application: Application) :
     }
 
     fun refreshVODsLocally() {
-        val resultList = mutableListOf<StreamResponse>()
-        liveVideos?.let { resultList.addAll(it) }
-        if (resultList.size > 0) {
-            resultList.add(
-                getStreamDividerPlaceholder()
-            )
-        }
+        if (canRefresh) {
+            val resultList = mutableListOf<StreamResponse>()
+            liveVideos?.let { resultList.addAll(it) }
+            if (resultList.size > 0) {
+                resultList.add(
+                    getStreamDividerPlaceholder()
+                )
+            }
 
-        var addBottomLoader = false
-        if (vods?.find { it.streamId == -2 } != null){
-            addBottomLoader = true
-        }
+            var addBottomLoader = false
+            if (vods?.find { it.streamId == -2 } != null) {
+                addBottomLoader = true
+            }
 
-        vods = mutableListOf()
-        Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
-        if (addBottomLoader){
-            (vods as MutableList<StreamResponse>).add(getStreamLoaderPlaceholder())
-        }
+            vods = mutableListOf()
+            Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
+            if (addBottomLoader) {
+                (vods as MutableList<StreamResponse>).add(getStreamLoaderPlaceholder())
+            }
 
-        vods?.let { resultList.addAll(it.toList()) }
-        listOfStreams.postValue(resultList.toList())
+            vods?.let { resultList.addAll(it.toList()) }
+            listOfStreams.postValue(resultList.toList())
+        }
+        canRefresh = true
     }
 
     fun onPause() {

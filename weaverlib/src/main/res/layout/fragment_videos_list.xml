@@ -43,16 +43,22 @@
 
         <TextView
                 android:id="@+id/tvTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
+                style="@style/Title"
                 android:maxLines="2"
                 android:text="@string/main_title"
-                android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:visibility="visible"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivClose" />
+
+        <TextView
+                android:id="@+id/tvNoContent"
+                style="@style/Title"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/videos_empty_list_placeholder_text"
+                android:textSize="24sp"
+                android:visibility="invisible"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivClose" />
@@ -64,6 +70,7 @@
                 android:layout_marginTop="30dp"
                 android:overScrollMode="never"
                 android:scrollIndicators="none"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -80,6 +87,34 @@
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     tools:itemCount="4"
                     tools:listitem="@layout/item_live_video" />
+
+        </com.antourage.weaverlib.other.ui.MyNestedScrollView>
+
+        <com.antourage.weaverlib.other.ui.MyNestedScrollView
+                android:id="@+id/placeHolderNestedSV"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="30dp"
+                android:overScrollMode="never"
+                android:scrollIndicators="none"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/placeHolderRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="always"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:scrollIndicators="none"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_video_placeholder" />
+
         </com.antourage.weaverlib.other.ui.MyNestedScrollView>
 
     </android.support.constraint.ConstraintLayout>

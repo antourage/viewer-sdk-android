@@ -37,7 +37,7 @@
 
     <string name="choose_link">Choose link</string>
     <string name="set">set</string>
-    <string name="main_title">Inside England | LIVE</string>
+    <string name="main_title">Latest Videos</string>
 
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
@@ -50,4 +50,5 @@
     <string name="from_gallery">From gallery</string>
     <string name="from_camera">From camera</string>
     <string name="_new">New</string>
+    <string name="videos_empty_list_placeholder_text">New videos are coming soon</string>
 </resources>
