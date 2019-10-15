@@ -114,7 +114,10 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                         holder.txtStatus.gone(duration == null || duration.isEmpty())
                         holder.txtNumberOfViewers.text = viewsCount.toString()
                         holder.txtNumberOfViewers.gone(viewsCount == null)
-                        if (stopTime != null && (stopTime?.isEmptyTrimmed() == false)) {
+                        if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
+                                "00:00:00"
+                            )
+                        ) {
                             holder.watchingProgress.progress =
                                 (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
                                     ?: 0)).toInt()

@@ -41,8 +41,8 @@ class VideoListViewModel @Inject constructor(application: Application) :
         refreshVODs(vods?.size ?: 0)
     }
 
-    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0, pulledToRefresh: Boolean = false) {
-        this.pulledToRefresh = pulledToRefresh
+    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0, noLoadingPlaceholder: Boolean = false) {
+        this.pulledToRefresh = noLoadingPlaceholder
         ReceivingVideosManager.loadVODs(count)
     }
 
