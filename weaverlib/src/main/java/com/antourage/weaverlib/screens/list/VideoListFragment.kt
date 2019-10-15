@@ -1,5 +1,7 @@
 package com.antourage.weaverlib.screens.list
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.ActivityInfo
@@ -53,9 +55,9 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
             if (list.isNullOrEmpty()) {
                 showEmptyListPlaceholder()
             } else {
-                hidePlaceholder()
                 videoAdapter.setStreamList(it)
                 nestedSV.setBottomReachesListener(this@VideoListFragment)
+                hidePlaceholder()
             }
         }
         videoRefreshLayout.isRefreshing = false
@@ -212,7 +214,17 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
     private fun hidePlaceholder() {
         tvTitle.visibility = View.VISIBLE
         tvNoContent.visibility = View.INVISIBLE
+
+        placeHolderNestedSV.animate()
+            .alpha(0.0f)
+            .setDuration(600)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    placeHolderNestedSV.visibility = View.INVISIBLE
+                }
+            })
+
         nestedSV.visibility = View.VISIBLE
-        placeHolderNestedSV.visibility = View.INVISIBLE
     }
 }

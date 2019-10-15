@@ -5,14 +5,12 @@
         android:id="@+id/videoRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
         android:background="@color/bg_color"
         tools:context=".screens.list.VideoListFragment">
 
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:animateLayoutChanges="true">
+            android:layout_height="match_parent">
 
         <ImageView
                 android:id="@+id/ivLoader"
@@ -68,7 +66,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="30dp"
-                android:animateLayoutChanges="true"
                 android:overScrollMode="never"
                 android:scrollIndicators="none"
                 android:visibility="invisible"
@@ -96,7 +93,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="30dp"
-                android:animateLayoutChanges="true"
                 android:overScrollMode="never"
                 android:scrollIndicators="none"
                 android:visibility="visible"
