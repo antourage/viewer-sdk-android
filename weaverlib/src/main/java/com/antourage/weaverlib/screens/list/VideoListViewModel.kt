@@ -20,6 +20,7 @@ import kotlin.concurrent.schedule
 class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
+    private var pulledToRefresh: Boolean = false
     private var canRefresh: Boolean = false
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
@@ -32,7 +33,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
     var vodsUpdated = false
 
     private val VODS_COUNT = 15
-    private val MIN_ANIM_SHOWING_TIME_MILLS = 15000L
+    private val MIN_ANIM_SHOWING_TIME_MILLS = 1500L
 
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
@@ -40,7 +41,8 @@ class VideoListViewModel @Inject constructor(application: Application) :
         refreshVODs(vods?.size ?: 0)
     }
 
-    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0) {
+    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0, pulledToRefresh: Boolean = false) {
+        this.pulledToRefresh = pulledToRefresh
         ReceivingVideosManager.loadVODs(count)
     }
 
@@ -149,7 +151,9 @@ class VideoListViewModel @Inject constructor(application: Application) :
             }
             is Status.Loading -> {
                 vodsUpdated = false
-                loaderLiveData.postValue(true)
+                if (!pulledToRefresh) {
+                    loaderLiveData.postValue(true)
+                }
                 Timer().schedule(MIN_ANIM_SHOWING_TIME_MILLS) {
                     showCallResult = true
                     if (liveVideosUpdated && vodsUpdated) {

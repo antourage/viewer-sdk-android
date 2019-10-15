@@ -151,7 +151,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         rvLayoutManager.reverseLayout = false
         videosRV.layoutManager = rvLayoutManager
         videoRefreshLayout.setOnRefreshListener {
-            viewModel.refreshVODs(0)
+            viewModel.refreshVODs(0, true)
         }
 
         placeHolderRV.layoutManager = LinearLayoutManager(context)
