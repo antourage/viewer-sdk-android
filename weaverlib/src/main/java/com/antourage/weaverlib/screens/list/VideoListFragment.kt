@@ -121,7 +121,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         val total = rvLayoutManager.itemCount
         val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
         if (total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
-            viewModel.refreshVODs()
+            viewModel.refreshVODs(pulledToRefresh = true)
         }
     }
 
