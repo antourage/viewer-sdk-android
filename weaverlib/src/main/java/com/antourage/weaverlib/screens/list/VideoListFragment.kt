@@ -3,8 +3,8 @@ package com.antourage.weaverlib.screens.list
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.ActivityInfo
-import android.icu.util.ValueIterator
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -32,10 +32,18 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
     private lateinit var videoAdapter: VideosAdapter
     private lateinit var placeHolderAdapter: VideoPlaceholdersAdapter
     private lateinit var rvLayoutManager: VideosLayoutManager
+    private val loadingAnimHandler = Handler()
 
     companion object {
         fun newInstance(): VideoListFragment {
             return VideoListFragment()
+        }
+    }
+
+    private val loadingAnimRunnable = object : Runnable {
+        override fun run() {
+            placeHolderAdapter.shiftItems()
+            loadingAnimHandler.postDelayed(this, 350)
         }
     }
 
@@ -104,6 +112,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+        loadingAnimHandler.removeCallbacksAndMessages(null)
     }
 
     override fun onBottomReached(view: View?) {
@@ -166,25 +175,38 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
     }
 
     private fun hideLoadingLayout() {
-
+        loadingAnimHandler.removeCallbacksAndMessages(null)
     }
 
     private fun showLoadingLayout() {
-
+        showLoadingListPlaceholder()
+        placeHolderAdapter.setItems(
+            arrayListOf(
+                R.color.no_content_placeholder_color_3,
+                R.color.no_content_placeholder_color_2,
+                R.color.no_content_placeholder_color_1
+            )
+        )
+        loadingAnimHandler.postDelayed(loadingAnimRunnable, 350)
     }
 
     private fun showEmptyListPlaceholder() {
-        nestedSV.visibility = View.INVISIBLE
-        placeHolderNestedSV.visibility = View.VISIBLE
-        tvTitle.visibility = View.INVISIBLE
-        tvNoContent.visibility = View.VISIBLE
+        showLoadingListPlaceholder()
         placeHolderAdapter.setItems(
             arrayListOf(
-                R.drawable.no_content_placeholder_1,
-                R.drawable.no_content_placeholder_1,
-                R.drawable.no_content_placeholder_1
+                R.color.no_content_placeholder_color_1,
+                R.color.no_content_placeholder_color_1,
+                R.color.no_content_placeholder_color_1
             )
         )
+        tvTitle.visibility = View.INVISIBLE
+        tvNoContent.visibility = View.VISIBLE
+
+    }
+
+    private fun showLoadingListPlaceholder() {
+        nestedSV.visibility = View.INVISIBLE
+        placeHolderNestedSV.visibility = View.VISIBLE
     }
 
     private fun hidePlaceholder() {

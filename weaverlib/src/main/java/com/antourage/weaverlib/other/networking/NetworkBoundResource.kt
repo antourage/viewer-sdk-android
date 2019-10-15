@@ -19,10 +19,11 @@ abstract class NetworkBoundResource<ResultType>
         val context = ModuleResourcesProvider.getContext()
         start = Date().time
         end = Date().time
-        Timer().schedule(1000) {
-            if ((end ?: 0) - (start ?: 0) > 1000)
-                result.value = Resource.loading()
-        }
+//        Timer().schedule(1000) {
+//            if ((end ?: 0) - (start ?: 0) > 1000)
+//                result.value = Resource.loading()
+//        }
+        result.value = Resource.loading()
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                 fetchFromNetwork()

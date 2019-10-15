@@ -13,7 +13,9 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
+import java.util.*
 import javax.inject.Inject
+import kotlin.concurrent.schedule
 
 class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
@@ -24,10 +26,13 @@ class VideoListViewModel @Inject constructor(application: Application) :
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
+    private var showCallResult = false
+
     var liveVideosUpdated = false
     var vodsUpdated = false
 
     private val VODS_COUNT = 15
+    private val MIN_ANIM_SHOWING_TIME_MILLS = 15000L
 
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
@@ -118,7 +123,6 @@ class VideoListViewModel @Inject constructor(application: Application) :
             }
             is Status.Loading -> {
                 vodsUpdated = false
-                loaderLiveData.postValue(true)
             }
             is Status.Failure -> {
                 vodsUpdated = true
@@ -146,6 +150,12 @@ class VideoListViewModel @Inject constructor(application: Application) :
             is Status.Loading -> {
                 vodsUpdated = false
                 loaderLiveData.postValue(true)
+                Timer().schedule(MIN_ANIM_SHOWING_TIME_MILLS) {
+                    showCallResult = true
+                    if (liveVideosUpdated && vodsUpdated) {
+                        updateVideosList()
+                    }
+                }
             }
             is Status.Failure -> {
                 vodsUpdated = true
@@ -156,17 +166,20 @@ class VideoListViewModel @Inject constructor(application: Application) :
     }
 
     private fun updateVideosList() {
-        val resultList = mutableListOf<StreamResponse>()
-        liveVideos?.let { resultList.addAll(it) }
-        if (resultList.size > 0) {
-            Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
-            resultList.add(
-                getStreamDividerPlaceholder()
-            )
+        if (showCallResult) {
+            val resultList = mutableListOf<StreamResponse>()
+            liveVideos?.let { resultList.addAll(it) }
+            if (resultList.size > 0) {
+                Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
+                resultList.add(
+                    getStreamDividerPlaceholder()
+                )
+            }
+            vods?.let { resultList.addAll(it.toList()) }
+            loaderLiveData.postValue(false)
+            listOfStreams.postValue(resultList.toList())
+            showCallResult = false
         }
-        vods?.let { resultList.addAll(it.toList()) }
-        loaderLiveData.postValue(false)
-        listOfStreams.postValue(resultList.toList())
     }
 
     private fun getStreamDividerPlaceholder(): StreamResponse {
