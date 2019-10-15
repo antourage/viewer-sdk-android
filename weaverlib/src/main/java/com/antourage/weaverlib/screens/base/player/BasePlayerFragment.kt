@@ -143,7 +143,7 @@ abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>()
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                     override fun onAnimationEnd(drawable: Drawable?) {
-                        ivLoader.post { start() }
+                        ivLoader?.post { start() }
                     }
                 })
                 start()

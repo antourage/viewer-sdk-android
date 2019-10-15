@@ -26,7 +26,7 @@
             app:layout_constraintRight_toLeftOf="@+id/fastForward"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
-    <com.antourage.weaverlib.other.ui.PlayerView
+    <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="300dp"

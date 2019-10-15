@@ -221,7 +221,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     super.onAnimationEnd(animation)
-                    placeHolderNestedSV.visibility = View.INVISIBLE
+                    placeHolderNestedSV?.visibility = View.INVISIBLE
                 }
             })
 

@@ -9,6 +9,7 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat.clearAnimationCallbacks
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GestureDetectorCompat
 import android.view.GestureDetector
@@ -208,9 +209,9 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     }
 
     private fun brightenNextPrevButtons() {
-        exo_next.visibility = View.VISIBLE
-        exo_prev.visibility = View.VISIBLE
-        controls.hide()
+        exo_next?.visibility = View.VISIBLE
+        exo_prev?.visibility = View.VISIBLE
+        controls?.hide()
     }
 
     private fun initSkipAnimations() {
@@ -273,6 +274,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             }
         }
 
+        initSkipControls()
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
     }
 
@@ -389,7 +391,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                     override fun onAnimationEnd(drawable: Drawable?) {
-                        iv.visibility = View.INVISIBLE
+                        iv?.visibility = View.INVISIBLE
                         brightenNextPrevButtons()
                         clearAnimationCallbacks()
                     }
