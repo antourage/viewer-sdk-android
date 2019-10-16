@@ -6,6 +6,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
@@ -227,9 +230,9 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val onBtnSendClicked = View.OnClickListener {
         val message = Message(
-            "",
+            viewModel.getUser()?.imageUrl ?: "",
             "osoluk@leobit.co",
-            viewModel.getUserInfoLiveData().value?.displayName,
+            viewModel.getUser()?.displayName,
             etMessage.text.toString(),
             MessageType.USER,
             Timestamp(Date())
@@ -256,7 +259,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private val onCancelClicked = View.OnClickListener {
-        etDisplayName.setText(viewModel.getUserInfoLiveData().value?.displayName)
+        etDisplayName.setText(viewModel.getUser()?.displayName)
         toggleUserSettingsDialog()
         if (!etMessage.isFocused)
             hideKeyboard()
@@ -301,9 +304,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             txtLabelDefaultName.visibility = if (it.isEmptyTrimmed()) View.VISIBLE else View.GONE
             btnConfirm.text =
                 resources.getString(if (it.isEmptyTrimmed()) R.string.use_default else R.string.confirm)
-            btnConfirm.isEnabled = !viewModel.getUserInfoLiveData().value?.displayName.equals(it)
+            btnConfirm.isEnabled = !viewModel.getUser()?.displayName.equals(it)
         }
     }
+
 
     /**
      * method used to position player controls in proper way according to "Live" label's location
@@ -378,6 +382,9 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.changeUserDisplayName()
         } else {
             viewModel.changeUserDisplayName(etDisplayName.text.toString())
+        }
+        if (viewModel.newAvatar != null) {
+            viewModel.changeUserAvatar()
         }
         showUserSettingsDialog(false)
     }
@@ -558,7 +565,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
         btnCancel.setOnClickListener(onCancelClicked)
         ivSetUserPhoto.setOnClickListener(onUserPhotoClicked)
-        avatarChooser?.setListener { setNewAvatar(it) }
+        avatarChooser?.setListener {
+            setNewAvatar(it)
+            btnConfirm.isEnabled = true
+        }
         ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
         btnConfirm.setOnClickListener { onConfirmClicked() }

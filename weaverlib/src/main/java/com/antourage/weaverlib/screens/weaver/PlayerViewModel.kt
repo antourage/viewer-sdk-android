@@ -16,6 +16,7 @@ import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -46,6 +47,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private val userAvatarLiveData: MutableLiveData<UpdateImageResponse> = MutableLiveData()
 
     var currentPoll: Poll? = null
 
@@ -57,6 +59,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
     fun getUserInfoLiveData(): LiveData<User> = userInfoLiveData
     fun getLoaderLiveData(): LiveData<Boolean> = loaderLiveData
+    fun getUser() = user
 
     init {
         pollStatusLiveData.value = PollStatus.NoPoll
@@ -103,10 +106,14 @@ class PlayerViewModel @Inject constructor(application: Application) :
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
                     //TODO 17/06/2019 wth does not actually remove observer
-                    streamId?.let { it1 -> repository.getMessages(it1).removeObserver(messagesObserver) }
+                    streamId?.let { it1 ->
+                        repository.getMessages(it1).removeObserver(messagesObserver)
+                    }
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                 } else {
-                    streamId?.let { it1 -> repository.getMessages(it1).observeForever(messagesObserver) }
+                    streamId?.let { it1 ->
+                        repository.getMessages(it1).observeForever(messagesObserver)
+                    }
                 }
             }
         }
@@ -263,6 +270,30 @@ class PlayerViewModel @Inject constructor(application: Application) :
                         is Status.Failure -> {
                             loaderLiveData.postValue(false)
                             response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    fun changeUserAvatar() {
+        newAvatar?.let { avatar ->
+            val userImgUpdateResponse = repository.uploadImage(avatar.toMultipart())
+            userImgUpdateResponse.observeForever(object : Observer<Resource<UpdateImageResponse>> {
+                override fun onChanged(t: Resource<UpdateImageResponse>?) {
+                    t?.let {
+                        when (it.status) {
+                            is Status.Loading -> loaderLiveData.postValue(true)
+                            is Status.Failure -> {
+                                loaderLiveData.postValue(false)
+                                userImgUpdateResponse.removeObserver(this)
+                            }
+                            is Status.Success -> {
+                                loaderLiveData.postValue(false)
+                                user?.imageUrl = it.status.data?.imageUrl
+                                userImgUpdateResponse.removeObserver(this)
+                            }
                         }
                     }
                 }

@@ -5,6 +5,7 @@ import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.content.Context
+import android.graphics.Bitmap
 import android.support.annotation.NonNull
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -21,6 +22,10 @@ import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -189,4 +194,13 @@ fun String.parseToMills(): Long {
     val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     inputFmt.timeZone = TimeZone.getTimeZone("UTC")
     return inputFmt.parse(this).time
+}
+
+fun Bitmap.toMultipart(): MultipartBody.Part {
+    val bos = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.PNG, 75, bos)
+    val imageByteArray = bos.toByteArray()
+
+    val imageRequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
+    return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
 }

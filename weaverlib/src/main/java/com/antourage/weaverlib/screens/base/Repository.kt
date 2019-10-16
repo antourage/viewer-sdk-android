@@ -9,6 +9,7 @@ import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.google.firebase.firestore.Query
+import okhttp3.MultipartBody
 
 class Repository {
 
@@ -62,6 +63,12 @@ class Repository {
         object : NetworkBoundResource<SimpleResponse>() {
             override fun createCall() =
                 ApiClient.getWebClient().webService.stopWatchingVOD(body)
+        }.asLiveData()
+
+    fun uploadImage(image: MultipartBody.Part): LiveData<Resource<UpdateImageResponse>> =
+        object : NetworkBoundResource<UpdateImageResponse>() {
+            override fun createCall() =
+                ApiClient.getWebClient().webService.uploadImage(image)
         }.asLiveData()
 
     //region Firebase

@@ -2,6 +2,7 @@ package com.antourage.weaverlib.other.networking
 
 import android.arch.lifecycle.LiveData
 import com.antourage.weaverlib.other.models.*
+import okhttp3.MultipartBody
 import retrofit2.http.*
 
 interface WebService {
@@ -31,4 +32,8 @@ interface WebService {
 
     @POST("vod/stopTime")
     fun stopWatchingVOD(@Body body: StopWatchVodRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @Multipart
+    @POST("users/uploadimage")
+    fun uploadImage(@Part file: MultipartBody.Part): LiveData<ApiResponse<UpdateImageResponse>>
 }

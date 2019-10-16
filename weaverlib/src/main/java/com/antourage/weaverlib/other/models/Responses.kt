@@ -63,3 +63,8 @@ data class User(
     @field:SerializedName("imageUrl") var imageUrl: String?
 )
 
+data class UpdateImageResponse(
+    @field:SerializedName("imageUrl") val imageUrl: String?,
+    @field:SerializedName("success") val success: Boolean?
+)
+

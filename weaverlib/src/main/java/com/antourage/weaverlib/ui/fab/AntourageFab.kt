@@ -95,7 +95,7 @@ class AntourageFab @JvmOverloads constructor(
     init {
         if (BASE_URL.isEmptyTrimmed())
             BASE_URL =
-                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_STAGING
+                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
