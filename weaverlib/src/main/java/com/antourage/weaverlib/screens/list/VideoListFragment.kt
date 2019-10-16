@@ -10,6 +10,7 @@ import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -122,6 +123,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
         if (total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
             viewModel.refreshVODs(noLoadingPlaceholder = true)
+            Log.d("REFRESH_VODS", "onBottomReached")
         }
     }
 
@@ -153,6 +155,7 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         rvLayoutManager.reverseLayout = false
         videosRV.layoutManager = rvLayoutManager
         videoRefreshLayout.setOnRefreshListener {
+            Log.d("REFRESH_VODS", "setOnRefreshListener: count = 0")
             viewModel.refreshVODs(0, true)
         }
 

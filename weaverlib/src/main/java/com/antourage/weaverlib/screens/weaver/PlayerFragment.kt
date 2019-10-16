@@ -129,18 +129,29 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
     }
 
-    private val userInfoObserver: Observer<User> = Observer {
-        txtLabelDefaultName.text = resources.getString(
-            R.string.your_default_name_is,
-            viewModel.generateUserDefaultDisplayName()
-        )
-        if (viewModel.noDisplayNameSet()) {
-            txtLabelDefaultName.visibility = View.VISIBLE
-        } else {
-            etMessage.isFocusable = true
-            etMessage.isFocusableInTouchMode = true
-            etDisplayName.setText(it?.displayName)
-            txtLabelDefaultName.visibility = View.GONE
+    private val userInfoObserver: Observer<User> = Observer { user ->
+        user?.apply {
+            txtLabelDefaultName.text = resources.getString(
+                R.string.your_default_name_is,
+                viewModel.generateUserDefaultDisplayName()
+            )
+            if (viewModel.noDisplayNameSet()) {
+                txtLabelDefaultName.visibility = View.VISIBLE
+            } else {
+                etMessage.isFocusable = true
+                etMessage.isFocusableInTouchMode = true
+                etDisplayName.setText(displayName)
+                txtLabelDefaultName.visibility = View.GONE
+            }
+            viewModel.newAvatar?.let {
+                ivSetUserPhoto.setImageBitmap(it)
+            } ?: run {
+                Picasso.get()
+                    .load(imageUrl).fit().centerCrop()
+                    .placeholder(R.drawable.ic_user_grayed)
+                    .error(R.drawable.ic_user_grayed)
+                    .into(ivSetUserPhoto)
+            }
         }
     }
 
@@ -249,6 +260,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         toggleUserSettingsDialog()
         if (!etMessage.isFocused)
             hideKeyboard()
+        viewModel.newAvatar = null
     }
 
     private val onUserPhotoClicked = View.OnClickListener {

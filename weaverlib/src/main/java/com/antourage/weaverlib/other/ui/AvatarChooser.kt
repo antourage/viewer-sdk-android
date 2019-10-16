@@ -23,6 +23,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.IOException
+import android.support.v7.view.ContextThemeWrapper
 
 class AvatarChooser(val context: Context) {
 
@@ -56,7 +57,7 @@ class AvatarChooser(val context: Context) {
     }
 
     private fun getDefaultDialog(fragment: Fragment): AlertDialog.Builder {
-        return AlertDialog.Builder(context)
+        return AlertDialog.Builder(context, R.style.AlertDialogTheme)
             .setTitle(context.getString(R.string.choose_image_source))
             .setPositiveButton(context.getString(R.string.from_gallery)) { dialog, _ ->
                 startActivityChoseImageFromGallery(fragment)

@@ -38,12 +38,20 @@ class VideoListViewModel @Inject constructor(application: Application) :
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
-        refreshVODs(vods?.size ?: 0)
+        Log.d("REFRESH_VODS", "subscribeToLiveStreams: count = ${vods?.size ?: 0}")
+        refreshVODs()
     }
 
-    fun refreshVODs(count: Int = (vods?.size?.minus(1)) ?: 0, noLoadingPlaceholder: Boolean = false) {
+    fun refreshVODs(
+        count: Int = (vods?.size?.minus(1)) ?: 0,
+        noLoadingPlaceholder: Boolean = false
+    ) {
+        var vodsCount = count
+        if (vodsCount < VODS_COUNT) {
+            vodsCount = 0
+        }
         this.pulledToRefresh = noLoadingPlaceholder
-        ReceivingVideosManager.loadVODs(count)
+        ReceivingVideosManager.loadVODs(vodsCount)
     }
 
     fun refreshVODsLocally() {
