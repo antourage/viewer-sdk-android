@@ -16,6 +16,7 @@ import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
+import com.antourage.weaverlib.other.OnSingleClickListener
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.User
@@ -101,9 +102,11 @@ class AntourageFab @JvmOverloads constructor(
 
         val intent = Intent(context, AntourageActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        floatingActionButton.setOnClickListener {
-            context.startActivity(intent)
-        }
+        floatingActionButton.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(v: View) {
+                context.startActivity(intent)
+            }
+        })
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
         AntourageFabLifecycleObserver.registerActionHandler(this)
 
