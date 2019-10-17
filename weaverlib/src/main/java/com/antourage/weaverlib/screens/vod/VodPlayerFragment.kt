@@ -9,7 +9,6 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.graphics.drawable.Animatable2Compat
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat
-import android.support.graphics.drawable.AnimatedVectorDrawableCompat.clearAnimationCallbacks
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GestureDetectorCompat
 import android.view.GestureDetector
@@ -22,7 +21,6 @@ import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
@@ -147,7 +145,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
-            viewModel.initUi(streamId, startTime, id)
+            viewModel.initUi(streamId, startTime, id, stopTime)
             streamId?.let { viewModel.setStreamId(it) }
         }
         setUpNoChatPlaceholder(

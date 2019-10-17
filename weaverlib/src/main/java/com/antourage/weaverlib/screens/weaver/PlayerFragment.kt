@@ -6,9 +6,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
@@ -307,7 +304,6 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             btnConfirm.isEnabled = !viewModel.getUser()?.displayName.equals(it)
         }
     }
-
 
     /**
      * method used to position player controls in proper way according to "Live" label's location

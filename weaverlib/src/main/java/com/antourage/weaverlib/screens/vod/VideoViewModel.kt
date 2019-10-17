@@ -14,6 +14,7 @@ import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.other.parseToDate
+import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -34,6 +35,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
 
+    private var stopWatchingTime: Long? = 0
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -105,7 +107,7 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
-    fun initUi(streamId: Int?, startTime: String?, vodId: Int?) {
+    fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()
         streamId?.let {
             this.streamId = it
@@ -114,6 +116,12 @@ class VideoViewModel @Inject constructor(application: Application) :
         this.vodId = vodId
         chatStateLiveData.postValue(true)
         markVODAsWatched()
+        this.stopWatchingTime = stopTime?.parseToMills()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        stopWatchingTime?.let { player.seekTo(it) }
     }
 
     override fun onPause() {
