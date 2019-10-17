@@ -88,6 +88,8 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
                 if (!thumbnailUrl.isNullOrEmpty()) {
                     Picasso.get()
                         .load(thumbnailUrl)
+                        .placeholder(R.drawable.ic_no_content_content_loading)
+                        .error(R.drawable.ic_no_content_content_loading)
                         .into(holder.thumbnail)
                 }
                 holder.itemView.setOnClickListener {
