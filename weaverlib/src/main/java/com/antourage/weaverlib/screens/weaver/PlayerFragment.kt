@@ -13,6 +13,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
@@ -287,6 +289,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun initUi(view: View?) {
         super.initUi(view)
+        setupUIForHidingKeyboardOnOutsideTouch(constraintLayoutParent)
         initUser()
         hidePollStatusLayout()
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
@@ -628,6 +631,25 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun checkIfRequireDisplayNameSetting() {
         if (viewModel.noDisplayNameSet()) {
             showUserSettingsDialog(true)
+        }
+    }
+
+    private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
+
+        // Set up touch listener for non-text box views to hide keyboard.
+        if (view !is EditText && view.id != btnCancel.id) {
+            view.setOnTouchListener { v, event ->
+                hideKeyboard()
+                false
+            }
+        }
+
+        //If a layout container, iterate over children and seed recursion.
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val innerView = view.getChildAt(i)
+                setupUIForHidingKeyboardOnOutsideTouch(innerView)
+            }
         }
     }
 }
