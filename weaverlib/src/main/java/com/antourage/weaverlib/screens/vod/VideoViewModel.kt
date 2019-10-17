@@ -35,6 +35,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
 
+    private var videoChanged: Boolean = false
     private var predefinedStopWatchingTime: Long? = null
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
@@ -148,8 +149,10 @@ class VideoViewModel @Inject constructor(application: Application) :
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         list[currentWindow].id?.apply {
-            if (this != vodId)
+            if (this != vodId) {
+                videoChanged = true
                 this@VideoViewModel.predefinedStopWatchingTime = currentVod.stopTime?.parseToMills()
+            }
         }
         this.streamId = currentVod.streamId
         this.vodId = currentVod.id
@@ -255,7 +258,10 @@ class VideoViewModel @Inject constructor(application: Application) :
     }
 
     fun seekToLastWatchingTime() {
-        predefinedStopWatchingTime?.let { player.seekTo(it) }
+        if (videoChanged) {
+            predefinedStopWatchingTime?.let { player.seekTo(it) }
+            videoChanged = false
+        }
     }
 }
 

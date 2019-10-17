@@ -65,7 +65,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                             ?.streamId?.let { streamId ->
                             viewModel.onVideoStarted(streamId)
                         }
-                        viewModel.seekToLastWatchingTime()
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
@@ -100,7 +99,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 tvWasLive.gone(formattedStartTime.isNullOrEmpty())
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
-
+            viewModel.seekToLastWatchingTime()
         }
     }
 
