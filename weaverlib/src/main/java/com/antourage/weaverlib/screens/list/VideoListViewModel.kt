@@ -95,7 +95,7 @@ class VideoListViewModel @Inject constructor(application: Application) :
                     }
                     liveVideosUpdated = true
                     if (vodsUpdated) {
-                        updateVideosList()
+                        updateVideosList(true)
                     }
                 }
             }
@@ -177,8 +177,8 @@ class VideoListViewModel @Inject constructor(application: Application) :
         }
     }
 
-    private fun updateVideosList() {
-        if (showCallResult) {
+    private fun updateVideosList(updateLiveStreams: Boolean = false) {
+        if (showCallResult || updateLiveStreams) {
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
             if (resultList.size > 0) {
