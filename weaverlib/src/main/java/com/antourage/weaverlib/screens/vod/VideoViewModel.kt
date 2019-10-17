@@ -35,7 +35,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
 
-    private var stopWatchingTime: Long? = 0
+    private var predefinedStopWatchingTime: Long? = null
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -116,12 +116,12 @@ class VideoViewModel @Inject constructor(application: Application) :
         this.vodId = vodId
         chatStateLiveData.postValue(true)
         markVODAsWatched()
-        this.stopWatchingTime = stopTime?.parseToMills()
+        this.predefinedStopWatchingTime = stopTime?.parseToMills()
     }
 
     override fun onResume() {
         super.onResume()
-        stopWatchingTime?.let { player.seekTo(it) }
+        predefinedStopWatchingTime?.let { player.seekTo(it) }
     }
 
     override fun onPause() {
@@ -130,11 +130,11 @@ class VideoViewModel @Inject constructor(application: Application) :
         stopMonitoringChatMessages()
     }
 
-    internal fun setVodStopWatchingTime() {
+    private fun setVodStopWatchingTime() {
         vodId?.let {
             setVODStopWatchingTimeLocally()
             StopWatchVodRequest(
-                it, player.currentPosition.formatDuration()
+                it, stopWatchingTime?.formatDuration()
             )
         }?.let {
             Repository().stopWatchingVOD(
@@ -144,15 +144,21 @@ class VideoViewModel @Inject constructor(application: Application) :
     }
 
     override fun onVideoChanged() {
+        setVodStopWatchingTime()
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
+        list[currentWindow].id?.apply {
+            if (this != vodId)
+                this@VideoViewModel.predefinedStopWatchingTime = currentVod.stopTime?.parseToMills()
+        }
         this.streamId = currentVod.streamId
         this.vodId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
-        if (player.playWhenReady && player.playbackState == Player.STATE_READY)
+        if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
             player.playWhenReady = true
+        }
     }
 
     fun skipForward() {
@@ -245,7 +251,11 @@ class VideoViewModel @Inject constructor(application: Application) :
 
     private fun setVODStopWatchingTimeLocally() {
         Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
-            ?.stopTime = player.currentPosition.formatDuration()
+            ?.stopTime = stopWatchingTime?.formatDuration()
+    }
+
+    fun seekToLastWatchingTime() {
+        predefinedStopWatchingTime?.let { player.seekTo(it) }
     }
 }
 

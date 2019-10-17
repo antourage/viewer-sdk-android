@@ -6,6 +6,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.os.Handler
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
@@ -39,6 +40,16 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
 
     private var batteryStatus: Intent? = null
 
+    internal var stopWatchingTime: Long? = null
+
+    private var timerTickHandler = Handler()
+    private var timerTickRunnable = object : Runnable {
+        override fun run() {
+            stopWatchingTime = player.currentPosition
+            timerTickHandler.postDelayed(this, 1000)
+        }
+    }
+
     init {
         currentWindow = 0
     }
@@ -63,24 +74,15 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
             getApplication<Application>().registerReceiver(null, ifilter)
         }
-//        stopwatch.onTick {
-//            updateWatchingTimeSpan(
-//                StatisticWatchVideoRequest(
-//                    streamId,
-//                    StatisticActions.LEFT.ordinal,
-//                    getBatteryLevel(),
-//                    Timestamp(System.currentTimeMillis()).toString(),
-//                    stopwatch.toString()
-//                )
-//            )
-//        }
         sendStatisticData(StatisticActions.JOINED)
+        startUpdatingStopWatchingTime()
     }
 
     open fun onPause() {
         removeStatisticsListeners()
         player.playWhenReady = false
         stopwatch.stop()
+        timerTickHandler.removeCallbacksAndMessages(null)
         sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
     }
 
@@ -88,7 +90,7 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         player = getSimpleExoPlayer()
         this.streamUrl = streamUrl
         player.playWhenReady = playWhenReady
-        player.prepare(getMediaSource(streamUrl), true, false)
+        player.prepare(getMediaSource(streamUrl), false, true)
         player.seekTo(currentWindow, C.TIME_UNSET)
         initStatisticsListeners()
         return player
@@ -183,6 +185,14 @@ abstract class BasePlayerViewModel(application: Application) : BaseViewModel(app
         when (this) {
             is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
             is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
+        }
+    }
+
+    private fun startUpdatingStopWatchingTime(){
+        if (timerTickHandler.hasMessages(0)) {
+            timerTickHandler.removeCallbacksAndMessages(null)
+        } else {
+            timerTickHandler.post(timerTickRunnable)
         }
     }
 

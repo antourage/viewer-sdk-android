@@ -54,7 +54,21 @@ data class StreamResponse(
     @field:SerializedName("viewersCount") val viewersCount: Int?,
     @field:SerializedName("isNew") var isNew: Boolean?,
     @field:SerializedName("stopTime") var stopTime: String?
-) : Parcelable
+) : Parcelable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as StreamResponse
+
+        if (id != other.id) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id ?: 0
+    }
+}
 
 data class User(
     @field:SerializedName("id") val id: Int?,

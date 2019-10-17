@@ -65,6 +65,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                             ?.streamId?.let { streamId ->
                             viewModel.onVideoStarted(streamId)
                         }
+                        viewModel.seekToLastWatchingTime()
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()

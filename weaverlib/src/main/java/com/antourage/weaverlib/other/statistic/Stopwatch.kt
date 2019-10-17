@@ -5,10 +5,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class Stopwatch {
-    fun onTick(callback: () -> Unit) {
-        Handler().postDelayed({ callback.invoke() }, 1000)
-    }
-
     private var startTime: Long = 0
     private var stopTime: Long = 0
     private var running = false

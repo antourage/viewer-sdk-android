@@ -155,7 +155,6 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         rvLayoutManager.reverseLayout = false
         videosRV.layoutManager = rvLayoutManager
         videoRefreshLayout.setOnRefreshListener {
-            Log.d("REFRESH_VODS", "setOnRefreshListener: count = 0")
             viewModel.refreshVODs(0, true)
         }
 
@@ -163,6 +162,9 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
 
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
+
+        ReceivingVideosManager.setReceivingVideoCallback(viewModel)
+        viewModel.refreshVODs()
     }
 
     private fun initRecyclerView(

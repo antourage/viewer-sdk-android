@@ -38,8 +38,6 @@ class VideoListViewModel @Inject constructor(application: Application) :
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingVideos()
-        Log.d("REFRESH_VODS", "subscribeToLiveStreams: count = ${vods?.size ?: 0}")
-        refreshVODs()
     }
 
     fun refreshVODs(
@@ -115,7 +113,9 @@ class VideoListViewModel @Inject constructor(application: Application) :
         when (resource.status) {
             is Status.Success -> {
                 val list = mutableListOf<StreamResponse>()
-                Repository.vods?.let { list.addAll(it) }
+                Repository.vods?.let {
+                    list.addAll(it)
+                }
                 val newList = (resource.status.data)?.toMutableList()
                 if (newList != null) {
                     list.addAll(list.size, newList)
