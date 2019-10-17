@@ -7,24 +7,6 @@
         android:layout_height="match_parent"
         android:background="#000000">
 
-    <View
-            android:id="@+id/fastForward"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
-            app:layout_constraintLeft_toRightOf="@+id/rewind"
-            app:layout_constraintRight_toRightOf="@+id/playerView"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
-
-    <View
-            android:id="@+id/rewind"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
-            app:layout_constraintLeft_toLeftOf="@+id/playerView"
-            app:layout_constraintRight_toLeftOf="@+id/fastForward"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
-
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"

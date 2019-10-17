@@ -162,6 +162,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
             player.playWhenReady = true
         }
+        markVODAsWatched()
     }
 
     fun skipForward() {
