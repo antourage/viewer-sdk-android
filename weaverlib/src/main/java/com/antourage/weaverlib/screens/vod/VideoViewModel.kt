@@ -130,7 +130,7 @@ class VideoViewModel @Inject constructor(application: Application) :
         stopMonitoringChatMessages()
     }
 
-    private fun setVodStopWatchingTime() {
+    internal fun setVodStopWatchingTime() {
         vodId?.let {
             setVODStopWatchingTimeLocally()
             StopWatchVodRequest(
@@ -144,7 +144,6 @@ class VideoViewModel @Inject constructor(application: Application) :
     }
 
     override fun onVideoChanged() {
-        setVodStopWatchingTime()
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         this.streamId = currentVod.streamId

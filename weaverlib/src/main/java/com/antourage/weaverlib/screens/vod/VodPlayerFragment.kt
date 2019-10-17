@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import kotlin.math.roundToInt
 
 class VodPlayerFragment : ChatFragment<VideoViewModel>() {
@@ -153,7 +154,6 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             R.string.no_comments_yet
         )
         initSkipControls()
-//        showChatTurnedOffPlaceholder(orientation() ==  Configuration.ORIENTATION_PORTRAIT)
     }
 
     private fun initSkipControls() {
@@ -236,10 +236,10 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
         playerView.onPause()
     }
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.onPause()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        viewModel.onPause()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()

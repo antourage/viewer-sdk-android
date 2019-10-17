@@ -410,10 +410,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.onPause()
     }
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.onPause()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        viewModel.onPause()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
