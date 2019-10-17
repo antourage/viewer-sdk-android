@@ -41,6 +41,7 @@
                 android:backgroundTint="@color/color_dark_gray_text_a10"
                 android:fontFamily="@font/roboto_condensed_regular"
                 android:hint="@string/type_your_display_name"
+                android:maxLength="50"
                 android:paddingLeft="0dp"
                 android:textColor="@color/color_dark_gray_text_a60"
                 android:textColorHint="@color/color_dark_gray_text_a60"
