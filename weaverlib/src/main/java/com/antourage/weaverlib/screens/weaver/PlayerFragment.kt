@@ -157,6 +157,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
             when (state) {
@@ -263,6 +264,9 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (!etMessage.isFocused)
             hideKeyboard()
         viewModel.newAvatar = null
+        viewModel.oldAvatar?.let {
+            ivSetUserPhoto.setImageBitmap(it)
+        }
     }
 
     private val onUserPhotoClicked = View.OnClickListener {
@@ -383,6 +387,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.changeUserDisplayName(etDisplayName.text.toString())
         }
         if (viewModel.newAvatar != null) {
+            viewModel.oldAvatar = viewModel.newAvatar
             viewModel.changeUserAvatar()
         }
         showUserSettingsDialog(false)
@@ -603,6 +608,19 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnUserSettings.setImageResource(
             if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
         )
+        if (show) {
+            viewModel.getUser()?.imageUrl?.apply {
+                viewModel.newAvatar?.let {
+                    ivSetUserPhoto.setImageBitmap(it)
+                } ?: run {
+                    Picasso.get()
+                        .load(this).fit().centerCrop()
+                        .placeholder(R.drawable.ic_user_grayed)
+                        .error(R.drawable.ic_user_grayed)
+                        .into(ivSetUserPhoto)
+                }
+            }
+        }
     }
 
     private fun showImagePickerDialog() {

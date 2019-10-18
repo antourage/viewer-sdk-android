@@ -52,6 +52,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
     var currentPoll: Poll? = null
 
     var newAvatar: Bitmap? = null
+    var oldAvatar: Bitmap? = null
     var avatarDeleted = false
     var profileInfo: UserInfo? = null
 
