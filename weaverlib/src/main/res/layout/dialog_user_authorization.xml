@@ -38,6 +38,7 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="40dp"
                 android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
                 android:backgroundTint="@color/color_dark_gray_text_a10"
                 android:fontFamily="@font/roboto_condensed_regular"
                 android:hint="@string/type_your_display_name"
@@ -46,25 +47,11 @@
                 android:textColor="@color/color_dark_gray_text_a60"
                 android:textColorHint="@color/color_dark_gray_text_a60"
                 android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@+id/txtLabelDefaultName"
+                app:layout_constraintBottom_toTopOf="@+id/btnCancel"
                 app:layout_constraintLeft_toRightOf="@+id/ivSetUserPhoto"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_goneMarginBottom="20dp" />
-
-        <TextView
-                android:id="@+id/txtLabelDefaultName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginBottom="20dp"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:text="@string/your_default_name_is"
-                android:textColor="@color/color_dark_gray_text_a60"
-                android:textColorHint="@color/color_dark_gray_text_a60"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toTopOf="@+id/btnCancel"
-                app:layout_constraintLeft_toRightOf="@+id/ivSetUserPhoto" />
 
         <TextView
                 android:id="@+id/btnCancel"
@@ -91,9 +78,10 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/bg_confirm_btn"
+                android:enabled="false"
                 android:fontFamily="@font/roboto_condensed_bold"
                 android:gravity="center"
-                android:text="@string/use_default"
+                android:text="@string/confirm"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textSize="14sp"

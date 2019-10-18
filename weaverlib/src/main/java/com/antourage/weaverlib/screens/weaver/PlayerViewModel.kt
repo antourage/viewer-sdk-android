@@ -251,11 +251,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
     fun noDisplayNameSet() =
         user == null || user?.displayName == null || user?.displayName?.isEmptyTrimmed() == true
 
-    fun generateUserDefaultDisplayName(): String {
-        return "$DEFAULT_DISPLAY_NAME_PREFIX${user?.id?.plus(4)?.times(8)}"
-    }
-
-    fun changeUserDisplayName(newDisplayName: String = generateUserDefaultDisplayName()) {
+    fun changeUserDisplayName(newDisplayName: String) {
         if (newDisplayName != user?.displayName) {
             val response = repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
             response.observeForever(object : Observer<Resource<SimpleResponse>> {

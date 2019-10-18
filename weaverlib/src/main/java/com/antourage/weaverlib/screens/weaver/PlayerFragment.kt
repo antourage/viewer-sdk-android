@@ -133,17 +133,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val userInfoObserver: Observer<User> = Observer { user ->
         user?.apply {
-            txtLabelDefaultName.text = resources.getString(
-                R.string.your_default_name_is,
-                viewModel.generateUserDefaultDisplayName()
-            )
-            if (viewModel.noDisplayNameSet()) {
-                txtLabelDefaultName.visibility = View.VISIBLE
-            } else {
+            if (!viewModel.noDisplayNameSet()) {
                 etMessage.isFocusable = true
                 etMessage.isFocusableInTouchMode = true
                 etDisplayName.setText(displayName)
-                txtLabelDefaultName.visibility = View.GONE
             }
             viewModel.newAvatar?.let {
                 ivSetUserPhoto.setImageBitmap(it)
@@ -305,10 +298,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initLabelLive()
 
         etDisplayName.afterTextChanged {
-            txtLabelDefaultName.visibility = if (it.isEmptyTrimmed()) View.VISIBLE else View.GONE
-            btnConfirm.text =
-                resources.getString(if (it.isEmptyTrimmed()) R.string.use_default else R.string.confirm)
-            btnConfirm.isEnabled = !viewModel.getUser()?.displayName.equals(it)
+            btnConfirm.isEnabled = !etDisplayName.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(it)
         }
     }
 
@@ -381,11 +371,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun onConfirmClicked() {
-        if (etDisplayName.text.isEmptyTrimmed()) {
-            viewModel.changeUserDisplayName()
-        } else {
-            viewModel.changeUserDisplayName(etDisplayName.text.toString())
-        }
+        viewModel.changeUserDisplayName(etDisplayName.text.toString())
         if (viewModel.newAvatar != null) {
             viewModel.oldAvatar = viewModel.newAvatar
             viewModel.changeUserAvatar()
@@ -609,6 +595,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
         )
         if (show) {
+            btnConfirm.isEnabled = false
             viewModel.getUser()?.imageUrl?.apply {
                 viewModel.newAvatar?.let {
                     ivSetUserPhoto.setImageBitmap(it)
