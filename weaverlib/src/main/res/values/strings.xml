@@ -12,6 +12,11 @@
         <item quantity="one">%d poll answer</item>
         <item quantity="other">%d poll answers</item>
     </plurals>
+
+    <plurals name="number_of_viewers">
+        <item quantity="one">%d viewer</item>
+        <item quantity="other">%d viewers</item>
+    </plurals>
     <string name="viewers">%d viewers</string>
     <string name="no_comments_yet">There are no comments yet</string>
     <string name="commenting_off">Commenting is turned off for now</string>

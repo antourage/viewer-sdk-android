@@ -170,15 +170,17 @@ class AntourageFab @JvmOverloads constructor(
                                     ).text = listOfStreams[counter].streamTitle
                                     findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
                                         R.id.tvViewers
-                                    ).text = context.getString(
-                                        R.string.viewers,
+                                    ).text = resources.getQuantityString(
+                                        R.plurals.number_of_viewers,
+                                        currentlyDisplayedStream.viewersCount ?: 0,
                                         currentlyDisplayedStream.viewersCount
                                     )
                                     expandableLayout.visibility = View.VISIBLE
                                     expandableLayout.transitionToEnd()
                                     tvStreamTitle.text = listOfStreams[counter].streamTitle
-                                    tvViewers.text = context.getString(
-                                        R.string.viewers,
+                                    tvViewers.text = resources.getQuantityString(
+                                        R.plurals.number_of_viewers,
+                                        currentlyDisplayedStream.viewersCount ?: 0,
                                         currentlyDisplayedStream.viewersCount
                                     )
                                     Handler(Looper.getMainLooper()).postDelayed({
