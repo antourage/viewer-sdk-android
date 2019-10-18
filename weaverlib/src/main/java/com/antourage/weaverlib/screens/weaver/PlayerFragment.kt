@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
@@ -298,7 +299,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initLabelLive()
 
         etDisplayName.afterTextChanged {
-            btnConfirm.isEnabled = !etDisplayName.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(it)
+            btnConfirm.isEnabled =
+                !etDisplayName.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(
+                    it
+                )
         }
     }
 
@@ -595,6 +599,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
         )
         if (show) {
+            etMessage.isFocusable = false
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+            }
             btnConfirm.isEnabled = false
             viewModel.getUser()?.imageUrl?.apply {
                 viewModel.newAvatar?.let {
@@ -606,6 +614,14 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         .error(R.drawable.ic_user_grayed)
                         .into(ivSetUserPhoto)
                 }
+            }
+        } else {
+            etMessage.isFocusableInTouchMode = true
+            etMessage.isFocusable = true
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+            } else {
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
             }
         }
     }
