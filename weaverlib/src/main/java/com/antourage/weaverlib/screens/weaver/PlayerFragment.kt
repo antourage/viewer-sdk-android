@@ -592,36 +592,42 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
         showUserSettingsDialog(clUserSettings.visibility == View.GONE)
     }
 
+    private fun userSettingsDialogShown() = clUserSettings.visibility == View.VISIBLE
+
     private fun showUserSettingsDialog(show: Boolean) {
-        clUserSettings.visibility =
-            if (show) View.VISIBLE else View.GONE
-        btnUserSettings.setImageResource(
-            if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
-        )
-        if (show) {
-            etMessage.isFocusable = false
-            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-            }
-            btnConfirm.isEnabled = false
-            viewModel.getUser()?.imageUrl?.apply {
-                viewModel.newAvatar?.let {
-                    ivSetUserPhoto.setImageBitmap(it)
-                } ?: run {
-                    Picasso.get()
-                        .load(this).fit().centerCrop()
-                        .placeholder(R.drawable.ic_user_grayed)
-                        .error(R.drawable.ic_user_grayed)
-                        .into(ivSetUserPhoto)
+        if (show && !userSettingsDialogShown() || !show && userSettingsDialogShown()) {
+            clUserSettings.visibility =
+                if (show) View.VISIBLE else View.GONE
+            btnUserSettings.setImageResource(
+                if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
+            )
+            if (show) {
+                etMessage.isFocusable = false
+                if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
                 }
-            }
-        } else {
-            etMessage.isFocusableInTouchMode = true
-            etMessage.isFocusable = true
-            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                btnConfirm.isEnabled = false
+                viewModel.getUser()?.imageUrl?.apply {
+                    viewModel.newAvatar?.let {
+                        ivSetUserPhoto.setImageBitmap(it)
+                    } ?: run {
+                        Picasso.get()
+                            .load(this).fit().centerCrop()
+                            .placeholder(R.drawable.ic_user_grayed)
+                            .error(R.drawable.ic_user_grayed)
+                            .into(ivSetUserPhoto)
+                    }
+                }
             } else {
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                if (!viewModel.noDisplayNameSet()) {
+                    etMessage.isFocusableInTouchMode = true
+                    etMessage.isFocusable = true
+                }
+                if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                } else {
+                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                }
             }
         }
     }
