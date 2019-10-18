@@ -7,9 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.gone
 import com.antourage.weaverlib.other.isEmptyTrimmed
@@ -18,6 +15,8 @@ import com.antourage.weaverlib.other.parseDate
 import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.item_live_video.view.*
+import kotlinx.android.synthetic.main.item_vod.view.*
 
 class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -45,14 +44,14 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         when (viewType) {
-            VIEW_VOD -> return VideoViewHolder(
+            VIEW_VOD -> return VODViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_vod,
                     parent,
                     false
                 )
             )
-            VIEW_LIVE -> return VideoViewHolder(
+            VIEW_LIVE -> return LiveVideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_live_video,
                     parent,
@@ -82,51 +81,9 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is VideoViewHolder) {
-            val videoItem = listOfStreams[position]
-            videoItem.apply {
-                if (!thumbnailUrl.isNullOrEmpty()) {
-                    Picasso.get()
-                        .load(thumbnailUrl)
-                        .placeholder(R.drawable.ic_no_content_content_loading)
-                        .error(R.drawable.ic_no_content_content_loading)
-                        .into(holder.thumbnail)
-                }
-                holder.itemView.setOnClickListener {
-                    if (holder.adapterPosition >= 0 && holder.adapterPosition < listOfStreams.size &&
-                        holder.adapterPosition != -1
-                    )
-                        listOfStreams[holder.adapterPosition].let { onClick.invoke(it) }
-                }
-
-                when (getItemViewType(position)) {
-                    VIEW_LIVE -> {
-                        holder.txtTitle.text = streamTitle
-                        holder.txtNumberOfViewers.text = viewersCount.toString()
-                        holder.txtNumberOfViewers.gone(viewersCount == null)
-                        val formattedStartTime = startTime?.parseDate(context)
-                        holder.txtWasLive.text = formattedStartTime
-                        holder.txtWasLive.gone(formattedStartTime.isNullOrEmpty())
-                    }
-                    VIEW_VOD -> {
-                        isNew?.let { holder.txtWasLive.gone(!it) }
-                        holder.txtTitle.text = videoName
-                        holder.txtStatus.text = duration?.take(8)
-                        holder.txtStatus.gone(duration == null || duration.isEmpty())
-                        holder.txtNumberOfViewers.text = viewsCount.toString()
-                        holder.txtNumberOfViewers.gone(viewsCount == null)
-                        if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
-                                "00:00:00"
-                            )
-                        ) {
-                            holder.watchingProgress.progress =
-                                (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
-                                    ?: 0)).toInt()
-                            holder.watchingProgress.visibility = View.VISIBLE
-                        }
-                    }
-                }
-            }
+        when (holder) {
+            is LiveVideoViewHolder -> holder.bindView(listOfStreams[position])
+            is VODViewHolder -> holder.bindView(listOfStreams[position])
         }
     }
 
@@ -137,27 +94,17 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     ) {
         if (payloads.size > 0 && payloads[0] is Bundle) {
             if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP, false)) {
-                if (holder is VideoViewHolder) {
-                    holder.txtNumberOfViewers.text =
+                if (holder is LiveVideoViewHolder) {
+                    holder.itemView.txtViewersCount.text =
+                        listOfStreams[position].viewsCount.toString()
+                } else if (holder is VODViewHolder) {
+                    holder.itemView.txtViewsCount.text =
                         listOfStreams[position].viewsCount.toString()
                 }
             }
         }
         super.onBindViewHolder(holder, position, payloads)
     }
-
-    class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
-        val txtTitle: TextView = itemView.findViewById(R.id.txtTitle)
-        val txtStatus: TextView = itemView.findViewById(R.id.txtStatus)
-        val txtNumberOfViewers: TextView = itemView.findViewById(R.id.txtNumberOfViewers)
-        val txtWasLive: TextView = itemView.findViewById(R.id.tvWasLive)
-        val watchingProgress: ProgressBar = itemView.findViewById(R.id.watchingProgress)
-    }
-
-    inner class ProgressHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
-    class SeparatorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun getItemViewType(position: Int): Int {
         if (position < itemCount) {
@@ -175,4 +122,77 @@ class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
         } else
             return VIEW_VOD
     }
+
+    inner class LiveVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bindView(liveStream: StreamResponse) {
+            with(itemView) {
+                liveStream.apply {
+                    if (!thumbnailUrl.isNullOrEmpty()) {
+                        Picasso.get()
+                            .load(thumbnailUrl)
+                            .placeholder(R.drawable.ic_no_content_content_loading)
+                            .error(R.drawable.ic_no_content_content_loading)
+                            .into(ivThumbnail_live)
+                    }
+                    this@with.setOnClickListener {
+                        if (adapterPosition >= 0
+                            && adapterPosition < listOfStreams.size
+                            && adapterPosition != -1
+                        )
+                            listOfStreams[adapterPosition].let { onClick.invoke(it) }
+                    }
+                    txtTitle_live.text = streamTitle
+                    txtViewersCount.text = viewersCount.toString()
+                    txtViewersCount.gone(viewersCount == null)
+                    val formattedStartTime = startTime?.parseDate(context)
+                    txtWasLive_live.text = formattedStartTime
+                    txtWasLive_live.gone(formattedStartTime.isNullOrEmpty())
+                }
+            }
+        }
+    }
+
+    inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bindView(vod: StreamResponse) {
+            with(itemView) {
+                vod.apply {
+                    if (!thumbnailUrl.isNullOrEmpty()) {
+                        Picasso.get()
+                            .load(thumbnailUrl)
+                            .placeholder(R.drawable.ic_no_content_content_loading)
+                            .error(R.drawable.ic_no_content_content_loading)
+                            .into(ivThumbnail_vod)
+                    }
+                    this@with.setOnClickListener {
+                        if (adapterPosition >= 0 && adapterPosition < listOfStreams.size &&
+                            adapterPosition != -1
+                        )
+                            listOfStreams[adapterPosition].let { onClick.invoke(it) }
+                    }
+                    isNew?.let { txtNew.gone(!it) }
+                    txtTitle_vod.text = videoName
+                    val formattedStartTime = startTime?.parseDate(context)
+                    txtWasLive_vod.text = formattedStartTime
+                    txtWasLive_vod.gone(formattedStartTime.isNullOrEmpty())
+                    txtDuration.text = duration?.take(8)
+                    txtDuration.gone(duration == null || duration.isEmpty())
+                    txtViewsCount.text = viewsCount.toString()
+                    txtViewsCount.gone(viewsCount == null)
+                    if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
+                            "00:00:00"
+                        )
+                    ) {
+                        watchingProgress.progress =
+                            (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
+                                ?: 0)).toInt()
+                        watchingProgress.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+    }
+
+    inner class ProgressHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    class SeparatorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
