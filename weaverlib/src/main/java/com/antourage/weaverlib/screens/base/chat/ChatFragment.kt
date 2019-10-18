@@ -45,7 +45,7 @@ abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
 
     //endregion
 
-    override fun onDrawerTouch() {
+    override fun onDrawerSingleClick() {
         handleControlsVisibility()
     }
 

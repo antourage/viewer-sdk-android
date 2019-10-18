@@ -21,6 +21,7 @@ import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
+import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
@@ -33,7 +34,8 @@ import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import kotlin.math.roundToInt
 
-class VodPlayerFragment : ChatFragment<VideoViewModel>() {
+class VodPlayerFragment : ChatFragment<VideoViewModel>(),
+    CustomDrawerLayout.DrawerDoubleTapListener {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -140,6 +142,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
     override fun initUi(view: View?) {
         super.initUi(view)
         initSkipAnimations()
+        drawerLayout.touchListener = this
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_vod)
         startPlayingStream()
         handleChat()
@@ -161,11 +164,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                        if (playerControls.isVisible) {
-                            playerControls.hide()
-                        } else {
-                            playerControls.show()
-                        }
+                        handleControlsVisibility()
                         return super.onSingleTapConfirmed(e)
                     }
 
@@ -187,6 +186,8 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
                 return true
             }
         })
+
+        drawerLayout.doubleTapListener = this
     }
 
     private fun handleSkipForward() {
@@ -274,6 +275,11 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>() {
 
         initSkipControls()
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
+    }
+
+    override fun onDrawerDoubleClick() {
+        controls.hide()
+        handleSkipBackward()
     }
 
     private fun chatUiToLandscape(landscape: Boolean) {

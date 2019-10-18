@@ -2,10 +2,11 @@ package com.antourage.weaverlib.other.ui
 
 import android.content.Context
 import android.content.res.Configuration
+import android.support.v4.view.GestureDetectorCompat
 import android.support.v4.widget.DrawerLayout
 import android.util.AttributeSet
+import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_UP
 
 /**
  * had to create custom, crush thrown in onMeasure method with default
@@ -14,6 +15,7 @@ import android.view.MotionEvent.ACTION_UP
 class CustomDrawerLayout : DrawerLayout {
 
     var touchListener: DrawerTouchListener? = null
+    var doubleTapListener: DrawerDoubleTapListener? = null
 
     constructor(context: Context) : super(context)
 
@@ -24,6 +26,19 @@ class CustomDrawerLayout : DrawerLayout {
         attrs,
         defStyle
     )
+
+    val gestureDetector =
+        GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                touchListener?.onDrawerSingleClick()
+                return super.onSingleTapConfirmed(e)
+            }
+
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                doubleTapListener?.onDrawerDoubleClick()
+                return super.onDoubleTap(e)
+            }
+        })
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var widthMeasureSpec = widthMeasureSpec
@@ -39,14 +54,16 @@ class CustomDrawerLayout : DrawerLayout {
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val orientation = context.resources.configuration.orientation
-        if (ev.action == ACTION_UP)
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                touchListener?.onDrawerTouch()
-            }
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+            gestureDetector.onTouchEvent(ev)
         return super.onInterceptTouchEvent(ev)
     }
 
     interface DrawerTouchListener {
-        fun onDrawerTouch()
+        fun onDrawerSingleClick()
+    }
+
+    interface DrawerDoubleTapListener {
+        fun onDrawerDoubleClick()
     }
 }
