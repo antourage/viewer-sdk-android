@@ -240,6 +240,10 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             )
         }
         etMessage.setText("")
+        rvMessages?.apply {
+            adapter?.itemCount?.minus(1)
+                ?.let { adapterPosition -> scrollToPosition(adapterPosition) }
+        }
     }
 
     private val onUserSettingsClicked = View.OnClickListener {
