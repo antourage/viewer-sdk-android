@@ -116,8 +116,9 @@
             app:layout_constraintTop_toBottomOf="@id/playerView"
             tools:ignore="ContentDescription" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
             android:id="@+id/llPollStatus"
+            android:animateLayoutChanges="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -129,17 +130,22 @@
             app:layout_constraintTop_toBottomOf="@id/playerView">
 
         <ImageView
+                android:id="@+id/ivPollIcon"
                 android:layout_width="28dp"
                 android:layout_height="20dp"
                 android:background="@android:color/transparent"
                 android:padding="4dp"
                 android:src="@drawable/ic_poll_white_transparent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
 
         <TextView
                 android:id="@+id/txtPollStatus"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:fontFamily="@font/roboto_condensed_regular"
                 android:gravity="center"
                 android:paddingStart="4dp"
@@ -147,10 +153,11 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
                 android:visibility="gone"
+                app:layout_constraintLeft_toRightOf="@+id/ivPollIcon"
                 tools:text="@string/new_poll"
                 tools:visibility="visible" />
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <include
             layout="@layout/layout_poll_suggestion"

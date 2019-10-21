@@ -11,7 +11,6 @@ import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
-import com.antourage.weaverlib.UserCache.Companion.DEFAULT_DISPLAY_NAME_PREFIX
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
@@ -86,7 +85,17 @@ class PlayerViewModel @Inject constructor(application: Application) :
                 is Status.Success -> {
                     if (it.data != null && it.data.isNotEmpty()) {
                         postAnsweredUsers = false
-                        pollStatusLiveData.postValue(PollStatus.ActivePoll(it.data[0]))
+                        if (UserCache.getInstance(getApplication())?.getCollapsedPollId().equals(it.data[0].id)) {
+                            val pollStatusText =
+                                if (postAnsweredUsers) "2 answers" else getApplication<Application>().getString(
+                                    R.string.new_poll
+                                )
+                            pollStatusLiveData.postValue(
+                                PollStatus.ActivePollDismissed(pollStatusText)
+                            )
+                        } else {
+                            pollStatusLiveData.postValue(PollStatus.ActivePoll(it.data[0]))
+                        }
                         currentPoll = it.data[0]
                     } else {
                         postAnsweredUsers = false
@@ -139,12 +148,18 @@ class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     fun seePollDetails() {
+        currentPoll?.id?.let { pollId ->
+            UserCache.getInstance(getApplication())?.saveCollapsedPoll(pollId)
+        }
         currentPoll?.let {
             pollStatusLiveData.value = (PollStatus.PollDetails(it.id))
         }
     }
 
     fun startNewPollCoundown() {
+        currentPoll?.id?.let { pollId ->
+            UserCache.getInstance(getApplication())?.saveCollapsedPoll(pollId)
+        }
         observeAnsweredUsers()
         Handler().postDelayed(
             {

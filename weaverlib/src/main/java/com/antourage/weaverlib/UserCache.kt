@@ -28,6 +28,7 @@ class UserCache private constructor(context: Context) {
         private const val SP_USER_ID = "sp_user_id"
         private const val SP_VOD_WATCHING_TIME = "sp_vod_watching_time"
         private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
+        private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         internal const val DEFAULT_DISPLAY_NAME_PREFIX = "SuperFan#"
         private var INSTANCE: UserCache? = null
 
@@ -91,6 +92,16 @@ class UserCache private constructor(context: Context) {
             ?.putString(SP_TOKEN, token)
             ?.putInt(SP_USER_ID, userId)
             ?.apply()
+    }
+
+    fun saveCollapsedPoll(pollId: String) {
+        prefs?.edit()
+            ?.putString(SP_COLLAPSED_POLL, pollId)
+            ?.apply()
+    }
+
+    fun getCollapsedPollId(): String? {
+        return prefs?.getString(SP_COLLAPSED_POLL, null)
     }
 
     fun getToken(): String? {
