@@ -663,7 +663,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
 
         // Set up touch listener for non-text box views to hide keyboard.
-        if (view !is EditText && view.id != btnCancel.id) {
+        if (view !is EditText && view.id != btnCancel.id && view.id != btnSend.id) {
             view.setOnTouchListener { v, event ->
                 hideKeyboard()
                 false
