@@ -156,7 +156,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun startNewPollCoundown() {
+    fun startNewPollCountdown() {
         currentPoll?.id?.let { pollId ->
             UserCache.getInstance(getApplication())?.saveCollapsedPoll(pollId)
         }

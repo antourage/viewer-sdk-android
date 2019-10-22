@@ -158,6 +158,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 is PollStatus.NoPoll -> {
                     hidePollPopup()
                     hidePollStatusLayout()
+                    bottomLayout.visibility = View.GONE
                 }
                 is PollStatus.ActivePoll -> {
                     tvPollTitle.text = state.poll.question
@@ -202,7 +203,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                 View.VISIBLE
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
-                                viewModel.startNewPollCoundown()
+                                viewModel.startNewPollCountdown()
                             }
                             if (wasDrawerClosed)
                                 drawerLayout.openDrawer(navView)
@@ -212,6 +213,22 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
             }
         }
+    }
+
+    private fun handlePollDetailsUI() {
+        if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
+            bottomLayout.visibility = View.GONE
+            if (viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff)
+                ll_wrapper.visibility = View.INVISIBLE else ll_wrapper.visibility =
+                View.VISIBLE
+            if (viewModel.currentPoll != null) {
+                showPollStatusLayout()
+                viewModel.startNewPollCountdown()
+            }
+            if (wasDrawerClosed)
+                drawerLayout.openDrawer(navView)
+        }
+        enableMessageInput(childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
@@ -566,7 +583,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
             setNewAvatar(it)
             btnConfirm.isEnabled = true
         }
-        ivDismissPoll.setOnClickListener { viewModel.startNewPollCoundown() }
+        ivDismissPoll.setOnClickListener { viewModel.startNewPollCountdown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
         btnConfirm.setOnClickListener { onConfirmClicked() }
         pollPopupLayout.setOnClickListener {
