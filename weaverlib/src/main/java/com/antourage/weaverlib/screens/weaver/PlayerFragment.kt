@@ -53,7 +53,7 @@ import kotlin.math.roundToInt
  * That way the sound will continue to go on after user exits fragment
  * Especially check method onNetworkGained
  */
-class PlayerFragment : ChatFragment<PlayerViewModel>() {
+internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private var wasDrawerClosed = false
 

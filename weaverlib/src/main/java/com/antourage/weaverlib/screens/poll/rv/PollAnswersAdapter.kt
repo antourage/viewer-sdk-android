@@ -13,7 +13,7 @@ import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.trueWidth
 
-class PollAnswersAdapter(
+internal class PollAnswersAdapter(
     private val listOfAnswers: List<AnswersCombined>,
     private val isAnswered: Boolean,
     private val callback: AnswerClickedCallback

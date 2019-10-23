@@ -10,7 +10,7 @@ import com.antourage.weaverlib.UserCache
 
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 
-class DevSettingsDialog(context: Context, private val listener: OnDevSettingsChangedListener) :
+internal class DevSettingsDialog(context: Context, private val listener: OnDevSettingsChangedListener) :
     Dialog(context) {
 
     companion object {

@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
-class APIError {
+internal class APIError {
     @SerializedName("ErrorCode")
     @Expose
     private val statusCode: Int = 0

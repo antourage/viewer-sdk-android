@@ -7,7 +7,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 import com.google.firebase.firestore.PropertyName
 
 @Keep
-class MessageType {
+internal class MessageType {
     companion object {
         const val SYSTEM: Int = 0
         const val USER: Int = 1
@@ -15,10 +15,10 @@ class MessageType {
 }
 
 @Keep
-open class FirestoreModel(@get:Exclude var id: String = "")
+internal open class FirestoreModel(@get:Exclude var id: String = "")
 
 @Keep
-data class Message(
+internal data class Message(
     var avatarUrl: String? = null,
     var email: String? = null,
     var nickname: String? = null,
@@ -59,7 +59,7 @@ data class Message(
 
 @Keep
 @IgnoreExtraProperties
-class Poll : FirestoreModel() {
+internal class Poll : FirestoreModel() {
     var startTimestamp: Timestamp? = null
     var question: String? = null
     @get:PropertyName("isActive")
@@ -71,17 +71,17 @@ class Poll : FirestoreModel() {
 }
 
 @Keep
-data class AnsweredUser(
+internal data class AnsweredUser(
     var chosenAnswer: Int? = null,
     var timestamp: Timestamp? = null
 ) : FirestoreModel()
 
 @Keep
-data class AnswersCombined(val answerText: String, var numberAnswered: Int)
+internal data class AnswersCombined(val answerText: String, var numberAnswered: Int)
 
 @Keep
 @IgnoreExtraProperties
-data class Stream(
+internal data class Stream(
     @get:Exclude val streamId: Int,
     @get:PropertyName("isChatActive")
     var isChatActive: Boolean,

@@ -29,11 +29,11 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
-inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
+internal inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
     beginTransaction().func().commit()
 }
 
-fun AppCompatActivity.replaceFragment(
+internal fun AppCompatActivity.replaceFragment(
     fragment: Fragment,
     frameId: Int,
     addToBackStack: Boolean = false
@@ -49,17 +49,17 @@ fun AppCompatActivity.replaceFragment(
 }
 
 //Did not want to use Application class(problem with merging), decided on extension function
-fun Application.initDagger(): ApplicationComponent {
+internal fun Application.initDagger(): ApplicationComponent {
     return DaggerApplicationComponent.builder()
         .application(this)
         .build()
 }
 
-fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {
+internal fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {
     (activity as AppCompatActivity).replaceFragment(fragment, frameId, addToBackStack)
 }
 
-fun Fragment.replaceChildFragment(
+internal fun Fragment.replaceChildFragment(
     fragment: Fragment,
     frameId: Int,
     addToBackStack: Boolean = false
@@ -75,12 +75,12 @@ fun Fragment.replaceChildFragment(
         childFragmentManager.inTransaction { replace(frameId, fragment) }
 }
 
-fun <T> LiveData<T>.reObserve(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
+internal fun <T> LiveData<T>.reObserve(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
     this.removeObserver(observer)
     this.observe(owner, observer)
 }
 
-fun String.parseDate(context: Context): String {
+internal fun String.parseDate(context: Context): String {
     val secondsInMinute = 60
     val minutesInHour = 60 * secondsInMinute
     val hoursInDay = minutesInHour * 24
@@ -104,7 +104,8 @@ fun String.parseDate(context: Context): String {
             }
             diff > secondsInMinute -> {
                 val minute = (diff / secondsInMinute).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.ant_minutes, minute, minute)
+                val amount =
+                    context.resources.getQuantityString(R.plurals.ant_minutes, minute, minute)
                 return context.getString(R.string.ant_started_ago, amount)
 
             }
@@ -122,7 +123,7 @@ fun String.parseDate(context: Context): String {
     }
 }
 
-fun <T : View> T.trueWidth(function: (Int) -> Unit) {
+internal fun <T : View> T.trueWidth(function: (Int) -> Unit) {
     if (width == 0)
         viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
@@ -134,7 +135,7 @@ fun <T : View> T.trueWidth(function: (Int) -> Unit) {
     else function(width)
 }
 
-fun <T : View> T.setMargins(left: Int, top: Int, right: Int, bottom: Int) {
+internal fun <T : View> T.setMargins(left: Int, top: Int, right: Int, bottom: Int) {
     if (this.layoutParams is ViewGroup.MarginLayoutParams) {
         val p = this.layoutParams as ViewGroup.MarginLayoutParams
         p.setMargins(left, top, right, bottom)
@@ -142,15 +143,15 @@ fun <T : View> T.setMargins(left: Int, top: Int, right: Int, bottom: Int) {
     }
 }
 
-fun View.visible(visible: Boolean) {
+internal fun View.visible(visible: Boolean) {
     this.visibility = if (visible) View.VISIBLE else View.INVISIBLE
 }
 
-fun View.gone(gone: Boolean) {
+internal fun View.gone(gone: Boolean) {
     this.visibility = if (gone) View.GONE else View.VISIBLE
 }
 
-fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
+internal fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
     observeForever(object : Observer<Resource<T>> {
         override fun onChanged(resource: Resource<T>?) {
             observer.onChanged(resource)
@@ -161,13 +162,13 @@ fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
     })
 }
 
-fun String.parseToDate(): Date? {
+internal fun String.parseToDate(): Date? {
     return convertUtcToLocal(this)
 }
 
-fun Fragment.orientation() = resources.configuration.orientation
+internal fun Fragment.orientation() = resources.configuration.orientation
 
-fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
+internal fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
     this.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
@@ -181,26 +182,27 @@ fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
     })
 }
 
-fun String.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
-fun CharSequence.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
+internal fun String.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
+internal fun CharSequence.isEmptyTrimmed(): Boolean = this.trim().isEmpty()
 
-fun Long.formatDuration(): String {
+internal fun Long.formatDuration(): String {
     val outputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     outputFmt.timeZone = TimeZone.getTimeZone("UTC")
     return outputFmt.format(this)
 }
 
-fun String.parseToMills(): Long {
+internal fun String.parseToMills(): Long {
     val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     inputFmt.timeZone = TimeZone.getTimeZone("UTC")
     return inputFmt.parse(this).time
 }
 
-fun Bitmap.toMultipart(): MultipartBody.Part {
+internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val bos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.PNG, 75, bos)
     val imageByteArray = bos.toByteArray()
 
-    val imageRequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
+    val imageRequestBody =
+        RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
 }

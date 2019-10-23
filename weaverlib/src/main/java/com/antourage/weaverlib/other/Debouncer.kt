@@ -2,7 +2,7 @@ package com.antourage.weaverlib.other
 
 import android.os.Handler
 
-class Debouncer(private val runnable: Runnable, private val interval: Long) {
+internal class Debouncer(private val runnable: Runnable, private val interval: Long) {
 
     private val handler: Handler = Handler()
 

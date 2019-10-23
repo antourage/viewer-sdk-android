@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 /**
  * Handles mostly orientation change andplayer controls
  */
-abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>() {
+internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>() {
     private lateinit var orientationEventListener: OrientationEventListener
     private var loader: AnimatedVectorDrawableCompat? = null
     private var isPortrait: Boolean? = null

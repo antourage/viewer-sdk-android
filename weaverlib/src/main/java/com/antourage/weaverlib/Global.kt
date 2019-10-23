@@ -1,8 +1,8 @@
 package com.antourage.weaverlib
 
-const val TAG = "Log_Global"
+internal const val TAG = "Log_Global"
 
-class Global {
+internal class Global {
     companion object {
         var networkAvailable: Boolean = false
     }

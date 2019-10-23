@@ -10,7 +10,7 @@ import android.support.annotation.Keep
  * Not used as it is too much to ask for if integrating in Cordova or React Native
  */
 @Keep
-object AntourageFabLifecycleObserver : LifecycleObserver {
+internal object AntourageFabLifecycleObserver : LifecycleObserver {
     private var actionHandler: FabActionHandler? = null
 
     fun registerActionHandler(handler: FabActionHandler) {

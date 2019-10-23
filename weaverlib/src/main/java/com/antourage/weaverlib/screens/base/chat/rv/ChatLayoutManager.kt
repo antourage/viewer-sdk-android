@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView
 /**
  * added to correctly handle smooth scroll
  */
-class ChatLayoutManager(context: Context?) : LinearLayoutManager(context) {
+internal class ChatLayoutManager(context: Context?) : LinearLayoutManager(context) {
 
     override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams? {
         return null

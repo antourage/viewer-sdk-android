@@ -12,7 +12,7 @@ import android.view.MotionEvent
  * had to create custom, crush thrown in onMeasure method with default
  */
 
-class CustomDrawerLayout : DrawerLayout {
+internal class CustomDrawerLayout : DrawerLayout {
 
     var touchListener: DrawerTouchListener? = null
     var doubleTapListener: DrawerDoubleTapListener? = null

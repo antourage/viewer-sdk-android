@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import java.sql.Timestamp
 
-abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
+internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
     protected var currentWindow = 0
     private var playbackPosition: Long = 0

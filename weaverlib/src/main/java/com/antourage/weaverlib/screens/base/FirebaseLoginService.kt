@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
  * For now, we use Firebase anonymous login so that data in database would be protected
  * Need to figure out a way to handle login error
  */
-class FirebaseLoginService {
+internal class FirebaseLoginService {
     private var auth: FirebaseAuth =
         FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
 

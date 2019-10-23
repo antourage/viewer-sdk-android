@@ -7,15 +7,15 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.screens.base.player.BasePlayerViewModel
 
-abstract class ChatViewModel(application: Application) : BasePlayerViewModel(application) {
-    protected var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData()
+internal abstract class ChatViewModel(application: Application) : BasePlayerViewModel(application) {
+    internal var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData()
 
     init {
         messagesLiveData.postValue(listOf())
     }
 
-    fun getMessagesLiveData(): LiveData<List<Message>> = messagesLiveData
+    internal fun getMessagesLiveData(): LiveData<List<Message>> = messagesLiveData
 
-    protected fun chatContainsNonStatusMsg(list: List<Message>): Boolean =
+    internal fun chatContainsNonStatusMsg(list: List<Message>): Boolean =
         list.any { it.type == MessageType.USER }
 }

@@ -28,7 +28,7 @@ import java.util.*
 import javax.inject.Inject
 
 
-class VideoViewModel @Inject constructor(application: Application) :
+internal class VideoViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
     companion object {

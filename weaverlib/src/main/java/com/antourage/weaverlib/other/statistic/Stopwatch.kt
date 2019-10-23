@@ -1,10 +1,9 @@
 package com.antourage.weaverlib.other.statistic
 
-import android.os.Handler
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Stopwatch {
+internal class Stopwatch {
     private var startTime: Long = 0
     private var stopTime: Long = 0
     private var running = false

@@ -27,7 +27,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
-class PlayerViewModel @Inject constructor(application: Application) :
+internal class PlayerViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
     companion object {
@@ -47,14 +47,14 @@ class PlayerViewModel @Inject constructor(application: Application) :
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val userAvatarLiveData: MutableLiveData<UpdateImageResponse> = MutableLiveData()
 
-    var currentPoll: Poll? = null
+    internal var currentPoll: Poll? = null
 
     var newAvatar: Bitmap? = null
     var oldAvatar: Bitmap? = null
     var avatarDeleted = false
     var profileInfo: UserInfo? = null
 
-    fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
+    internal fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
     fun getUserInfoLiveData(): LiveData<User> = userInfoLiveData
     fun getLoaderLiveData(): LiveData<Boolean> = loaderLiveData
@@ -212,7 +212,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun addMessage(message: Message, streamId: Int) {
+    internal fun addMessage(message: Message, streamId: Int) {
         if (message.text != null && !message.text!!.isEmpty() && !message.text!!.isBlank()) {
             val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
             temp.add(

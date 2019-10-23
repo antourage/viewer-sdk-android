@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference
  * Using this way to get applicationContext to avoid asking parent app to initialize lib
  * Also connecting this way to Firebase does not require json file and is safer as keys are not hardcoded
  */
-class ModuleResourcesProvider : ContentProvider() {
+internal class ModuleResourcesProvider : ContentProvider() {
     companion object {
         var appContext: WeakReference<Context>? = null
 

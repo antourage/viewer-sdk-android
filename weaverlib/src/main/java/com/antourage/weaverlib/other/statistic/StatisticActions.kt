@@ -1,3 +1,3 @@
 package com.antourage.weaverlib.other.statistic
 
-enum class StatisticActions { JOINED, LEFT }
+internal enum class StatisticActions { JOINED, LEFT }

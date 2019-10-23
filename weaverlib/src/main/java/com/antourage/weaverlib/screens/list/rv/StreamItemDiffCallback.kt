@@ -3,7 +3,7 @@ package com.antourage.weaverlib.screens.list.rv
 import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse
 
-class StreamItemDiffCallback(
+internal class StreamItemDiffCallback(
     private val oldList: List<StreamResponse>,
     private val newList: List<StreamResponse>
 ) : DiffUtil.Callback() {

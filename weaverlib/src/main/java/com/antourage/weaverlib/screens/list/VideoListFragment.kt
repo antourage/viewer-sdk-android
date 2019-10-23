@@ -20,7 +20,6 @@ import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.replaceFragment
-import com.antourage.weaverlib.other.ui.MyNestedScrollView
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -29,7 +28,7 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 
-class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener {
+internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener {
 
     private lateinit var viewModel: VideoListViewModel
     private lateinit var videoAdapter: VideosAdapter

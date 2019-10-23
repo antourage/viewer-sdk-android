@@ -4,7 +4,7 @@ package com.antourage.weaverlib.other.networking
  * A generic class that holds a value with its loading status.
  * @param <T>
 </T> */
-data class Resource<T>(val status: Status<T>) {
+internal data class Resource<T>(val status: Status<T>) {
     companion object {
         fun <T> success(data: T?): Resource<T> {
             return Resource(

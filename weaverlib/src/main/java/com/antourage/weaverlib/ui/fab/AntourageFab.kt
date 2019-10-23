@@ -41,9 +41,7 @@ class AntourageFab @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,
-    ReceivingVideosManager.ReceivingVideoCallback,
-    MotionOverlayView.FabExpansionListener {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, MotionOverlayView.FabExpansionListener {
 
     companion object {
         internal const val SHOWING_DURABILITY = 5000L
@@ -110,7 +108,39 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onResume() {
         expandableLayout.setTransitionListener(transitionListener)
-        ReceivingVideosManager.setReceivingVideoCallback(this)
+        ReceivingVideosManager.setReceivingVideoCallback(object :
+            ReceivingVideosManager.ReceivingVideoCallback {
+            override fun onNewVideosCount(resource: Resource<Int>) {
+                super.onNewVideosCount(resource)
+                when (val status = resource.status) {
+                    is Status.Success -> {
+                        newVideosCount = status.data ?: 0
+                        manageVideos(status.data ?: 0)
+                    }
+                    is Status.Failure -> {
+                        changeBadgeStatus(WidgetStatus.Inactive)
+                    }
+                }
+            }
+
+            override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
+                when (resource.status) {
+                    is Status.Success -> {
+                        val list = (resource.status.data)?.toMutableList()
+                        if (list != null && list.size > 0) {
+                            listOfStreams = list
+                            changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
+                        } else {
+                            manageVideos(newVideosCount)
+                        }
+                    }
+                    is Status.Failure -> {
+                        changeBadgeStatus(WidgetStatus.Inactive)
+                        BaseViewModel.error.postValue(resource.status.errorMessage)
+                    }
+                }
+            }
+        })
         ReceivingVideosManager.startReceivingVideos()
         ReceivingVideosManager.getNewVODsCount()
     }
@@ -207,37 +237,6 @@ class AntourageFab @JvmOverloads constructor(
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
-            }
-        }
-    }
-
-    override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
-        when (resource.status) {
-            is Status.Success -> {
-                val list = (resource.status.data)?.toMutableList()
-                if (list != null && list.size > 0) {
-                    listOfStreams = list
-                    changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
-                } else {
-                    manageVideos(newVideosCount)
-                }
-            }
-            is Status.Failure -> {
-                changeBadgeStatus(WidgetStatus.Inactive)
-                BaseViewModel.error.postValue(resource.status.errorMessage)
-            }
-        }
-    }
-
-    override fun onNewVideosCount(resource: Resource<Int>) {
-        super.onNewVideosCount(resource)
-        when (val status = resource.status) {
-            is Status.Success -> {
-                newVideosCount = status.data ?: 0
-                manageVideos(status.data ?: 0)
-            }
-            is Status.Failure -> {
-                changeBadgeStatus(WidgetStatus.Inactive)
             }
         }
     }

@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 
-class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
+internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var listOfStreams: MutableList<StreamResponse> = mutableListOf()
     lateinit var context: Context

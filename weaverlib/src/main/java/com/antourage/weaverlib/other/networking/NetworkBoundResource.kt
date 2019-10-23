@@ -8,7 +8,7 @@ import com.antourage.weaverlib.ModuleResourcesProvider
 import java.util.*
 import kotlin.concurrent.schedule
 
-abstract class NetworkBoundResource<ResultType>
+internal abstract class NetworkBoundResource<ResultType>
 @MainThread constructor() {
 
     private val result = MutableLiveData<Resource<ResultType>>()

@@ -10,28 +10,28 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-fun dp2px(context: Context, dipValue: Float): Float {
+internal fun dp2px(context: Context, dipValue: Float): Float {
     val metrics = context.resources.displayMetrics
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics)
 }
 
-fun px2dp(context: Context, px: Float): Float {
+internal fun px2dp(context: Context, px: Float): Float {
     return px / (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
 }
 
-fun calculatePlayerHeight(activity: Activity): Float {
+internal fun calculatePlayerHeight(activity: Activity): Float {
     val width = getScreenWidth(activity)
     return ((width * 9.0f) / 16.0f)
 }
 
-fun getScreenWidth(activity: Activity): Int {
+internal fun getScreenWidth(activity: Activity): Int {
     val display = activity.windowManager.defaultDisplay
     val size = Point()
     display.getSize(size)
     return size.x
 }
 
-fun convertUtcToLocal(utcTime: String): Date? {
+internal fun convertUtcToLocal(utcTime: String): Date? {
     val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)
     df.timeZone = TimeZone.getTimeZone("UTC")
     val date: Date
@@ -45,7 +45,7 @@ fun convertUtcToLocal(utcTime: String): Date? {
     }
 }
 
-fun getDateDiff(date1: Date, date2: Date): Long {
+internal fun getDateDiff(date1: Date, date2: Date): Long {
     val diffInMillies = date2.time - date1.time
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS)
 }

@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import kotlin.math.roundToInt
 
-class VodPlayerFragment : ChatFragment<VideoViewModel>(),
+internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     CustomDrawerLayout.DrawerDoubleTapListener {
 
     companion object {

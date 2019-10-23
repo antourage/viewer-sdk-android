@@ -1,7 +1,7 @@
 package com.antourage.weaverlib.other.firebase
 
-class FirebaseConfig {
-    companion object {
+internal class FirebaseConfig {
+    internal companion object {
         const val COLLECTION_PATH = "antourage"
         const val COLLECTION_PATH_STREAMS = "streams"
         const val COLLECTION_PATH_MESSAGES = "messages"

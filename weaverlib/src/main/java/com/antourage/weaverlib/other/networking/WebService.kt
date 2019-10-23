@@ -5,7 +5,7 @@ import com.antourage.weaverlib.other.models.*
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
-interface WebService {
+internal interface WebService {
     @GET("live")
     fun getLiveStreams(): LiveData<ApiResponse<List<StreamResponse>>>
 

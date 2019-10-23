@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse
 
-class StreamListDiffCallback(
+internal class StreamListDiffCallback(
     private val prevList: MutableList<StreamResponse>,
     private val newList: List<StreamResponse>
 ) : DiffUtil.Callback() {

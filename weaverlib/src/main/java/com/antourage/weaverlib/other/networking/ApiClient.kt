@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object ApiClient {
+internal object ApiClient {
 
     var BASE_URL = ""
     private const val HEADER_TOKEN = "token"

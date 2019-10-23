@@ -15,7 +15,7 @@ import javax.inject.Singleton
  */
 
 @Module
-object RetrofitModule {
+internal object RetrofitModule {
 
     private const val HEADER_LANGUAGE = "Accept-Language"
 

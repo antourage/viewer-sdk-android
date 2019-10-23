@@ -12,7 +12,7 @@ import com.antourage.weaverlib.screens.base.Repository
  * Added so that AntourageFab and VideoListFragment received data from the same source
  */
 @Keep
-class ReceivingVideosManager {
+internal class ReceivingVideosManager {
 
     companion object {
         private var callback: ReceivingVideoCallback? = null
@@ -112,7 +112,7 @@ class ReceivingVideosManager {
     }
 
     @Keep
-    interface ReceivingVideoCallback {
+    internal interface ReceivingVideoCallback {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
         fun onVODReceived(resource: Resource<List<StreamResponse>>) {}

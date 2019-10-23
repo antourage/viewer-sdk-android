@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.screens.list.dev_settings
 
-interface OnDevSettingsChangedListener {
+internal interface OnDevSettingsChangedListener {
 
     fun onBeChanged(choice: String?)
 }

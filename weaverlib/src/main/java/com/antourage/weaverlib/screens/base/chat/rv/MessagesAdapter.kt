@@ -13,7 +13,7 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.squareup.picasso.Picasso
 
-class MessagesAdapter(var list: List<Message>, val orientation: Int) :
+internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MessageViewHolder(

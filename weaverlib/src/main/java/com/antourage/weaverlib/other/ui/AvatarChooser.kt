@@ -23,9 +23,8 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.IOException
-import android.support.v7.view.ContextThemeWrapper
 
-class AvatarChooser(val context: Context) {
+internal class AvatarChooser(val context: Context) {
 
     companion object {
         private const val REQUEST_IMAGE_GALLERY = 99

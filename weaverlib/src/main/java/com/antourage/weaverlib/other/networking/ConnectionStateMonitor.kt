@@ -5,7 +5,7 @@ import android.content.Context
 import android.net.*
 import com.antourage.weaverlib.Global
 
-class ConnectionStateMonitor(val context: Context) : ConnectivityManager.NetworkCallback() {
+internal class ConnectionStateMonitor(val context: Context) : ConnectivityManager.NetworkCallback() {
 
     companion object {
         fun isNetworkAvailable(context: Context): Boolean {

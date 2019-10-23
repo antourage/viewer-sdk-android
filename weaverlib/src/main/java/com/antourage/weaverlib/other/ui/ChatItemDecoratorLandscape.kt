@@ -4,7 +4,7 @@ import android.graphics.Rect
 import android.support.v7.widget.RecyclerView
 import android.view.View
 
-class ChatItemDecoratorLandscape(
+internal class ChatItemDecoratorLandscape(
     private val marginDivider: Int,
     private val marginLeft: Int,
     private val marginTop: Int,

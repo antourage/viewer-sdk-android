@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 /**
  * handles Chat visibility
  */
-abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
+internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
     protected var isChatDismissed: Boolean = false

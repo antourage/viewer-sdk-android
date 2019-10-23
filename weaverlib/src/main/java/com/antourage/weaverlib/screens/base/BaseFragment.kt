@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 
-abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
+internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     protected lateinit var viewModel: VM
 

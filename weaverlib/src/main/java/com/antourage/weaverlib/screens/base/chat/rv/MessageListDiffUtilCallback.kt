@@ -3,7 +3,7 @@ package com.antourage.weaverlib.screens.base.chat.rv
 import android.support.v7.util.DiffUtil
 import com.antourage.weaverlib.other.models.Message
 
-class MessageListDiffUtilCallback(
+internal class MessageListDiffUtilCallback(
     private val prevList: List<Message>,
     private val newList: List<Message>
 ) : DiffUtil.Callback() {

@@ -7,11 +7,11 @@ import android.util.TypedValue
 import android.view.View
 import kotlin.math.roundToInt
 
-fun Activity.getRootView(): View {
+internal fun Activity.getRootView(): View {
     return findViewById(android.R.id.content)
 }
 
-fun Context.convertDpToPx(dp: Float): Float {
+internal fun Context.convertDpToPx(dp: Float): Float {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
         dp,
@@ -22,7 +22,7 @@ fun Context.convertDpToPx(dp: Float): Float {
 /**
  * works only if activity's softInputMode is adjustPan
  */
-fun Activity.isKeyboardOpen(): Boolean {
+internal fun Activity.isKeyboardOpen(): Boolean {
     val visibleBounds = Rect()
     this.getRootView().getWindowVisibleDisplayFrame(visibleBounds)
     val heightDiff = getRootView().height - visibleBounds.height()

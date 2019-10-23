@@ -17,7 +17,7 @@ import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 
-class AntourageActivity : AppCompatActivity() {
+internal class AntourageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

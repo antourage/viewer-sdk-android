@@ -17,7 +17,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.concurrent.schedule
 
-class VideoListViewModel @Inject constructor(application: Application) :
+internal class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
     private var pulledToRefresh: Boolean = false

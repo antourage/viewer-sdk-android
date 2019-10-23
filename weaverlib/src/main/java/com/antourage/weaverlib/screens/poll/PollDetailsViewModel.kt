@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.util.*
 import javax.inject.Inject
 
-class PollDetailsViewModel @Inject constructor(
+internal class PollDetailsViewModel @Inject constructor(
     application: Application
 ) : BaseViewModel(application) {
 
@@ -28,8 +28,8 @@ class PollDetailsViewModel @Inject constructor(
     var isAnswered: Boolean = false
     private var repository = Repository()
 
-    fun getPollLiveData(): LiveData<Poll> = pollLiveData
-    fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
+    internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
+    internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
 
     fun initPollDetails(streamId: Int, pollId: String) {
         this.streamId = streamId

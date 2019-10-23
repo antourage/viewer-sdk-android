@@ -61,7 +61,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivClose" />
 
-        <com.antourage.weaverlib.other.ui.MyNestedScrollView
+        <com.antourage.weaverlib.screens.list.MyNestedScrollView
                 android:id="@+id/nestedSV"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -86,9 +86,9 @@
                     tools:itemCount="4"
                     tools:listitem="@layout/item_live_video" />
 
-        </com.antourage.weaverlib.other.ui.MyNestedScrollView>
+        </com.antourage.weaverlib.screens.list.MyNestedScrollView>
 
-        <com.antourage.weaverlib.other.ui.MyNestedScrollView
+        <com.antourage.weaverlib.screens.list.MyNestedScrollView
                 android:id="@+id/placeHolderNestedSV"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -113,7 +113,7 @@
                     tools:itemCount="4"
                     tools:listitem="@layout/item_video_placeholder" />
 
-        </com.antourage.weaverlib.other.ui.MyNestedScrollView>
+        </com.antourage.weaverlib.screens.list.MyNestedScrollView>
 
     </android.support.constraint.ConstraintLayout>
 

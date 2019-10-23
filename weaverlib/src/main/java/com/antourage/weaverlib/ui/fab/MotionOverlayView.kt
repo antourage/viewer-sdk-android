@@ -16,7 +16,7 @@ import kotlin.math.abs
  * Used to tell whether user badge extention was clicked or swiped
  */
 @Keep
-class MotionOverlayView @JvmOverloads constructor(
+internal class MotionOverlayView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -103,7 +103,7 @@ class MotionOverlayView @JvmOverloads constructor(
     }
 
     @Keep
-    interface FabExpansionListener {
+    internal interface FabExpansionListener {
         fun onFabExpansionClicked()
 
         fun onSwipeStarted()

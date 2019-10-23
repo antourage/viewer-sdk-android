@@ -20,7 +20,7 @@ import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.poll.rv.PollAnswersAdapter
 
-class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
+internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     PollAnswersAdapter.AnswerClickedCallback {
 
     companion object {

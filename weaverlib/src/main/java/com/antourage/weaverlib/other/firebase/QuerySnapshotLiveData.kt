@@ -10,7 +10,7 @@ import com.google.firebase.firestore.*
  * Allow handling of errors in consitent way(not in current scope)
  *
  */
-class QuerySnapshotLiveData<T : FirestoreModel>(
+internal class QuerySnapshotLiveData<T : FirestoreModel>(
     private val query: Query,
     val typeParameterClass: Class<T>? = null
 ) :
@@ -49,7 +49,7 @@ class QuerySnapshotLiveData<T : FirestoreModel>(
     }
 }
 
-class QuerySnapshotValueLiveData<T>(
+internal class QuerySnapshotValueLiveData<T>(
     private val query: DocumentReference,
     val typeParameterClass: Class<T>? = null
 ) :

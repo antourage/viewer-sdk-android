@@ -7,7 +7,7 @@ import retrofit2.Response
  * @param <T> the type of the response object
 </T> */
 @Suppress("unused") // T is used in extending classes
-sealed class ApiResponse<T> {
+internal sealed class ApiResponse<T> {
     companion object {
         fun <T> create(error: Throwable): ApiErrorResponse<T> {
             return ApiErrorResponse(
@@ -41,9 +41,9 @@ sealed class ApiResponse<T> {
 /**
  * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
  */
-class ApiEmptyResponse<T> : ApiResponse<T>()
+internal class ApiEmptyResponse<T> : ApiResponse<T>()
 
-data class ApiSuccessResponse<T>(val body: T) : ApiResponse<T>()
+internal data class ApiSuccessResponse<T>(val body: T) : ApiResponse<T>()
 
-data class ApiErrorResponse<T>(val errorMessage: String, val errorCode: Int?) : ApiResponse<T>()
+internal data class ApiErrorResponse<T>(val errorMessage: String, val errorCode: Int?) : ApiResponse<T>()
 

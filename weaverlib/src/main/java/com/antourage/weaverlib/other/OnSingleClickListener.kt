@@ -3,7 +3,7 @@ package com.antourage.weaverlib.other
 import android.os.SystemClock
 import android.view.View
 
-abstract class OnSingleClickListener : View.OnClickListener {
+internal abstract class OnSingleClickListener : View.OnClickListener {
 
     private var mLastClickTime: Long = 0
 

@@ -15,7 +15,7 @@ import javax.inject.Singleton
  */
 @Singleton
 @Component(modules = [RetrofitModule::class])
-interface ApplicationComponent {
+internal interface ApplicationComponent {
 
     @Component.Builder
     interface Builder {

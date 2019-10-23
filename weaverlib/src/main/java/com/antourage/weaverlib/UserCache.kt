@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 
-class UserCache private constructor(context: Context) {
+internal class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
     private var prefs: SharedPreferences? = null
 
@@ -118,14 +118,14 @@ class UserCache private constructor(context: Context) {
         return prefs?.getString(SP_API_KEY, null)
     }
 
-    fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
+    internal fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
         val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
         prefs?.edit()
             ?.putString(SP_VOD_WATCHING_TIME, json)
             ?.apply()
     }
 
-    fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
+    internal fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
         val json = prefs?.getString("SP_VOD_WATCHING_TIME", null)
         return if (json == null) null else Gson().fromJson(
             json,

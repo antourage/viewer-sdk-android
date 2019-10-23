@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.antourage.weaverlib.R
 
-class VideoPlaceholdersAdapter :
+internal class VideoPlaceholdersAdapter :
     RecyclerView.Adapter<VideoPlaceholdersAdapter.PlaceholderViewHolder>() {
     private var listOfItems = ArrayList<@ColorRes Int>(3)
     private var oldItems = ArrayList<@ColorRes Int>(3)

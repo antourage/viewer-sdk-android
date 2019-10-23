@@ -6,4 +6,4 @@ import com.antourage.weaverlib.other.initDagger
 /**
  * this exists to makes things beautiful in the Activity. Who needs `dagger-android`?
  */
-val Activity.injector get() = (application).initDagger()
+internal val Activity.injector get() = (application).initDagger()
