@@ -10,7 +10,6 @@ import android.os.Handler
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
@@ -247,9 +246,14 @@ class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     fun initUser() {
-        UserCache.getInstance(getApplication())?.getUserId()?.let {
-            val response = repository.getUser(it, API_KEY_2)
-            response.observeForever(object : Observer<Resource<User>> {
+        UserCache.getInstance(getApplication())?.getUserId()?.let { userId ->
+            val response = UserCache.getInstance(getApplication())?.getApiKey()?.let { apiKey ->
+                repository.getUser(
+                    userId,
+                    apiKey
+                )
+            }
+            response?.observeForever(object : Observer<Resource<User>> {
                 override fun onChanged(it: Resource<User>?) {
                     when (val responseStatus = it?.status) {
                         is Status.Success -> {

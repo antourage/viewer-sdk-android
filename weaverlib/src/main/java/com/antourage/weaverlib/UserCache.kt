@@ -29,12 +29,8 @@ class UserCache private constructor(context: Context) {
         private const val SP_VOD_WATCHING_TIME = "sp_vod_watching_time"
         private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
-        internal const val DEFAULT_DISPLAY_NAME_PREFIX = "SuperFan#"
+        private const val SP_API_KEY = "sp_api_key"
         private var INSTANCE: UserCache? = null
-
-        //TODO: delete
-        const val API_KEY_1 = "a5f76ee9-bc76-4f76-a042-933b8993fc2c"
-        const val API_KEY_2 = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
 
         @Synchronized
         fun getInstance(context: Context): UserCache? {
@@ -100,6 +96,12 @@ class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveApiKey(apiKey: String) {
+        prefs?.edit()
+            ?.putString(SP_API_KEY, apiKey)
+            ?.apply()
+    }
+
     fun getCollapsedPollId(): String? {
         return prefs?.getString(SP_COLLAPSED_POLL, null)
     }
@@ -110,6 +112,10 @@ class UserCache private constructor(context: Context) {
 
     fun getUserId(): Int? {
         return prefs?.getInt(SP_USER_ID, -1)
+    }
+
+    fun getApiKey(): String? {
+        return prefs?.getString(SP_API_KEY, null)
     }
 
     fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {

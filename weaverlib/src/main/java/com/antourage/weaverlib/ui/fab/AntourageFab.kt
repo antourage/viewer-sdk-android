@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.UserCache.Companion.API_KEY_2
 import com.antourage.weaverlib.other.OnSingleClickListener
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -47,22 +46,21 @@ class AntourageFab @JvmOverloads constructor(
     MotionOverlayView.FabExpansionListener {
 
     companion object {
-        const val SHOWING_DURABILITY = 5000L
-        const val ARGS_STREAM_SELECTED = "args_stream_selected"
+        internal const val SHOWING_DURABILITY = 5000L
+        internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
     }
 
-    private var userCache: UserCache? = null
     private lateinit var currentlyDisplayedStream: StreamResponse
     private var listOfStreams: List<StreamResponse>? = null
-    val handlerFab: Handler = Handler(Looper.getMainLooper())
+    internal val handlerFab: Handler = Handler(Looper.getMainLooper())
     private val setOfDismissed = mutableListOf<Int>()
-    var isSwipeInProgress = false
+    internal var isSwipeInProgress = false
 
     private var repo: Repository = Repository()
 
-    var counter = 0
+    internal var counter = 0
 
-    var newVideosCount = 0
+    private var newVideosCount = 0
 
     private val transitionListener = object : MotionLayout.TransitionListener {
         override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
@@ -91,7 +89,6 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-
     init {
         if (BASE_URL.isEmptyTrimmed())
             BASE_URL =
@@ -109,8 +106,6 @@ class AntourageFab @JvmOverloads constructor(
         })
         floatingActionButton.scaleType = ImageView.ScaleType.CENTER
         AntourageFabLifecycleObserver.registerActionHandler(this)
-
-        handleAuthorization()
     }
 
     override fun onResume() {
@@ -251,16 +246,12 @@ class AntourageFab @JvmOverloads constructor(
         apiKey: String,
         refUserId: String? = null,
         nickname: String? = null,
-        callback: () -> Unit
+        callback: (() -> Unit)? = null
     ) {
-        authorizeUser(apiKey, refUserId, nickname, callback)
-    }
-
-    private fun handleAuthorization() {
         val userCache = UserCache.getInstance(context)
         val token = userCache?.getToken()
         if (token == null || token.isEmptyTrimmed()) {
-            authorizeUser(API_KEY_2)
+            authorizeUser(apiKey, refUserId, nickname, callback)
         }
     }
 
@@ -280,6 +271,7 @@ class AntourageFab @JvmOverloads constructor(
                             if (token != null && id != null)
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
                         }
+                        UserCache.getInstance(context)?.saveApiKey(apiKey)
                         callback?.invoke()
                         response.removeObserver(this)
                     }
