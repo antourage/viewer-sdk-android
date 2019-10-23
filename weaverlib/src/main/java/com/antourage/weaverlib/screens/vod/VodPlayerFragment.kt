@@ -384,9 +384,9 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
         controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
             if (isLandscape)
-                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt() else 0, 0,
+                resources.getDimension(R.dimen.ant_margin_seekbar_landscape).toInt() else 0, 0,
             if (isLandscape)
-                resources.getDimension(R.dimen.margin_seekbar_landscape).toInt() else 0, 0
+                resources.getDimension(R.dimen.ant_margin_seekbar_landscape).toInt() else 0, 0
         )
     }
 

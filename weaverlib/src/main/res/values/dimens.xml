@@ -2,9 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="design_fab_size_mini" tools:override="true">400dp</dimen>
     <dimen name="design_fab_image_size" tools:override="true">600dp</dimen>
-    <integer name="max_length_message_input">250</integer>
-    <dimen name="margin_seekbar_landscape">6dp</dimen>
-    <dimen name="margin_size_landscape">2dp</dimen>
-    <dimen name="margin_time_landscape">4dp</dimen>
-    <dimen name="margin_portrait">18dp</dimen>
+    <integer name="ant_max_length_message_input">250</integer>
+    <dimen name="ant_margin_seekbar_landscape">6dp</dimen>
 </resources>

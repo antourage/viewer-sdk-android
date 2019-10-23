@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="error_codes">
+    <string-array name="ant_error_codes">
         <!--status code = 0-->
         <item>Internt server-fel</item>
         <!--status code = 1-->
