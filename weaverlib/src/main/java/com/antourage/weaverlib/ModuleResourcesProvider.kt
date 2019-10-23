@@ -22,7 +22,7 @@ class ModuleResourcesProvider : ContentProvider() {
     }
 
     override fun onCreate(): Boolean {
-        appContext = WeakReference(context.applicationContext)
+        appContext = context?.applicationContext?.let { WeakReference(it) }
 
         appContext?.get()?.let {
             val options = FirebaseOptions.Builder()
