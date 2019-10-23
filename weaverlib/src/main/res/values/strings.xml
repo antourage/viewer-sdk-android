@@ -1,59 +1,55 @@
 <resources>
     <public />
-    <string name="live">Live</string>
-    <string name="say_something">Say something</string>
+    <string name="ant_live">Live</string>
+    <string name="ant_say_something">Say something</string>
 
-    <string name="new_poll">New poll!</string>
-    <string name="total_answers">Total answers</string>
-    <string name="new_stream">New stream</string>
-    <string name="chat_not_available">Chat is unavailable</string>
+    <string name="ant_new_poll">New poll!</string>
+    <string name="ant_total_answers">Total answers</string>
+    <string name="ant_new_stream">New stream</string>
+    <string name="ant_chat_not_available">Chat is unavailable</string>
 
-    <plurals name="number_answers">
+    <plurals name="ant_number_answers">
         <item quantity="one">%d poll answer</item>
         <item quantity="other">%d poll answers</item>
     </plurals>
 
-    <plurals name="number_of_viewers">
+    <plurals name="ant_number_of_viewers">
         <item quantity="one">%d viewer</item>
         <item quantity="other">%d viewers</item>
     </plurals>
-    <string name="viewers">%d viewers</string>
-    <string name="no_comments_yet">There are no comments yet</string>
-    <string name="commenting_off">Commenting is turned off for now</string>
-    <plurals name="seconds">
+    <string name="ant_no_comments_yet">There are no comments yet</string>
+    <string name="ant_commenting_off">Commenting is turned off for now</string>
+    <plurals name="ant_seconds">
         <item quantity="one">%d s</item>
         <item quantity="other">%d s</item>
     </plurals>
-    <plurals name="minutes">
+    <plurals name="ant_minutes">
         <item quantity="one">%d m</item>
         <item quantity="other">%d m</item>
     </plurals>
 
-    <plurals name="hours">
+    <plurals name="ant_hours">
         <item quantity="one">%d h</item>
         <item quantity="other">%d h</item>
     </plurals>
-    <plurals name="days">
+    <plurals name="ant_days">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
 
-    <string name="started_ago">%1$s ago</string>
+    <string name="ant_started_ago">%1$s ago</string>
 
-    <string name="choose_link">Choose link</string>
-    <string name="set">set</string>
-    <string name="main_title">Latest Videos</string>
+    <string name="ant_set">set</string>
+    <string name="ant_main_title">Latest Videos</string>
 
-    <string name="cancel">Cancel</string>
-    <string name="confirm">Confirm</string>
-    <string name="use_default">Use default</string>
-    <string name="type_your_display_name">Type your display name</string>
-    <string name="your_default_name_is">Your default name is %s</string>
+    <string name="ant_cancel">Cancel</string>
+    <string name="ant_confirm">Confirm</string>
+    <string name="ant_type_your_display_name">Type your display name</string>
 
-    <string name="choose_image_source">Add image</string>
-    <string name="delete_image">Delete image</string>
-    <string name="from_gallery">From gallery</string>
-    <string name="from_camera">From camera</string>
-    <string name="_new">New</string>
-    <string name="videos_empty_list_placeholder_text">New videos are coming soon</string>
+    <string name="ant_choose_image_source">Add image</string>
+    <string name="ant_delete_image">Delete image</string>
+    <string name="ant_from_gallery">From gallery</string>
+    <string name="ant_from_camera">From camera</string>
+    <string name="ant_new">New</string>
+    <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
 </resources>

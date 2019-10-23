@@ -242,7 +242,7 @@
                 android:layout_weight="10"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/roboto_condensed_regular"
-                android:hint="@string/say_something"
+                android:hint="@string/ant_say_something"
                 android:imeOptions="flagNoExtractUi"
                 android:paddingLeft="20dp"
                 android:textColor="@android:color/white"

@@ -39,7 +39,7 @@
             android:layout_marginLeft="12dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_rounded_corners_pink"
-            android:text="@string/live"
+            android:text="@string/ant_live"
             android:textAllCaps="true"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -154,7 +154,7 @@
                 android:textSize="14sp"
                 android:visibility="gone"
                 app:layout_constraintLeft_toRightOf="@+id/ivPollIcon"
-                tools:text="@string/new_poll"
+                tools:text="@string/ant_new_poll"
                 tools:visibility="visible" />
 
     </android.support.constraint.ConstraintLayout>
@@ -280,7 +280,7 @@
                 android:layout_weight="10"
                 android:background="@android:color/transparent"
                 android:focusable="false"
-                android:hint="@string/say_something"
+                android:hint="@string/ant_say_something"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/max_length_message_input"

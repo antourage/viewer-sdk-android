@@ -27,7 +27,7 @@
                 style="@style/PlayerControlsTxt"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_rounded_corners_pink"
-                android:text="@string/live"
+                android:text="@string/ant_live"
                 android:textAllCaps="true"
                 app:layout_constraintLeft_toLeftOf="@+id/ivThumbnail_live"
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_live" />

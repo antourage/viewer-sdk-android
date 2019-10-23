@@ -154,7 +154,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_no_comments_yet,
-            R.string.no_comments_yet
+            R.string.ant_no_comments_yet
         )
         initSkipControls()
     }
@@ -298,7 +298,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun handleChat() {
         etMessage.isEnabled = false
         btnSend.isEnabled = false
-        etMessage.hint = getString(R.string.chat_not_available)
+        etMessage.hint = getString(R.string.ant_chat_not_available)
     }
 
     private fun startPlayingStream() {
@@ -356,7 +356,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun enableChatUI() {
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_no_comments_yet,
-            R.string.no_comments_yet
+            R.string.ant_no_comments_yet
         )
         enableMessageInput(true)
         showMessageInput()
@@ -365,7 +365,7 @@ class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun disableChatUI() {
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_off_layered,
-            R.string.commenting_off
+            R.string.ant_commenting_off
         )
         enableMessageInput(false)
         hideMessageInput()

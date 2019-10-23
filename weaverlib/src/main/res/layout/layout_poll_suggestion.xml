@@ -28,7 +28,7 @@
             android:layout_marginLeft="16dp"
             android:fontFamily="@font/roboto_condensed_light"
             android:paddingTop="10dp"
-            android:text="@string/new_poll"
+            android:text="@string/ant_new_poll"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"

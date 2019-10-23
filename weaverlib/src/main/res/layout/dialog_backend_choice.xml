@@ -47,7 +47,7 @@
         android:id="@+id/setTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/set"
+        android:text="@string/ant_set"
         android:textColor="@color/pink"
         android:padding="8dp"
         android:textAllCaps="true"

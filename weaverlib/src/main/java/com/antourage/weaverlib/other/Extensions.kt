@@ -94,18 +94,18 @@ fun String.parseDate(context: Context): String {
             }
             diff > hoursInDay -> {
                 val days = (diff / hoursInDay).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.days, days, days)
-                return context.getString(R.string.started_ago, amount)
+                val amount = context.resources.getQuantityString(R.plurals.ant_days, days, days)
+                return context.getString(R.string.ant_started_ago, amount)
             }
             diff > minutesInHour -> {
                 val hours = (diff / minutesInHour).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.hours, hours, hours)
-                return context.getString(R.string.started_ago, amount)
+                val amount = context.resources.getQuantityString(R.plurals.ant_hours, hours, hours)
+                return context.getString(R.string.ant_started_ago, amount)
             }
             diff > secondsInMinute -> {
                 val minute = (diff / secondsInMinute).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.minutes, minute, minute)
-                return context.getString(R.string.started_ago, amount)
+                val amount = context.resources.getQuantityString(R.plurals.ant_minutes, minute, minute)
+                return context.getString(R.string.ant_started_ago, amount)
 
             }
             else -> {
@@ -113,8 +113,8 @@ fun String.parseDate(context: Context): String {
                     diff = 1
                 }
                 val amount = context.resources
-                    .getQuantityString(R.plurals.seconds, diff.toInt(), diff.toInt())
-                return context.getString(R.string.started_ago, amount)
+                    .getQuantityString(R.plurals.ant_seconds, diff.toInt(), diff.toInt())
+                return context.getString(R.string.ant_started_ago, amount)
             }
         }
     } else {

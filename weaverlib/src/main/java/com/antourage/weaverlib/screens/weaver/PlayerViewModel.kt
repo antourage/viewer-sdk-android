@@ -88,7 +88,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
                         if (UserCache.getInstance(getApplication())?.getCollapsedPollId().equals(it.data[0].id)) {
                             val pollStatusText =
                                 if (postAnsweredUsers) "2 answers" else getApplication<Application>().getString(
-                                    R.string.new_poll
+                                    R.string.ant_new_poll
                                 )
                             pollStatusLiveData.postValue(
                                 PollStatus.ActivePollDismissed(pollStatusText)
@@ -192,7 +192,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
                                 pollStatusLiveData.postValue(
                                     PollStatus.ActivePollDismissed(
                                         getApplication<Application>().resources.getQuantityString(
-                                            R.plurals.number_answers,
+                                            R.plurals.ant_number_answers,
                                             it.data.size,
                                             it.data.size
                                         )
@@ -202,7 +202,7 @@ class PlayerViewModel @Inject constructor(application: Application) :
                                 pollStatusLiveData.postValue(
                                     PollStatus.ActivePollDismissed(
                                         getApplication<Application>().getString(
-                                            R.string.new_poll
+                                            R.string.ant_new_poll
                                         )
                                     )
                                 )

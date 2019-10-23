@@ -26,5 +26,5 @@
             android:textColor="@color/grayed_text"
             android:textSize="22sp"
             android:textStyle="bold"
-            tools:text="@string/commenting_off" />
+            tools:text="@string/ant_commenting_off" />
 </LinearLayout>

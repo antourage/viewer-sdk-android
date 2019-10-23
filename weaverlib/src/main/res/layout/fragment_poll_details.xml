@@ -90,7 +90,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="20dp"
             android:fontFamily="@font/roboto_condensed_regular"
-            android:text="@string/total_answers"
+            android:text="@string/ant_total_answers"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -27,10 +27,10 @@ class ExtentionsUnitTest {
     fun parseDataSecondTest() {
         val secNumber = 1
         `when`(mockContextResources
-            .getQuantityString(R.plurals.seconds, secNumber, secNumber)).thenReturn("$secNumber s")
+            .getQuantityString(R.plurals.ant_seconds, secNumber, secNumber)).thenReturn("$secNumber s")
         `when`(mockContext.resources).thenReturn(mockContextResources)
-        `when`(mockContext.getString(R.string.started_ago,mockContext.resources
-            .getQuantityString(R.plurals.seconds, secNumber, secNumber)))
+        `when`(mockContext.getString(R.string.ant_started_ago,mockContext.resources
+            .getQuantityString(R.plurals.ant_seconds, secNumber, secNumber)))
             .thenReturn("$secNumber s ago")
         assertEquals(substractDays(0).parseDate(mockContext),"$secNumber s ago")
     }
@@ -47,10 +47,10 @@ class ExtentionsUnitTest {
     @Test
     fun readStringFromContext_LocalizedString() {
         // Given a mocked Context injected into the object under test...
-        `when`(mockContext.getString(R.string.set))
+        `when`(mockContext.getString(R.string.ant_set))
             .thenReturn("set")
 
         // ...then the result should be the expected one.
-        assertEquals(mockContext.getString(R.string.set), "set")
+        assertEquals(mockContext.getString(R.string.ant_set), "set")
     }
 }

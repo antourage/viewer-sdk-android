@@ -156,7 +156,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="10"
                 android:background="@android:color/transparent"
-                android:hint="@string/say_something"
+                android:hint="@string/ant_say_something"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/max_length_message_input"

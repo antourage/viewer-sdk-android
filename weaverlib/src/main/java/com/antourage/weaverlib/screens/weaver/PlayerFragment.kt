@@ -515,7 +515,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun enableChatUI() {
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_no_comments_yet,
-            R.string.no_comments_yet
+            R.string.ant_no_comments_yet
         )
         enableMessageInput(true)
         showMessageInput()
@@ -524,7 +524,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun disableChatUI() {
         setUpNoChatPlaceholder(
             R.drawable.ic_chat_off_layered,
-            R.string.commenting_off
+            R.string.ant_commenting_off
         )
         enableMessageInput(false)
         hideMessageInput()

@@ -27,7 +27,7 @@
                 style="@style/PlayerControlsTxt"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_rounded_blue"
-                android:text="@string/_new"
+                android:text="@string/ant_new"
                 android:textAllCaps="true"
                 android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="@+id/ivThumbnail_vod"

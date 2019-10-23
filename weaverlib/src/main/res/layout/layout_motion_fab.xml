@@ -27,7 +27,7 @@
             android:maxLines="1"
             android:paddingStart="24dp"
             android:paddingEnd="4dp"
-            android:text="@string/new_stream"
+            android:text="@string/ant_new_stream"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@+id/tvViewers"

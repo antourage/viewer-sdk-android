@@ -49,7 +49,7 @@ class AvatarChooser(val context: Context) {
 
     fun showChooseDelete(fragment: Fragment) {
         getDefaultDialog(fragment)
-            .setNegativeButton(context.getString(R.string.delete_image)) { dialog, _ ->
+            .setNegativeButton(context.getString(R.string.ant_delete_image)) { dialog, _ ->
                 avatarChooserListener?.onImagePickedResult(null)
                 dialog.dismiss()
             }
@@ -58,12 +58,12 @@ class AvatarChooser(val context: Context) {
 
     private fun getDefaultDialog(fragment: Fragment): AlertDialog.Builder {
         return AlertDialog.Builder(context, R.style.AlertDialogTheme)
-            .setTitle(context.getString(R.string.choose_image_source))
-            .setPositiveButton(context.getString(R.string.from_gallery)) { dialog, _ ->
+            .setTitle(context.getString(R.string.ant_choose_image_source))
+            .setPositiveButton(context.getString(R.string.ant_from_gallery)) { dialog, _ ->
                 startActivityChoseImageFromGallery(fragment)
                 dialog.dismiss()
             }
-            .setNeutralButton(context.getString(R.string.from_camera)) { _, _ ->
+            .setNeutralButton(context.getString(R.string.ant_from_camera)) { _, _ ->
                 checkCameraPermissionOrOpenCamera(fragment)
             }
     }

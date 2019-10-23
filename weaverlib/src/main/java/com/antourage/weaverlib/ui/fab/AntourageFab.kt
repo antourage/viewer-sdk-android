@@ -171,7 +171,7 @@ class AntourageFab @JvmOverloads constructor(
                                     findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
                                         R.id.tvViewers
                                     ).text = resources.getQuantityString(
-                                        R.plurals.number_of_viewers,
+                                        R.plurals.ant_number_of_viewers,
                                         currentlyDisplayedStream.viewersCount ?: 0,
                                         currentlyDisplayedStream.viewersCount
                                     )
@@ -179,7 +179,7 @@ class AntourageFab @JvmOverloads constructor(
                                     expandableLayout.transitionToEnd()
                                     tvStreamTitle.text = listOfStreams[counter].streamTitle
                                     tvViewers.text = resources.getQuantityString(
-                                        R.plurals.number_of_viewers,
+                                        R.plurals.ant_number_of_viewers,
                                         currentlyDisplayedStream.viewersCount ?: 0,
                                         currentlyDisplayedStream.viewersCount
                                     )
@@ -202,7 +202,7 @@ class AntourageFab @JvmOverloads constructor(
                             }
                         }
                     }, 0)
-                floatingActionButton.setTextToBadge(context.getString(R.string.live))
+                floatingActionButton.setTextToBadge(context.getString(R.string.ant_live))
             }
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
