@@ -20,7 +20,7 @@
                 android:layout_width="1dp"
                 tool:layout_width="100dp"
                 android:layout_marginTop="4dp"
-                android:background="@color/bleak_pink"
+                android:background="@color/ant_bleak_pink"
                 android:layout_height="12dp"
                 android:maxWidth="326dp"/>
         <TextView

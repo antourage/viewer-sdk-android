@@ -85,7 +85,7 @@
                 android:max="100"
                 android:paddingBottom="4dp"
                 android:progressBackgroundTint="@null"
-                android:progressTint="@color/pink"
+                android:progressTint="@color/ant_pink"
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"

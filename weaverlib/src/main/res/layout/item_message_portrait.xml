@@ -24,7 +24,7 @@
             android:fontFamily="@font/roboto_condensed_light"
             android:includeFontPadding="false"
             android:maxLines="1"
-            android:textColor="@color/gray_text"
+            android:textColor="@color/ant_gray_text"
             android:textSize="16sp"
             app:layout_constraintLeft_toRightOf="@+id/ivAvatar"
             app:layout_constraintRight_toRightOf="parent"

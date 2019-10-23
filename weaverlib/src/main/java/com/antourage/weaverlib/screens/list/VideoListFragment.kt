@@ -189,9 +189,9 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         showLoadingListPlaceholder()
         placeHolderAdapter.setItems(
             arrayListOf(
-                R.color.no_content_placeholder_color_3,
-                R.color.no_content_placeholder_color_2,
-                R.color.no_content_placeholder_color_1
+                R.color.ant_no_content_placeholder_color_3,
+                R.color.ant_no_content_placeholder_color_2,
+                R.color.ant_no_content_placeholder_color_1
             )
         )
         loadingAnimHandler.postDelayed(loadingAnimRunnable, 350)
@@ -201,9 +201,9 @@ class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener
         showLoadingListPlaceholder()
         placeHolderAdapter.setItems(
             arrayListOf(
-                R.color.no_content_placeholder_color_1,
-                R.color.no_content_placeholder_color_1,
-                R.color.no_content_placeholder_color_1
+                R.color.ant_no_content_placeholder_color_1,
+                R.color.ant_no_content_placeholder_color_1,
+                R.color.ant_no_content_placeholder_color_1
             )
         )
         tvTitle.visibility = View.INVISIBLE

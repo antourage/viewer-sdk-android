@@ -9,7 +9,7 @@
         android:paddingTop="20dp"
         android:paddingEnd="20dp"
         android:paddingBottom="20dp"
-        tools:background="@color/bg_color">
+        tools:background="@color/ant_bg_color">
 
     <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivControllerUserPhoto"

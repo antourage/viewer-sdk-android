@@ -1,7 +1,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
        android:shape="rectangle" >
 
-    <solid android:color="@color/pink" />
+    <solid android:color="@color/ant_pink" />
 
     <corners
             android:bottomLeftRadius="4dp"

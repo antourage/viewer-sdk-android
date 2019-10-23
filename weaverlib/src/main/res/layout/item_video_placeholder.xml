@@ -4,7 +4,7 @@
         android:id="@+id/rootCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/color_dark_gray_text"
+        app:cardBackgroundColor="@color/ant_color_dark_gray_text"
         app:cardCornerRadius="4dp"
         app:cardElevation="0dp">
 

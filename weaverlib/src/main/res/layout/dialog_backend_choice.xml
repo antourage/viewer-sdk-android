@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="28dp"
-    android:background="@color/bg_color_widget_expantion"
+    android:background="@color/ant_bg_color_widget_expantion"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -48,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ant_set"
-        android:textColor="@color/pink"
+        android:textColor="@color/ant_pink"
         android:padding="8dp"
         android:textAllCaps="true"
         app:layout_constraintEnd_toEndOf="parent"

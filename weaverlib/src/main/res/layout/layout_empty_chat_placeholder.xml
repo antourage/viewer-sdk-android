@@ -23,7 +23,7 @@
             android:gravity="center"
             android:maxWidth="250dp"
             android:textAllCaps="true"
-            android:textColor="@color/grayed_text"
+            android:textColor="@color/ant_grayed_text"
             android:textSize="22sp"
             android:textStyle="bold"
             tools:text="@string/ant_commenting_off" />

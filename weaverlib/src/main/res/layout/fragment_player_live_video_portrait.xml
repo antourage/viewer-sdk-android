@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/bg_color">
+        android:background="@color/ant_bg_color">
 
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
@@ -176,7 +176,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="20dp"
-            android:background="@color/light_gray_transparent"
+            android:background="@color/ant_light_gray_transparent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/pollPopupLayout" />
@@ -255,7 +255,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="4dp"
-            android:background="@color/light_gray_transparent"
+            android:background="@color/ant_light_gray_transparent"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -264,7 +264,7 @@
             android:id="@+id/ll_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/bg_color"
+            android:background="@color/ant_bg_color"
             android:elevation="6dp"
             android:orientation="horizontal"
             android:visibility="invisible"
@@ -286,7 +286,7 @@
                 android:maxLength="@integer/max_length_message_input"
                 android:paddingStart="8dp"
                 android:textColor="@android:color/white"
-                android:textColorHint="@color/light_gray_transparent"
+                android:textColorHint="@color/ant_light_gray_transparent"
                 tools:ignore="RtlSymmetry" />
 
         <ImageButton

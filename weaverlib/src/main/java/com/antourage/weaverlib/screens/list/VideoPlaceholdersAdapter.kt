@@ -17,9 +17,9 @@ class VideoPlaceholdersAdapter :
     private var listOfItems = ArrayList<@ColorRes Int>(3)
     private var oldItems = ArrayList<@ColorRes Int>(3)
     private var orderedItems = arrayListOf(
-        R.color.no_content_placeholder_color_1,
-        R.color.no_content_placeholder_color_2,
-        R.color.no_content_placeholder_color_3
+        R.color.ant_no_content_placeholder_color_1,
+        R.color.ant_no_content_placeholder_color_2,
+        R.color.ant_no_content_placeholder_color_3
     )
     private var shiftCount = 0
     lateinit var context: Context

@@ -449,7 +449,7 @@ class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 divider.visibility = View.GONE
             }
             Configuration.ORIENTATION_PORTRAIT -> {
-                context?.let { ContextCompat.getColor(it, R.color.bg_color) }?.let {
+                context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
                 }
                 txtPollStatus.visibility = View.GONE

@@ -4,5 +4,5 @@
             android:angle="90"
             android:endColor="@android:color/transparent"
             android:gradientRadius="50%"
-            android:startColor="@color/halftransparent" />
+            android:startColor="@color/ant_halftransparent" />
 </shape>
