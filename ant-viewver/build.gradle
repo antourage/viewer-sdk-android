@@ -5,6 +5,9 @@ apply plugin: "org.sonarqube"
 apply plugin: 'maven-publish'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.mkhodachnyk'
 
 android {
     compileSdkVersion 28

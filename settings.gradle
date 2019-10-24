@@ -1,2 +1,2 @@
-include ':app'
+include ':app', ':ant-viewver'
 rootProject.name = 'weaverlib'
