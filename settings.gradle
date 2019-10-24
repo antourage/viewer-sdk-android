@@ -1,2 +1,2 @@
-include ':app', ':weaverlib'
+include ':app'
 rootProject.name = 'weaverlib'
