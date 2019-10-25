@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
 import com.google.gson.Gson
 import java.lang.ref.WeakReference
 import java.util.*
@@ -72,7 +73,7 @@ internal class UserCache private constructor(context: Context) {
     fun getBeChoice(): String? {
         contextRef?.get()?.applicationContext?.let {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(it)
-            return sharedPref.getString(SP_BE_CHOICE, BASE_URL_DEV)
+            return sharedPref.getString(SP_BE_CHOICE, BASE_URL_STAGING)
         } ?: return null
     }
 

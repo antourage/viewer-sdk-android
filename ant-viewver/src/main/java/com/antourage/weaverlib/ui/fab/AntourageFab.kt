@@ -41,7 +41,8 @@ class AntourageFab @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler, MotionOverlayView.FabExpansionListener {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,
+    MotionOverlayView.FabExpansionListener {
 
     companion object {
         internal const val SHOWING_DURABILITY = 5000L
@@ -90,7 +91,7 @@ class AntourageFab @JvmOverloads constructor(
     init {
         if (BASE_URL.isEmptyTrimmed())
             BASE_URL =
-                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_DEV
+                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_STAGING
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
@@ -245,7 +246,7 @@ class AntourageFab @JvmOverloads constructor(
         apiKey: String,
         refUserId: String? = null,
         nickname: String? = null,
-        callback: (() -> Unit)? = null
+        callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
         val userCache = UserCache.getInstance(context)
         val token = userCache?.getToken()
@@ -258,7 +259,7 @@ class AntourageFab @JvmOverloads constructor(
         apiKey: String,
         refUserId: String? = null,
         nickname: String? = null,
-        callback: (() -> Unit)? = null
+        callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
         val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
@@ -271,10 +272,11 @@ class AntourageFab @JvmOverloads constructor(
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
                         }
                         UserCache.getInstance(context)?.saveApiKey(apiKey)
-                        callback?.invoke()
+                        callback?.invoke(UserAuthResult.Success)
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
+                        callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
                         response.removeObserver(this)
                     }
                 }

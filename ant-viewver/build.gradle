@@ -12,7 +12,6 @@ group='com.github.mkhodachnyk'
 android {
     compileSdkVersion 28
 
-
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 28
