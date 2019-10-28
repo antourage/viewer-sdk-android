@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.mkhodachnyk'
+group='com.github.antourage'
 
 android {
     compileSdkVersion 28
