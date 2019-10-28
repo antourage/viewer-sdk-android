@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.base
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 
 internal open class BaseViewModel constructor(application: Application) : AndroidViewModel(application) {
     companion object {

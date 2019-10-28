@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/constraintLayoutParent"
@@ -85,7 +85,7 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -136,7 +136,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvStreamName"
                 tools:text=" change often or at alll" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
             android:id="@+id/divider"
@@ -147,7 +147,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/headerLayout" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -171,7 +171,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/headerLayout">
 
-        <android.support.design.widget.NavigationView
+        <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -179,12 +179,12 @@
                 android:layout_marginRight="-64dp"
                 android:background="@android:color/transparent">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clNavView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/llNoChat"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -198,7 +198,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.antourage.weaverlib.other.ui.FadingRecyclerView
                         android:id="@+id/rvMessages"
@@ -210,8 +210,8 @@
                         android:fillViewport="false"
                         android:requiresFadingEdge="vertical"
                         tools:listitem="@layout/item_message_portrait" />
-            </android.support.constraint.ConstraintLayout>
-        </android.support.design.widget.NavigationView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
@@ -260,4 +260,4 @@
                 tools:ignore="ContentDescription" />
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.list
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.os.Handler
-import android.support.annotation.Keep
+import androidx.annotation.Keep
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status

@@ -8,11 +8,11 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.annotation.Keep
-import android.support.design.stateful.ExtendableSavedState
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.view.ViewCompat
+import androidx.annotation.Keep
+import com.google.android.material.stateful.ExtendableSavedState
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import android.util.AttributeSet
 import android.util.Property
 import android.view.animation.OvershootInterpolator

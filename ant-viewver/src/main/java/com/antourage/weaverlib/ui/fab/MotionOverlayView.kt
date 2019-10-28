@@ -2,8 +2,8 @@ package com.antourage.weaverlib.ui.fab
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.support.annotation.Keep
-import android.support.constraint.motion.MotionLayout
+import androidx.annotation.Keep
+import androidx.constraintlayout.motion.widget.MotionLayout
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent

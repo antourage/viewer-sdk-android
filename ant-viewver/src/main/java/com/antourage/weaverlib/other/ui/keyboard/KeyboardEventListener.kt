@@ -1,10 +1,10 @@
 package com.antourage.weaverlib.other.ui.keyboard
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
-import android.support.annotation.CallSuper
-import android.support.v7.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatActivity
 import android.view.ViewTreeObserver
 
 /**

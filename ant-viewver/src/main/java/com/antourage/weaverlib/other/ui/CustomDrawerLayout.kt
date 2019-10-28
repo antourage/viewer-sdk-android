@@ -2,8 +2,8 @@ package com.antourage.weaverlib.other.ui
 
 import android.content.Context
 import android.content.res.Configuration
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v4.widget.DrawerLayout
+import androidx.core.view.GestureDetectorCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent

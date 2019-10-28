@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.motion.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/expandableLayout"
@@ -73,4 +73,4 @@
             app:layout_constraintEnd_toEndOf="@id/fabExpansion"
             app:layout_constraintStart_toStartOf="@id/fabExpansion"
             app:layout_constraintTop_toBottomOf="@+id/tvStreamName" />
-</android.support.constraint.motion.MotionLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>

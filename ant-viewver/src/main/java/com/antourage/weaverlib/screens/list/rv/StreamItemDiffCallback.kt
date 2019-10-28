@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.screens.list.rv
 
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse
 
 internal class StreamItemDiffCallback(

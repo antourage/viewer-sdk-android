@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.antourage.weaverlib.other.models.*
 import okhttp3.MultipartBody
 import retrofit2.http.*

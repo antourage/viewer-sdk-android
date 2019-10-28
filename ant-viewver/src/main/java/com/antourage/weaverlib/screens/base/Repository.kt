@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.screens.base
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData

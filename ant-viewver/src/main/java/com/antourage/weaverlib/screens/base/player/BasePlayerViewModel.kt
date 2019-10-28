@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.base.player
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager

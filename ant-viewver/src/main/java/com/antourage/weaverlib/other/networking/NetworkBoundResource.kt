@@ -1,9 +1,9 @@
 package com.antourage.weaverlib.other.networking
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.support.annotation.MainThread
-import android.support.annotation.WorkerThread
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import com.antourage.weaverlib.ModuleResourcesProvider
 import java.util.*
 import kotlin.concurrent.schedule

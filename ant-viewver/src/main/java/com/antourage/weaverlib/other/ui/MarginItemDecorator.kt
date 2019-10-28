@@ -1,7 +1,7 @@
 package com.antourage.weaverlib.other.ui
 
 import android.graphics.Rect
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 
 internal class MarginItemDecoration(private val spaceHeight: Int) : RecyclerView.ItemDecoration() {

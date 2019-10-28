@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.base.chat.rv
 
 import android.content.Context
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  * added to correctly handle smooth scroll

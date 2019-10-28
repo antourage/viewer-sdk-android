@@ -1,18 +1,18 @@
 package com.antourage.weaverlib.ui.fab
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.Keep
-import android.support.constraint.ConstraintLayout
-import android.support.constraint.motion.MotionLayout
-import android.support.constraint.motion.MotionScene
+import androidx.annotation.Keep
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.motion.widget.MotionLayout
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.motion.widget.MotionScene
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.OnSingleClickListener
@@ -64,9 +64,9 @@ class AntourageFab @JvmOverloads constructor(
     private val transitionListener = object : MotionLayout.TransitionListener {
         override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
 
-        override fun allowsTransition(p0: MotionScene.Transition?): Boolean {
-            return true
-        }
+//        override fun allowsTransition(p0: MotionScene.Transition?): Boolean {
+//            return true
+//        }
 
         override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {}
 

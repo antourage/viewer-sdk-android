@@ -1,13 +1,13 @@
 package com.antourage.weaverlib.screens.base.chat
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
-import android.support.design.widget.NavigationView
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.navigation.NavigationView
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout

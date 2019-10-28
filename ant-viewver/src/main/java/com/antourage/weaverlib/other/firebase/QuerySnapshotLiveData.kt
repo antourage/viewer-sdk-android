@@ -1,6 +1,6 @@
 package com.antourage.weaverlib.other.firebase
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.antourage.weaverlib.other.models.FirestoreModel
 import com.antourage.weaverlib.other.networking.Resource
 import com.google.firebase.firestore.*

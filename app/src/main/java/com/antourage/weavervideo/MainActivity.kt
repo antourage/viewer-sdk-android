@@ -1,8 +1,8 @@
 package com.antourage.weavervideo
 
 import android.os.Bundle
-import android.support.multidex.MultiDex
-import android.support.v7.app.AppCompatActivity
+import androidx.multidex.MultiDex
+import androidx.appcompat.app.AppCompatActivity
 import com.antourage.weaverlib.ui.fab.UserAuthResult
 import kotlinx.android.synthetic.main.activity_main.*
 

@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.poll
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.other.models.AnsweredUser
 import com.antourage.weaverlib.other.models.AnswersCombined
