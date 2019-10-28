@@ -81,6 +81,7 @@ internal class UserCache private constructor(context: Context) {
         val editor = sharedPref.edit()
         editor.putString(SP_BE_CHOICE, link)
         editor.apply()
+        clearUserData()
     }
 
     fun saveUserAuthInfo(token: String, userId: Int) {
@@ -137,5 +138,9 @@ internal class UserCache private constructor(context: Context) {
         prefs?.edit()
             ?.putString(SP_LIVE_STREAM_WATCHING_TIME, watchingTimeSpan)
             ?.apply()
+    }
+
+    private fun clearUserData() {
+        saveUserAuthInfo("", -1)
     }
 }
