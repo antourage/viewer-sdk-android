@@ -1,25 +1,22 @@
 package com.antourage.weaverlib.ui.fab
 
-import androidx.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.Keep
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.motion.widget.MotionLayout
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.constraintlayout.motion.widget.MotionScene
+import androidx.annotation.Keep
+import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.Observer
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.OnSingleClickListener
 import com.antourage.weaverlib.other.isEmptyTrimmed
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.User
-import com.antourage.weaverlib.other.models.UserRequest
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -47,6 +44,27 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
+
+        public fun registerNotifications(
+            fcmToken: String,
+            callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
+        ) {
+            val response = Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
+            response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                override fun onChanged(it: Resource<SimpleResponse>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            callback?.invoke(RegisterPushNotificationsResult.Success)
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            callback?.invoke(RegisterPushNotificationsResult.Failure(responseStatus.errorMessage))
+                            response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
     }
 
     private lateinit var currentlyDisplayedStream: StreamResponse

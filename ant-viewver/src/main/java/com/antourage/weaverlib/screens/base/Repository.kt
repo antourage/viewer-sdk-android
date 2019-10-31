@@ -71,6 +71,12 @@ internal class Repository {
                 ApiClient.getWebClient().webService.uploadImage(image)
         }.asLiveData()
 
+    fun subscribeToPushNotifications(body: SubscribeToPushesRequest): LiveData<Resource<SimpleResponse>> =
+        object : NetworkBoundResource<SimpleResponse>() {
+            override fun createCall() =
+                ApiClient.getWebClient().webService.subscribeToPushNotifications(body)
+        }.asLiveData()
+
     //region Firebase
     internal fun addMessage(message: Message, streamId: Int) {
         FirestoreDatabase().getMessagesReferences(streamId).document().set(message)

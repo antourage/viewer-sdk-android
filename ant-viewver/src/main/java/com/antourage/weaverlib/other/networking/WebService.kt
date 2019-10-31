@@ -36,4 +36,7 @@ internal interface WebService {
     @Multipart
     @POST("users/uploadimage")
     fun uploadImage(@Part file: MultipartBody.Part): LiveData<ApiResponse<UpdateImageResponse>>
+
+    @POST("notifications")
+    fun subscribeToPushNotifications(@Body body: SubscribeToPushesRequest): LiveData<ApiResponse<SimpleResponse>>
 }
