@@ -1,22 +1,25 @@
 package com.antourage.weaverlib.other
 
 import android.app.Application
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.annotation.NonNull
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.EditText
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
@@ -55,7 +58,11 @@ internal fun Application.initDagger(): ApplicationComponent {
         .build()
 }
 
-internal fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {
+internal fun Fragment.replaceFragment(
+    fragment: Fragment,
+    frameId: Int,
+    addToBackStack: Boolean = false
+) {
     (activity as AppCompatActivity).replaceFragment(fragment, frameId, addToBackStack)
 }
 
@@ -205,4 +212,36 @@ internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val imageRequestBody =
         RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
+}
+
+internal fun View.margin(
+    left: Float? = null,
+    top: Float? = null,
+    right: Float? = null,
+    bottom: Float? = null
+) {
+    layoutParams<ViewGroup.MarginLayoutParams> {
+        left?.run { leftMargin = dpToPx(this) }
+        top?.run { topMargin = dpToPx(this) }
+        right?.run { rightMargin = dpToPx(this) }
+        bottom?.run { bottomMargin = dpToPx(this) }
+    }
+}
+
+internal inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {
+    if (layoutParams is T) block(layoutParams as T)
+}
+
+internal fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
+internal fun Context.dpToPx(dp: Float): Int =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
+
+internal fun View.removeConstraints(parent: ConstraintLayout) {
+    val set = ConstraintSet()
+    set.clone(parent)
+    set.clear(this.id, ConstraintSet.TOP)
+    set.clear(this.id, ConstraintSet.RIGHT)
+    set.clear(this.id, ConstraintSet.BOTTOM)
+    set.clear(this.id, ConstraintSet.LEFT)
+    set.applyTo(parent)
 }

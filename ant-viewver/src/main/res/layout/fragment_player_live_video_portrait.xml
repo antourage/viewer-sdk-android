@@ -309,7 +309,6 @@
     </LinearLayout>
 
     <include
-            android:id="@+id/userSettingsDialog"
             layout="@layout/dialog_user_authorization_portrait"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -12,6 +12,8 @@ import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -324,6 +326,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     it
                 )
         }
+
+        etDisplayName.onFocusChangeListener = View.OnFocusChangeListener { p0, p1 ->
+            if (p1) {
+                userSettingsDialogUIToLandscape()
+            } else {
+                userSettingsDialogUIToPortrait()
+            }
+        }
     }
 
     /**
@@ -438,7 +448,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         val newOrientation = newConfig.orientation
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                userSettingsDialogUIToLandscape()
                 ll_wrapper.background =
                     context?.let {
                         ContextCompat.getDrawable(it, R.drawable.rounded_semitransparent_bg)
@@ -612,7 +621,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         showUserSettingsDialog(userSettingsDialog?.visibility == View.GONE)
     }
 
-    private fun userSettingsDialogShown() = userSettingsDialog?.visibility == View.VISIBLE
+    private fun userSettingsDialogShown() =
+        userSettingsDialog?.visibility == View.VISIBLE
 
     private fun showUserSettingsDialog(show: Boolean) {
         if (show && !userSettingsDialogShown() || !show && userSettingsDialogShown()) {
@@ -622,6 +632,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
             )
             if (show) {
+                if (orientation() == Configuration.ORIENTATION_LANDSCAPE && etDisplayName.isFocused) {
+                    userSettingsDialogUIToLandscape()
+                } else {
+                    userSettingsDialogUIToPortrait()
+                }
                 etMessage.isFocusable = false
                 btnConfirm.isEnabled = false
                 viewModel.getUser()?.imageUrl?.apply {
@@ -695,6 +710,183 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    private fun userSettingsDialogUIToPortrait() {}
-    private fun userSettingsDialogUIToLandscape() {}
+    private fun userSettingsDialogUIToPortrait() {
+        ivSetUserPhoto.removeConstraints(clUserSettings)
+        etDisplayName.removeConstraints(clUserSettings)
+        btnConfirm.removeConstraints(clUserSettings)
+        btnCancel.removeConstraints(clUserSettings)
+
+        userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        clUserSettings.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        activity?.applicationContext?.apply {
+            btnCancel.layoutParams.width = dp2px(this, 144f).roundToInt()
+            btnConfirm.layoutParams.width = dp2px(this, 186f).roundToInt()
+        }
+
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(clUserSettings)
+
+        constraintSet.connect(
+            ivSetUserPhoto.id,
+            ConstraintSet.LEFT,
+            R.id.clUserSettings,
+            ConstraintSet.LEFT
+        )
+
+        constraintSet.connect(
+            ivSetUserPhoto.id,
+            ConstraintSet.TOP,
+            R.id.etDisplayName,
+            ConstraintSet.TOP
+        )
+
+        constraintSet.connect(
+            etDisplayName.id,
+            ConstraintSet.BOTTOM,
+            R.id.btnCancel,
+            ConstraintSet.TOP
+        )
+
+        constraintSet.connect(
+            etDisplayName.id,
+            ConstraintSet.LEFT,
+            R.id.ivSetUserPhoto,
+            ConstraintSet.RIGHT
+        )
+
+        constraintSet.connect(
+            etDisplayName.id,
+            ConstraintSet.RIGHT,
+            ((R.id.clUserSettings)),
+            ConstraintSet.RIGHT
+        )
+
+        constraintSet.connect(
+            etDisplayName.id,
+            ConstraintSet.TOP,
+            ((R.id.clUserSettings)),
+            ConstraintSet.TOP
+        )
+
+        constraintSet.connect(
+            btnCancel.id,
+            ConstraintSet.BOTTOM,
+            ((R.id.clUserSettings)),
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            btnCancel.id,
+            ConstraintSet.LEFT,
+            ((R.id.clUserSettings)),
+            ConstraintSet.LEFT
+        )
+
+        constraintSet.connect(
+            btnCancel.id,
+            ConstraintSet.RIGHT,
+            (R.id.btnConfirm),
+            ConstraintSet.LEFT
+        )
+
+        constraintSet.connect(
+            btnConfirm.id,
+            ConstraintSet.BOTTOM,
+            R.id.clUserSettings,
+            ConstraintSet.BOTTOM
+        )
+
+        constraintSet.connect(
+            btnConfirm.id,
+            ConstraintSet.LEFT,
+            R.id.btnCancel,
+            ConstraintSet.RIGHT
+        )
+
+        constraintSet.connect(
+            btnConfirm.id,
+            ConstraintSet.RIGHT,
+            R.id.clUserSettings,
+            ConstraintSet.RIGHT
+        )
+
+        constraintSet.applyTo(clUserSettings)
+
+        ivSetUserPhoto.margin(left = 20f)
+        etDisplayName.margin(top = 40f, bottom = 20f, left = 20f, right = 20f)
+        btnCancel.margin(bottom = 20f, left = 20f)
+        btnConfirm.margin(bottom = 20f, left = 20f, right = 20f)
+    }
+
+    private fun userSettingsDialogUIToLandscape() {
+        userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+        clUserSettings.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+        activity?.applicationContext?.apply {
+            btnCancel.layoutParams.width = dp2px(this, 120f).roundToInt()
+            btnConfirm.layoutParams.width = dp2px(this, 140f).roundToInt()
+        }
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(clUserSettings)
+        constraintSet.connect(
+            R.id.ivSetUserPhoto,
+            ConstraintSet.BOTTOM,
+            R.id.etDisplayName,
+            ConstraintSet.BOTTOM,
+            0
+        )
+        constraintSet.connect(
+            R.id.etDisplayName,
+            ConstraintSet.BOTTOM,
+            R.id.clUserSettings,
+            ConstraintSet.BOTTOM,
+            0
+        )
+        constraintSet.connect(
+            R.id.etDisplayName,
+            ConstraintSet.RIGHT,
+            R.id.btnCancel,
+            ConstraintSet.LEFT,
+            0
+        )
+        constraintSet.connect(
+            R.id.btnCancel,
+            ConstraintSet.BOTTOM,
+            R.id.etDisplayName,
+            ConstraintSet.BOTTOM,
+            0
+        )
+        constraintSet.connect(
+            R.id.btnCancel,
+            ConstraintSet.LEFT,
+            R.id.etDisplayName,
+            ConstraintSet.RIGHT,
+            0
+        )
+        constraintSet.connect(
+            R.id.btnCancel,
+            ConstraintSet.TOP,
+            R.id.etDisplayName,
+            ConstraintSet.TOP,
+            0
+        )
+        constraintSet.connect(
+            R.id.btnConfirm,
+            ConstraintSet.BOTTOM,
+            R.id.btnCancel,
+            ConstraintSet.BOTTOM,
+            0
+        )
+        constraintSet.connect(
+            R.id.btnConfirm,
+            ConstraintSet.TOP,
+            R.id.btnCancel,
+            ConstraintSet.TOP,
+            0
+        )
+
+        etDisplayName.margin(top = 20f)
+        btnCancel.margin(bottom = 0f)
+
+        constraintSet.applyTo(clUserSettings)
+    }
 }
