@@ -16,12 +16,22 @@ import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
+import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
 internal class AntourageActivity : AppCompatActivity() {
+    internal var keyboardIsVisible = false
+        private set
+
+    /**
+     * Determines if need to trigger keyborad event callback, when keyboard was shown or hidden via
+     * [hideKeyborad] or [showKeyboard] methods
+     */
+    private var triggerKeyboardCallback = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
+        registerKeyboardVisibilityEvent()
         BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
             ?: DevSettingsDialog.BASE_URL_DEV
 
@@ -62,50 +72,35 @@ internal class AntourageActivity : AppCompatActivity() {
         }
     }
 
-    // in branch additional_features
-    override fun onUserLeaveHint() {
-        //TODO uncomment and enable
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-//            && supportFragmentManager.findFragmentById(R.id.mainContent) is BasePlayerFragment<*>
-//        ) {
-//            enterPictureInPictureMode(
-//                with(PictureInPictureParams.Builder()) {
-//                    val width = 16
-//                    val height = 9
-//                    setAspectRatio(Rational(width, height))
-//                    build()
-//                })
-//        }
+    private fun registerKeyboardVisibilityEvent() {
+        KeyboardVisibilityEvent.setEventListener(this) { isOpen, height ->
+            keyboardIsVisible = isOpen
+            if (triggerKeyboardCallback) {
+                if (isOpen) onShowKeyboard(height) else onHideKeyboard(height)
+            } else {
+                triggerKeyboardCallback = true
+            }
+        }
     }
 
-    //region Fullscreen leanback mode
-//    override fun onWindowFocusChanged(hasFocus: Boolean) {
-//        super.onWindowFocusChanged(hasFocus)
-//        val orientation = resources.configuration.orientation
-//        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            if (hasFocus) hideSystemUI()
-//        }
-//    }
-//
-//    public fun hideSystemUI() {
-//        window?.decorView?.systemUiVisibility = (
-//                // Set the content to appear under the system bars so that the
-//                // content doesn't resize when the system bars hide and show.
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                        // Hide the nav bar and status bar
-//                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                        or View.SYSTEM_UI_FLAG_FULLSCREEN)
-//    }
-//
-//    // Shows the system bars by removing all the flags
-//    // except for the ones that make the content appear under the system bars.
-//    private fun showSystemUI() {
-//        window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-//    }
-    //endregion
+    fun onShowKeyboard(keyboardHeight: Int) {
+        withCurrentFragment { it.onShowKeyboard(keyboardHeight) }
+    }
 
+    fun onHideKeyboard(keyboardHeight: Int) {
+        withCurrentFragment { it.onHideKeyboard(keyboardHeight) }
+    }
+
+    fun triggerKeyboardCallback(withCallback: Boolean) {
+        triggerKeyboardCallback = withCallback
+    }
+
+    private fun withCurrentFragment(doStuff: (BaseFragment<BaseViewModel>) -> Unit) {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.mainContent)
+        if (currentFragment != null
+            && currentFragment is BaseFragment<*>
+            && currentFragment.isVisible) {
+            doStuff(currentFragment as BaseFragment<BaseViewModel>)
+        }
+    }
 }

@@ -717,6 +717,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnCancel.removeConstraints(clUserSettings)
 
         userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        userSettingsDialog.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
         clUserSettings.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
         activity?.applicationContext?.apply {
             btnCancel.layoutParams.width = dp2px(this, 144f).roundToInt()
@@ -818,8 +819,21 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnConfirm.margin(bottom = 20f, left = 20f, right = 20f)
     }
 
+    override fun onHideKeyboard(keyboardHeight: Int) {
+        super.onHideKeyboard(keyboardHeight)
+        userSettingsDialogUIToPortrait()
+    }
+
+    override fun onShowKeyboard(keyboardHeight: Int) {
+        super.onShowKeyboard(keyboardHeight)
+        if (etDisplayName.isFocused && orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            userSettingsDialogUIToLandscape()
+        }
+    }
+
     private fun userSettingsDialogUIToLandscape() {
         userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+        userSettingsDialog.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         clUserSettings.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
         activity?.applicationContext?.apply {
             btnCancel.layoutParams.width = dp2px(this, 120f).roundToInt()
