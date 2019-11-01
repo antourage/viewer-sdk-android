@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                         if (!task.isSuccessful) {
                             msg = getString(R.string.msg_subscribe_failed)
                         }
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     }
             } catch (e: IOException) {
                 e.printStackTrace()

@@ -1,21 +1,20 @@
 package com.antourage.weaverlib.screens.weaver
 
 import android.app.Activity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.EditText
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
@@ -39,7 +38,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
-import kotlinx.android.synthetic.main.dialog_user_authorization.*
+import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
@@ -314,7 +313,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
 
-        initStreamInfo(arguments?.getParcelable<StreamResponse>(ARGS_STREAM))
+        initStreamInfo(arguments?.getParcelable(ARGS_STREAM))
         initClickListeners()
         initKeyboardListener()
         initLabelLive()
@@ -402,6 +401,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.changeUserAvatar()
         }
         showUserSettingsDialog(false)
+        etMessage.isFocusable = true
+        etMessage.isFocusableInTouchMode = true
+        etMessage.requestFocus()
     }
 
     private fun startPlayingStream() {
@@ -426,11 +428,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.onPause()
     }
 
-//    override fun onStop() {
-//        super.onStop()
-//        viewModel.onPause()
-//    }
-
     override fun onDestroy() {
         super.onDestroy()
         viewModel.releasePlayer()
@@ -441,6 +438,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         val newOrientation = newConfig.orientation
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
+                userSettingsDialogUIToLandscape()
                 ll_wrapper.background =
                     context?.let {
                         ContextCompat.getDrawable(it, R.drawable.rounded_semitransparent_bg)
@@ -449,6 +447,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 divider.visibility = View.GONE
             }
             Configuration.ORIENTATION_PORTRAIT -> {
+                userSettingsDialogUIToPortrait()
                 context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
                 }
@@ -610,23 +609,20 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun toggleUserSettingsDialog() {
-        showUserSettingsDialog(clUserSettings.visibility == View.GONE)
+        showUserSettingsDialog(userSettingsDialog?.visibility == View.GONE)
     }
 
-    private fun userSettingsDialogShown() = clUserSettings.visibility == View.VISIBLE
+    private fun userSettingsDialogShown() = userSettingsDialog?.visibility == View.VISIBLE
 
     private fun showUserSettingsDialog(show: Boolean) {
         if (show && !userSettingsDialogShown() || !show && userSettingsDialogShown()) {
-            clUserSettings.visibility =
+            userSettingsDialog?.visibility =
                 if (show) View.VISIBLE else View.GONE
             btnUserSettings.setImageResource(
                 if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
             )
             if (show) {
                 etMessage.isFocusable = false
-                if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-                }
                 btnConfirm.isEnabled = false
                 viewModel.getUser()?.imageUrl?.apply {
                     viewModel.newAvatar?.let {
@@ -643,11 +639,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 if (!viewModel.noDisplayNameSet()) {
                     etMessage.isFocusableInTouchMode = true
                     etMessage.isFocusable = true
-                }
-                if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-                } else {
-                    activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
                 }
             }
         }
@@ -684,7 +675,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
 
         // Set up touch listener for non-text box views to hide keyboard.
-        if (view !is EditText && view.id != btnCancel.id && view.id != btnSend.id) {
+        if (view !is EditText && view.id != btnCancel.id &&
+            view.id != btnSend.id &&
+            view.id != btnConfirm.id &&
+            view.id != btnUserSettings.id
+        ) {
             view.setOnTouchListener { v, event ->
                 hideKeyboard()
                 false
@@ -699,4 +694,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
         }
     }
+
+    private fun userSettingsDialogUIToPortrait() {}
+    private fun userSettingsDialogUIToLandscape() {}
 }
