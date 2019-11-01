@@ -8,15 +8,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import androidx.core.content.ContextCompat
 import android.view.OrientationEventListener
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.other.replaceFragment
@@ -33,6 +32,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private var loader: AnimatedVectorDrawableCompat? = null
     private var isPortrait: Boolean? = null
     private var isLoaderShowing = false
+
+    companion object{
+        const val MIN_TIM_BAR_UPDATE_INTERVAL_MS = 16
+    }
 
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
@@ -79,6 +82,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             constraintLayoutParent = findViewById(R.id.constraintLayoutParent)
             ivScreenSize = findViewById(R.id.ivScreenSize)
             playerControls = findViewById(R.id.controls)
+            playerControls.setTimeBarMinUpdateInterval(MIN_TIM_BAR_UPDATE_INTERVAL_MS)
             controllerHeaderLayout = findViewById(R.id.controllerHeaderLayout)
             ivClose = findViewById(R.id.ivClose)
 

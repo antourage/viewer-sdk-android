@@ -123,10 +123,10 @@ dependencies {
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     //ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.6'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.9.6'
-    implementation 'com.google.android.exoplayer:extension-okhttp:2.9.6'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.10.6'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.10.6'
     //CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     // Dagger
