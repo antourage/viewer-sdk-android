@@ -71,8 +71,8 @@ internal class Repository {
                 ApiClient.getWebClient().webService.uploadImage(image)
         }.asLiveData()
 
-    fun subscribeToPushNotifications(body: SubscribeToPushesRequest): LiveData<Resource<SimpleResponse>> =
-        object : NetworkBoundResource<SimpleResponse>() {
+    fun subscribeToPushNotifications(body: SubscribeToPushesRequest): LiveData<Resource<NotificationSubscriptionResponse>> =
+        object : NetworkBoundResource<NotificationSubscriptionResponse>() {
             override fun createCall() =
                 ApiClient.getWebClient().webService.subscribeToPushNotifications(body)
         }.asLiveData()

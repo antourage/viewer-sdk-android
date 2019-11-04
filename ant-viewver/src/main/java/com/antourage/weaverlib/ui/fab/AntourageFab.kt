@@ -49,12 +49,17 @@ class AntourageFab @JvmOverloads constructor(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
-            val response = Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
-            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-                override fun onChanged(it: Resource<SimpleResponse>?) {
+            val response =
+                Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
+            response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
+                override fun onChanged(it: Resource<NotificationSubscriptionResponse>?) {
                     when (val responseStatus = it?.status) {
                         is Status.Success -> {
-                            callback?.invoke(RegisterPushNotificationsResult.Success)
+                            responseStatus.data?.topic?.let { topicName ->
+                                RegisterPushNotificationsResult.Success(
+                                    topicName
+                                )
+                            }?.let { result -> callback?.invoke(result) }
                             response.removeObserver(this)
                         }
                         is Status.Failure -> {

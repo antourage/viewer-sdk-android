@@ -6,6 +6,6 @@ sealed class UserAuthResult {
 }
 
 sealed class RegisterPushNotificationsResult {
-    object Success : RegisterPushNotificationsResult()
+    class Success(val topicName: String) : RegisterPushNotificationsResult()
     class Failure(val cause: String) : RegisterPushNotificationsResult()
 }

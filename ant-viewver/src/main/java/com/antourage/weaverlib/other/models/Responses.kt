@@ -22,13 +22,19 @@ internal class APIError {
     }
 }
 
-class SimpleResponse {
+open class SimpleResponse {
     @SerializedName("error")
     @Expose
     var error: String? = null
     @SerializedName("success")
     @Expose
     var success: Boolean? = null
+}
+
+class NotificationSubscriptionResponse : SimpleResponse() {
+    @SerializedName("topic")
+    @Expose
+    var topic: String? = null
 }
 
 @Parcelize
