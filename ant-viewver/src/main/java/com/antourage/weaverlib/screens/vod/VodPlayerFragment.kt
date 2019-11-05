@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
@@ -160,6 +161,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initSkipControls() {
+        playerView.setOnClickListener {
+            Log.d("Player_tag", "playerView clicked!")
+        }
         playerView.setOnTouchListener(object : View.OnTouchListener {
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {

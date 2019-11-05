@@ -33,7 +33,7 @@ internal class AntourageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
         BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
-            ?: DevSettingsDialog.BASE_URL_DEV
+            ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         supportFragmentManager.beginTransaction()
