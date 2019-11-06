@@ -180,6 +180,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hidePollPopup()
                     hidePollStatusLayout()
                     removeMessageInput()
+                    showUserSettingsDialog(false)
                     bottomLayout.visibility = View.VISIBLE
                     wasDrawerClosed = false
                     if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
