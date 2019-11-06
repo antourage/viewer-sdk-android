@@ -446,9 +446,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.changeUserAvatar()
         }
         showUserSettingsDialog(false)
-        etMessage.isFocusable = true
-        etMessage.isFocusableInTouchMode = true
-        etMessage.requestFocus()
+        hideKeyboard()
     }
 
     private fun startPlayingStream() {
