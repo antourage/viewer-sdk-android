@@ -14,7 +14,6 @@ import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
@@ -45,23 +44,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.btnSend
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.etMessage
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivUserPhoto
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.llNoChat
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ll_wrapper
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvBroadcastedBy
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvStreamName
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
@@ -665,7 +648,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
             )
             if (show) {
-                if (orientation() == Configuration.ORIENTATION_LANDSCAPE && etDisplayName.isFocused) {
+                if (orientation() == Configuration.ORIENTATION_LANDSCAPE && keyboardIsVisible) {
                     userSettingsDialogUIToLandscape()
                 } else {
                     userSettingsDialogUIToPortrait()
