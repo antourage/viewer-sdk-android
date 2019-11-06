@@ -1,12 +1,12 @@
 package com.antourage.weaverlib.screens.weaver
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Handler
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -46,6 +46,8 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val userAvatarLiveData: MutableLiveData<UpdateImageResponse> = MutableLiveData()
+
+    internal var isUserSettingsDialogShown = false
 
     internal var currentPoll: Poll? = null
 

@@ -344,14 +344,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     it
                 )
         }
-
-        etDisplayName.onFocusChangeListener = View.OnFocusChangeListener { p0, p1 ->
-            if (p1) {
-                userSettingsDialogUIToLandscape()
-            } else {
-                userSettingsDialogUIToPortrait()
-            }
-        }
     }
 
     /**
@@ -473,6 +465,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 userSettingsDialogUIToPortrait()
+                if (viewModel.isUserSettingsDialogShown) {
+                    showUserSettingsDialog(true)
+                    if (keyboardIsVisible) {
+                        etDisplayName.requestFocus()
+                    }
+                }
                 context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
                 }
@@ -641,6 +639,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         userSettingsDialog?.visibility == View.VISIBLE
 
     private fun showUserSettingsDialog(show: Boolean) {
+        viewModel.isUserSettingsDialogShown = show
         if (show && !userSettingsDialogShown() || !show && userSettingsDialogShown()) {
             userSettingsDialog?.visibility =
                 if (show) View.VISIBLE else View.GONE
