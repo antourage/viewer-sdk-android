@@ -8,12 +8,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.view.OrientationEventListener
-import android.view.View
-import android.view.WindowManager
+import android.util.Log
+import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
@@ -23,6 +23,7 @@ import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 
 /**
  * Handles mostly orientation change andplayer controls
@@ -33,7 +34,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private var isPortrait: Boolean? = null
     private var isLoaderShowing = false
 
-    companion object{
+    companion object {
         const val MIN_TIM_BAR_UPDATE_INTERVAL_MS = 16
     }
 
@@ -87,7 +88,6 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             ivClose = findViewById(R.id.ivClose)
 
             controllerHeaderLayout.visibility = View.GONE
-            playerView.setOnClickListener { handleControlsVisibility() }
 
             initLoader()
             initOrientationHandling()

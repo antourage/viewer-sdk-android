@@ -6,6 +6,8 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -15,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.antourage.weaverlib.BuildConfig
@@ -42,6 +45,23 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.btnSend
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.etMessage
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivUserPhoto
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.llNoChat
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ll_wrapper
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvBroadcastedBy
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvStreamName
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
@@ -314,6 +334,21 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         hidePollStatusLayout()
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
+
+        playerView.setOnTouchListener(object : View.OnTouchListener {
+            private val gestureDetector =
+                GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                        handleControlsVisibility()
+                        return super.onSingleTapConfirmed(e)
+                    }
+                })
+
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                gestureDetector.onTouchEvent(p1)
+                return true
+            }
+        })
 
         initStreamInfo(arguments?.getParcelable(ARGS_STREAM))
         initClickListeners()

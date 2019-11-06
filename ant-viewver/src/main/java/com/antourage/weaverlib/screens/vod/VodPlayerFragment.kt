@@ -161,9 +161,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initSkipControls() {
-        playerView.setOnClickListener {
-            Log.d("Player_tag", "playerView clicked!")
-        }
         playerView.setOnTouchListener(object : View.OnTouchListener {
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
