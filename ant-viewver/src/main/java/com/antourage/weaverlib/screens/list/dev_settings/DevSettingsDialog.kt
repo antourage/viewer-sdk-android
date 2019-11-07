@@ -16,7 +16,7 @@ internal class DevSettingsDialog(context: Context, private val listener: OnDevSe
     companion object {
         const val BASE_URL_DEV = "http://35.156.199.125/"
         const val BASE_URL_STAGING = "http://3.124.42.114/"
-        const val DEFAULT_URL = BASE_URL_STAGING
+        const val DEFAULT_URL = BASE_URL_DEV
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
