@@ -243,11 +243,11 @@
                         android:id="@+id/rvMessages"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
                         android:fadingEdge="horizontal"
                         android:fadingEdgeLength="150dp"
                         android:fillViewport="false"
-                        android:requiresFadingEdge="vertical"
-                        app:layout_constraintStart_toStartOf="parent" />
+                        android:requiresFadingEdge="vertical" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>

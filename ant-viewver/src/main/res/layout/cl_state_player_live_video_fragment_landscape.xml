@@ -95,6 +95,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="20dp"
                     android:clickable="false"
+                    android:clipToPadding="false"
                     android:fadingEdge="horizontal"
                     android:fadingEdgeLength="150dp"
                     android:fillViewport="false"

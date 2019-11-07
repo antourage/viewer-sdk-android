@@ -220,22 +220,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    private fun handlePollDetailsUI() {
-        if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
-            bottomLayout.visibility = View.GONE
-            if (viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff)
-                ll_wrapper.visibility = View.INVISIBLE else ll_wrapper.visibility =
-                View.VISIBLE
-            if (viewModel.currentPoll != null) {
-                showPollStatusLayout()
-                viewModel.startNewPollCountdown()
-            }
-            if (wasDrawerClosed)
-                drawerLayout.openDrawer(navView)
-        }
-        enableMessageInput(childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)
-    }
-
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             showLoading()
