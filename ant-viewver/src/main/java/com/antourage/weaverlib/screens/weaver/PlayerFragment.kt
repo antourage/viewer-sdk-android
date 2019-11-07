@@ -455,6 +455,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (keyboardIsVisible) {
                         etDisplayName.requestFocus()
                     }
+                } else {
+                    if (keyboardIsVisible) {
+                        etMessage.requestFocus()
+                    }
                 }
                 context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
                     ll_wrapper.setBackgroundColor(it)
