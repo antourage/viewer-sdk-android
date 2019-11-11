@@ -103,6 +103,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
+    implementation "androidx.preference:preference-ktx:1.1.0"
     //Constraint layout
     //Do not update as there is some weird bug with adjustResize
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'

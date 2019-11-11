@@ -447,6 +447,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     }
                 txtPollStatus.visibility = View.VISIBLE
                 divider.visibility = View.GONE
+                if (!viewModel.isUserSettingsDialogShown) {
+                    if (keyboardIsVisible) {
+                        etMessage.requestFocus()
+                    }
+                }
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 userSettingsDialogUIToPortrait()

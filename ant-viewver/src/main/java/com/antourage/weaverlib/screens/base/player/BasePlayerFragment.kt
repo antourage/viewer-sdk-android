@@ -112,7 +112,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                         ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
                 }
                 controllerHeaderLayout.visibility = View.VISIBLE
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN) },
+                    100
+                )
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 constraintLayoutParent.setState(
