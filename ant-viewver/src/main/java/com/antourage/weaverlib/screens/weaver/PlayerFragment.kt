@@ -155,6 +155,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    private val currentStreamInfoObserver: Observer<Boolean> = Observer { isStreamStillLive ->
+        if (!isStreamStillLive) {
+            showEndStreamUI()
+        }
+    }
+
+    private fun showEndStreamUI() {
+        ivThanksForWatching.visibility = View.VISIBLE
+    }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
@@ -293,6 +302,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             this.viewLifecycleOwner,
             networkStateObserver
         )
+        viewModel.getCurrentLiveStreamInfo()
+            .observe(this.viewLifecycleOwner, currentStreamInfoObserver)
     }
 
     override fun initUi(view: View?) {

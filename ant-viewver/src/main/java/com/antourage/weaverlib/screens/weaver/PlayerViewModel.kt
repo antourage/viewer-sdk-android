@@ -17,6 +17,7 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -41,11 +42,14 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     private var repository = Repository()
 
+    val handlerCall = Handler()
+
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val userAvatarLiveData: MutableLiveData<UpdateImageResponse> = MutableLiveData()
+    private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private val liveStreamsLiveData: MutableLiveData<List<StreamResponse>> = MutableLiveData()
 
     internal var isUserSettingsDialogShown = false
 
@@ -60,6 +64,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
     fun getUserInfoLiveData(): LiveData<User> = userInfoLiveData
     fun getLoaderLiveData(): LiveData<Boolean> = loaderLiveData
+    fun getCurrentLiveStreamInfo() = isCurrentStreamStillLiveLiveData
     fun getUser() = user
 
     init {
@@ -245,6 +250,57 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     override fun onResume() {
         super.onResume()
         player.seekTo(player.duration)
+
+        subscribeToLiveStreams()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopReceivingVideos()
+    }
+
+    private fun subscribeToLiveStreams() {
+        handlerCall.postDelayed(object : Runnable {
+            override fun run() {
+                val liveStreams =
+                    Repository().getLiveVideos()
+                liveStreams.observeForever(object :
+                    Observer<Resource<List<StreamResponse>>> {
+                    override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                        if (resource != null) {
+                            when (val result = resource.status) {
+                                is Status.Failure -> {
+                                    liveStreams.removeObserver(this)
+                                }
+                                is Status.Success -> {
+                                    val allLiveStreams = result.data
+                                    if (allLiveStreams.isNullOrEmpty()) {
+                                        isCurrentStreamStillLiveLiveData.postValue(false)
+                                        player.stop()
+                                    } else if (streamId != null) {
+                                        if (allLiveStreams.find { it.streamId == streamId } != null) {
+                                            isCurrentStreamStillLiveLiveData.postValue(true)
+                                        } else {
+                                            isCurrentStreamStillLiveLiveData.postValue(false)
+                                            player.stop()
+                                        }
+                                    }
+                                    liveStreams.removeObserver(this)
+                                }
+                            }
+                        }
+                    }
+                })
+                handlerCall.postDelayed(
+                    this,
+                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
+                )
+            }
+        }, 0)
+    }
+
+    private fun stopReceivingVideos() {
+        handlerCall.removeCallbacksAndMessages(null)
     }
 
     fun initUser() {
