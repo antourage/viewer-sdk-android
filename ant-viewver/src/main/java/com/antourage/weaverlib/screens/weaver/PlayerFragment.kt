@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -162,7 +164,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun showEndStreamUI() {
-        ivThanksForWatching.visibility = View.VISIBLE
+        ivThanksForWatching?.visibility = View.VISIBLE
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
