@@ -162,7 +162,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun showEndStreamUI() {
-        playerView.visibility = View.INVISIBLE
         ivThanksForWatching?.visibility = View.VISIBLE
     }
 

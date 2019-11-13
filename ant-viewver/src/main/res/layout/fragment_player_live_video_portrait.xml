@@ -22,12 +22,13 @@
             app:use_controller="false" />
 
     <ImageView
+            android:background="@color/ant_black"
             android:id="@+id/ivThanksForWatching"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="top"
             android:scaleType="fitCenter"
-            android:src="@drawable/thanks_for_watching_bg"
+            android:src="@drawable/thanks_for_watching_bd"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintStart_toStartOf="parent"

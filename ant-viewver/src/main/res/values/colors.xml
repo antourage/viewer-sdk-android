@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ant_white">#FFFFFF</color>
+    <color name="ant_black">#000000</color>
     <color name="ant_bg_color_widget">#FF464646</color>
     <color name="ant_bg_color_widget_expantion">#131313</color>
     <color name="ant_bg_color">#222</color>
