@@ -204,7 +204,7 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveLiveStream -> {
                 if (floatingActionButton != null)
-                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                    floatingActionButton.setImageResource(R.drawable.ic_logo)
                 if (!handlerFab.hasMessages(0))
                     handlerFab.postDelayed(object : Runnable {
                         override fun run() {
@@ -255,7 +255,7 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
-                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                    floatingActionButton.setImageResource(R.drawable.ic_logo)
                     floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
                 }
                 handlerFab.removeCallbacksAndMessages(null)
