@@ -15,6 +15,7 @@
             android:background="@color/ant_bg_color_widget"
             android:backgroundTint="@color/ant_bg_color_widget"
             android:src="@drawable/ic_icon_logo"
+            android:scaleType="centerCrop"
             app:badgeBackgroundColor="@color/ant_pink"
             app:badgePosition="RightTop"
             app:badgeTextColor="@android:color/white"
