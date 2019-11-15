@@ -52,4 +52,6 @@
     <string name="ant_from_camera">From camera</string>
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
+    <string name="ant_version_name">Version %1$s</string>
+
 </resources>

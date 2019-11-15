@@ -1,57 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="28dp"
-    android:background="@color/ant_bg_color_widget_expantion"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ant_bg_color_widget_expantion"
+        android:padding="28dp">
 
     <TextView
-        android:id="@+id/tv_title_dialog"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose link"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:textColor="@android:color/white"
-        android:paddingEnd="100dp"
-        android:paddingStart="5dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textSize="18sp"/>
+            android:id="@+id/tv_title_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="100dp"
+            android:paddingBottom="8dp"
+            android:text="Choose link"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <RadioGroup
-        android:id="@+id/rg_links"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_dialog">
+            android:id="@+id/rg_links"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title_dialog">
 
         <RadioButton
-            android:id="@+id/rb_dev"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@android:color/white"/>
+                android:id="@+id/rb_dev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white" />
 
         <RadioButton
-            android:id="@+id/rb_staging"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp"
-            android:textColor="@android:color/white" />
+                android:id="@+id/rb_staging"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white" />
 
     </RadioGroup>
+
     <TextView
-        android:id="@+id/setTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ant_set"
-        android:textColor="@color/ant_pink"
-        android:padding="8dp"
-        android:textAllCaps="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_links"/>
+            android:id="@+id/setTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/ant_set"
+            android:textAllCaps="true"
+            android:textColor="@color/ant_pink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rg_links" />
+
+    <TextView
+            android:id="@+id/txtModuleVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="@color/ant_white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/setTxt"
+            tools:text="Version 0.2.3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
