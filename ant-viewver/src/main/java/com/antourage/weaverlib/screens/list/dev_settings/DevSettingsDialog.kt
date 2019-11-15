@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Window
 import android.widget.RadioButton
+import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 
@@ -32,6 +33,9 @@ internal class DevSettingsDialog(context: Context, private val listener: OnDevSe
             this.dismiss()
         }
         setCanceledOnTouchOutside(false)
+
+        val versionName = BuildConfig.VERSION_NAME
+        txtModuleVersion.text = context.resources.getString(R.string.ant_version_name, versionName)
     }
 
     private fun initBECheckedBtn(beChoice: String?) {
