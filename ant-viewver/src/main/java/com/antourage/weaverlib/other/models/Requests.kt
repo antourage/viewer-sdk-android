@@ -27,3 +27,8 @@ internal data class StopWatchVodRequest(
     @field:SerializedName("vodId") val vodId: Int,
     @field:SerializedName("stopTime") val stopTime: String?
 )
+
+internal data class SubscribeToPushesRequest(
+    @field:SerializedName("fcmKey") val fcmKey: String,
+    @field:SerializedName("os") val os: String = "a"
+)

@@ -21,13 +21,28 @@
             app:show_buffering="never"
             app:use_controller="false" />
 
+    <ImageView
+            android:background="@color/ant_black"
+            android:id="@+id/ivThanksForWatching"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="top"
+            android:scaleType="fitCenter"
+            android:src="@drawable/thanks_for_watching_bd"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/controls"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:animateLayoutChanges="true"
             android:elevation="10dp"
+            app:auto_show="false"
             app:controller_layout_id="@layout/player_custom_controls_live_video"
+            app:hide_on_touch="true"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
@@ -118,11 +133,11 @@
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/llPollStatus"
-            android:animateLayoutChanges="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
+            android:animateLayoutChanges="true"
             android:background="@drawable/rounded_green_bg"
             android:orientation="horizontal"
             android:padding="4dp"
@@ -241,8 +256,9 @@
                         android:id="@+id/rvMessages"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:clipToPadding="false"
                         android:fadingEdge="horizontal"
-                        android:fadingEdgeLength="150dp"
+                        android:fadingEdgeLength="130dp"
                         android:fillViewport="false"
                         android:requiresFadingEdge="vertical"
                         app:layout_constraintStart_toStartOf="parent" />
@@ -309,13 +325,13 @@
     </LinearLayout>
 
     <include
-            android:id="@+id/clUserSettings"
             layout="@layout/dialog_user_authorization"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/dividerChat"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

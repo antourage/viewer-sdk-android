@@ -27,7 +27,7 @@ internal class CustomDrawerLayout : DrawerLayout {
         defStyle
     )
 
-    val gestureDetector =
+    private val gestureDetector =
         GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 touchListener?.onDrawerSingleClick()
@@ -57,6 +57,13 @@ internal class CustomDrawerLayout : DrawerLayout {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             gestureDetector.onTouchEvent(ev)
         return super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        val orientation = context.resources.configuration.orientation
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+            gestureDetector.onTouchEvent(ev)
+        return super.onTouchEvent(ev)
     }
 
     interface DrawerTouchListener {

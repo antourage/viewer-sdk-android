@@ -237,11 +237,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         playerView.onPause()
     }
 
-//    override fun onStop() {
-//        super.onStop()
-//        viewModel.onPause()
-//    }
-
     override fun onDestroy() {
         super.onDestroy()
         viewModel.releasePlayer()
@@ -281,6 +276,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         controls.hide()
         handleSkipBackward()
     }
+    //region chatUI helper func
 
     private fun chatUiToLandscape(landscape: Boolean) {
         if (landscape) {
@@ -301,6 +297,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         etMessage.hint = getString(R.string.ant_chat_not_available)
     }
 
+    private fun orientation() = resources.configuration.orientation
+
     private fun startPlayingStream() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
@@ -309,26 +307,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
         playerControls.player = playerView.player
     }
-
-    //region chatUI helper func
-
-    private fun enableMessageInput(enable: Boolean) {
-        etMessage.isEnabled = enable
-    }
-
-    private fun hideMessageInput() {
-        ll_wrapper.visibility = View.INVISIBLE
-    }
-
-    private fun showMessageInput() {
-        ll_wrapper.visibility = View.VISIBLE
-    }
-
-    private fun removeMessageInput() {
-        ll_wrapper.visibility = View.GONE
-    }
-
-    private fun orientation() = resources.configuration.orientation
 
     private fun showChatTurnedOffPlaceholder(show: Boolean) {
         llNoChat.visibility = if (show) View.VISIBLE else View.GONE
@@ -343,32 +321,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 )
             }
         txtNoChat.text = getString(text)
-    }
-
-    private fun showRvMessages() {
-        rvMessages.visibility = View.VISIBLE
-    }
-
-    private fun hideRvMessages() {
-        rvMessages.visibility = View.INVISIBLE
-    }
-
-    private fun enableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.ic_chat_no_comments_yet,
-            R.string.ant_no_comments_yet
-        )
-        enableMessageInput(true)
-        showMessageInput()
-    }
-
-    private fun disableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.ic_chat_off_layered,
-            R.string.ant_commenting_off
-        )
-        enableMessageInput(false)
-        hideMessageInput()
     }
 
     //endregion

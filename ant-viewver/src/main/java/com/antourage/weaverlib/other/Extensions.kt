@@ -7,12 +7,15 @@ import android.arch.lifecycle.Observer
 import android.content.Context
 import android.graphics.Bitmap
 import android.support.annotation.NonNull
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.ConstraintSet
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -55,7 +58,11 @@ internal fun Application.initDagger(): ApplicationComponent {
         .build()
 }
 
-internal fun Fragment.replaceFragment(fragment: Fragment, frameId: Int, addToBackStack: Boolean = false) {
+internal fun Fragment.replaceFragment(
+    fragment: Fragment,
+    frameId: Int,
+    addToBackStack: Boolean = false
+) {
     (activity as AppCompatActivity).replaceFragment(fragment, frameId, addToBackStack)
 }
 
@@ -205,4 +212,36 @@ internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val imageRequestBody =
         RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
+}
+
+internal fun View.margin(
+    left: Float? = null,
+    top: Float? = null,
+    right: Float? = null,
+    bottom: Float? = null
+) {
+    layoutParams<ViewGroup.MarginLayoutParams> {
+        left?.run { leftMargin = dpToPx(this) }
+        top?.run { topMargin = dpToPx(this) }
+        right?.run { rightMargin = dpToPx(this) }
+        bottom?.run { bottomMargin = dpToPx(this) }
+    }
+}
+
+internal inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {
+    if (layoutParams is T) block(layoutParams as T)
+}
+
+internal fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
+internal fun Context.dpToPx(dp: Float): Int =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
+
+internal fun View.removeConstraints(parent: ConstraintLayout) {
+    val set = ConstraintSet()
+    set.clone(parent)
+    set.clear(this.id, ConstraintSet.TOP)
+    set.clear(this.id, ConstraintSet.RIGHT)
+    set.clear(this.id, ConstraintSet.BOTTOM)
+    set.clear(this.id, ConstraintSet.LEFT)
+    set.applyTo(parent)
 }

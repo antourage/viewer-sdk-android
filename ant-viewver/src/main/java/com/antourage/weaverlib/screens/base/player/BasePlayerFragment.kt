@@ -33,6 +33,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private var isPortrait: Boolean? = null
     private var isLoaderShowing = false
 
+    companion object {
+        const val MIN_TIM_BAR_UPDATE_INTERVAL_MS = 16
+    }
+
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
@@ -78,6 +82,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             constraintLayoutParent = findViewById(R.id.constraintLayoutParent)
             ivScreenSize = findViewById(R.id.ivScreenSize)
             playerControls = findViewById(R.id.controls)
+//            playerControls.setTimeBarMinUpdateInterval(MIN_TIM_BAR_UPDATE_INTERVAL_MS)
             controllerHeaderLayout = findViewById(R.id.controllerHeaderLayout)
             ivClose = findViewById(R.id.ivClose)
 
@@ -107,7 +112,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                         ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
                 }
                 controllerHeaderLayout.visibility = View.VISIBLE
-                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN) },
+                    100
+                )
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 constraintLayoutParent.setState(

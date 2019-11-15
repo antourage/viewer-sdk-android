@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/userSettingsDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/ant_white"
@@ -8,6 +9,7 @@
         app:cardElevation="20dp">
 
     <android.support.constraint.ConstraintLayout
+            android:id="@+id/clUserSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
@@ -18,7 +20,6 @@
                 android:layout_height="36dp"
                 android:layout_marginLeft="20dp"
                 android:src="@drawable/ic_user_grayed"
-                app:layout_constraintBottom_toBottomOf="@+id/txtLabelDefaultName"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/etDisplayName" />
 
@@ -42,6 +43,7 @@
                 android:backgroundTint="@color/ant_color_dark_gray_text_a10"
                 android:fontFamily="@font/roboto_condensed_regular"
                 android:hint="@string/ant_type_your_display_name"
+                android:imeOptions="flagNoExtractUi"
                 android:maxLength="50"
                 android:paddingLeft="0dp"
                 android:textColor="@color/ant_color_dark_gray_text_a60"

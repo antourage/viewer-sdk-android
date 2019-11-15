@@ -5,12 +5,10 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
 import com.google.gson.Gson
 import java.lang.ref.WeakReference
 import java.util.*
-
 
 internal class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
@@ -73,7 +71,7 @@ internal class UserCache private constructor(context: Context) {
     fun getBeChoice(): String? {
         contextRef?.get()?.applicationContext?.let {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(it)
-            return sharedPref.getString(SP_BE_CHOICE, BASE_URL_STAGING)
+            return sharedPref.getString(SP_BE_CHOICE, DEFAULT_URL)
         } ?: return null
     }
 
@@ -82,6 +80,7 @@ internal class UserCache private constructor(context: Context) {
         val editor = sharedPref.edit()
         editor.putString(SP_BE_CHOICE, link)
         editor.apply()
+        clearUserData()
     }
 
     fun saveUserAuthInfo(token: String, userId: Int) {
@@ -138,5 +137,9 @@ internal class UserCache private constructor(context: Context) {
         prefs?.edit()
             ?.putString(SP_LIVE_STREAM_WATCHING_TIME, watchingTimeSpan)
             ?.apply()
+    }
+
+    private fun clearUserData() {
+        saveUserAuthInfo("", -1)
     }
 }

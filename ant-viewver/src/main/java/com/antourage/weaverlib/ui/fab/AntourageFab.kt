@@ -17,8 +17,8 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.OnSingleClickListener
 import com.antourage.weaverlib.other.isEmptyTrimmed
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.User
+import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
 import com.antourage.weaverlib.other.models.UserRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
@@ -47,6 +47,32 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
+
+        public fun registerNotifications(
+            fcmToken: String,
+            callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
+        ) {
+            val response =
+                Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
+            response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
+                override fun onChanged(it: Resource<NotificationSubscriptionResponse>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            responseStatus.data?.topic?.let { topicName ->
+                                RegisterPushNotificationsResult.Success(
+                                    topicName
+                                )
+                            }?.let { result -> callback?.invoke(result) }
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            callback?.invoke(RegisterPushNotificationsResult.Failure(responseStatus.errorMessage))
+                            response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
     }
 
     private lateinit var currentlyDisplayedStream: StreamResponse
@@ -91,7 +117,7 @@ class AntourageFab @JvmOverloads constructor(
     init {
         if (BASE_URL.isEmptyTrimmed())
             BASE_URL =
-                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.BASE_URL_STAGING
+                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
 
         View.inflate(context, R.layout.antourage_fab_layout, this)
         motionOverlayView.setFabListener(this)
@@ -181,7 +207,7 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveLiveStream -> {
                 if (floatingActionButton != null)
-                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                    floatingActionButton.setImageResource(R.drawable.ic_logo)
                 if (!handlerFab.hasMessages(0))
                     handlerFab.postDelayed(object : Runnable {
                         override fun run() {
@@ -232,7 +258,7 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
-                    floatingActionButton.setImageResource(R.drawable.ic_icon_logo)
+                    floatingActionButton.setImageResource(R.drawable.ic_logo)
                     floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
                 }
                 handlerFab.removeCallbacksAndMessages(null)

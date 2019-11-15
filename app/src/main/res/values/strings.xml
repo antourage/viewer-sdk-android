@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">The FA</string>
+    <string name="default_notification_channel_id">Antourage player notifications</string>
+    <string name="fcm_message">New videos!</string>
+    <string name="msg_subscribed">Subscription success</string>
+    <string name="msg_subscribe_failed">subscription failed(</string>
+    <string name="SENDER_ID">1090288296965</string>
 </resources>
