@@ -132,6 +132,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     private fun setVodStopWatchingTime() {
+        predefinedStopWatchingTime = player.currentPosition
         vodId?.let {
             setVODStopWatchingTimeLocally()
             StopWatchVodRequest(
