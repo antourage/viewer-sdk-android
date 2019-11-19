@@ -127,12 +127,12 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     override fun onPause() {
         super.onPause()
+        predefinedStopWatchingTime = player.currentPosition
         setVodStopWatchingTime()
         stopMonitoringChatMessages()
     }
 
     private fun setVodStopWatchingTime() {
-        predefinedStopWatchingTime = player.currentPosition
         vodId?.let {
             setVODStopWatchingTimeLocally()
             StopWatchVodRequest(
