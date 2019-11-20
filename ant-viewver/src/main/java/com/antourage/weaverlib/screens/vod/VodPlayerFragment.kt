@@ -87,12 +87,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             txtNumberOfViewers.text = viewsCount.toString()
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.ic_default_user)
-                    .error(R.drawable.ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_default_user)
+                    .error(R.drawable.antourage_ic_default_user)
                     .into(ivUserPhoto)
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.ic_default_user)
-                    .error(R.drawable.ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_default_user)
+                    .error(R.drawable.antourage_ic_default_user)
                     .into(ivControllerUserPhoto)
             }
             context?.let { context ->
@@ -153,7 +153,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             streamId?.let { viewModel.setStreamId(it) }
         }
         setUpNoChatPlaceholder(
-            R.drawable.ic_chat_no_comments_yet,
+            R.drawable.antourage_ic_chat_no_comments_yet,
             R.string.ant_no_comments_yet
         )
         initSkipControls()
@@ -215,9 +215,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initSkipAnimations() {
         skipForwardVDrawable =
-            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.skip_forward) }
+            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_forward) }
         skipBackwardVDrawable =
-            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.skip_back) }
+            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_back) }
         skipForward.setImageDrawable(skipForwardVDrawable)
         skipBackward.setImageDrawable(skipBackwardVDrawable)
     }

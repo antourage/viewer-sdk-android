@@ -109,7 +109,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 )
                 context?.let { context ->
                     ivScreenSize.background =
-                        ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
+                        ContextCompat.getDrawable(context, R.drawable.antourage_ic_fullscreen_exit)
                 }
                 controllerHeaderLayout.visibility = View.VISIBLE
                 Handler(Looper.getMainLooper()).postDelayed(
@@ -125,7 +125,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 )
                 context?.let { context ->
                     ivScreenSize.background =
-                        ContextCompat.getDrawable(context, R.drawable.ic_full_screen)
+                        ContextCompat.getDrawable(context, R.drawable.antourage_ic_full_screen)
                 }
                 controllerHeaderLayout.visibility = View.GONE
                 setPlayerSizePortrait()
@@ -234,7 +234,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private fun initLoader() {
-        loader = context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.loader_logo) }
+        loader = context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_loader_logo) }
         ivLoader.setImageDrawable(loader)
         showLoading()
     }
