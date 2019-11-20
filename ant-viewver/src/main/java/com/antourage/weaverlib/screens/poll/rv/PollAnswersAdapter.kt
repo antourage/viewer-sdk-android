@@ -22,10 +22,10 @@ internal class PollAnswersAdapter(
 
     private val listOfBackgrounds = object : ArrayList<Int>() {
         init {
-            add(R.drawable.rounded_orange_bg)
-            add(R.drawable.rounded_bleak_pink_bg)
-            add(R.drawable.rounded_blue_bg)
-            add(R.drawable.rounded_green_bg)
+            add(R.drawable.antourage_rounded_orange_bg)
+            add(R.drawable.antourage_rounded_bleak_pink_bg)
+            add(R.drawable.antourage_rounded_blue_bg)
+            add(R.drawable.antourage_rounded_green_bg)
         }
     }
 

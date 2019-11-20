@@ -32,8 +32,8 @@ internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
             holder.txtMessage.text = text
             if (!avatarUrl.isNullOrEmpty()) {
                 Picasso.get().load(avatarUrl)
-                    .placeholder(R.drawable.ic_default_user)
-                    .error(R.drawable.ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_default_user)
+                    .error(R.drawable.antourage_ic_default_user)
                     .into(holder.ivAvatar)
             }
             holder.txtUser.text = nickname

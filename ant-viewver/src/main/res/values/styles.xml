@@ -4,7 +4,7 @@
     <style name="PlayerControlsTxt">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/rounded_semitransparent_bg</item>
+        <item name="android:background">@drawable/antourage_rounded_semitransparent_bg</item>
         <item name="android:fontFamily">@font/roboto_condensed_bold</item>
         <item name="android:gravity">center</item>
         <item name="android:includeFontPadding">false</item>
@@ -22,13 +22,13 @@
         <item name="android:layout_height">60dp</item>
         <item name="android:scaleType">fitXY</item>
         <item name="android:padding">10dp</item>
-        <item name="android:background">@drawable/bg_rounded_corners_dark_gray_a40</item>
+        <item name="android:background">@drawable/antourage_bg_rounded_corners_dark_gray_a40</item>
     </style>
 
     <style name="PlayerNavigationBtn">
         <item name="android:layout_width">39dp</item>
         <item name="android:layout_height">30dp</item>
-        <item name="android:background">@drawable/bg_rounded_corners_dark_gray_a40</item>
+        <item name="android:background">@drawable/antourage_bg_rounded_corners_dark_gray_a40</item>
         <item name="android:padding">5dp</item>
         <item name="android:scaleType">fitXY</item>
         <item name="android:layout_margin">12dp</item>

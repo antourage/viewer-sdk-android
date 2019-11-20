@@ -14,7 +14,7 @@
             android:layout_margin="20dp"
             android:background="@color/ant_bg_fab"
             android:backgroundTint="@color/ant_bg_fab"
-            android:src="@drawable/ic_antourage_logocolor"
+            android:src="@drawable/antourage_ic_antourage_logocolor"
             app:badgeBackgroundColor="@color/ant_pink"
             app:badgePosition="RightTop"
             app:badgeTextColor="@android:color/white"

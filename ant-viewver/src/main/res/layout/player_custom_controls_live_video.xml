@@ -11,8 +11,8 @@
             android:id="@+id/ivClose"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:background="@drawable/image_btn_bg"
-            android:src="@drawable/ic_close"
+            android:background="@drawable/antourage_image_btn_bg"
+            android:src="@drawable/antourage_ic_close"
             app:layout_constraintBottom_toBottomOf="@+id/llTopLeftLabels"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/llTopLeftLabels" />
@@ -29,7 +29,7 @@
         <TextView
                 android:id="@+id/txtStatus"
                 style="@style/PlayerControlsTxt"
-                android:background="@drawable/bg_rounded_corners_pink"
+                android:background="@drawable/antourage_bg_rounded_corners_pink"
                 android:text="@string/ant_live"
                 android:textAllCaps="true"
                 android:visibility="gone" />
@@ -44,7 +44,7 @@
                 android:id="@+id/txtNumberOfViewers"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="4dp"
-                android:drawableStart="@drawable/ic_watcher_12dp"
+                android:drawableStart="@drawable/antourage_ic_watcher_12dp"
                 android:drawablePadding="4dp"
                 tools:text="6,385" />
     </LinearLayout>
@@ -52,7 +52,7 @@
     <ImageButton
             android:id="@+id/exo_play"
             style="@style/PlayBtn"
-            android:src="@drawable/ic_play_arrow"
+            android:src="@drawable/antourage_ic_play_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -61,7 +61,7 @@
     <ImageButton
             android:id="@+id/exo_pause"
             style="@style/PlayBtn"
-            android:src="@drawable/ic_pause"
+            android:src="@drawable/antourage_ic_pause"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -73,7 +73,7 @@
             android:layout_height="32dp"
             android:layout_marginRight="12dp"
             android:layout_marginBottom="12dp"
-            android:background="@drawable/ic_full_screen"
+            android:background="@drawable/antourage_ic_full_screen"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 

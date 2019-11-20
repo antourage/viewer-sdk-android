@@ -242,12 +242,12 @@ class AntourageFab @JvmOverloads constructor(
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
-                floatingActionButton.setImageResource(R.drawable.ic_antourage_logo_white)
+                floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logo_white)
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ActiveLiveStream -> {
                 if (floatingActionButton != null)
-                    floatingActionButton.setImageResource(R.drawable.ic_antourage_logocolor)
+                    floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logocolor)
                 if (!handlerFab.hasMessages(0))
                     handlerFab.postDelayed(object : Runnable {
                         override fun run() {
@@ -298,7 +298,7 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
-                    floatingActionButton.setImageResource(R.drawable.ic_antourage_logocolor)
+                    floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logocolor)
                     floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
                 }
                 handlerFab.removeCallbacksAndMessages(null)
