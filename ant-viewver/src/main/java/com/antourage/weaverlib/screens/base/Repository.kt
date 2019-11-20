@@ -14,7 +14,12 @@ import okhttp3.MultipartBody
 internal class Repository {
 
     companion object {
-        var vods: List<StreamResponse>? = null
+        internal var vods: List<StreamResponse>? = null
+
+        internal fun generateUser(body: UserRequest): LiveData<Resource<User>> =
+            object : NetworkBoundResource<User>() {
+                override fun createCall() = ApiClient.getWebClient(false).webService.generateUser(body)
+            }.asLiveData()
     }
 
     fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
@@ -31,11 +36,6 @@ internal class Repository {
     fun getNewVODsCount(): LiveData<Resource<Int>> =
         object : NetworkBoundResource<Int>() {
             override fun createCall() = ApiClient.getWebClient().webService.getNewVODsCount()
-        }.asLiveData()
-
-    fun generateUser(body: UserRequest): LiveData<Resource<User>> =
-        object : NetworkBoundResource<User>() {
-            override fun createCall() = ApiClient.getWebClient(false).webService.generateUser(body)
         }.asLiveData()
 
     fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =

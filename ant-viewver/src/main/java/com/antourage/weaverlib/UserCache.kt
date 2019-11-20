@@ -43,6 +43,13 @@ internal class UserCache private constructor(context: Context) {
         fun getInstance(): UserCache? {
             return INSTANCE
         }
+
+        @Synchronized
+        fun initialize(context: Context) {
+            if (INSTANCE == null) {
+                INSTANCE = UserCache(context)
+            }
+        }
     }
 
     fun saveVideoToSeen(seenVideoId: Int) {

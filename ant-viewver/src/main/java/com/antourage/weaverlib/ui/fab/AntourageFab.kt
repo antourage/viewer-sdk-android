@@ -46,7 +46,7 @@ class AntourageFab @JvmOverloads constructor(
         internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
 
-        public fun registerNotifications(
+        fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
@@ -65,6 +65,48 @@ class AntourageFab @JvmOverloads constructor(
                         }
                         is Status.Failure -> {
                             callback?.invoke(RegisterPushNotificationsResult.Failure(responseStatus.errorMessage))
+                            response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
+
+        fun authWith(
+            apiKey: String,
+            refUserId: String? = null,
+            nickname: String? = null,
+            callback: ((result: UserAuthResult) -> Unit)? = null
+        ) {
+            val userCache = UserCache.getInstance()
+            val token = userCache?.getToken()
+            if (token == null || token.isEmptyTrimmed()) {
+                authorizeUser(apiKey, refUserId, nickname, callback)
+            }
+        }
+
+        private fun authorizeUser(
+            apiKey: String,
+            refUserId: String? = null,
+            nickname: String? = null,
+            callback: ((result: UserAuthResult) -> Unit)? = null
+        ) {
+            val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
+            response.observeForever(object : Observer<Resource<User>> {
+                override fun onChanged(it: Resource<User>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            val user = responseStatus.data
+                            user?.apply {
+                                if (token != null && id != null)
+                                    UserCache.getInstance()?.saveUserAuthInfo(token, id)
+                            }
+                            UserCache.getInstance()?.saveApiKey(apiKey)
+                            callback?.invoke(UserAuthResult.Success)
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
                             response.removeObserver(this)
                         }
                     }
@@ -285,7 +327,7 @@ class AntourageFab @JvmOverloads constructor(
         nickname: String? = null,
         callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
-        val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
+        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {
