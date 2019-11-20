@@ -148,8 +148,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             } ?: run {
                 Picasso.get()
                     .load(imageUrl).fit().centerCrop()
-                    .placeholder(R.drawable.ic_user_grayed)
-                    .error(R.drawable.ic_user_grayed)
+                    .placeholder(R.drawable.antourage_ic_user_grayed)
+                    .error(R.drawable.antourage_ic_user_grayed)
                     .into(ivSetUserPhoto)
             }
         }
@@ -454,7 +454,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 ll_wrapper.background =
                     context?.let {
-                        ContextCompat.getDrawable(it, R.drawable.rounded_semitransparent_bg)
+                        ContextCompat.getDrawable(it, R.drawable.antourage_rounded_semitransparent_bg)
                     }
                 txtPollStatus.visibility = View.VISIBLE
                 divider.visibility = View.GONE
@@ -541,7 +541,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun enableChatUI() {
         setUpNoChatPlaceholder(
-            R.drawable.ic_chat_no_comments_yet,
+            R.drawable.antourage_ic_chat_no_comments_yet,
             R.string.ant_no_comments_yet
         )
         enableMessageInput(true)
@@ -550,7 +550,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun disableChatUI() {
         setUpNoChatPlaceholder(
-            R.drawable.ic_chat_off_layered,
+            R.drawable.antourage_ic_chat_off_layered,
             R.string.ant_commenting_off
         )
         enableMessageInput(false)
@@ -587,12 +587,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvControllerBroadcastedBy.text = creatorFullName
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.ic_default_user)
-                    .error(R.drawable.ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_default_user)
+                    .error(R.drawable.antourage_ic_default_user)
                     .into(ivUserPhoto)
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.ic_default_user)
-                    .error(R.drawable.ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_default_user)
+                    .error(R.drawable.antourage_ic_default_user)
                     .into(ivControllerUserPhoto)
             }
             txtNumberOfViewers.text = viewersCount.toString()
@@ -649,7 +649,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             userSettingsDialog?.visibility =
                 if (show) View.VISIBLE else View.GONE
             btnUserSettings.setImageResource(
-                if (show) R.drawable.ic_user_settings_highlighted else R.drawable.ic_user_settings
+                if (show) R.drawable.antourage_ic_user_settings_highlighted else R.drawable.antourage_ic_user_settings
             )
             if (show) {
                 if (orientation() == Configuration.ORIENTATION_LANDSCAPE && keyboardIsVisible) {
@@ -665,8 +665,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     } ?: run {
                         Picasso.get()
                             .load(this).fit().centerCrop()
-                            .placeholder(R.drawable.ic_user_grayed)
-                            .error(R.drawable.ic_user_grayed)
+                            .placeholder(R.drawable.antourage_ic_user_grayed)
+                            .error(R.drawable.antourage_ic_user_grayed)
                             .into(ivSetUserPhoto)
                     }
                 }
@@ -692,7 +692,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             ivSetUserPhoto.setImageBitmap(it)
             viewModel.onAvatarChanged(it)
         } ?: run {
-            ivSetUserPhoto.setImageResource(R.drawable.ic_user_grayed)
+            ivSetUserPhoto.setImageResource(R.drawable.antourage_ic_user_grayed)
             viewModel.onAvatarDeleted()
         }
     }

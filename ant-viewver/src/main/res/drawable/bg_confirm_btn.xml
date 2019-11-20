@@ -1,6 +1,0 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/bg_green_disabled_radius_2dp" android:state_enabled="false" />
-    <item android:drawable="@drawable/bg_green_enabled_radius_2dp" android:state_pressed="false" /> <!-- pressed -->
-    <item android:drawable="@drawable/bg_green_enabled_radius_2dp" android:state_pressed="true" /> <!-- focused -->
-    <item android:drawable="@drawable/bg_green_enabled_radius_2dp" android:state_enabled="true" /> <!-- idle state -->
-</selector>

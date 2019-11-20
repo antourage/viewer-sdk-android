@@ -8,12 +8,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.GestureDetectorCompat
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
@@ -23,7 +21,6 @@ import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 
 /**
  * Handles mostly orientation change andplayer controls
@@ -109,7 +106,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 )
                 context?.let { context ->
                     ivScreenSize.background =
-                        ContextCompat.getDrawable(context, R.drawable.ic_fullscreen_exit)
+                        ContextCompat.getDrawable(context, R.drawable.antourage_ic_fullscreen_exit)
                 }
                 controllerHeaderLayout.visibility = View.VISIBLE
                 Handler(Looper.getMainLooper()).postDelayed(
@@ -125,7 +122,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 )
                 context?.let { context ->
                     ivScreenSize.background =
-                        ContextCompat.getDrawable(context, R.drawable.ic_full_screen)
+                        ContextCompat.getDrawable(context, R.drawable.antourage_ic_full_screen)
                 }
                 controllerHeaderLayout.visibility = View.GONE
                 setPlayerSizePortrait()
@@ -234,7 +231,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private fun initLoader() {
-        loader = context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.loader_logo) }
+        loader = context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_loader_logo) }
         ivLoader.setImageDrawable(loader)
         showLoading()
     }

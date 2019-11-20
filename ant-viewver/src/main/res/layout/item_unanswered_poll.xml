@@ -20,6 +20,6 @@
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            tools:background="@drawable/rounded_green_bg"
+            tools:background="@drawable/antourage_rounded_green_bg"
             tools:text="you should really answer this question" />
 </FrameLayout>

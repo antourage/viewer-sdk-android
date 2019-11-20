@@ -28,7 +28,7 @@
             android:layout_height="0dp"
             android:layout_gravity="top"
             android:scaleType="fitCenter"
-            android:src="@drawable/thanks_for_watching_bd"
+            android:src="@drawable/antourage_thanks_for_watching_bd"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +53,7 @@
             style="@style/PlayerControlsTxt"
             android:layout_marginLeft="12dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_rounded_corners_pink"
+            android:background="@drawable/antourage_bg_rounded_corners_pink"
             android:text="@string/ant_live"
             android:textAllCaps="true"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -77,7 +77,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/ic_default_user"
+            android:src="@drawable/antourage_ic_default_user"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/playerView" />
 
@@ -125,7 +125,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="8dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_share_white"
+            android:src="@drawable/antourage_ic_share_white"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playerView"
@@ -138,7 +138,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:animateLayoutChanges="true"
-            android:background="@drawable/rounded_green_bg"
+            android:background="@drawable/antourage_rounded_green_bg"
             android:orientation="horizontal"
             android:padding="4dp"
             app:layout_constraintEnd_toStartOf="@id/btnShare"
@@ -150,7 +150,7 @@
                 android:layout_height="20dp"
                 android:background="@android:color/transparent"
                 android:padding="4dp"
-                android:src="@drawable/ic_poll_white_transparent"
+                android:src="@drawable/antourage_ic_poll_white_transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -200,7 +200,7 @@
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/rounded_gray_bg"
+            android:background="@drawable/antourage_rounded_gray_bg"
             android:elevation="5dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -310,7 +310,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="0.2"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_send"
+                android:src="@drawable/antourage_ic_send"
                 tools:ignore="ContentDescription" />
 
         <ImageButton
@@ -319,7 +319,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="0.2"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_user_settings"
+                android:src="@drawable/antourage_ic_user_settings"
                 tools:ignore="ContentDescription" />
     </LinearLayout>
 

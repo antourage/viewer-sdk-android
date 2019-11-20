@@ -97,7 +97,7 @@
                 android:id="@+id/ivUserPhoto"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_default_user"
+                android:src="@drawable/antourage_ic_default_user"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -256,7 +256,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_send"
+                android:src="@drawable/antourage_ic_send"
                 tools:ignore="ContentDescription" />
     </LinearLayout>
 

@@ -11,7 +11,7 @@
             android:layout_width="78dp"
             android:layout_height="78dp"
             android:layout_gravity="center"
-            tools:src="@drawable/ic_chat_no_comments_yet" />
+            tools:src="@drawable/antourage_ic_chat_no_comments_yet" />
 
     <TextView
             android:id="@+id/txtNoChat"

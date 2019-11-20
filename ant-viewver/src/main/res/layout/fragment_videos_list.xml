@@ -26,8 +26,8 @@
                 android:id="@+id/ivClose"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@drawable/image_btn_bg"
-                android:src="@drawable/ic_close"
+                android:background="@drawable/antourage_image_btn_bg"
+                android:src="@drawable/antourage_ic_close"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />

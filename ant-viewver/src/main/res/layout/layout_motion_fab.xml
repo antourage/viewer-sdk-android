@@ -14,7 +14,7 @@
             android:id="@+id/fabExpansion"
             android:layout_width="274dp"
             android:layout_height="60dp"
-            android:background="@drawable/rounded_fab_bg" />
+            android:background="@drawable/antourage_rounded_fab_bg" />
 
     <TextView
             android:id="@+id/tvStreamName"
