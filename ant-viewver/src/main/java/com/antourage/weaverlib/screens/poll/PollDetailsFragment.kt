@@ -1,15 +1,16 @@
 package com.antourage.weaverlib.screens.poll
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.annotation.Nullable
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.Nullable
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
@@ -98,7 +99,10 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         }
         ivDismissPoll?.setOnClickListener {
             if (parentFragment != null)
-                parentFragment?.childFragmentManager?.popBackStack()
+                parentFragment?.childFragmentManager?.popBackStack(
+                    null,
+                    POP_BACK_STACK_INCLUSIVE
+                )
         }
     }
 

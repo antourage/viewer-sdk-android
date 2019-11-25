@@ -198,17 +198,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             wasDrawerClosed = true
                         }
                     }
-                    if (childFragmentManager.backStackEntryCount == 0)
-                        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let {
-                            PollDetailsFragment.newInstance(
-                                it,
-                                state.pollId
-                            )
-                        }?.let {
-                            replaceChildFragment(
-                                it, R.id.bottomLayout, true
-                            )
-                        }
+                    arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let {
+                        PollDetailsFragment.newInstance(
+                            it,
+                            state.pollId
+                        )
+                    }?.let {
+                        replaceChildFragment(
+                            it, R.id.bottomLayout, true
+                        )
+                    }
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
@@ -454,7 +453,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 ll_wrapper.background =
                     context?.let {
-                        ContextCompat.getDrawable(it, R.drawable.antourage_rounded_semitransparent_bg)
+                        ContextCompat.getDrawable(
+                            it,
+                            R.drawable.antourage_rounded_semitransparent_bg
+                        )
                     }
                 txtPollStatus.visibility = View.VISIBLE
                 divider.visibility = View.GONE
