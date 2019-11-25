@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.annotation.Nullable
+import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -98,7 +99,10 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         }
         ivDismissPoll?.setOnClickListener {
             if (parentFragment != null)
-                parentFragment?.childFragmentManager?.popBackStack()
+                parentFragment?.childFragmentManager?.popBackStack(
+                    null,
+                    POP_BACK_STACK_INCLUSIVE
+                )
         }
     }
 
