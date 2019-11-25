@@ -17,7 +17,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
-import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
