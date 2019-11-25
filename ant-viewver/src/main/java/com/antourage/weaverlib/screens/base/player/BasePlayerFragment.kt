@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base.player
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.database.ContentObserver
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
@@ -77,6 +78,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         view?.run {
             ivLoader = findViewById(R.id.ivLoader)
             playerView = findViewById(R.id.playerView)
+            playerView.setShutterBackgroundColor(Color.TRANSPARENT)
             constraintLayoutParent = findViewById(R.id.constraintLayoutParent)
             ivScreenSize = findViewById(R.id.ivScreenSize)
             playerControls = findViewById(R.id.controls)

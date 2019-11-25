@@ -26,6 +26,7 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
@@ -58,6 +59,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
+                    ivFirstFrame.visibility = View.INVISIBLE
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                         viewModel.onVideoPausedOrStopped()
@@ -150,6 +152,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             tvWasLive.text = context?.let { startTime?.parseDate(it) }
             viewModel.initUi(streamId, startTime, id, stopTime)
             streamId?.let { viewModel.setStreamId(it) }
+
+            videoURL?.let {
+                Picasso.get()
+                    .load(thumbnailUrl)
+                    .into(ivFirstFrame)
+            }
         }
         setUpNoChatPlaceholder(
             R.drawable.antourage_ic_chat_no_comments_yet,
@@ -214,7 +222,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initSkipAnimations() {
         skipForwardVDrawable =
-            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_forward) }
+            context?.let {
+                AnimatedVectorDrawableCompat.create(
+                    it,
+                    R.drawable.antourage_skip_forward
+                )
+            }
         skipBackwardVDrawable =
             context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_back) }
         skipForward.setImageDrawable(skipForwardVDrawable)
