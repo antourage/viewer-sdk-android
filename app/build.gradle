@@ -33,9 +33,8 @@ dependencies {
     implementation project(':ant-viewver')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-//    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
-//    implementation 'com.github.antourage:AntViewer-android:0.1.0'
-    implementation 'com.google.firebase:firebase-messaging:20.0.0'
+//    implementation 'com.github.antourage:AntViewer-android:0.2.2'
+    implementation 'com.google.firebase:firebase-messaging:20.0.1'
     implementation "androidx.work:work-runtime-ktx:2.2.0"
 }

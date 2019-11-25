@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Handler
+import android.util.Log
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
@@ -20,8 +21,10 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import java.sql.Timestamp
 
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
@@ -198,7 +201,15 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     //region Listeners
 
-    private val streamAnalyticsListener = object : AnalyticsListener {}
+    private val streamAnalyticsListener = object : AnalyticsListener {
+        override fun onTracksChanged(
+            eventTime: AnalyticsListener.EventTime?,
+            trackGroups: TrackGroupArray?,
+            trackSelections: TrackSelectionArray?
+        ) {
+            Log.d("TAG", "onTracksChanged")
+        }
+    }
 
     private val playerEventListener = object : Player.EventListener {
 
