@@ -103,8 +103,8 @@ internal class AvatarChooser(val context: Context) {
             val cameraFile = File(context.externalCacheDir, "avatar.png")
             uiThread {
                 cameraUri = FileProvider.getUriForFile(
-                    context,
-                    BuildConfig.LIBRARY_PACKAGE_NAME + ".provider",
+                    context.applicationContext,
+                    context.applicationContext.packageName + ".provider",
                     cameraFile
                 )
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri)
