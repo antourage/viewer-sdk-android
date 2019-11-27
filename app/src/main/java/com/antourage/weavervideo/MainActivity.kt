@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         //region Antourage authorization
-        AntourageFab.authWith(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
+        AntourageFab.authWithApiKey(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
             when (userAuthResult) {
                 is UserAuthResult.Success -> {
                     Log.d(TAG, "Ant authorization successful!")

@@ -19,17 +19,12 @@ internal abstract class NetworkBoundResource<ResultType>
         val context = ModuleResourcesProvider.getContext()
         start = Date().time
         end = Date().time
-//        Timer().schedule(1000) {
-//            if ((end ?: 0) - (start ?: 0) > 1000)
-//                result.value = Resource.loading()
-//        }
-        result.value = Resource.loading()
+        result.postValue(Resource.loading())
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                 fetchFromNetwork()
             } else {
-                result.value =
-                    Resource.failure("No internet")
+                result.postValue(Resource.failure("No internet"))
             }
         }
     }
@@ -37,7 +32,7 @@ internal abstract class NetworkBoundResource<ResultType>
     @MainThread
     private fun setValue(newValue: Resource<ResultType>) {
         if (result.value != newValue) {
-            result.value = newValue
+            result.postValue(newValue)
         }
     }
 
@@ -49,7 +44,7 @@ internal abstract class NetworkBoundResource<ResultType>
                     end = Date().time
                     AppExecutors.diskIO().execute {
                         AppExecutors.mainThread().execute {
-                            result.setValue(
+                            result.postValue(
                                 Resource.success(response.body)
                             )
                         }
@@ -62,7 +57,7 @@ internal abstract class NetworkBoundResource<ResultType>
                 }
                 is ApiErrorResponse -> {
                     onFetchFailed()
-                    result.setValue(
+                    result.postValue(
                         Resource.failure(
                             response.errorMessage,
                             response.errorCode

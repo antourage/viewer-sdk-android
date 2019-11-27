@@ -46,6 +46,7 @@ class AntourageFab @JvmOverloads constructor(
         internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
 
+        @JvmStatic
         fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
@@ -60,7 +61,13 @@ class AntourageFab @JvmOverloads constructor(
                                 RegisterPushNotificationsResult.Success(
                                     topicName
                                 )
-                            }?.let { result -> callback?.invoke(result) }
+                            }?.let { result -> callback?.invoke(result) } ?: run {
+                                callback?.invoke(
+                                    RegisterPushNotificationsResult.Failure(
+                                        "empty topic name"
+                                    )
+                                )
+                            }
                             response.removeObserver(this)
                         }
                         is Status.Failure -> {
@@ -72,7 +79,8 @@ class AntourageFab @JvmOverloads constructor(
             })
         }
 
-        fun authWith(
+        @JvmStatic
+        fun authWithApiKey(
             apiKey: String,
             refUserId: String? = null,
             nickname: String? = null,
