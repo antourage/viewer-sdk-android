@@ -210,43 +210,44 @@ class AntourageFab @JvmOverloads constructor(
                         override fun run() {
                             listOfStreams?.let { listOfStreams ->
                                 if (counter > (listOfStreams.size - 1)) {
-                                    counter = 0
-                                }
-                                if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
-                                    currentlyDisplayedStream = listOfStreams[counter]
-                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                        R.id.tvStreamTitle
-                                    ).text = listOfStreams[counter].streamTitle
-                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                        R.id.tvViewers
-                                    ).text = resources.getQuantityString(
-                                        R.plurals.ant_number_of_viewers,
-                                        currentlyDisplayedStream.viewersCount ?: 0,
-                                        currentlyDisplayedStream.viewersCount
-                                    )
-                                    expandableLayout.visibility = View.VISIBLE
-                                    expandableLayout.transitionToEnd()
-                                    tvStreamTitle.text = listOfStreams[counter].streamTitle
-                                    tvViewers.text = resources.getQuantityString(
-                                        R.plurals.ant_number_of_viewers,
-                                        currentlyDisplayedStream.viewersCount ?: 0,
-                                        currentlyDisplayedStream.viewersCount
-                                    )
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        expandableLayout.transitionToStart()
-                                    }, SHOWING_DURABILITY)
-                                    handlerFab.postDelayed(
-                                        this,
-                                        2 * SHOWING_DURABILITY
-                                    )
-                                    counter++
+                                    handlerFab.removeCallbacksAndMessages(null)
                                 } else {
-                                    counter++
-                                    handlerFab.postDelayed(
-                                        this,
-                                        0
-                                    )
+                                    if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
+                                        currentlyDisplayedStream = listOfStreams[counter]
+                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
+                                            R.id.tvStreamTitle
+                                        ).text = listOfStreams[counter].streamTitle
+                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
+                                            R.id.tvViewers
+                                        ).text = resources.getQuantityString(
+                                            R.plurals.ant_number_of_viewers,
+                                            currentlyDisplayedStream.viewersCount ?: 0,
+                                            currentlyDisplayedStream.viewersCount
+                                        )
+                                        expandableLayout.visibility = View.VISIBLE
+                                        expandableLayout.transitionToEnd()
+                                        tvStreamTitle.text = listOfStreams[counter].streamTitle
+                                        tvViewers.text = resources.getQuantityString(
+                                            R.plurals.ant_number_of_viewers,
+                                            currentlyDisplayedStream.viewersCount ?: 0,
+                                            currentlyDisplayedStream.viewersCount
+                                        )
+                                        Handler(Looper.getMainLooper()).postDelayed({
+                                            expandableLayout.transitionToStart()
+                                        }, SHOWING_DURABILITY)
+                                        handlerFab.postDelayed(
+                                            this,
+                                            2 * SHOWING_DURABILITY
+                                        )
+                                        counter++
+                                    } else {
+                                        counter++
+                                        handlerFab.postDelayed(
+                                            this,
+                                            0
+                                        )
 
+                                    }
                                 }
                             }
                         }
