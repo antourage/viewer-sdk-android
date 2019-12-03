@@ -155,6 +155,7 @@ class AntourageFab @JvmOverloads constructor(
                             listOfStreams = list
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
+                            ReceivingVideosManager.getNewVODsCount()
                             manageVideos(newVideosCount)
                         }
                     }
