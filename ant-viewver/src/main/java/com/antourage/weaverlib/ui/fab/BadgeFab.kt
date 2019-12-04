@@ -205,7 +205,7 @@ internal class BadgeFab @JvmOverloads constructor(
             }
             val cx = circleBounds.centerX().toFloat()
             val cy = circleBounds.centerY().toFloat()
-            val radius = circleBounds.width() / 2f * animationFactor
+            val radius = circleBounds.width() / 2.5f * animationFactor
             if (textBadge != "") {
                 // Solid rectangle with rounded corners
                 var left = cx - radius
