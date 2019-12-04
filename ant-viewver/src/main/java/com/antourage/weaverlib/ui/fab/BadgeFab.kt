@@ -218,11 +218,11 @@ internal class BadgeFab @JvmOverloads constructor(
                     left -= 10f
                     right += 10f
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    val rect = RectF(left, cy + radius, right, cy - radius)
-                    canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
-                } else
-                    canvas.drawCircle(cx, cy, radius + 10, circlePaint)
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    val rect = RectF(left, cy + radius, right, cy - radius)
+//                    canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
+//                } else
+                canvas.drawCircle(cx, cy, radius, circlePaint)
                 // Count text
                 textPaint.textSize = textSize * animationFactor
                 canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)

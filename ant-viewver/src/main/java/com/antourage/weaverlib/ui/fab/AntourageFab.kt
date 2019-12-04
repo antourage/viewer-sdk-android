@@ -258,7 +258,8 @@ class AntourageFab @JvmOverloads constructor(
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
                     floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
-                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
+//                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
+                    floatingActionButton.setTextToBadge(" ")
                 }
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
