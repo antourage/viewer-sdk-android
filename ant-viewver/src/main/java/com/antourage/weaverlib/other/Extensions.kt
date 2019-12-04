@@ -88,45 +88,45 @@ internal fun <T> LiveData<T>.reObserve(@NonNull owner: LifecycleOwner, @NonNull 
 }
 
 internal fun String.parseDate(context: Context): String {
+    val localUTC = convertUtcToLocal(this)
+    return localUTC?.parseToDisplayAgoTime(context) ?: ""
+}
+
+internal fun Date.parseToDisplayAgoTime(context: Context): String {
     val secondsInMinute = 60
     val minutesInHour = 60 * secondsInMinute
     val hoursInDay = minutesInHour * 24
-    val localUTC = convertUtcToLocal(this)
-    if (localUTC != null) {
-        var diff = getDateDiff(localUTC, Date())
-        when {
-            diff > 3 * hoursInDay -> {
-                val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                return df.format(localUTC)
-            }
-            diff > hoursInDay -> {
-                val days = (diff / hoursInDay).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.ant_days, days, days)
-                return context.getString(R.string.ant_started_ago, amount)
-            }
-            diff > minutesInHour -> {
-                val hours = (diff / minutesInHour).toInt()
-                val amount = context.resources.getQuantityString(R.plurals.ant_hours, hours, hours)
-                return context.getString(R.string.ant_started_ago, amount)
-            }
-            diff > secondsInMinute -> {
-                val minute = (diff / secondsInMinute).toInt()
-                val amount =
-                    context.resources.getQuantityString(R.plurals.ant_minutes, minute, minute)
-                return context.getString(R.string.ant_started_ago, amount)
-
-            }
-            else -> {
-                if (diff == 0L) {
-                    diff = 1
-                }
-                val amount = context.resources
-                    .getQuantityString(R.plurals.ant_seconds, diff.toInt(), diff.toInt())
-                return context.getString(R.string.ant_started_ago, amount)
-            }
+    var diff = getDateDiff(this, Date())
+    when {
+        diff > 3 * hoursInDay -> {
+            val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+            return df.format(this)
         }
-    } else {
-        return ""
+        diff > hoursInDay -> {
+            val days = (diff / hoursInDay).toInt()
+            val amount = context.resources.getQuantityString(R.plurals.ant_days, days, days)
+            return context.getString(R.string.ant_started_ago, amount)
+        }
+        diff > minutesInHour -> {
+            val hours = (diff / minutesInHour).toInt()
+            val amount = context.resources.getQuantityString(R.plurals.ant_hours, hours, hours)
+            return context.getString(R.string.ant_started_ago, amount)
+        }
+        diff > secondsInMinute -> {
+            val minute = (diff / secondsInMinute).toInt()
+            val amount =
+                context.resources.getQuantityString(R.plurals.ant_minutes, minute, minute)
+            return context.getString(R.string.ant_started_ago, amount)
+
+        }
+        else -> {
+            if (diff == 0L) {
+                diff = 1
+            }
+            val amount = context.resources
+                .getQuantityString(R.plurals.ant_seconds, diff.toInt(), diff.toInt())
+            return context.getString(R.string.ant_started_ago, amount)
+        }
     }
 }
 

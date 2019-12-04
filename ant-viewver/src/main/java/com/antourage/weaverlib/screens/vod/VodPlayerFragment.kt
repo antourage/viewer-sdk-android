@@ -1,19 +1,19 @@
 package com.antourage.weaverlib.screens.vod
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import androidx.core.content.ContextCompat
-import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -26,12 +26,12 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
-import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import java.util.*
 import kotlin.math.roundToInt
 
 internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
@@ -97,9 +97,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     .into(ivControllerUserPhoto)
             }
             context?.let { context ->
-                val formattedStartTime = startTime?.parseDate(context)
-                tvWasLive.text = formattedStartTime
-                tvWasLive.gone(formattedStartTime.isNullOrEmpty())
+                updateWasLiveValueOnUI(startTime, duration)
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             viewModel.seekToLastWatchingTime()
@@ -149,7 +147,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         handleChat()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
-            tvWasLive.text = context?.let { startTime?.parseDate(it) }
+            updateWasLiveValueOnUI(startTime, duration)
             viewModel.initUi(streamId, startTime, id, stopTime)
             streamId?.let { viewModel.setStreamId(it) }
 
@@ -255,9 +253,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     override fun onControlsVisible() {
-        tvWasLive.text = context?.let { context ->
-            arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-                ?.startTime?.parseDate(context)
+        context?.let { _ ->
+            val streamResponse =
+                arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
+            streamResponse?.apply {
+                updateWasLiveValueOnUI(startTime, duration)
+            }
         }
     }
 
@@ -367,6 +368,17 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 start()
                 iv.visibility = View.VISIBLE
             }
+        }
+    }
+
+    private fun updateWasLiveValueOnUI(startTime: String?, duration: String?) {
+        context?.apply {
+            val formattedStartTime =
+                duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
+                    Date(it).parseToDisplayAgoTime(this)
+                }
+            tvWasLive.text = formattedStartTime
+            tvWasLive.gone(formattedStartTime.isNullOrEmpty())
         }
     }
 }

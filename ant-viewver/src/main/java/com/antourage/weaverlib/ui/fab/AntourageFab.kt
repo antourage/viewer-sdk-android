@@ -141,9 +141,6 @@ class AntourageFab @JvmOverloads constructor(
                         newVideosCount = status.data ?: 0
                         manageVideos(status.data ?: 0)
                     }
-                    is Status.Failure -> {
-                        changeBadgeStatus(WidgetStatus.Inactive)
-                    }
                 }
             }
 
@@ -156,11 +153,10 @@ class AntourageFab @JvmOverloads constructor(
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
                             ReceivingVideosManager.getNewVODsCount()
-                            manageVideos(newVideosCount)
                         }
                     }
                     is Status.Failure -> {
-                        changeBadgeStatus(WidgetStatus.Inactive)
+                        ReceivingVideosManager.getNewVODsCount()
                         BaseViewModel.error.postValue(resource.status.errorMessage)
                     }
                 }
