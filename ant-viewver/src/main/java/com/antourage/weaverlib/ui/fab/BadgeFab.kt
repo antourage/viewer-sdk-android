@@ -8,15 +8,16 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.annotation.Keep
-import com.google.android.material.stateful.ExtendableSavedState
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.ViewCompat
 import android.util.AttributeSet
 import android.util.Property
 import android.view.animation.OvershootInterpolator
+import androidx.annotation.Keep
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.isEmptyTrimmed
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.stateful.ExtendableSavedState
 
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
 private val COUNT_STATE = BadgeFab::class.java.name + ".COUNT_STATE"
@@ -205,9 +206,11 @@ internal class BadgeFab @JvmOverloads constructor(
             }
             val cx = circleBounds.centerX().toFloat()
             val cy = circleBounds.centerY().toFloat()
-            val radius = circleBounds.width() / 2.5f * animationFactor
-            if (textBadge != "") {
-                // Solid rectangle with rounded corners
+            if (textBadge != "" && textBadge.isEmptyTrimmed()) {
+                val radius = circleBounds.width() / 2.5f * animationFactor
+                canvas.drawCircle(cx, cy, radius, circlePaint)
+            } else {
+                val radius = circleBounds.width() / 2f * animationFactor
                 var left = cx - radius
                 var right = cx + radius
                 if (textBadge.length == 2) {
@@ -218,11 +221,12 @@ internal class BadgeFab @JvmOverloads constructor(
                     left -= 10f
                     right += 10f
                 }
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    val rect = RectF(left, cy + radius, right, cy - radius)
-//                    canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
-//                } else
-                canvas.drawCircle(cx, cy, radius, circlePaint)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val rect = RectF(left, cy + radius, right, cy - radius)
+                    canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
+                } else {
+                    canvas.drawCircle(cx, cy, radius, circlePaint)
+                }
                 // Count text
                 textPaint.textSize = textSize * animationFactor
                 canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)
