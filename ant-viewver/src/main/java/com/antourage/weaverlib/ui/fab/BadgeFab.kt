@@ -210,26 +210,40 @@ internal class BadgeFab @JvmOverloads constructor(
                 val radius = circleBounds.width() / 2.5f * animationFactor
                 canvas.drawCircle(cx, cy, radius, circlePaint)
             } else {
-                val radius = circleBounds.width() / 2f * animationFactor
-                var left = cx - radius
-                var right = cx + radius
-                if (textBadge.length == 2) {
-                    left -= 5f
-                    right += 5f
-                }
-                if (textBadge.length >= 3) {
-                    left -= 10f
-                    right += 10f
-                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val radius = circleBounds.width() / 2f * animationFactor
+                    var left = cx - radius
+                    var right = cx + radius
+                    if (textBadge.length == 2) {
+                        left -= 5f
+                        right += 5f
+                    }
+                    if (textBadge.length >= 3) {
+                        left -= 10f
+                        right += 10f
+                    }
                     val rect = RectF(left, cy + radius, right, cy - radius)
                     canvas.drawRoundRect(rect, 8f, 8f, circlePaint)
+                    // Count text
+                    textPaint.textSize = textSize * animationFactor
+                    canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)
                 } else {
+                    val radius = circleBounds.width() / 2.2f * animationFactor
+                    var left = cx - radius
+                    var right = cx + radius
+                    if (textBadge.length == 2) {
+                        left -= 5f
+                        right += 5f
+                    }
+                    if (textBadge.length >= 3) {
+                        left -= 10f
+                        right += 10f
+                    }
                     canvas.drawCircle(cx, cy, radius, circlePaint)
+                    // Count text
+                    textPaint.textSize = textSize * 0.7f * animationFactor
+                    canvas.drawText(countText, cx, cy - 4f + textBounds.height() / 2f, textPaint)
                 }
-                // Count text
-                textPaint.textSize = textSize * animationFactor
-                canvas.drawText(countText, cx, cy + textBounds.height() / 2f, textPaint)
             }
         }
     }
