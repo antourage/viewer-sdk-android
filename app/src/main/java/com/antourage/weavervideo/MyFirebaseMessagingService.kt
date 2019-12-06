@@ -89,7 +89,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setContentTitle(title)
             .setContentText(content)
             .setAutoCancel(true)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.icon_notifications_all)
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
 

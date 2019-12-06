@@ -88,5 +88,4 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         antfab.onPause()
     }
-
 }
