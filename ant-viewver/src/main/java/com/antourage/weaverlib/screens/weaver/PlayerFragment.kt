@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -258,8 +259,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         etMessage.setText("")
         rvMessages?.apply {
-            adapter?.itemCount?.minus(1)
-                ?.let { adapterPosition -> scrollToPosition(adapterPosition) }
+            adapter?.itemCount?.minus(0)
+                ?.let { adapterPosition ->
+                    post {
+                        Handler().postDelayed(
+                            {
+                                layoutManager?.scrollToPosition(adapterPosition)
+                            },
+                            300
+                        )
+                    }
+                }
         }
     }
 
@@ -318,12 +328,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         playerView.setOnTouchListener(object : View.OnTouchListener {
             private val gestureDetector =
-                GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
-                    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                        handleControlsVisibility()
-                        return super.onSingleTapConfirmed(e)
-                    }
-                })
+                GestureDetectorCompat(
+                    context,
+                    object : GestureDetector.SimpleOnGestureListener() {
+                        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                            handleControlsVisibility()
+                            return super.onSingleTapConfirmed(e)
+                        }
+                    })
 
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 gestureDetector.onTouchEvent(p1)

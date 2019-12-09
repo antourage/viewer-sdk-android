@@ -79,10 +79,13 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
 //                    messagesLiveData.postValue(it.data)
                     messagesLiveData.value = it.data
-                    user?.displayName?.let { displayName ->
-                        changeDisplayNameForAllMessagesLocally(
-                            displayName
-                        )
+                    user?.apply {
+                        displayName?.let { displayName ->
+                            changeDisplayNameForAllMessagesLocally(displayName)
+                        }
+                        imageUrl?.let { avatarUrl ->
+                            changeAvatarForAllMessagesLocally(avatarUrl)
+                        }
                     }
                 } else {
                     chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
@@ -364,16 +367,31 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
      * Method used to change current user display name for all his messages in recycler view
      */
     private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
+        getMessagesFromCurrentUser()?.forEach { it.nickname = newDisplayName }
+        messagesLiveData.apply {
+            postValue(this.value)
+        }
+    }
+
+    //TODO: develop normal solution for avatar change and delete this function
+    /**
+     * Method used to change current user avatar for all his messages in recycler view
+     */
+    private fun changeAvatarForAllMessagesLocally(newAvatar: String) {
+        getMessagesFromCurrentUser()?.forEach { it.avatarUrl = newAvatar }
+        messagesLiveData.apply {
+            postValue(this.value)
+        }
+    }
+
+    private fun getMessagesFromCurrentUser(): List<Message>? = run {
         val currentUserId = user?.id
         if (currentUserId != null) {
-            val currentUserMessages = messagesLiveData.value?.filter {
+            return messagesLiveData.value?.filter {
                 it.userID != null && it.userID == currentUserId.toString()
             }
-            currentUserMessages?.forEach { it.nickname = newDisplayName }
-            messagesLiveData.apply {
-                postValue(this.value)
-            }
         }
+        return null
     }
 
     fun changeUserAvatar() {
@@ -390,7 +408,13 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                             }
                             is Status.Success -> {
                                 loaderLiveData.postValue(false)
-                                user?.imageUrl = it.status.data?.imageUrl
+                                val newAvatarUrl = it.status.data?.imageUrl
+                                user?.imageUrl = newAvatarUrl
+                                newAvatarUrl?.let { newAvatarUrl ->
+                                    changeAvatarForAllMessagesLocally(
+                                        newAvatarUrl
+                                    )
+                                }
                                 userImgUpdateResponse.removeObserver(this)
                             }
                         }
