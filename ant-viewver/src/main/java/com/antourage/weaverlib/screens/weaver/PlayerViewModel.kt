@@ -77,7 +77,13 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null && isChatTurnedOn) {
                 if (chatContainsNonStatusMsg(it.data)) {
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-                    messagesLiveData.postValue(it.data)
+//                    messagesLiveData.postValue(it.data)
+                    messagesLiveData.value = it.data
+                    user?.displayName?.let { displayName ->
+                        changeDisplayNameForAllMessagesLocally(
+                            displayName
+                        )
+                    }
                 } else {
                     chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                 }
@@ -317,6 +323,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                         is Status.Success -> {
                             user = responseStatus.data
                             userInfoLiveData.postValue(user)
+                            response.removeObserver(this)
                         }
                         is Status.Failure -> response.removeObserver(this)
                     }
@@ -330,6 +337,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     fun changeUserDisplayName(newDisplayName: String) {
         if (newDisplayName != user?.displayName) {
+            changeDisplayNameForAllMessagesLocally(newDisplayName)
             val response = repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(it: Resource<SimpleResponse>?) {
@@ -348,6 +356,23 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                     }
                 }
             })
+        }
+    }
+
+    //TODO: develop normal solution for display name change and delete this function
+    /**
+     * Method used to change current user display name for all his messages in recycler view
+     */
+    private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
+        val currentUserId = user?.id
+        if (currentUserId != null) {
+            val currentUserMessages = messagesLiveData.value?.filter {
+                it.userID != null && it.userID == currentUserId.toString()
+            }
+            currentUserMessages?.forEach { it.nickname = newDisplayName }
+            messagesLiveData.apply {
+                postValue(this.value)
+            }
         }
     }
 

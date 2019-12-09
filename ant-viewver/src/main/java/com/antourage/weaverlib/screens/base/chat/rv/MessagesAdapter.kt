@@ -46,6 +46,7 @@ internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
 
         diffResult.dispatchUpdatesTo(this)
         this.list = userMessagesList
+        notifyDataSetChanged()
     }
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

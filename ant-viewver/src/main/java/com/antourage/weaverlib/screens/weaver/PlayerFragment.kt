@@ -245,8 +245,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             MessageType.USER,
             Timestamp(Date())
         )
-        message.userID =
-            FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
+        /**
+        User id fot firebase synchronized with back end user id with messages;
+         */
+        message.userID = viewModel.getUser()?.id.toString()
+//        FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { streamId ->
             viewModel.addMessage(
                 message,
