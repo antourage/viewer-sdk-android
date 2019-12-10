@@ -10,6 +10,7 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.motion.MotionLayout
 import android.support.constraint.motion.MotionScene
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -89,6 +90,7 @@ class AntourageFab @JvmOverloads constructor(
             val userCache = UserCache.getInstance()
             val token = userCache?.getToken()
             if (token == null || token.isEmptyTrimmed()) {
+                Log.d("AntApiClient", "authorizing user")
                 authorizeUser(apiKey, refUserId, nickname, callback)
             }
         }

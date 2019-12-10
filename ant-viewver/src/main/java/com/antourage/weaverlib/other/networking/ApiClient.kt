@@ -1,6 +1,8 @@
 package com.antourage.weaverlib.other.networking
 
+import android.util.Log
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -8,7 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 internal object ApiClient {
 
-    var BASE_URL = ""
+    //    var BASE_URL = ""
+    var BASE_URL = BASE_URL_STAGING
     private const val HEADER_TOKEN = "token"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/"
@@ -37,6 +40,7 @@ internal object ApiClient {
 
     private fun rebuildRetrofit(useAuth: Boolean) {
         val client = buildOkHttpClient(useAuth)
+        Log.d("AntApiClient", "rebuildRetrofit $BASE_URL")
         retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL + VERSION_SUFFIX)
             .client(client)
