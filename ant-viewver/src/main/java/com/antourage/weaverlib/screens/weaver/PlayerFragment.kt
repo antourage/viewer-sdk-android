@@ -171,6 +171,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
+        txtLabelLive.visibility = View.GONE
+        controls.visibility = View.GONE
+        playerView.visibility = View.INVISIBLE
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
