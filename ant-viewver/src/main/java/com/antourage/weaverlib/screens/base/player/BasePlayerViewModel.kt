@@ -1,20 +1,25 @@
 package com.antourage.weaverlib.screens.base.player
 
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Handler
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.antourage.weaverlib.screens.weaver.PlayerViewModel
 import com.google.android.exoplayer2.*
@@ -32,6 +37,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     protected var currentWindow = 0
     private var playbackPosition: Long = 0
     var streamId: Int? = null
+    var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
 
@@ -44,6 +50,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var batteryStatus: Intent? = null
 
     internal var stopWatchingTime: Long? = null
+
+    val handlerCall = Handler()
+    val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
 
     private var timerTickHandler = Handler()
     private var timerTickRunnable = object : Runnable {
@@ -59,6 +68,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     fun setStreamId(streamId: Int) {
         this.streamId = streamId
+    }
+
+    fun setCurrentlyWatchedVideoId(videoId: Int) {
+        this.currentlyWatchedVideoId = videoId
     }
 
     fun getPlaybackState(): LiveData<Int> = playbackStateLiveData
@@ -79,6 +92,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
         sendStatisticData(StatisticActions.JOINED)
         startUpdatingStopWatchingTime()
+
+        this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
     }
 
     open fun onPause() {
@@ -87,6 +102,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         stopwatch.stop()
         timerTickHandler.removeCallbacksAndMessages(null)
         sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
+        stopUpdatingCurrentStreamInfo()
     }
 
     fun getExoPlayer(streamUrl: String): SimpleExoPlayer? {
@@ -191,7 +207,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
-    private fun startUpdatingStopWatchingTime(){
+    private fun startUpdatingStopWatchingTime() {
         if (timerTickHandler.hasMessages(0)) {
             timerTickHandler.removeCallbacksAndMessages(null)
         } else {
@@ -256,5 +272,50 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
     //endregion
 
-    open fun onLiveStreamEnded(){}
+    /**
+    For mow this method is used to update viewers/views count in real time
+    on player screen
+     */
+    private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
+        handlerCall.postDelayed(object : Runnable {
+            override fun run() {
+                val currentStreamInfo =
+                    Repository().getLiveVideoById(currentlyWatchedVideoId)
+                currentStreamInfo.observeForever(object :
+                    Observer<Resource<StreamResponse>> {
+                    override fun onChanged(resource: Resource<StreamResponse>?) {
+                        if (resource != null) {
+                            when (val result = resource.status) {
+                                is Status.Failure -> {
+                                    currentStreamInfo.removeObserver(this)
+                                }
+                                is Status.Success -> {
+                                    val streamInfo = result.data
+                                    when (this@BasePlayerViewModel) {
+                                        is VideoViewModel -> currentStreamViewsLiveData.postValue(
+                                            streamInfo?.viewsCount
+                                        )
+                                        is PlayerViewModel -> currentStreamViewsLiveData.postValue(
+                                            streamInfo?.viewersCount
+                                        )
+                                    }
+                                    currentStreamInfo.removeObserver(this)
+                                }
+                            }
+                        }
+                    }
+                })
+                handlerCall.postDelayed(
+                    this,
+                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
+                )
+            }
+        }, 0)
+    }
+
+    private fun stopUpdatingCurrentStreamInfo() {
+        handlerCall.removeCallbacksAndMessages(null)
+    }
+
+    open fun onLiveStreamEnded() {}
 }

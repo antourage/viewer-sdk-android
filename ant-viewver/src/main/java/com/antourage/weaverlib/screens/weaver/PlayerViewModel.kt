@@ -42,8 +42,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     private var repository = Repository()
 
-    val handlerCall = Handler()
-
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
@@ -143,11 +141,15 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun initUi(streamId: Int?) {
+    fun initUi(streamId: Int?, currentlyWatchedVideoId: Int?) {
         streamId?.let {
             this.streamId = it
             repository.getPoll(streamId).observeForever(activePollObserver)
             repository.getStream(streamId).observeForever(streamObserver)
+        }
+
+        currentlyWatchedVideoId?.let {
+            this.currentlyWatchedVideoId = it
         }
     }
 
@@ -260,18 +262,9 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         player.seekTo(player.duration)
     }
 
-    override fun onPause() {
-        super.onPause()
-        stopReceivingVideos()
-    }
-
     override fun onLiveStreamEnded() {
         super.onLiveStreamEnded()
         isCurrentStreamStillLiveLiveData.postValue(false)
-    }
-
-    private fun stopReceivingVideos() {
-        handlerCall.removeCallbacksAndMessages(null)
     }
 
     fun initUser() {

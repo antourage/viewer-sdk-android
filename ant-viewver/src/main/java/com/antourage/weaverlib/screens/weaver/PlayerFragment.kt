@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
@@ -38,9 +37,7 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
-import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
@@ -159,6 +156,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private val currentStreamInfoObserver: Observer<Boolean> = Observer { isStreamStillLive ->
         if (!isStreamStillLive) {
             showEndStreamUI()
+        }
+    }
+
+    private val currentStreamViewersObserver: Observer<Int> = Observer { currentViewersCount ->
+        updateViewersCountUI(currentViewersCount)
+    }
+
+    private fun updateViewersCountUI(currentViewersCount: Int?) {
+        currentViewersCount?.let {
+            txtNumberOfViewers.text = it.toString()
         }
     }
 
@@ -316,6 +323,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         )
         viewModel.getCurrentLiveStreamInfo()
             .observe(this.viewLifecycleOwner, currentStreamInfoObserver)
+        viewModel.currentStreamViewsLiveData
+            .observe(this.viewLifecycleOwner, currentStreamViewersObserver)
     }
 
     override fun initUi(view: View?) {
@@ -596,7 +605,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
-            viewModel.initUi(streamId)
+            viewModel.initUi(streamId, id)
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName

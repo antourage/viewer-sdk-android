@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -283,12 +284,14 @@ class AntourageFab @JvmOverloads constructor(
         nickname: String? = null,
         callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
+        Log.d("Ant_Auth_Tag", "authorizing new user...")
         val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
                         val user = responseStatus.data
+                        Log.d("Ant_Auth_Tag", "new user generated: ${user?.token}")
                         user?.apply {
                             if (token != null && id != null)
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)

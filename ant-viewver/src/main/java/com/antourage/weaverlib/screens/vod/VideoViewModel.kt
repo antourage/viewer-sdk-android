@@ -115,6 +115,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
             repository.getStream(streamId).observeOnce(streamObserver)
         }
         this.vodId = vodId
+        this.currentlyWatchedVideoId = vodId
         chatStateLiveData.postValue(true)
         markVODAsWatched()
         this.predefinedStopWatchingTime = stopTime?.parseToMills()
@@ -157,6 +158,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
         this.streamId = currentVod.streamId
         this.vodId = currentVod.id
+        this.currentlyWatchedVideoId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
