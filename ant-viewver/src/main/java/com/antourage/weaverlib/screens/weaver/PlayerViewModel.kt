@@ -49,7 +49,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val liveStreamsLiveData: MutableLiveData<List<StreamResponse>> = MutableLiveData()
 
     internal var isUserSettingsDialogShown = false
 
@@ -259,8 +258,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     override fun onResume() {
         super.onResume()
         player.seekTo(player.duration)
-
-        subscribeToLiveStreams()
     }
 
     override fun onPause() {
@@ -268,44 +265,9 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         stopReceivingVideos()
     }
 
-    private fun subscribeToLiveStreams() {
-        handlerCall.postDelayed(object : Runnable {
-            override fun run() {
-                val liveStreams =
-                    Repository().getLiveVideos()
-                liveStreams.observeForever(object :
-                    Observer<Resource<List<StreamResponse>>> {
-                    override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                        if (resource != null) {
-                            when (val result = resource.status) {
-                                is Status.Failure -> {
-                                    liveStreams.removeObserver(this)
-                                }
-                                is Status.Success -> {
-                                    val allLiveStreams = result.data
-                                    if (allLiveStreams.isNullOrEmpty()) {
-                                        isCurrentStreamStillLiveLiveData.postValue(false)
-                                        player.stop()
-                                    } else if (streamId != null) {
-                                        if (allLiveStreams.find { it.streamId == streamId } != null) {
-                                            isCurrentStreamStillLiveLiveData.postValue(true)
-                                        } else {
-                                            isCurrentStreamStillLiveLiveData.postValue(false)
-                                            player.stop()
-                                        }
-                                    }
-                                    liveStreams.removeObserver(this)
-                                }
-                            }
-                        }
-                    }
-                })
-                handlerCall.postDelayed(
-                    this,
-                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
-                )
-            }
-        }, 0)
+    override fun onLiveStreamEnded() {
+        super.onLiveStreamEnded()
+        isCurrentStreamStillLiveLiveData.postValue(false)
     }
 
     private fun stopReceivingVideos() {

@@ -229,6 +229,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 }
                 Player.STATE_ENDED, Player.STATE_IDLE -> {
                     stopwatch.stop()
+                    onLiveStreamEnded()
                 }
             }
             onStreamStateChanged(playbackState)
@@ -254,4 +255,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
     //endregion
+
+    open fun onLiveStreamEnded(){}
 }
