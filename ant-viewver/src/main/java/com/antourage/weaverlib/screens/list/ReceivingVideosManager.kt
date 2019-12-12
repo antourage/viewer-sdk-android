@@ -1,8 +1,9 @@
 package com.antourage.weaverlib.screens.list
 
-import androidx.lifecycle.Observer
 import android.os.Handler
 import androidx.annotation.Keep
+import androidx.lifecycle.Observer
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -19,6 +20,7 @@ internal class ReceivingVideosManager {
         const val STREAMS_REQUEST_DELAY = 5000L
         private var liveVideos: Resource<List<StreamResponse>>? = null
         private var vods: Resource<List<StreamResponse>>? = null
+        private var isReceivingVideos = false
 
         fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
@@ -56,35 +58,43 @@ internal class ReceivingVideosManager {
 
         val handlerCall = Handler()
 
-        fun startReceivingVideos() {
-            handlerCall.postDelayed(object : Runnable {
-                override fun run() {
-                    val streamResponse =
-                        Repository().getLiveVideos()
-                    streamResponse.observeForever(object :
-                        Observer<Resource<List<StreamResponse>>> {
-                        override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                            if (resource != null) {
-                                when (resource.status) {
-                                    is Status.Failure -> {
-                                        callback?.onLiveBroadcastReceived(resource)
-                                        streamResponse.removeObserver(this)
-                                    }
-                                    is Status.Success -> {
-                                        callback?.onLiveBroadcastReceived(resource)
-                                        liveVideos = resource
-                                        streamResponse.removeObserver(this)
+        fun startReceivingVideos(onNetworkGained: Boolean = false) {
+            if (!isReceivingVideos) {
+                handlerCall.postDelayed(object : Runnable {
+                    override fun run() {
+                        if (Global.networkAvailable) {
+                            isReceivingVideos = true
+                            val streamResponse =
+                                Repository().getLiveVideos()
+                            streamResponse.observeForever(object :
+                                Observer<Resource<List<StreamResponse>>> {
+                                override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                                    if (resource != null) {
+                                        when (resource.status) {
+                                            is Status.Failure -> {
+                                                callback?.onLiveBroadcastReceived(resource)
+                                                streamResponse.removeObserver(this)
+                                            }
+                                            is Status.Success -> {
+                                                callback?.onLiveBroadcastReceived(resource)
+                                                liveVideos = resource
+                                                streamResponse.removeObserver(this)
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            })
+                            handlerCall.postDelayed(this, STREAMS_REQUEST_DELAY)
+                        } else {
+                            stopReceivingVideos()
                         }
-                    })
-                    handlerCall.postDelayed(this, STREAMS_REQUEST_DELAY)
-                }
-            }, 0)
+                    }
+                }, 0)
+            }
         }
 
         fun stopReceivingVideos() {
+            isReceivingVideos = false
             handlerCall.removeCallbacksAndMessages(null)
             callback = null
         }

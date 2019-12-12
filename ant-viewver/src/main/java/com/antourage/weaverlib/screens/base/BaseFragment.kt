@@ -1,12 +1,19 @@
 package com.antourage.weaverlib.screens.base
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.antourage.weaverlib.R
+import com.tapadoo.alerter.Alerter
 
 internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
@@ -19,9 +26,25 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
         }
         private set
 
+    private val messageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
+        }
+    }
+
     protected abstract fun getLayoutId(): Int
 
     protected abstract fun initUi(view: View?)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(
+                messageReceiver,
+                IntentFilter(it.resources.getString(R.string.ant_no_internet_action))
+            )
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,6 +57,13 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
         if (activity != null) {
             initUi(getView())
         }
+    }
+
+    override fun onDestroy() {
+        context?.let {
+            LocalBroadcastManager.getInstance(it).unregisterReceiver(messageReceiver)
+        }
+        super.onDestroy()
     }
 
     protected fun hideKeyboard() {
@@ -61,4 +91,14 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     open fun onShowKeyboard(keyboardHeight: Int) {}
     open fun onHideKeyboard(keyboardHeight: Int) {}
+
+    private fun showWarningAlerter(alerterText: String) {
+        Alerter.create(this.activity, R.layout.alerter_container)
+            .setBackgroundColorRes(R.color.ant_pink)
+            .also { alerter ->
+                val tvCustomView: TextView = alerter.getLayoutContainer() as TextView
+                tvCustomView.text = alerterText
+            }
+            .show()
+    }
 }

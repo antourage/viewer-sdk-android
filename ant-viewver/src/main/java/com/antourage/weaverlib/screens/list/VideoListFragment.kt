@@ -2,24 +2,24 @@ package com.antourage.weaverlib.screens.list
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.Fragment
+import android.util.Log
+import android.view.View
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -28,9 +28,11 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 
-internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener {
+internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
+    MyNestedScrollView.OnBottomReachedListener {
 
-    private lateinit var viewModel: VideoListViewModel
+    override fun getLayoutId() = R.layout.fragment_videos_list
+
     private lateinit var videoAdapter: VideosAdapter
     private lateinit var placeHolderAdapter: VideoPlaceholdersAdapter
     private lateinit var rvLayoutManager: VideosLayoutManager
@@ -84,17 +86,8 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
             .get(VideoListViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_videos_list, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initUi()
         subscribeToObservers()
     }
 
@@ -102,13 +95,23 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
         viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
     }
 
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        viewModel.subscribeToLiveStreams()
-        viewModel.refreshVODsLocally()
+        context?.let {
+            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                viewModel.subscribeToLiveStreams()
+                viewModel.refreshVODsLocally()
+            } else {
+                showEmptyListPlaceholder()
+            }
+        }
     }
 
     override fun onPause() {
@@ -126,7 +129,7 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         }
     }
 
-    private fun initUi() {
+    override fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             if (streamResponse.isLive) {
                 replaceFragment(PlayerFragment.newInstance(streamResponse), R.id.mainContent, true)
@@ -230,5 +233,13 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
             })
 
         nestedSV.visibility = View.VISIBLE
+    }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        when (networkState?.ordinal) {
+            NetworkConnectionState.AVAILABLE.ordinal -> {
+                viewModel.onNetworkGained()
+            }
+        }
     }
 }

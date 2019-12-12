@@ -1,11 +1,12 @@
 package com.antourage.weaverlib.other.networking
 
-import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.net.*
+import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 
-internal class ConnectionStateMonitor(val context: Context) : ConnectivityManager.NetworkCallback() {
+internal class ConnectionStateMonitor(val context: Context) :
+    ConnectivityManager.NetworkCallback() {
 
     companion object {
         fun isNetworkAvailable(context: Context): Boolean {
@@ -31,7 +32,8 @@ internal class ConnectionStateMonitor(val context: Context) : ConnectivityManage
 
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
-        internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
+        if (internetStateLiveData.value != NetworkConnectionState.AVAILABLE)
+            internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
         Global.networkAvailable = true
     }
 

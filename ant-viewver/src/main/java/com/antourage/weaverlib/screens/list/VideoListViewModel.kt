@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
+import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import android.util.Log
@@ -33,11 +34,11 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     var vodsUpdated = false
 
     private val VODS_COUNT = 15
-    private val MIN_ANIM_SHOWING_TIME_MILLS = 1500L
+    private val MIN_ANIM_SHOWING_TIME_MILLS = 2000L
 
-    fun subscribeToLiveStreams() {
+    fun subscribeToLiveStreams(onNetworkGained: Boolean = false) {
         ReceivingVideosManager.setReceivingVideoCallback(this)
-        ReceivingVideosManager.startReceivingVideos()
+        ReceivingVideosManager.startReceivingVideos(onNetworkGained)
     }
 
     fun refreshVODs(
@@ -249,6 +250,11 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 ?.updateBEChoice(choice)
             BASE_URL = choice
         }
+    }
+
+    fun onNetworkGained() {
+        subscribeToLiveStreams(true)
+        refreshVODs(noLoadingPlaceholder = true)
     }
     //endregion
 }
