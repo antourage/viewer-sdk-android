@@ -32,6 +32,11 @@ internal class Repository {
             override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
         }.asLiveData()
 
+    fun getVODById(id: Int): LiveData<Resource<StreamResponse>> =
+        object : NetworkBoundResource<StreamResponse>() {
+            override fun createCall() = ApiClient.getWebClient().webService.getVODById(id)
+        }.asLiveData()
+
     fun getNewVODsCount(): LiveData<Resource<Int>> =
         object : NetworkBoundResource<Int>() {
             override fun createCall() = ApiClient.getWebClient().webService.getNewVODsCount()

@@ -273,16 +273,17 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     //endregion
 
     /**
-    For mow this method is used to update viewers/views count in real time
+    For mow this method is used to update live viewers count in real time
     on player screen
      */
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
         handlerCall.postDelayed(object : Runnable {
             override fun run() {
-                val currentStreamInfo =
-                    Repository().getLiveVideoById(currentlyWatchedVideoId)
-                currentStreamInfo.observeForever(object :
-                    Observer<Resource<StreamResponse>> {
+                val currentStreamInfo = when (this@BasePlayerViewModel) {
+                    is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
+                    else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
+                }
+                val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
                     override fun onChanged(resource: Resource<StreamResponse>?) {
                         if (resource != null) {
                             when (val result = resource.status) {
@@ -304,7 +305,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                             }
                         }
                     }
-                })
+                }
+                currentStreamInfo.observeForever(streamInfoObserver)
                 handlerCall.postDelayed(
                     this,
                     ReceivingVideosManager.STREAMS_REQUEST_DELAY
