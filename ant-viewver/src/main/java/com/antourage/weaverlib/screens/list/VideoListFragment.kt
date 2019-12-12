@@ -109,7 +109,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
                 viewModel.subscribeToLiveStreams()
                 viewModel.refreshVODsLocally()
             } else {
-                showEmptyListPlaceholder()
+                if (viewModel.listOfStreams.value.isNullOrEmpty())
+                    showEmptyListPlaceholder()
             }
         }
     }
@@ -215,7 +216,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         )
         tvTitle.visibility = View.INVISIBLE
         tvNoContent.visibility = View.VISIBLE
-
     }
 
     private fun showLoadingListPlaceholder() {

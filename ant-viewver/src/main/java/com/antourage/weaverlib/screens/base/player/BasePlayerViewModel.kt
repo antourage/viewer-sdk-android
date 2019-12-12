@@ -25,7 +25,7 @@ import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.antourage.weaverlib.screens.weaver.PlayerViewModel
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.DefaultLoadControl.*
+import com.google.android.exoplayer2.DefaultLoadControl.Builder
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
@@ -189,8 +189,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
             .setBufferDurationsMs(
                 2500,
-                DEFAULT_MAX_BUFFER_MS,
-                DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+                5000,
+                2500,
                 2500
             )
             .setPrioritizeTimeOverSizeThresholds(true)
