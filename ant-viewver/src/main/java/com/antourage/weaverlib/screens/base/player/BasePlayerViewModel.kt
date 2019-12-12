@@ -9,6 +9,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -46,6 +48,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private var stopwatch = Stopwatch()
     private var resetChronometer = true
+
+    private var isReceivingVideoInfo = false
 
     protected lateinit var player: SimpleExoPlayer
     private lateinit var trackSelector: DefaultTrackSelector
@@ -143,7 +147,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     fun onNetworkGained() {
         player.prepare(getMediaSource(streamUrl), false, true)
-        player.seekTo(currentWindow, playbackPosition)
+        player.seekTo(currentWindow, player.currentPosition)
     }
 
     fun onResolutionChanged(pos: Int) {
@@ -184,10 +188,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         val loadControl = Builder()
             .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
             .setBufferDurationsMs(
-                DEFAULT_MIN_BUFFER_MS,
+                2500,
                 DEFAULT_MAX_BUFFER_MS,
                 DEFAULT_BUFFER_FOR_PLAYBACK_MS,
-                DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+                2500
             )
             .setPrioritizeTimeOverSizeThresholds(true)
             .createDefaultLoadControl()
@@ -291,45 +295,58 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     on player screen
      */
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
-        handlerCall.postDelayed(object : Runnable {
-            override fun run() {
-                val currentStreamInfo = when (this@BasePlayerViewModel) {
-                    is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
-                    else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
-                }
-                val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
-                    override fun onChanged(resource: Resource<StreamResponse>?) {
-                        if (resource != null) {
-                            when (val result = resource.status) {
-                                is Status.Failure -> {
-                                    currentStreamInfo.removeObserver(this)
-                                }
-                                is Status.Success -> {
-                                    val streamInfo = result.data
-                                    when (this@BasePlayerViewModel) {
-                                        is VideoViewModel -> currentStreamViewsLiveData.postValue(
-                                            streamInfo?.viewsCount
-                                        )
-                                        is PlayerViewModel -> currentStreamViewsLiveData.postValue(
-                                            streamInfo?.viewersCount
-                                        )
+        if (!isReceivingVideoInfo) {
+            handlerCall.postDelayed(object : Runnable {
+                override fun run() {
+                    if (Global.networkAvailable) {
+                        isReceivingVideoInfo = true
+                        val currentStreamInfo = when (this@BasePlayerViewModel) {
+                            is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
+                            else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
+                        }
+                        val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
+                            override fun onChanged(resource: Resource<StreamResponse>?) {
+                                if (resource != null) {
+                                    when (val result = resource.status) {
+                                        is Status.Failure -> {
+                                            currentStreamInfo.removeObserver(this)
+                                        }
+                                        is Status.Success -> {
+                                            val streamInfo = result.data
+                                            when (this@BasePlayerViewModel) {
+                                                is VideoViewModel -> currentStreamViewsLiveData.postValue(
+                                                    streamInfo?.viewsCount
+                                                )
+                                                is PlayerViewModel -> currentStreamViewsLiveData.postValue(
+                                                    streamInfo?.viewersCount
+                                                )
+                                            }
+                                            currentStreamInfo.removeObserver(this)
+                                        }
                                     }
-                                    currentStreamInfo.removeObserver(this)
                                 }
                             }
                         }
+                        currentStreamInfo.observeForever(streamInfoObserver)
+                        handlerCall.postDelayed(
+                            this,
+                            ReceivingVideosManager.STREAMS_REQUEST_DELAY
+                        )
+                    } else {
+                        getApplication<Application>().let {
+                            val intent =
+                                Intent(it.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
+                            LocalBroadcastManager.getInstance(it).sendBroadcast(intent)
+                        }
+                        stopUpdatingCurrentStreamInfo()
                     }
                 }
-                currentStreamInfo.observeForever(streamInfoObserver)
-                handlerCall.postDelayed(
-                    this,
-                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
-                )
-            }
-        }, 0)
+            }, 0)
+        }
     }
 
     private fun stopUpdatingCurrentStreamInfo() {
+        isReceivingVideoInfo = false
         handlerCall.removeCallbacksAndMessages(null)
     }
 

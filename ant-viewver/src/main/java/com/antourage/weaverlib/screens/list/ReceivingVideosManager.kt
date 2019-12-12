@@ -58,7 +58,7 @@ internal class ReceivingVideosManager {
 
         val handlerCall = Handler()
 
-        fun startReceivingVideos(onNetworkGained: Boolean = false) {
+        fun startReceivingVideos() {
             if (!isReceivingVideos) {
                 handlerCall.postDelayed(object : Runnable {
                     override fun run() {

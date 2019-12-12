@@ -36,9 +36,9 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     private val VODS_COUNT = 15
     private val MIN_ANIM_SHOWING_TIME_MILLS = 2000L
 
-    fun subscribeToLiveStreams(onNetworkGained: Boolean = false) {
+    fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
-        ReceivingVideosManager.startReceivingVideos(onNetworkGained)
+        ReceivingVideosManager.startReceivingVideos()
     }
 
     fun refreshVODs(
@@ -253,7 +253,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     }
 
     fun onNetworkGained() {
-        subscribeToLiveStreams(true)
+        subscribeToLiveStreams()
         refreshVODs(noLoadingPlaceholder = true)
     }
     //endregion

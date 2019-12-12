@@ -318,7 +318,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
             streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-            playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
+//            playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
+            playerView.player = viewModel.getExoPlayer("https://staging-api.forzasys.com/allsvenskan/live/3568/600000.m3u8")
         }
         playerControls.player = playerView.player
     }
