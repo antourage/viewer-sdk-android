@@ -26,8 +26,6 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
-import com.squareup.picasso.MemoryPolicy
-import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
@@ -158,7 +156,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             videoURL?.let {
                 Picasso.get()
                     .load(thumbnailUrl)
-                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .into(ivFirstFrame)
             }
         }

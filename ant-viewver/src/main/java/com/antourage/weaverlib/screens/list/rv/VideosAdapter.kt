@@ -2,20 +2,15 @@ package com.antourage.weaverlib.screens.list.rv
 
 import android.content.Context
 import android.os.Bundle
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
-import com.antourage.weaverlib.other.gone
-import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.parseDate
-import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
-import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
@@ -133,7 +128,6 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                     if (!thumbnailUrl.isNullOrEmpty()) {
                         Picasso.get()
                             .load(thumbnailUrl)
-                            .networkPolicy(NetworkPolicy.OFFLINE)
                             .placeholder(R.drawable.antourage_ic_no_content_content_loading)
                             .error(R.drawable.antourage_ic_no_content_content_loading)
                             .into(ivThumbnail_live)
@@ -163,7 +157,6 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                     if (!thumbnailUrl.isNullOrEmpty()) {
                         Picasso.get()
                             .load(thumbnailUrl)
-                            .networkPolicy(NetworkPolicy.OFFLINE)
                             .placeholder(R.drawable.antourage_ic_no_content_content_loading)
                             .error(R.drawable.antourage_ic_no_content_content_loading)
                             .into(ivThumbnail_vod)

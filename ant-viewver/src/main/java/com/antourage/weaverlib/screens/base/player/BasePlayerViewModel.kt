@@ -23,6 +23,7 @@ import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.antourage.weaverlib.screens.weaver.PlayerViewModel
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.DefaultLoadControl.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
@@ -30,7 +31,9 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.upstream.DefaultAllocator
 import java.sql.Timestamp
+
 
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
@@ -178,10 +181,21 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         val adaptiveTrackSelection = AdaptiveTrackSelection.Factory()
         trackSelector = DefaultTrackSelector(adaptiveTrackSelection)
         trackSelector.parameters = DefaultTrackSelector.ParametersBuilder().build()
+        val loadControl = Builder()
+            .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
+            .setBufferDurationsMs(
+                DEFAULT_MIN_BUFFER_MS,
+                DEFAULT_MAX_BUFFER_MS,
+                DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+                DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+            )
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .createDefaultLoadControl()
         return ExoPlayerFactory.newSimpleInstance(
             getApplication(),
             DefaultRenderersFactory(getApplication()),
-            trackSelector
+            trackSelector,
+            loadControl
         )
     }
 
