@@ -22,17 +22,27 @@
             app:use_controller="false" />
 
     <ImageView
-            android:background="@color/ant_black"
             android:id="@+id/ivThanksForWatching"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="top"
+            android:background="@color/ant_black"
             android:scaleType="fitCenter"
             android:src="@drawable/antourage_thanks_for_watching_bd"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+            android:id="@+id/ivIndividualCloseImage"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/antourage_image_btn_bg"
+            android:src="@drawable/antourage_ic_close"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
     <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/controls"

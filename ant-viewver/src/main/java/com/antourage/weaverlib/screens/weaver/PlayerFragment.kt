@@ -47,6 +47,7 @@ import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -174,6 +175,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         txtLabelLive.visibility = View.GONE
         controls.visibility = View.GONE
         playerView.visibility = View.INVISIBLE
+        ivIndividualCloseImage.visibility = View.VISIBLE
+        ivIndividualCloseImage.onClick { onCloseClicked() }
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
