@@ -106,7 +106,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 
-    private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
+    val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
     fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()

@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.list
 
 import android.os.Handler
+import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
@@ -111,6 +112,7 @@ internal class ReceivingVideosManager {
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
+                                Log.d("VOD_COUNT_TAG", resource.toString())
                                 callback?.onNewVideosCount(resource)
                                 response.removeObserver(this)
                             }

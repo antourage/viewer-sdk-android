@@ -153,6 +153,7 @@ class AntourageFab @JvmOverloads constructor(
                             listOfStreams = list
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
+                            Log.d("VOD_COUNT_TAG", "onLiveBroadcastReceived")
                             ReceivingVideosManager.getNewVODsCount()
                         }
                     }
@@ -164,6 +165,7 @@ class AntourageFab @JvmOverloads constructor(
             }
         })
         ReceivingVideosManager.startReceivingVideos()
+        Log.d("VOD_COUNT_TAG", "onResume")
         ReceivingVideosManager.getNewVODsCount()
     }
 

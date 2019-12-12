@@ -120,6 +120,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         loadingAnimHandler.removeCallbacksAndMessages(null)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        videosRV.adapter = null
+    }
+
     override fun onBottomReached(view: View?) {
         val total = rvLayoutManager.itemCount
         val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()

@@ -59,6 +59,18 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
+                    viewModel.currentVideo.value?.apply {
+                        if (!broadcasterPicUrl.isNullOrEmpty()) {
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(ivUserPhoto)
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(ivControllerUserPhoto)
+                        }
+                    }
                     ivFirstFrame.visibility = View.INVISIBLE
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
@@ -86,16 +98,19 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
-            if (!broadcasterPicUrl.isNullOrEmpty()) {
-                Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
-                    .into(ivUserPhoto)
-                Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
-                    .into(ivControllerUserPhoto)
-            }
+            /**delete this code if image loading has no serious impact on
+             * video loading (as it's too long in low bandwidth conditions)
+             */
+//            if (!broadcasterPicUrl.isNullOrEmpty()) {
+//                Picasso.get().load(broadcasterPicUrl)
+//                    .placeholder(R.drawable.antourage_ic_default_user)
+//                    .error(R.drawable.antourage_ic_default_user)
+//                    .into(ivUserPhoto)
+//                Picasso.get().load(broadcasterPicUrl)
+//                    .placeholder(R.drawable.antourage_ic_default_user)
+//                    .error(R.drawable.antourage_ic_default_user)
+//                    .into(ivControllerUserPhoto)
+//            }
             context?.let { context ->
                 updateWasLiveValueOnUI(startTime, duration)
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
@@ -318,8 +333,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
             streamId?.let { viewModel.setCurrentPlayerPosition(it) }
-//            playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
-            playerView.player = viewModel.getExoPlayer("https://staging-api.forzasys.com/allsvenskan/live/3568/600000.m3u8")
+            playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
+//            playerView.player = viewModel.getExoPlayer("https://staging-api.forzasys.com/allsvenskan/live/3568/600000.m3u8")
         }
         playerControls.player = playerView.player
     }

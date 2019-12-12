@@ -78,6 +78,14 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
         return listOfStreams.size
     }
 
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
+        when (holder) {
+            is LiveVideoViewHolder -> holder.cleanup()
+            is VODViewHolder -> holder.cleanup()
+        }
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is LiveVideoViewHolder -> holder.bindView(listOfStreams[position])
@@ -148,6 +156,12 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                 }
             }
         }
+
+        fun cleanup() {
+            with(itemView) {
+                Picasso.get().cancelRequest(this.ivThumbnail_live)
+            }
+        }
     }
 
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -169,9 +183,10 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                     }
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_vod.text = videoName
-                    val formattedStartTime = duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                        Date(it).parseToDisplayAgoTime(context)
-                    }
+                    val formattedStartTime =
+                        duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
+                            Date(it).parseToDisplayAgoTime(context)
+                        }
                     txtWasLive_vod.text = formattedStartTime
                     txtWasLive_vod.gone(formattedStartTime.isNullOrEmpty())
                     txtDuration.text = duration?.take(8)
@@ -188,6 +203,12 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                         watchingProgress.visibility = View.VISIBLE
                     }
                 }
+            }
+        }
+
+        fun cleanup() {
+            with(itemView) {
+                Picasso.get().cancelRequest(this.ivThumbnail_vod)
             }
         }
     }
