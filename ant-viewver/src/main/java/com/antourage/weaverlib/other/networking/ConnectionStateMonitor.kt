@@ -40,6 +40,13 @@ internal class ConnectionStateMonitor(val context: Context) :
     override fun onLost(network: Network) {
         super.onLost(network)
         internetStateLiveData.postValue(NetworkConnectionState.LOST)
+        /**
+         * Need this post(null) in order to ignore cached live data value and
+         * show alerter only in case when the value is set and not when the
+         * live data is subscribed;
+         * Without this thing, alerter could be shown twice in a row sometimes;
+         */
+        internetStateLiveData.postValue(null)
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         Global.networkAvailable = activeNetwork?.isConnected ?: false

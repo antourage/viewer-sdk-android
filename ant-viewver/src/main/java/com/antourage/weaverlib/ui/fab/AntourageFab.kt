@@ -199,7 +199,7 @@ class AntourageFab @JvmOverloads constructor(
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
-                floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_white)
+                floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ActiveLiveStream -> {

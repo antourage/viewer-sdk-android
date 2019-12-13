@@ -92,7 +92,7 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
     open fun onShowKeyboard(keyboardHeight: Int) {}
     open fun onHideKeyboard(keyboardHeight: Int) {}
 
-    private fun showWarningAlerter(alerterText: String) {
+    protected fun showWarningAlerter(alerterText: String) {
         Alerter.create(this.activity, R.layout.alerter_container)
             .setBackgroundColorRes(R.color.ant_pink)
             .also { alerter ->

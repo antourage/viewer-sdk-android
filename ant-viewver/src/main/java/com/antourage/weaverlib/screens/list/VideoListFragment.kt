@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -105,12 +106,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         context?.let {
-            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
-                viewModel.subscribeToLiveStreams()
-                viewModel.refreshVODsLocally()
-            } else {
-                if (viewModel.listOfStreams.value.isNullOrEmpty())
-                    showEmptyListPlaceholder()
+            viewModel.subscribeToLiveStreams()
+            viewModel.refreshVODsLocally()
+            if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
+                viewModel.listOfStreams.value.isNullOrEmpty()
+            ) {
+                showEmptyListPlaceholder()
             }
         }
     }
@@ -242,7 +243,17 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         when (networkState?.ordinal) {
-            NetworkConnectionState.AVAILABLE.ordinal -> {
+            NetworkConnectionState.LOST.ordinal -> {
+                if (!Global.networkAvailable) {
+                    context?.resources?.getString(R.string.ant_no_internet)
+                        ?.let { messageToDisplay ->
+                            Handler().postDelayed({
+                                showWarningAlerter(messageToDisplay)
+                            }, 500)
+                        }
+                }
+            }
+            else -> {
                 viewModel.onNetworkGained()
             }
         }
