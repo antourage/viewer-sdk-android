@@ -18,6 +18,7 @@ import android.view.WindowManager
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
@@ -57,6 +58,9 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         }
     }
 
+    private val errorObserver =
+        Observer<String> { errorMessage -> errorMessage?.let { showWarningAlerter(it) } }
+
     abstract fun onControlsVisible()
 
     abstract fun subscribeToObservers()
@@ -69,6 +73,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
+        viewModel.errorLiveData.observe(viewLifecycleOwner, errorObserver)
     }
 
     override fun onResume() {

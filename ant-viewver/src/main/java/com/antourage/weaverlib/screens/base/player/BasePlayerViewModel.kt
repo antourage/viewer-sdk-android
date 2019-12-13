@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -44,6 +45,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
+    var errorLiveData: MutableLiveData<String> = MutableLiveData()
 
     private var stopwatch = Stopwatch()
     private var resetChronometer = true
@@ -271,6 +273,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 playbackPosition = player.currentPosition
                 currentWindow = player.currentWindowIndex
+                errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
             }
             if (err.cause is BehindLiveWindowException) {
                 player.prepare(getMediaSource(streamUrl), false, true)
