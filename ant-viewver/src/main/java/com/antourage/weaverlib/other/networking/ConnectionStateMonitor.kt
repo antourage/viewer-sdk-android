@@ -39,6 +39,9 @@ internal class ConnectionStateMonitor(val context: Context) :
 
     override fun onLost(network: Network) {
         super.onLost(network)
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        Global.networkAvailable = activeNetwork?.isConnected ?: false
         internetStateLiveData.postValue(NetworkConnectionState.LOST)
         /**
          * Need this post(null) in order to ignore cached live data value and
@@ -46,9 +49,6 @@ internal class ConnectionStateMonitor(val context: Context) :
          * live data is subscribed;
          * Without this thing, alerter could be shown twice in a row sometimes;
          */
-        internetStateLiveData.postValue(null)
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-        Global.networkAvailable = activeNetwork?.isConnected ?: false
+        android.os.Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
     }
 }

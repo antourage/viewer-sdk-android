@@ -253,7 +253,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
                         }
                 }
             }
-            else -> {
+            NetworkConnectionState.AVAILABLE.ordinal -> {
                 viewModel.onNetworkGained()
             }
         }

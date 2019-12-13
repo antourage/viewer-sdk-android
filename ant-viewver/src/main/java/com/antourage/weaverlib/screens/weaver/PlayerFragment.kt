@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
@@ -246,6 +247,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             showLoading()
             viewModel.onNetworkGained()
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal){
+            if (!Global.networkAvailable) {
+                context?.resources?.getString(R.string.ant_no_internet)
+                    ?.let { messageToDisplay ->
+                        Handler().postDelayed({
+                            showWarningAlerter(messageToDisplay)
+                        }, 500)
+                    }
+            }
         }
     }
 //endregion

@@ -9,7 +9,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
@@ -295,38 +294,40 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
         handlerCall.postDelayed(object : Runnable {
             override fun run() {
-                val currentStreamInfo = when (this@BasePlayerViewModel) {
-                    is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
-                    else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
-                }
-                val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
-                    override fun onChanged(resource: Resource<StreamResponse>?) {
-                        if (resource != null) {
-                            when (val result = resource.status) {
-                                is Status.Failure -> {
-                                    currentStreamInfo.removeObserver(this)
-                                }
-                                is Status.Success -> {
-                                    val streamInfo = result.data
-                                    when (this@BasePlayerViewModel) {
-                                        is VideoViewModel -> currentStreamViewsLiveData.postValue(
-                                            streamInfo?.viewsCount
-                                        )
-                                        is PlayerViewModel -> currentStreamViewsLiveData.postValue(
-                                            streamInfo?.viewersCount
-                                        )
+                if (Global.networkAvailable) {
+                    val currentStreamInfo = when (this@BasePlayerViewModel) {
+                        is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
+                        else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
+                    }
+                    val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
+                        override fun onChanged(resource: Resource<StreamResponse>?) {
+                            if (resource != null) {
+                                when (val result = resource.status) {
+                                    is Status.Failure -> {
+                                        currentStreamInfo.removeObserver(this)
                                     }
-                                    currentStreamInfo.removeObserver(this)
+                                    is Status.Success -> {
+                                        val streamInfo = result.data
+                                        when (this@BasePlayerViewModel) {
+                                            is VideoViewModel -> currentStreamViewsLiveData.postValue(
+                                                streamInfo?.viewsCount
+                                            )
+                                            is PlayerViewModel -> currentStreamViewsLiveData.postValue(
+                                                streamInfo?.viewersCount
+                                            )
+                                        }
+                                        currentStreamInfo.removeObserver(this)
+                                    }
                                 }
                             }
                         }
                     }
+                    currentStreamInfo.observeForever(streamInfoObserver)
+                    handlerCall.postDelayed(
+                        this,
+                        ReceivingVideosManager.STREAMS_REQUEST_DELAY
+                    )
                 }
-                currentStreamInfo.observeForever(streamInfoObserver)
-                handlerCall.postDelayed(
-                    this,
-                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
-                )
             }
         }, 0)
     }

@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.vod
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -133,6 +135,15 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             viewModel.onNetworkGained()
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
+            if (!Global.networkAvailable) {
+                context?.resources?.getString(R.string.ant_no_internet)
+                    ?.let { messageToDisplay ->
+                        Handler().postDelayed({
+                            showWarningAlerter(messageToDisplay)
+                        }, 500)
+                    }
+            }
         }
     }
     //endregion
