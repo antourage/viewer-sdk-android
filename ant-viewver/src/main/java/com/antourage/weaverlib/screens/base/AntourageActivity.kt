@@ -18,7 +18,7 @@ import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
-internal class AntourageActivity : AppCompatActivity() {
+public class AntourageActivity : AppCompatActivity() {
     internal var keyboardIsVisible = false
         private set
 
@@ -99,7 +99,8 @@ internal class AntourageActivity : AppCompatActivity() {
         val currentFragment = supportFragmentManager.findFragmentById(R.id.mainContent)
         if (currentFragment != null
             && currentFragment is BaseFragment<*>
-            && currentFragment.isVisible) {
+            && currentFragment.isVisible
+        ) {
             doStuff(currentFragment as BaseFragment<BaseViewModel>)
         }
     }
