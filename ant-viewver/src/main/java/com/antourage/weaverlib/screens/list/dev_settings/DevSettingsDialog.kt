@@ -20,7 +20,8 @@ internal class DevSettingsDialog(
     companion object {
         const val BASE_URL_DEV = "http://35.156.199.125/"
         const val BASE_URL_STAGING = "http://3.124.42.114/"
-        const val DEFAULT_URL = BASE_URL_STAGING
+        const val BASE_URL_PROD = "https://3.125.139.23/"
+        const val DEFAULT_URL = BASE_URL_PROD
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,11 +29,18 @@ internal class DevSettingsDialog(
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
         initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
-        rb_dev.text = BASE_URL_DEV
-        rb_staging.text = BASE_URL_STAGING
+        rb_dev.text = "dev: $BASE_URL_DEV"
+        rb_staging.text = "stage: $BASE_URL_STAGING"
+        rb_prod.text = "prod: $BASE_URL_PROD"
         setTxt.setOnClickListener { v ->
             val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
-            listener.onBeChanged(radioButton.text.toString())
+            val backEndUrl = when {
+                radioButton.text.contains("dev") -> BASE_URL_DEV
+                radioButton.text.contains("stage") -> BASE_URL_STAGING
+                radioButton.text.contains("prod") -> BASE_URL_PROD
+                else -> BASE_URL_PROD
+            }
+            listener.onBeChanged(backEndUrl)
             this.dismiss()
         }
         setCanceledOnTouchOutside(false)
@@ -45,7 +53,8 @@ internal class DevSettingsDialog(
         val radioButton: RadioButton? = when (beChoice) {
             BASE_URL_DEV -> findViewById(R.id.rb_dev)
             BASE_URL_STAGING -> findViewById(R.id.rb_staging)
-            else -> findViewById(R.id.rb_staging)
+            BASE_URL_PROD -> findViewById(R.id.rb_prod)
+            else -> findViewById(R.id.rb_prod)
         }
         if (radioButton != null)
             radioButton.isChecked = true

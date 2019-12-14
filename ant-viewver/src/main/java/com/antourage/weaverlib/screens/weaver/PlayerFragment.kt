@@ -48,6 +48,12 @@ import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.exo_play
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.llTopLeftLabels
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.tvWasLive
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.txtNumberOfViewers
+import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 import kotlin.math.roundToInt
@@ -247,12 +253,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             showLoading()
             viewModel.onNetworkGained()
-        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal){
+            playBtnPlaceholder.visibility = View.GONE
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 context?.resources?.getString(R.string.ant_no_internet)
                     ?.let { messageToDisplay ->
                         Handler().postDelayed({
                             showWarningAlerter(messageToDisplay)
+                            playBtnPlaceholder.visibility = View.VISIBLE
                         }, 500)
                     }
             }

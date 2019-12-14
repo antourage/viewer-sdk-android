@@ -41,8 +41,8 @@
             android:background="@drawable/antourage_image_btn_bg"
             android:src="@drawable/antourage_ic_close"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/controls"

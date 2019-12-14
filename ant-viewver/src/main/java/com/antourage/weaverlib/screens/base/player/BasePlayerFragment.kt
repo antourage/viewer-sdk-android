@@ -21,13 +21,17 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import kotlin.math.abs
 
 /**
@@ -50,6 +54,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private lateinit var ivScreenSize: ImageView
     private lateinit var ivClose: ImageView
     protected lateinit var playerControls: PlayerControlView
+    protected lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
 
     private val contentObserver = object : ContentObserver(Handler()) {
@@ -95,6 +100,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             ivScreenSize = findViewById(R.id.ivScreenSize)
             playerControls = findViewById(R.id.controls)
             playerControls.setTimeBarMinUpdateInterval(MIN_TIM_BAR_UPDATE_INTERVAL_MS)
+            playBtnPlaceholder = findViewById(R.id.playBtnPlaceholder)
             controllerHeaderLayout = findViewById(R.id.controllerHeaderLayout)
             ivClose = findViewById(R.id.ivClose)
 
@@ -106,6 +112,16 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
 
             ivClose.setOnClickListener { onCloseClicked() }
             ivScreenSize.setOnClickListener { onFullScreenImgClicked() }
+            if (!Global.networkAvailable) {
+                playBtnPlaceholder.visibility = View.VISIBLE
+            } else {
+                playBtnPlaceholder.visibility = View.GONE
+            }
+            playBtnPlaceholder.onClick {
+                if (!ConnectionStateMonitor.isNetworkAvailable(context) && playerControls.isVisible) {
+                    showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
+                }
+            }
         }
     }
 

@@ -260,9 +260,13 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         }
                     }
                 }
-                Player.STATE_ENDED, Player.STATE_IDLE -> {
+                Player.STATE_ENDED -> {
                     stopwatch.stop()
                     onLiveStreamEnded()
+                }
+
+                Player.STATE_IDLE -> {
+                    stopwatch.stop()
                 }
             }
             onStreamStateChanged(playbackState)
