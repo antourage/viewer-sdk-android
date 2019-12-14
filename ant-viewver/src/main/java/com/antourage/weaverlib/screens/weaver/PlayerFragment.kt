@@ -39,11 +39,29 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
+import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.btnSend
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.etMessage
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivUserPhoto
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.llNoChat
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ll_wrapper
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvBroadcastedBy
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvStreamName
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
@@ -107,6 +125,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                     }
+                    ivFirstFrame.visibility = View.INVISIBLE
                 }
                 Player.STATE_IDLE -> {
                     if (!viewModel.wasStreamInitialized)
@@ -377,6 +396,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         })
 
         initStreamInfo(arguments?.getParcelable(ARGS_STREAM))
+        val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+        streamResponse?.apply {
+            thumbnailUrl?.let {
+                Picasso.get()
+                    .load(thumbnailUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into(ivFirstFrame)
+            }
+        }
         initClickListeners()
         initKeyboardListener()
         initLabelLive()
