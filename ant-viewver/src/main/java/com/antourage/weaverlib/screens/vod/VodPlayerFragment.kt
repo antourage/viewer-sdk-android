@@ -183,7 +183,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             viewModel.initUi(streamId, startTime, id, stopTime)
             streamId?.let { viewModel.setStreamId(it) }
 
-            videoURL?.let {
+            thumbnailUrl?.let {
                 Picasso.get()
                     .load(thumbnailUrl)
                     .networkPolicy(NetworkPolicy.OFFLINE)

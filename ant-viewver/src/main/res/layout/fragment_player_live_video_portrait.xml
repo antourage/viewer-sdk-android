@@ -22,6 +22,19 @@
             app:use_controller="false" />
 
     <ImageView
+            android:id="@+id/ivFirstFrame"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="top"
+            android:animateLayoutChanges="true"
+            android:scaleType="centerCrop"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintTop_toTopOf="@id/playerView" />
+
+    <ImageView
             android:id="@+id/ivThanksForWatching"
             android:layout_width="match_parent"
             android:layout_height="0dp"
