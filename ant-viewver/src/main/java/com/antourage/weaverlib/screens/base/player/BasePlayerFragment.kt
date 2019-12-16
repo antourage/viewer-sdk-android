@@ -261,11 +261,16 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         enableOrientationChangeListenerIfAutoRotationEnabled()
     }
 
-    private fun isRotationOn(): Boolean = Settings.System.getInt(
-        activity?.contentResolver,
-        Settings.System.ACCELEROMETER_ROTATION,
-        0
-    ) == 1
+    private fun isRotationOn(): Boolean {
+        activity?.contentResolver?.apply {
+            return Settings.System.getInt(
+                activity?.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION,
+                0
+            ) == 1
+        }
+        return false
+    }
 
     private fun onFullScreenImgClicked() {
         enableOrientationChangeListenerIfAutoRotationEnabled()
