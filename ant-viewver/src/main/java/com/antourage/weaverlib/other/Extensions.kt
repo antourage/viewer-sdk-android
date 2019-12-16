@@ -120,8 +120,8 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
 
         }
         else -> {
-            if (diff == 0L) {
-                diff = 1
+            if (diff <= 0L) {
+                return "now"
             }
             val amount = context.resources
                 .getQuantityString(R.plurals.ant_seconds, diff.toInt(), diff.toInt())
