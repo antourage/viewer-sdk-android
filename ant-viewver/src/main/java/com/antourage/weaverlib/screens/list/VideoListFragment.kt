@@ -38,6 +38,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
     private lateinit var placeHolderAdapter: VideoPlaceholdersAdapter
     private lateinit var rvLayoutManager: VideosLayoutManager
     private val loadingAnimHandler = Handler()
+    private var refreshVODs = true
 
     companion object {
         fun newInstance(): VideoListFragment {
@@ -173,8 +174,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
 
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
-        viewModel.refreshVODs()
+        if (refreshVODs) {
+            viewModel.refreshVODs()
+            refreshVODs = false
+        }
     }
+
 
     private fun initRecyclerView(
         adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>,

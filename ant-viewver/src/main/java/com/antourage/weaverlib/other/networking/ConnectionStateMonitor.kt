@@ -35,6 +35,7 @@ internal class ConnectionStateMonitor(val context: Context) :
         if (internetStateLiveData.value != NetworkConnectionState.AVAILABLE)
             internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
         Global.networkAvailable = true
+        android.os.Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
     }
 
     override fun onLost(network: Network) {
