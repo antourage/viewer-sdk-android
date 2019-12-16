@@ -20,8 +20,8 @@ internal class DevSettingsDialog(
     companion object {
         const val BASE_URL_DEV = "http://35.156.199.125/"
         const val BASE_URL_STAGING = "http://3.124.42.114/"
-        const val BASE_URL_PROD = "https://3.125.139.23/"
-        const val DEFAULT_URL = BASE_URL_STAGING
+        const val BASE_URL_PROD = "http://harvester-prod.eu-central-1.elasticbeanstalk.com/"
+        const val DEFAULT_URL = BASE_URL_PROD
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

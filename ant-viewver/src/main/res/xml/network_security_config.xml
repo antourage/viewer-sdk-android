@@ -5,6 +5,7 @@
         <domain includeSubdomains="true">35.156.199.125</domain>
         <domain includeSubdomains="true">3.124.42.114</domain>
         <domain includeSubdomains="true">3.125.139.23</domain>
+        <domain includeSubdomains="true">harvester-prod.eu-central-1.elasticbeanstalk.com</domain>
         <domain includeSubdomains="true">192.168.20.196:4000</domain>
         <domain includeSubdomains="true">d3pqhz4gxngfhe.cloudfront.net</domain>
         <domain includeSubdomains="true">d382pphprxgdpj.cloudfront.net</domain>
