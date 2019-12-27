@@ -26,7 +26,7 @@ internal abstract class NetworkBoundResource<ResultType>
 //            if ((end ?: 0) - (start ?: 0) > 1000)
 //                result.value = Resource.loading()
 //        }
-        result.value = Resource.loading()
+        result.postValue(Resource.loading())
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                 fetchFromNetwork()
@@ -34,8 +34,8 @@ internal abstract class NetworkBoundResource<ResultType>
                 val intent =
                     Intent(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
-                result.value =
-                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet))
+                result.postValue(
+                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet)))
             }
         }
     }
