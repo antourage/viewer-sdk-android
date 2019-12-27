@@ -187,6 +187,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                     getStreamDividerPlaceholder()
                 )
             }
+
             vods?.let { resultList.addAll(it.toList()) }
             loaderLiveData.postValue(false)
             listOfStreams.postValue(resultList.toList())
@@ -251,4 +252,8 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         }
     }
     //endregion
+
+    fun onNetworkGained() {
+        refreshVODs(noLoadingPlaceholder = true)
+    }
 }

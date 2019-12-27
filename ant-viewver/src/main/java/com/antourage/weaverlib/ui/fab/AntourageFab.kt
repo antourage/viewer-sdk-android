@@ -62,13 +62,7 @@ class AntourageFab @JvmOverloads constructor(
                                 RegisterPushNotificationsResult.Success(
                                     topicName
                                 )
-                            }?.let { result -> callback?.invoke(result) } ?: run {
-                                callback?.invoke(
-                                    RegisterPushNotificationsResult.Failure(
-                                        "empty topic name"
-                                    )
-                                )
-                            }
+                            }?.let { result -> callback?.invoke(result) }
                             response.removeObserver(this)
                         }
                         is Status.Failure -> {
@@ -194,9 +188,6 @@ class AntourageFab @JvmOverloads constructor(
                         newVideosCount = status.data ?: 0
                         manageVideos(status.data ?: 0)
                     }
-                    is Status.Failure -> {
-                        changeBadgeStatus(WidgetStatus.Inactive)
-                    }
                 }
             }
 
@@ -208,17 +199,19 @@ class AntourageFab @JvmOverloads constructor(
                             listOfStreams = list
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
-                            manageVideos(newVideosCount)
+                            Log.d("VOD_COUNT_TAG", "onLiveBroadcastReceived")
+                            ReceivingVideosManager.getNewVODsCount()
                         }
                     }
                     is Status.Failure -> {
-                        changeBadgeStatus(WidgetStatus.Inactive)
+                        ReceivingVideosManager.getNewVODsCount()
                         BaseViewModel.error.postValue(resource.status.errorMessage)
                     }
                 }
             }
         })
         ReceivingVideosManager.startReceivingVideos()
+        Log.d("VOD_COUNT_TAG", "onResume")
         ReceivingVideosManager.getNewVODsCount()
     }
 
@@ -252,54 +245,55 @@ class AntourageFab @JvmOverloads constructor(
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
                 counter = 0
-                floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logo_white)
+                floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
                 floatingActionButton.setTextToBadge("")
             }
             is WidgetStatus.ActiveLiveStream -> {
                 if (floatingActionButton != null)
-                    floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logocolor)
+                    floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
                 if (!handlerFab.hasMessages(0))
                     handlerFab.postDelayed(object : Runnable {
                         override fun run() {
                             listOfStreams?.let { listOfStreams ->
                                 if (counter > (listOfStreams.size - 1)) {
-                                    counter = 0
-                                }
-                                if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
-                                    currentlyDisplayedStream = listOfStreams[counter]
-                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                        R.id.tvStreamTitle
-                                    ).text = listOfStreams[counter].streamTitle
-                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                        R.id.tvViewers
-                                    ).text = resources.getQuantityString(
-                                        R.plurals.ant_number_of_viewers,
-                                        currentlyDisplayedStream.viewersCount ?: 0,
-                                        currentlyDisplayedStream.viewersCount
-                                    )
-                                    expandableLayout.visibility = View.VISIBLE
-                                    expandableLayout.transitionToEnd()
-                                    tvStreamTitle.text = listOfStreams[counter].streamTitle
-                                    tvViewers.text = resources.getQuantityString(
-                                        R.plurals.ant_number_of_viewers,
-                                        currentlyDisplayedStream.viewersCount ?: 0,
-                                        currentlyDisplayedStream.viewersCount
-                                    )
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        expandableLayout.transitionToStart()
-                                    }, SHOWING_DURABILITY)
-                                    handlerFab.postDelayed(
-                                        this,
-                                        2 * SHOWING_DURABILITY
-                                    )
-                                    counter++
+                                    handlerFab.removeCallbacksAndMessages(null)
                                 } else {
-                                    counter++
-                                    handlerFab.postDelayed(
-                                        this,
-                                        0
-                                    )
+                                    if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
+                                        currentlyDisplayedStream = listOfStreams[counter]
+                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
+                                            R.id.tvStreamTitle
+                                        ).text = listOfStreams[counter].streamTitle
+                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
+                                            R.id.tvViewers
+                                        ).text = resources.getQuantityString(
+                                            R.plurals.ant_number_of_viewers,
+                                            currentlyDisplayedStream.viewersCount ?: 0,
+                                            currentlyDisplayedStream.viewersCount
+                                        )
+                                        expandableLayout.visibility = View.VISIBLE
+                                        expandableLayout.transitionToEnd()
+                                        tvStreamTitle.text = listOfStreams[counter].streamTitle
+                                        tvViewers.text = resources.getQuantityString(
+                                            R.plurals.ant_number_of_viewers,
+                                            currentlyDisplayedStream.viewersCount ?: 0,
+                                            currentlyDisplayedStream.viewersCount
+                                        )
+                                        Handler(Looper.getMainLooper()).postDelayed({
+                                            expandableLayout.transitionToStart()
+                                        }, SHOWING_DURABILITY)
+                                        handlerFab.postDelayed(
+                                            this,
+                                            2 * SHOWING_DURABILITY
+                                        )
+                                        counter++
+                                    } else {
+                                        counter++
+                                        handlerFab.postDelayed(
+                                            this,
+                                            0
+                                        )
 
+                                    }
                                 }
                             }
                         }
@@ -308,8 +302,9 @@ class AntourageFab @JvmOverloads constructor(
             }
             is WidgetStatus.ActiveUnseenVideos -> {
                 if (floatingActionButton != null) {
-                    floatingActionButton.setImageResource(R.drawable.antourage_ic_antourage_logocolor)
-                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
+                    floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
+//                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
+                    floatingActionButton.setTextToBadge(" ")
                 }
                 handlerFab.removeCallbacksAndMessages(null)
                 listOfStreams = null
@@ -337,12 +332,14 @@ class AntourageFab @JvmOverloads constructor(
         nickname: String? = null,
         callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
-        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
+        Log.d("Ant_Auth_Tag", "authorizing new user...")
+        val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
                         val user = responseStatus.data
+                        Log.d("Ant_Auth_Tag", "new user generated: ${user?.token}")
                         user?.apply {
                             if (token != null && id != null)
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)

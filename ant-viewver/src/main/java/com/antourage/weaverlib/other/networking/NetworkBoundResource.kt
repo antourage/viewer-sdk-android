@@ -2,9 +2,12 @@ package com.antourage.weaverlib.other.networking
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.content.Intent
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
+import android.support.v4.content.LocalBroadcastManager
 import com.antourage.weaverlib.ModuleResourcesProvider
+import com.antourage.weaverlib.R
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -19,12 +22,20 @@ internal abstract class NetworkBoundResource<ResultType>
         val context = ModuleResourcesProvider.getContext()
         start = Date().time
         end = Date().time
-        result.postValue(Resource.loading())
+//        Timer().schedule(1000) {
+//            if ((end ?: 0) - (start ?: 0) > 1000)
+//                result.value = Resource.loading()
+//        }
+        result.value = Resource.loading()
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                 fetchFromNetwork()
             } else {
-                result.postValue(Resource.failure("No internet"))
+                val intent =
+                    Intent(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+                result.value =
+                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet))
             }
         }
     }

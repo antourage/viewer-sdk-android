@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.graphics.drawable.Animatable2Compat
@@ -14,6 +15,7 @@ import android.support.v4.view.GestureDetectorCompat
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
@@ -26,12 +28,27 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
+import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.btnSend
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.dividerChat
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.etMessage
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivUserPhoto
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.llNoChat
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.navView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.tvBroadcastedBy
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.tvStreamName
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.util.*
 import kotlin.math.roundToInt
 
 internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
@@ -59,6 +76,19 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
+                    viewModel.currentVideo.value?.apply {
+                        if (!broadcasterPicUrl.isNullOrEmpty()) {
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(ivUserPhoto)
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(ivControllerUserPhoto)
+                        }
+                    }
+                    ivFirstFrame.visibility = View.INVISIBLE
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                         viewModel.onVideoPausedOrStopped()
@@ -85,20 +115,21 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             tvControllerStreamName.text = videoName
             tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
-            if (!broadcasterPicUrl.isNullOrEmpty()) {
-                Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
-                    .into(ivUserPhoto)
-                Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
-                    .into(ivControllerUserPhoto)
-            }
+            /**delete this code if image loading has no serious impact on
+             * video loading (as it's too long in low bandwidth conditions)
+             */
+//            if (!broadcasterPicUrl.isNullOrEmpty()) {
+//                Picasso.get().load(broadcasterPicUrl)
+//                    .placeholder(R.drawable.antourage_ic_default_user)
+//                    .error(R.drawable.antourage_ic_default_user)
+//                    .into(ivUserPhoto)
+//                Picasso.get().load(broadcasterPicUrl)
+//                    .placeholder(R.drawable.antourage_ic_default_user)
+//                    .error(R.drawable.antourage_ic_default_user)
+//                    .into(ivControllerUserPhoto)
+//            }
             context?.let { context ->
-                val formattedStartTime = startTime?.parseDate(context)
-                tvWasLive.text = formattedStartTime
-                tvWasLive.gone(formattedStartTime.isNullOrEmpty())
+                updateWasLiveValueOnUI(startTime, duration)
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             viewModel.seekToLastWatchingTime()
@@ -118,6 +149,17 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             viewModel.onNetworkGained()
+            playBtnPlaceholder.visibility = View.GONE
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
+            if (!Global.networkAvailable) {
+                context?.resources?.getString(R.string.ant_no_internet)
+                    ?.let { messageToDisplay ->
+                        Handler().postDelayed({
+                            showWarningAlerter(messageToDisplay)
+                            playBtnPlaceholder.visibility = View.VISIBLE
+                        }, 500)
+                    }
+            }
         }
     }
     //endregion
@@ -137,6 +179,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             this.viewLifecycleOwner,
             networkStateObserver
         )
+        viewModel.currentStreamViewsLiveData
+            .observe(this.viewLifecycleOwner, currentStreamViewsObserver)
     }
 
     override fun initUi(view: View?) {
@@ -148,9 +192,16 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         handleChat()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
-            tvWasLive.text = context?.let { startTime?.parseDate(it) }
+            updateWasLiveValueOnUI(startTime, duration)
             viewModel.initUi(streamId, startTime, id, stopTime)
             streamId?.let { viewModel.setStreamId(it) }
+
+            thumbnailUrl?.let {
+                Picasso.get()
+                    .load(thumbnailUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into(ivFirstFrame)
+            }
         }
         setUpNoChatPlaceholder(
             R.drawable.antourage_ic_chat_no_comments_yet,
@@ -215,7 +266,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initSkipAnimations() {
         skipForwardVDrawable =
-            context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_forward) }
+            context?.let {
+                AnimatedVectorDrawableCompat.create(
+                    it,
+                    R.drawable.antourage_skip_forward
+                )
+            }
         skipBackwardVDrawable =
             context?.let { AnimatedVectorDrawableCompat.create(it, R.drawable.antourage_skip_back) }
         skipForward.setImageDrawable(skipForwardVDrawable)
@@ -243,9 +299,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     override fun onControlsVisible() {
-        tvWasLive.text = context?.let { context ->
-            arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-                ?.startTime?.parseDate(context)
+        context?.let { _ ->
+            val streamResponse =
+                arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
+            streamResponse?.apply {
+                updateWasLiveValueOnUI(startTime, duration)
+            }
         }
     }
 
@@ -355,6 +414,27 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 start()
                 iv.visibility = View.VISIBLE
             }
+        }
+    }
+
+    private fun updateWasLiveValueOnUI(startTime: String?, duration: String?) {
+        context?.apply {
+            val formattedStartTime =
+                duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
+                    Date(it).parseToDisplayAgoTime(this)
+                }
+            tvWasLive.text = formattedStartTime
+            tvWasLive.gone(formattedStartTime.isNullOrEmpty())
+        }
+    }
+
+    private val currentStreamViewsObserver: Observer<Int> = Observer { currentViewsCount ->
+        updateViewsCountUI(currentViewsCount)
+    }
+
+    private fun updateViewsCountUI(currentViewsCount: Int?) {
+        currentViewsCount?.let {
+            txtNumberOfViewers.text = it.toString()
         }
     }
 }

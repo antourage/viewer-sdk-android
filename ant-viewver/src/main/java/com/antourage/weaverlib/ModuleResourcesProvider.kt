@@ -5,7 +5,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.util.Log
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions

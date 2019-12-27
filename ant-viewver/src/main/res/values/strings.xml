@@ -40,7 +40,7 @@
     <string name="ant_started_ago">%1$s ago</string>
 
     <string name="ant_set">set</string>
-    <string name="ant_main_title">Latest Videos</string>
+    <string name="ant_main_title">Latest videos</string>
 
     <string name="ant_cancel">Cancel</string>
     <string name="ant_confirm">Confirm</string>
@@ -53,4 +53,7 @@
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
     <string name="ant_version_name">Version %1$s</string>
+    <string name="ant_no_internet">No internet connection available</string>
+    <string name="ant_no_internet_action">No_internet_connection_available</string>
+    <string name="ant_failed_to_load_video">Failed to load video</string>
 </resources>

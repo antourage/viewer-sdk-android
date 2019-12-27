@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.gone
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
@@ -17,6 +18,7 @@ import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
+import java.util.*
 
 internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -78,6 +80,14 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
 
     override fun getItemCount(): Int {
         return listOfStreams.size
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
+        when (holder) {
+            is LiveVideoViewHolder -> holder.cleanup()
+            is VODViewHolder -> holder.cleanup()
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -150,6 +160,12 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                 }
             }
         }
+
+        fun cleanup() {
+            with(itemView) {
+                Picasso.get().cancelRequest(this.ivThumbnail_live)
+            }
+        }
     }
 
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -171,7 +187,10 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                     }
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_vod.text = videoName
-                    val formattedStartTime = startTime?.parseDate(context)
+                    val formattedStartTime =
+                        duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
+                            Date(it).parseToDisplayAgoTime(context)
+                        }
                     txtWasLive_vod.text = formattedStartTime
                     txtWasLive_vod.gone(formattedStartTime.isNullOrEmpty())
                     txtDuration.text = duration?.take(8)
@@ -188,6 +207,12 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                         watchingProgress.visibility = View.VISIBLE
                     }
                 }
+            }
+        }
+
+        fun cleanup() {
+            with(itemView) {
+                Picasso.get().cancelRequest(this.ivThumbnail_vod)
             }
         }
     }

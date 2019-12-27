@@ -106,7 +106,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 
-    private val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
+    val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
 
     fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()
@@ -115,6 +115,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
             repository.getStream(streamId).observeOnce(streamObserver)
         }
         this.vodId = vodId
+        this.currentlyWatchedVideoId = vodId
         chatStateLiveData.postValue(true)
         markVODAsWatched()
         this.predefinedStopWatchingTime = stopTime?.parseToMills()
@@ -127,6 +128,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     override fun onPause() {
         super.onPause()
+        predefinedStopWatchingTime = player.currentPosition
         setVodStopWatchingTime()
         stopMonitoringChatMessages()
     }
@@ -156,6 +158,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
         this.streamId = currentVod.streamId
         this.vodId = currentVod.id
+        this.currentlyWatchedVideoId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
@@ -208,6 +211,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
         for (i in 0 until (list?.size ?: 0)) {
             mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
+//            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource("") }
         }
         return ConcatenatingMediaSource(*mediaSources)
     }

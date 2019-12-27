@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.constraint.ConstraintSet
@@ -19,7 +20,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import com.antourage.weaverlib.BuildConfig
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
@@ -37,9 +38,8 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
-import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization.*
@@ -49,6 +49,12 @@ import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.llTopLeftLabels
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.tvWasLive
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.txtNumberOfViewers
+import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -101,6 +107,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                     }
+                    ivFirstFrame.visibility = View.INVISIBLE
                 }
                 Player.STATE_IDLE -> {
                     if (!viewModel.wasStreamInitialized)
@@ -156,13 +163,28 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private val currentStreamInfoObserver: Observer<Boolean> = Observer { isStreamStillLive ->
-        if (isStreamStillLive != true) {
+        if (isStreamStillLive == false) {
             showEndStreamUI()
+        }
+    }
+
+    private val currentStreamViewersObserver: Observer<Int> = Observer { currentViewersCount ->
+        updateViewersCountUI(currentViewersCount)
+    }
+
+    private fun updateViewersCountUI(currentViewersCount: Int?) {
+        currentViewersCount?.let {
+            txtNumberOfViewers.text = it.toString()
         }
     }
 
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
+        txtLabelLive.visibility = View.GONE
+        controls.visibility = View.GONE
+        playerView.visibility = View.INVISIBLE
+        ivIndividualCloseImage.visibility = View.VISIBLE
+        ivIndividualCloseImage.onClick { onCloseClicked() }
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -232,6 +254,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             showLoading()
             viewModel.onNetworkGained()
+            playBtnPlaceholder.visibility = View.GONE
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
+            if (!Global.networkAvailable) {
+                context?.resources?.getString(R.string.ant_no_internet)
+                    ?.let { messageToDisplay ->
+                        Handler().postDelayed({
+                            showWarningAlerter(messageToDisplay)
+                            playBtnPlaceholder.visibility = View.VISIBLE
+                        }, 500)
+                    }
+            }
         }
     }
 //endregion
@@ -245,8 +278,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             MessageType.USER,
             Timestamp(Date())
         )
-        message.userID =
-            FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
+        /**
+        User id fot firebase synchronized with back end user id with messages;
+         */
+        message.userID = viewModel.getUser()?.id.toString()
+//        FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { streamId ->
             viewModel.addMessage(
                 message,
@@ -255,8 +291,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         etMessage.setText("")
         rvMessages?.apply {
-            adapter?.itemCount?.minus(1)
-                ?.let { adapterPosition -> scrollToPosition(adapterPosition) }
+            adapter?.itemCount?.minus(0)
+                ?.let { adapterPosition ->
+                    post {
+                        Handler().postDelayed(
+                            {
+                                layoutManager?.scrollToPosition(adapterPosition)
+                            },
+                            300
+                        )
+                    }
+                }
         }
     }
 
@@ -303,6 +348,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         )
         viewModel.getCurrentLiveStreamInfo()
             .observe(this.viewLifecycleOwner, currentStreamInfoObserver)
+        viewModel.currentStreamViewsLiveData
+            .observe(this.viewLifecycleOwner, currentStreamViewersObserver)
     }
 
     override fun initUi(view: View?) {
@@ -315,12 +362,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         playerView.setOnTouchListener(object : View.OnTouchListener {
             private val gestureDetector =
-                GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
-                    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                        handleControlsVisibility()
-                        return super.onSingleTapConfirmed(e)
-                    }
-                })
+                GestureDetectorCompat(
+                    context,
+                    object : GestureDetector.SimpleOnGestureListener() {
+                        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                            handleControlsVisibility()
+                            return super.onSingleTapConfirmed(e)
+                        }
+                    })
 
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 gestureDetector.onTouchEvent(p1)
@@ -329,6 +378,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         })
 
         initStreamInfo(arguments?.getParcelable(ARGS_STREAM))
+        val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+        streamResponse?.apply {
+            thumbnailUrl?.let {
+                Picasso.get()
+                    .load(thumbnailUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into(ivFirstFrame)
+            }
+        }
         initClickListeners()
         initKeyboardListener()
         initLabelLive()
@@ -581,7 +639,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
-            viewModel.initUi(streamId)
+            viewModel.initUi(streamId, id)
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName

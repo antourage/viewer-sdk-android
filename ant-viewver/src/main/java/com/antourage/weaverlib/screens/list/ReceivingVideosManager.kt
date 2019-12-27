@@ -3,6 +3,8 @@ package com.antourage.weaverlib.screens.list
 import android.arch.lifecycle.Observer
 import android.os.Handler
 import android.support.annotation.Keep
+import android.util.Log
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -59,26 +61,28 @@ internal class ReceivingVideosManager {
         fun startReceivingVideos() {
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
-                    val streamResponse =
-                        Repository().getLiveVideos()
-                    streamResponse.observeForever(object :
-                        Observer<Resource<List<StreamResponse>>> {
-                        override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                            if (resource != null) {
-                                when (resource.status) {
-                                    is Status.Failure -> {
-                                        callback?.onLiveBroadcastReceived(resource)
-                                        streamResponse.removeObserver(this)
-                                    }
-                                    is Status.Success -> {
-                                        callback?.onLiveBroadcastReceived(resource)
-                                        liveVideos = resource
-                                        streamResponse.removeObserver(this)
+                    if (Global.networkAvailable) {
+                        val streamResponse =
+                            Repository().getLiveVideos()
+                        streamResponse.observeForever(object :
+                            Observer<Resource<List<StreamResponse>>> {
+                            override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                                if (resource != null) {
+                                    when (resource.status) {
+                                        is Status.Failure -> {
+                                            callback?.onLiveBroadcastReceived(resource)
+                                            streamResponse.removeObserver(this)
+                                        }
+                                        is Status.Success -> {
+                                            callback?.onLiveBroadcastReceived(resource)
+                                            liveVideos = resource
+                                            streamResponse.removeObserver(this)
+                                        }
                                     }
                                 }
                             }
-                        }
-                    })
+                        })
+                    }
                     handlerCall.postDelayed(this, STREAMS_REQUEST_DELAY)
                 }
             }, 0)
@@ -101,6 +105,7 @@ internal class ReceivingVideosManager {
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
+                                Log.d("VOD_COUNT_TAG", resource.toString())
                                 callback?.onNewVideosCount(resource)
                                 response.removeObserver(this)
                             }

@@ -5,7 +5,8 @@ import android.content.Context
 import android.net.*
 import com.antourage.weaverlib.Global
 
-internal class ConnectionStateMonitor(val context: Context) : ConnectivityManager.NetworkCallback() {
+internal class ConnectionStateMonitor(val context: Context) :
+    ConnectivityManager.NetworkCallback() {
 
     companion object {
         fun isNetworkAvailable(context: Context): Boolean {
@@ -31,15 +32,24 @@ internal class ConnectionStateMonitor(val context: Context) : ConnectivityManage
 
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
-        internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
+        if (internetStateLiveData.value != NetworkConnectionState.AVAILABLE)
+            internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
         Global.networkAvailable = true
+        android.os.Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
     }
 
     override fun onLost(network: Network) {
         super.onLost(network)
-        internetStateLiveData.postValue(NetworkConnectionState.LOST)
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         Global.networkAvailable = activeNetwork?.isConnected ?: false
+        internetStateLiveData.postValue(NetworkConnectionState.LOST)
+        /**
+         * Need this post(null) in order to ignore cached live data value and
+         * show alerter only in case when the value is set and not when the
+         * live data is subscribed;
+         * Without this thing, alerter could be shown twice in a row sometimes;
+         */
+        android.os.Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
     }
 }

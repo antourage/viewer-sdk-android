@@ -243,7 +243,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         activity?.requestedOrientation = orientation
     }
 
-    private fun onCloseClicked() {
+    internal fun onCloseClicked() {
         fragmentManager?.let { fragmentManager ->
             if (fragmentManager.backStackEntryCount > 0) {
                 fragmentManager.popBackStack()

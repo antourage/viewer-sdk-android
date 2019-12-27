@@ -14,12 +14,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -28,13 +32,16 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 
-internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReachedListener {
+internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
+    MyNestedScrollView.OnBottomReachedListener {
 
-    private lateinit var viewModel: VideoListViewModel
+    override fun getLayoutId() = R.layout.fragment_videos_list
+
     private lateinit var videoAdapter: VideosAdapter
     private lateinit var placeHolderAdapter: VideoPlaceholdersAdapter
     private lateinit var rvLayoutManager: VideosLayoutManager
     private val loadingAnimHandler = Handler()
+    private var refreshVODs = true
 
     companion object {
         fun newInstance(): VideoListFragment {
@@ -84,17 +91,8 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
             .get(VideoListViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_videos_list, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initUi()
         subscribeToObservers()
     }
 
@@ -102,19 +100,35 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
         viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
     }
 
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        viewModel.subscribeToLiveStreams()
-        viewModel.refreshVODsLocally()
+        context?.let {
+            viewModel.subscribeToLiveStreams()
+            viewModel.refreshVODsLocally()
+            if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
+                viewModel.listOfStreams.value.isNullOrEmpty()
+            ) {
+                showEmptyListPlaceholder()
+            }
+        }
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
         loadingAnimHandler.removeCallbacksAndMessages(null)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        videosRV.adapter = null
     }
 
     override fun onBottomReached(view: View?) {
@@ -126,7 +140,7 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         }
     }
 
-    private fun initUi() {
+    override fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             if (streamResponse.isLive) {
                 replaceFragment(PlayerFragment.newInstance(streamResponse), R.id.mainContent, true)
@@ -163,8 +177,12 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
 
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
-        viewModel.refreshVODs()
+        if (refreshVODs) {
+            viewModel.refreshVODs()
+            refreshVODs = false
+        }
     }
+
 
     private fun initRecyclerView(
         adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>,
@@ -207,7 +225,6 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
         )
         tvTitle.visibility = View.INVISIBLE
         tvNoContent.visibility = View.VISIBLE
-
     }
 
     private fun showLoadingListPlaceholder() {
@@ -230,5 +247,23 @@ internal class VideoListFragment : Fragment(), MyNestedScrollView.OnBottomReache
             })
 
         nestedSV.visibility = View.VISIBLE
+    }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        when (networkState?.ordinal) {
+            NetworkConnectionState.LOST.ordinal -> {
+                if (!Global.networkAvailable) {
+                    context?.resources?.getString(R.string.ant_no_internet)
+                        ?.let { messageToDisplay ->
+                            Handler().postDelayed({
+                                showWarningAlerter(messageToDisplay)
+                            }, 500)
+                        }
+                }
+            }
+            NetworkConnectionState.AVAILABLE.ordinal -> {
+                viewModel.onNetworkGained()
+            }
+        }
     }
 }

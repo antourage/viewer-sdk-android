@@ -18,7 +18,7 @@ import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
-internal class AntourageActivity : AppCompatActivity() {
+public class AntourageActivity : AppCompatActivity() {
     internal var keyboardIsVisible = false
         private set
 

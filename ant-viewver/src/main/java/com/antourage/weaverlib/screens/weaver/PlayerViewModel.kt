@@ -42,14 +42,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     private var repository = Repository()
 
-    val handlerCall = Handler()
-
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private val liveStreamsLiveData: MutableLiveData<List<StreamResponse>> = MutableLiveData()
 
     internal var isUserSettingsDialogShown = false
 
@@ -77,7 +74,16 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null && isChatTurnedOn) {
                 if (chatContainsNonStatusMsg(it.data)) {
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-                    messagesLiveData.postValue(it.data)
+//                    messagesLiveData.postValue(it.data)
+                    messagesLiveData.value = it.data
+                    user?.apply {
+                        displayName?.let { displayName ->
+                            changeDisplayNameForAllMessagesLocally(displayName)
+                        }
+                        imageUrl?.let { avatarUrl ->
+                            changeAvatarForAllMessagesLocally(avatarUrl)
+                        }
+                    }
                 } else {
                     chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                 }
@@ -135,11 +141,15 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun initUi(streamId: Int?) {
+    fun initUi(streamId: Int?, currentlyWatchedVideoId: Int?) {
         streamId?.let {
             this.streamId = it
             repository.getPoll(streamId).observeForever(activePollObserver)
             repository.getStream(streamId).observeForever(streamObserver)
+        }
+
+        currentlyWatchedVideoId?.let {
+            this.currentlyWatchedVideoId = it
         }
     }
 
@@ -250,57 +260,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     override fun onResume() {
         super.onResume()
         player.seekTo(player.duration)
-
-        subscribeToLiveStreams()
     }
 
-    override fun onPause() {
-        super.onPause()
-        stopReceivingVideos()
-    }
-
-    private fun subscribeToLiveStreams() {
-        handlerCall.postDelayed(object : Runnable {
-            override fun run() {
-                val liveStreams =
-                    Repository().getLiveVideos()
-                liveStreams.observeForever(object :
-                    Observer<Resource<List<StreamResponse>>> {
-                    override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                        if (resource != null) {
-                            when (val result = resource.status) {
-                                is Status.Failure -> {
-                                    liveStreams.removeObserver(this)
-                                }
-                                is Status.Success -> {
-                                    val allLiveStreams = result.data
-                                    if (allLiveStreams.isNullOrEmpty()) {
-                                        isCurrentStreamStillLiveLiveData.postValue(false)
-                                        player.stop()
-                                    } else if (streamId != null) {
-                                        if (allLiveStreams.find { it.streamId == streamId } != null) {
-                                            isCurrentStreamStillLiveLiveData.postValue(true)
-                                        } else {
-                                            isCurrentStreamStillLiveLiveData.postValue(false)
-                                            player.stop()
-                                        }
-                                    }
-                                    liveStreams.removeObserver(this)
-                                }
-                            }
-                        }
-                    }
-                })
-                handlerCall.postDelayed(
-                    this,
-                    ReceivingVideosManager.STREAMS_REQUEST_DELAY
-                )
-            }
-        }, 0)
-    }
-
-    private fun stopReceivingVideos() {
-        handlerCall.removeCallbacksAndMessages(null)
+    override fun onLiveStreamEnded() {
+        super.onLiveStreamEnded()
+        isCurrentStreamStillLiveLiveData.postValue(false)
     }
 
     fun initUser() {
@@ -317,6 +281,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                         is Status.Success -> {
                             user = responseStatus.data
                             userInfoLiveData.postValue(user)
+                            response.removeObserver(this)
                         }
                         is Status.Failure -> response.removeObserver(this)
                     }
@@ -330,6 +295,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     fun changeUserDisplayName(newDisplayName: String) {
         if (newDisplayName != user?.displayName) {
+            changeDisplayNameForAllMessagesLocally(newDisplayName)
             val response = repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(it: Resource<SimpleResponse>?) {
@@ -351,6 +317,38 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
+    //TODO: develop normal solution for display name change and delete this function
+    /**
+     * Method used to change current user display name for all his messages in recycler view
+     */
+    private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
+        getMessagesFromCurrentUser()?.forEach { it.nickname = newDisplayName }
+        messagesLiveData.apply {
+            postValue(this.value)
+        }
+    }
+
+    //TODO: develop normal solution for avatar change and delete this function
+    /**
+     * Method used to change current user avatar for all his messages in recycler view
+     */
+    private fun changeAvatarForAllMessagesLocally(newAvatar: String) {
+        getMessagesFromCurrentUser()?.forEach { it.avatarUrl = newAvatar }
+        messagesLiveData.apply {
+            postValue(this.value)
+        }
+    }
+
+    private fun getMessagesFromCurrentUser(): List<Message>? = run {
+        val currentUserId = user?.id
+        if (currentUserId != null) {
+            return messagesLiveData.value?.filter {
+                it.userID != null && it.userID == currentUserId.toString()
+            }
+        }
+        return null
+    }
+
     fun changeUserAvatar() {
         newAvatar?.let { avatar ->
             val userImgUpdateResponse = repository.uploadImage(avatar.toMultipart())
@@ -365,7 +363,13 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                             }
                             is Status.Success -> {
                                 loaderLiveData.postValue(false)
-                                user?.imageUrl = it.status.data?.imageUrl
+                                val newAvatarUrl = it.status.data?.imageUrl
+                                user?.imageUrl = newAvatarUrl
+                                newAvatarUrl?.let { newAvatarUrl ->
+                                    changeAvatarForAllMessagesLocally(
+                                        newAvatarUrl
+                                    )
+                                }
                                 userImgUpdateResponse.removeObserver(this)
                             }
                         }
