@@ -15,7 +15,8 @@
         <ImageView
                 android:id="@+id/ivThumbnail_vod"
                 android:layout_width="0dp"
-                android:layout_height="197dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
                 android:foreground="@drawable/antourage_bg_gradient_bottom"
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
