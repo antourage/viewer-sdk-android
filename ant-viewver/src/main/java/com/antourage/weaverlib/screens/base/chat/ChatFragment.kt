@@ -39,7 +39,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
-            (rvMessages.adapter as MessagesAdapter).setMessageList(list)
+            rvMessages.apply {
+                var shouldScrollToBottom = ((adapter as MessagesAdapter).newMessagesWereAdded(list))
+                (adapter as MessagesAdapter).setMessageList(list)
+                if (shouldScrollToBottom) {
+                    adapter?.itemCount?.let { scrollToPosition(it - 1) }
+                }
+            }
         }
     }
 

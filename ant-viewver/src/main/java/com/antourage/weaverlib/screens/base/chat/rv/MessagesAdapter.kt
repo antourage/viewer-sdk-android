@@ -49,6 +49,10 @@ internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
         notifyDataSetChanged()
     }
 
+    fun newMessagesWereAdded(list: List<Message>?): Boolean {
+        return (list?.size ?: 0 > this.list.size)
+    }
+
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivAvatar: ImageView = itemView.findViewById(R.id.ivAvatar)
         val txtUser: TextView = itemView.findViewById(R.id.txtUser)
