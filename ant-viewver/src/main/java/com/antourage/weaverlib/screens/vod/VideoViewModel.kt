@@ -1,11 +1,11 @@
 package com.antourage.weaverlib.screens.vod
 
 import android.app.Application
+import android.net.Uri
+import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import android.net.Uri
-import android.os.Handler
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.formatDuration
@@ -134,26 +134,28 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     private fun setVodStopWatchingTime() {
-        vodId?.let {
+        vodId?.let { vodId ->
             setVODStopWatchingTimeLocally()
-            StopWatchVodRequest(
-                it, stopWatchingTime?.formatDuration()
-            )
-        }?.let {
-            Repository().stopWatchingVOD(
-                it
-            )
+            stopWatchingTime?.let { stopWatchingTime ->
+                if (stopWatchingTime > 0) {
+                    Repository().stopWatchingVOD(
+                        StopWatchVodRequest(
+                            vodId, stopWatchingTime.formatDuration()
+                        )
+                    )
+                }
+            }
         }
     }
 
     override fun onVideoChanged() {
-        setVodStopWatchingTime()
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         list[currentWindow].id?.apply {
             if (this != vodId) {
                 videoChanged = true
                 this@VideoViewModel.predefinedStopWatchingTime = currentVod.stopTime?.parseToMills()
+                setVodStopWatchingTime()
             }
         }
         this.streamId = currentVod.streamId

@@ -25,7 +25,7 @@ internal data class StatisticWatchVideoRequest(
 
 internal data class StopWatchVodRequest(
     @field:SerializedName("vodId") val vodId: Int,
-    @field:SerializedName("stopTime") val stopTime: String?
+    @field:SerializedName("stopTime") val stopTime: String
 )
 
 internal data class SubscribeToPushesRequest(
