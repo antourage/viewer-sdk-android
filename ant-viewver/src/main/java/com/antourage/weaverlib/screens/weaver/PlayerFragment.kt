@@ -559,6 +559,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 txtPollStatus.visibility = View.GONE
                 divider.visibility = View.VISIBLE
+
+                if (viewModel.getCurrentLiveStreamInfo().value == false) {
+                    showEndStreamUI()
+                }
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
