@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
 internal data class UserRequest(
-    @field:SerializedName("apiKey") val apiKey: String?,
+    @field:SerializedName("apiKey") val apiKey: String,
     @field:SerializedName("refKey") val refKey: String? = null,
     @field:SerializedName("displayName") val displayName: String? = null
 )
@@ -16,11 +16,11 @@ internal data class UpdateDisplayNameRequest(
 
 @Parcelize
 internal data class StatisticWatchVideoRequest(
-    @field:SerializedName("streamId") val streamId: Int?,
-    @field:SerializedName("actionId") val actionId: Int?,
-    @field:SerializedName("batteryLevel") val batteryLevel: Int?,
-    @field:SerializedName("timeStamp") val timeStamp: String?,
-    @field:SerializedName("span") val span: String?
+    @field:SerializedName("streamId") val streamId: Int,
+    @field:SerializedName("actionId") val actionId: Int,
+    @field:SerializedName("batteryLevel") val batteryLevel: Int,
+    @field:SerializedName("timeStamp") val timeStamp: String,
+    @field:SerializedName("span") val span: String
 ) : Parcelable
 
 internal data class StopWatchVodRequest(

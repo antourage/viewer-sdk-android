@@ -206,21 +206,25 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         UserCache.getInstance(getApplication())?.updateVODWatchingTime(watchingTime)
     }
 
-    private fun getBatteryLevel(): Int? {
-        return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+    private fun getBatteryLevel(): Int {
+        return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: 0
     }
 
-    private fun sendStatisticData(statisticAction: StatisticActions, span: String? = "00:00:00") {
-        val statsItem = StatisticWatchVideoRequest(
-            streamId,
-            statisticAction.ordinal,
-            getBatteryLevel(),
-            Timestamp(System.currentTimeMillis()).toString(),
-            span
-        )
-        when (this) {
-            is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
-            is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
+    private fun sendStatisticData(statisticAction: StatisticActions, span: String = "00:00:00") {
+        val statsItem = streamId?.let { streamId ->
+            StatisticWatchVideoRequest(
+                streamId,
+                statisticAction.ordinal,
+                getBatteryLevel(),
+                Timestamp(System.currentTimeMillis()).toString(),
+                span
+            )
+        }?.let { statsItem ->
+            when (this) {
+                is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
+                is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
+                else -> {}
+            }
         }
     }
 
