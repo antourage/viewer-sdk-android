@@ -17,7 +17,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "Antourage_testing_tag"
 //        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
-        const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
+//        const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
+        const val TEST_API_KEY = "472EC909-BB20-4B86-A192-3A78C35DD3BA"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

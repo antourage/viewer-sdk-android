@@ -293,7 +293,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPositionDiscontinuity(reason: Int) {
             currentWindow = player.currentWindowIndex
             resetChronometer = true
+            handlerCall.removeCallbacksAndMessages(null)
             onVideoChanged()
+            currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
         }
     }
     //endregion
