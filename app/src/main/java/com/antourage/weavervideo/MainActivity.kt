@@ -16,9 +16,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "Antourage_testing_tag"
-//        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
-        const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
-//        const val TEST_API_KEY = "472EC909-BB20-4B86-A192-3A78C35DD3BA"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,53 +28,54 @@ class MainActivity : AppCompatActivity() {
             when (userAuthResult) {
                 is UserAuthResult.Success -> {
                     Log.d(TAG, "Ant authorization successful!")
+
+                    //region Antourage push notification subscription
+                    Thread(Runnable {
+                        try {
+                            //Get firebase cloud messaging token
+                            val fcmToken =
+                                FirebaseInstanceId.getInstance().getToken(getString(R.string.SENDER_ID), "FCM")
+                            runOnUiThread {
+                                fcmToken?.let { fcmToken ->
+                                    AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
+                                        //Handle subscription result
+                                        when (subscriptionResult) {
+                                            //If result is successful, subscribe to the topic with
+                                            //topic name from result.
+                                            is RegisterPushNotificationsResult.Success -> {
+                                                Log.d(
+                                                    TAG,
+                                                    "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
+                                                )
+                                                FirebaseMessaging.getInstance()
+                                                    .subscribeToTopic(subscriptionResult.topicName)
+                                                    .addOnCompleteListener { task ->
+                                                        if (task.isSuccessful) {
+                                                            Log.d(TAG, "Subscribed successfully!")
+                                                        } else {
+                                                            Log.d(TAG, "Subscription failed(")
+                                                        }
+                                                    }
+                                            }
+                                            is RegisterPushNotificationsResult.Failure -> {
+                                                Log.d(TAG, "Subscription failed: ${subscriptionResult.cause}")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
+                    }).start()
+                    //endregion
+
                 }
                 is UserAuthResult.Failure -> {
                     Log.e(TAG, "Ant authorization failed because: ${userAuthResult.cause}")
                 }
             }
         })
-        //endregion
-
-        //region Antourage push notification subscription
-        Thread(Runnable {
-            try {
-                //Get firebase cloud messaging token
-                val fcmToken =
-                    FirebaseInstanceId.getInstance().getToken(getString(R.string.SENDER_ID), "FCM")
-                runOnUiThread {
-                    fcmToken?.let { fcmToken ->
-                        AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
-                            //Handle subscription result
-                            when (subscriptionResult) {
-                                //If result is successful, subscribe to the topic with
-                                //topic name from result.
-                                is RegisterPushNotificationsResult.Success -> {
-                                    Log.d(
-                                        TAG,
-                                        "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
-                                    )
-                                    FirebaseMessaging.getInstance()
-                                        .subscribeToTopic(subscriptionResult.topicName)
-                                        .addOnCompleteListener { task ->
-                                            if (task.isSuccessful) {
-                                                Log.d(TAG, "Subscribed successfully!")
-                                            } else {
-                                                Log.d(TAG, "Subscription failed(")
-                                            }
-                                        }
-                                }
-                                is RegisterPushNotificationsResult.Failure -> {
-                                    Log.d(TAG, "Subscription failed: ${subscriptionResult.cause}")
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }).start()
         //endregion
     }
 

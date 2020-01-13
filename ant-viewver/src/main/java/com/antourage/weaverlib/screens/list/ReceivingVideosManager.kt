@@ -61,6 +61,7 @@ internal class ReceivingVideosManager {
         val handlerCall = Handler()
 
         fun startReceivingVideos() {
+            Log.d(AntourageFab.TAG, "Started videos list timer")
             handlerCall.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
@@ -73,9 +74,11 @@ internal class ReceivingVideosManager {
                                     when (resource.status) {
                                         is Status.Failure -> {
                                             callback?.onLiveBroadcastReceived(resource)
+                                            Log.d(AntourageFab.TAG, "Get live video list request failed")
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
+                                            Log.d(AntourageFab.TAG, "Successfully received live video list")
                                             callback?.onLiveBroadcastReceived(resource)
                                             liveVideos = resource
                                             streamResponse.removeObserver(this)
@@ -91,6 +94,7 @@ internal class ReceivingVideosManager {
         }
 
         fun stopReceivingVideos() {
+            Log.d(AntourageFab.TAG, "Cancelled videos list timer")
             handlerCall.removeCallbacksAndMessages(null)
             callback = null
         }

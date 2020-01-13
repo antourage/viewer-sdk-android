@@ -1,16 +1,15 @@
 package com.antourage.weaverlib.screens.base.chat
 
-import androidx.lifecycle.Observer
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
-import com.google.android.material.navigation.NavigationView
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Message
@@ -21,6 +20,7 @@ import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
+import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
 /**
@@ -40,13 +40,24 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
             rvMessages.apply {
-                var shouldScrollToBottom = ((adapter as MessagesAdapter).newMessagesWereAdded(list))
+                var shouldScrollToBottom =
+                    ((adapter as MessagesAdapter).newMessagesWereAdded(list) &&
+                            userIsAtTheBottomOfTheChat())
                 (adapter as MessagesAdapter).setMessageList(list)
                 if (shouldScrollToBottom) {
                     adapter?.itemCount?.let { scrollToPosition(it - 1) }
                 }
             }
         }
+    }
+
+    private fun userIsAtTheBottomOfTheChat(): Boolean {
+        val layoutManager = rvMessages.layoutManager
+        if (layoutManager is ChatLayoutManager) {
+            if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1)
+                return true
+        }
+        return false
     }
 
     //endregion

@@ -291,6 +291,8 @@ class AntourageFab @JvmOverloads constructor(
         val token = userCache?.getToken()
         if (token == null || token.isEmptyTrimmed()) {
             authorizeUser(apiKey, refUserId, nickname, callback)
+        } else {
+            callback?.invoke(UserAuthResult.Success)
         }
     }
 
