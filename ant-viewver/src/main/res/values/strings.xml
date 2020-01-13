@@ -56,4 +56,5 @@
     <string name="ant_no_internet">No internet connection available</string>
     <string name="ant_no_internet_action">No_internet_connection_available</string>
     <string name="ant_failed_to_load_video">Failed to load video</string>
+    <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>
 </resources>

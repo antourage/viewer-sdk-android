@@ -107,7 +107,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         context?.let {
-//            viewModel.subscribeToLiveStreams()
+            //            viewModel.subscribeToLiveStreams()
 
             viewModel.handleUserAuthorization()
 
@@ -168,7 +168,19 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         rvLayoutManager.reverseLayout = false
         videosRV.layoutManager = rvLayoutManager
         videoRefreshLayout.setOnRefreshListener {
-            viewModel.refreshVODs(0, true)
+            context?.let {
+                if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                    if (viewModel.userAuthorized()) {
+                        viewModel.refreshVODs(0, true)
+                    } else {
+                        videoRefreshLayout.isRefreshing = false
+                        showWarningAlerter(resources.getString(R.string.invalid_toke_error_message))
+                    }
+                } else {
+                    videoRefreshLayout.isRefreshing = false
+                    showWarningAlerter(resources.getString(R.string.ant_no_internet))
+                }
+            }
         }
 
         placeHolderRV.layoutManager = LinearLayoutManager(context)
