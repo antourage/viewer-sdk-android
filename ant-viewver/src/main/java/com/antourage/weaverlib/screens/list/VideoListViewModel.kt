@@ -5,15 +5,20 @@ import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import android.util.Log
+import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.User
+import com.antourage.weaverlib.other.models.UserRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
+import com.antourage.weaverlib.ui.fab.AntourageFab
+import com.antourage.weaverlib.ui.fab.UserAuthResult
 import java.util.*
 import javax.inject.Inject
 import kotlin.concurrent.schedule
@@ -256,5 +261,74 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     fun onNetworkGained() {
         refreshVODs(noLoadingPlaceholder = true)
+    }
+
+    fun handleUserAuthorization() {
+        if (userAuthorized()) {
+            ReceivingVideosManager.startReceivingVideos()
+            ReceivingVideosManager.getNewVODsCount()
+        } else {
+            getCachedApiKey()?.let { apiKey ->
+                authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname(), null)
+            }
+        }
+    }
+
+    internal fun userAuthorized(): Boolean {
+        return !(UserCache.getInstance(getApplication())?.getToken().isNullOrBlank())
+    }
+
+    private fun getCachedNickname(): String? {
+        return UserCache.getInstance(getApplication())?.getUserNickName()
+    }
+
+    private fun getCachedUserRefId(): String? {
+        return UserCache.getInstance(getApplication())?.getUserRefId()
+    }
+
+    private fun getCachedApiKey(): String? {
+        return UserCache.getInstance(getApplication())?.getApiKey()
+    }
+
+    private fun authorizeUser(
+        apiKey: String,
+        refUserId: String? = null,
+        nickname: String? = null,
+        callback: ((result: UserAuthResult) -> Unit)? = null
+    ) {
+        Log.d(AntourageFab.TAG, "Trying to authorize ant user...")
+        refUserId?.let { UserCache.getInstance(getApplication())?.saveUserRefId(it) }
+        nickname?.let { UserCache.getInstance(getApplication())?.saveUserNickName(it) }
+        UserCache.getInstance(getApplication())?.saveApiKey(apiKey)
+
+        val response = Repository().generateUser(UserRequest(apiKey, refUserId, nickname))
+        response.observeForever(object : Observer<Resource<User>> {
+            override fun onChanged(it: Resource<User>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        val user = responseStatus.data
+                        Log.d(AntourageFab.TAG, "Ant authorization successful")
+                        user?.apply {
+                            if (token != null && id != null) {
+                                Log.d(
+                                    AntourageFab.TAG,
+                                    "Ant token and ant userId != null, started live video timer"
+                                )
+                                UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
+                                subscribeToLiveStreams()
+                                refreshVODs()
+                            }
+                        }
+                        callback?.invoke(UserAuthResult.Success)
+                        response.removeObserver(this)
+                    }
+                    is Status.Failure -> {
+                        Log.d(AntourageFab.TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
+                        callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
+                        response.removeObserver(this)
+                    }
+                }
+            }
+        })
     }
 }

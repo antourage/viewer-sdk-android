@@ -30,6 +30,8 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
+        private const val SP_USER_REF_ID = "sp_user_ref_id"
+        private const val SP_USER_NICKNAME = "sp_user_nickname"
         private var INSTANCE: UserCache? = null
 
         @Synchronized
@@ -91,6 +93,18 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveUserRefId(userRefId: String) {
+        prefs?.edit()
+            ?.putString(SP_USER_REF_ID, userRefId)
+            ?.apply()
+    }
+
+    fun saveUserNickName(userNickname: String) {
+        prefs?.edit()
+            ?.putString(SP_USER_NICKNAME, userNickname)
+            ?.apply()
+    }
+
     fun saveCollapsedPoll(pollId: String) {
         prefs?.edit()
             ?.putString(SP_COLLAPSED_POLL, pollId)
@@ -119,6 +133,14 @@ internal class UserCache private constructor(context: Context) {
         return prefs?.getString(SP_API_KEY, null)
     }
 
+    fun getUserRefId(): String? {
+        return prefs?.getString(SP_USER_REF_ID, null)
+    }
+
+    fun getUserNickName(): String? {
+        return prefs?.getString(SP_USER_NICKNAME, null)
+    }
+
     internal fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
         val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
         prefs?.edit()
@@ -143,4 +165,5 @@ internal class UserCache private constructor(context: Context) {
     private fun clearUserData() {
         saveUserAuthInfo("", -1)
     }
+
 }

@@ -6,10 +6,10 @@ import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.ui.fab.AntourageFab
 
 /**
  * Added so that AntourageFab and VideoListFragment received data from the same source
@@ -28,6 +28,7 @@ internal class ReceivingVideosManager {
         }
 
         fun loadVODs(count: Int) {
+            Log.d(AntourageFab.TAG, "Trying to load VODs")
             val response = Repository().getVODs(count)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {

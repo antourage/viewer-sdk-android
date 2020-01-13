@@ -45,11 +45,13 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
+        internal const val TAG = "AntourageFabLogs"
 
         public fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
+            Log.d(TAG, "Trying to register ant push notifications...")
             val response =
                 Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
             response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
@@ -61,10 +63,18 @@ class AntourageFab @JvmOverloads constructor(
                                     topicName
                                 )
                             }?.let { result -> callback?.invoke(result) }
+                            Log.d(TAG, "Push notification registration successful")
+                            responseStatus.data?.topic?.let {
+                                Log.d(TAG, "Topic name: $it")
+                            }
                             response.removeObserver(this)
                         }
                         is Status.Failure -> {
                             callback?.invoke(RegisterPushNotificationsResult.Failure(responseStatus.errorMessage))
+                            Log.d(
+                                TAG,
+                                "Push notification registration failed; ${responseStatus.errorMessage}"
+                            )
                             response.removeObserver(this)
                         }
                     }
@@ -153,7 +163,6 @@ class AntourageFab @JvmOverloads constructor(
                             listOfStreams = list
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
-                            Log.d("VOD_COUNT_TAG", "onLiveBroadcastReceived")
                             ReceivingVideosManager.getNewVODsCount()
                         }
                     }
@@ -164,9 +173,14 @@ class AntourageFab @JvmOverloads constructor(
                 }
             }
         })
-        ReceivingVideosManager.startReceivingVideos()
-        Log.d("VOD_COUNT_TAG", "onResume")
-        ReceivingVideosManager.getNewVODsCount()
+        if (userAuthorized()) {
+            ReceivingVideosManager.startReceivingVideos()
+            ReceivingVideosManager.getNewVODsCount()
+        }
+    }
+
+    private fun userAuthorized(): Boolean {
+        return !(UserCache.getInstance(context)?.getToken().isNullOrBlank())
     }
 
     override fun onPause() {
@@ -286,23 +300,34 @@ class AntourageFab @JvmOverloads constructor(
         nickname: String? = null,
         callback: ((result: UserAuthResult) -> Unit)? = null
     ) {
-        Log.d("Ant_Auth_Tag", "authorizing new user...")
+        Log.d(TAG, "Trying to authorize ant user...")
+        refUserId?.let { UserCache.getInstance(context)?.saveUserRefId(it) }
+        nickname?.let { UserCache.getInstance(context)?.saveUserNickName(it) }
+        UserCache.getInstance(context)?.saveApiKey(apiKey)
+
         val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
                         val user = responseStatus.data
-                        Log.d("Ant_Auth_Tag", "new user generated: ${user?.token}")
+                        Log.d(TAG, "Ant authorization successful")
                         user?.apply {
-                            if (token != null && id != null)
+                            if (token != null && id != null) {
+                                Log.d(
+                                    TAG,
+                                    "Ant token and ant userId != null, started live video timer"
+                                )
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
+                                ReceivingVideosManager.startReceivingVideos()
+                                ReceivingVideosManager.getNewVODsCount()
+                            }
                         }
-                        UserCache.getInstance(context)?.saveApiKey(apiKey)
                         callback?.invoke(UserAuthResult.Success)
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
+                        Log.d(TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
                         callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
                         response.removeObserver(this)
                     }

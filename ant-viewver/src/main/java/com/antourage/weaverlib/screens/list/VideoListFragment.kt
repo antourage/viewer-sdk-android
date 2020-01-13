@@ -107,7 +107,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         context?.let {
-            viewModel.subscribeToLiveStreams()
+//            viewModel.subscribeToLiveStreams()
+
+            viewModel.handleUserAuthorization()
+
             viewModel.refreshVODsLocally()
             if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
@@ -174,7 +177,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
 
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
-        if (refreshVODs) {
+        if (refreshVODs && viewModel.userAuthorized()) {
             viewModel.refreshVODs()
             refreshVODs = false
         }
