@@ -163,20 +163,27 @@ class AntourageFab @JvmOverloads constructor(
                             listOfStreams = list
                             changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
                         } else {
-                            ReceivingVideosManager.getNewVODsCount()
+//                            ReceivingVideosManager.getNewVODsCount()
+                            if (floatingActionButton.isLiveBadgeShown()) {
+                                changeBadgeStatus(WidgetStatus.Inactive)
+                            }
                         }
                     }
                     is Status.Failure -> {
-                        ReceivingVideosManager.getNewVODsCount()
+//                        ReceivingVideosManager.getNewVODsCount()
                         BaseViewModel.error.postValue(resource.status.errorMessage)
                     }
                 }
             }
         })
         if (userAuthorized()) {
-            ReceivingVideosManager.startReceivingVideos()
-            ReceivingVideosManager.getNewVODsCount()
+            startAntRequests()
         }
+    }
+
+    private fun startAntRequests() {
+        ReceivingVideosManager.startReceivingVideos()
+        ReceivingVideosManager.startReceivingVODsCount()
     }
 
     private fun userAuthorized(): Boolean {
@@ -201,10 +208,12 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun manageVideos(newVideosCount: Int) {
-        changeBadgeStatus(
-            if (newVideosCount > 0) WidgetStatus.ActiveUnseenVideos(newVideosCount)
-            else WidgetStatus.Inactive
-        )
+        if (!floatingActionButton.isLiveBadgeShown()) {
+            changeBadgeStatus(
+                if (newVideosCount > 0) WidgetStatus.ActiveUnseenVideos(newVideosCount)
+                else WidgetStatus.Inactive
+            )
+        }
     }
 
     private fun changeBadgeStatus(status: WidgetStatus) {
@@ -321,8 +330,7 @@ class AntourageFab @JvmOverloads constructor(
                                     "Ant token and ant userId != null, started live video timer"
                                 )
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
-                                ReceivingVideosManager.startReceivingVideos()
-                                ReceivingVideosManager.getNewVODsCount()
+                                startAntRequests()
                             }
                         }
                         callback?.invoke(UserAuthResult.Success)

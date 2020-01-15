@@ -338,7 +338,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     currentStreamInfo.observeForever(streamInfoObserver)
                     handlerCall.postDelayed(
                         this,
-                        ReceivingVideosManager.STREAMS_REQUEST_DELAY
+                        ReceivingVideosManager.LIVE_STREAMS_REQUEST_INTERVAL
                     )
                 }
             }

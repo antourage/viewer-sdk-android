@@ -19,7 +19,9 @@ internal class ReceivingVideosManager {
 
     companion object {
         private var callback: ReceivingVideoCallback? = null
-        const val STREAMS_REQUEST_DELAY = 5000L
+        const val LIVE_STREAMS_REQUEST_INTERVAL = 5_000L
+        const val NEW_VODS_COUNT_REQUEST_INTERVAL = 61_000L
+        const val NEW_VODS_COUNT_REQUEST_DELAY = 1_000L
         private var liveVideos: Resource<List<StreamResponse>>? = null
         private var vods: Resource<List<StreamResponse>>? = null
 
@@ -36,6 +38,7 @@ internal class ReceivingVideosManager {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
+                                Log.d(AntourageFab.TAG, "Failed to load VODs: ${resource.status.errorMessage}")
                                 callback?.onVODReceived(resource)
                                 response.removeObserver(this)
                             }
@@ -46,6 +49,7 @@ internal class ReceivingVideosManager {
                                     callback?.onVODReceived(resource)
                                 }
                                 vods = resource
+                                Log.d(AntourageFab.TAG, "Successfully received VOD list")
                                 response.removeObserver(this)
                             }
                             is Status.Loading -> {
@@ -58,11 +62,12 @@ internal class ReceivingVideosManager {
             })
         }
 
-        val handlerCall = Handler()
+        val handlerLiveVideos = Handler()
+        val handlerVODsCount = Handler()
 
         fun startReceivingVideos() {
             Log.d(AntourageFab.TAG, "Started videos list timer")
-            handlerCall.postDelayed(object : Runnable {
+            handlerLiveVideos.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
                         val streamResponse =
@@ -88,14 +93,28 @@ internal class ReceivingVideosManager {
                             }
                         })
                     }
-                    handlerCall.postDelayed(this, STREAMS_REQUEST_DELAY)
+                    handlerLiveVideos.postDelayed(this, LIVE_STREAMS_REQUEST_INTERVAL)
                 }
             }, 0)
         }
 
+        fun startReceivingVODsCount() {
+            Log.d(AntourageFab.TAG, "Started VODs count timer")
+            handlerVODsCount.postDelayed(object : Runnable {
+                override fun run() {
+                    if (Global.networkAvailable) {
+                        getNewVODsCount()
+                    }
+                    handlerLiveVideos.postDelayed(this, NEW_VODS_COUNT_REQUEST_INTERVAL)
+                }
+            }, NEW_VODS_COUNT_REQUEST_DELAY)
+        }
+
         fun stopReceivingVideos() {
             Log.d(AntourageFab.TAG, "Cancelled videos list timer")
-            handlerCall.removeCallbacksAndMessages(null)
+            Log.d(AntourageFab.TAG, "Cancelled VODs count timer")
+            handlerLiveVideos.removeCallbacksAndMessages(null)
+            handlerVODsCount.removeCallbacksAndMessages(null)
             callback = null
         }
 
@@ -107,11 +126,12 @@ internal class ReceivingVideosManager {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
+                                Log.d(AntourageFab.TAG, "Failed to get VODs count")
                                 callback?.onNewVideosCount(resource)
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
-                                Log.d("VOD_COUNT_TAG", resource.toString())
+                                Log.d(AntourageFab.TAG, "Successfully received VODs count: ${resource.status.data.toString()}")
                                 callback?.onNewVideosCount(resource)
                                 response.removeObserver(this)
                             }

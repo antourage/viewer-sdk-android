@@ -122,6 +122,8 @@ internal class BadgeFab @JvmOverloads constructor(
         textBadge = text
     }
 
+    fun isLiveBadgeShown() = textBadge == "Live"
+
     private fun getDefaultBadgeColor(): Int = run {
         val colorStateList = backgroundTintList
         if (colorStateList != null) {
@@ -176,7 +178,7 @@ internal class BadgeFab @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (textBadge != "" || isAnimating) {
+        if (textBadge != "") {
             if (getContentRect(contentBounds)) {
                 val newLeft: Int
                 val newTop: Int
