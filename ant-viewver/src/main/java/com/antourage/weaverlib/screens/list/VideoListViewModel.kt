@@ -266,7 +266,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     fun handleUserAuthorization() {
         if (userAuthorized()) {
             ReceivingVideosManager.startReceivingVideos()
-            ReceivingVideosManager.getNewVODsCount()
         } else {
             getCachedApiKey()?.let { apiKey ->
                 authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname(), null)
@@ -323,7 +322,10 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
-                        Log.d(AntourageFab.TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
+                        Log.d(
+                            AntourageFab.TAG,
+                            "Ant authorization failed: ${responseStatus.errorMessage}"
+                        )
                         callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
                         response.removeObserver(this)
                     }
