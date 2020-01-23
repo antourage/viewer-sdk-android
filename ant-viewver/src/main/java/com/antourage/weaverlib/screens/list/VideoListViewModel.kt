@@ -265,7 +265,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     fun handleUserAuthorization() {
         if (userAuthorized()) {
-            ReceivingVideosManager.startReceivingVideos()
+            subscribeToLiveStreams()
         } else {
             getCachedApiKey()?.let { apiKey ->
                 authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname(), null)
