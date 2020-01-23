@@ -7,7 +7,6 @@ import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTIO
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTION_PATH_POLLS
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTION_PATH_STREAMS
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_DEV
-import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_LOCAL
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_PROD
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_STAGING
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
@@ -29,7 +28,7 @@ internal class FirestoreDatabase {
             BASE_URL_DEV -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
             BASE_URL_STAGING -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_STAGING)
             BASE_URL_PROD -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_PROD)
-            else -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
+            else -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_PROD)
         }
     }
 

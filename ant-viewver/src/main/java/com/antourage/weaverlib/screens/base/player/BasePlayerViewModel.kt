@@ -24,8 +24,10 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.antourage.weaverlib.screens.weaver.PlayerViewModel
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.DefaultLoadControl.Builder
+import com.google.android.exoplayer2.ExoPlaybackException.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
@@ -223,7 +225,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             when (this) {
                 is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
                 is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
-                else -> {}
+                else -> {
+                }
             }
         }
     }
@@ -283,11 +286,20 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 currentWindow = player.currentWindowIndex
                 errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
             }
+            Log.d(TAG, "player error: ${err.cause.toString()}")
+            Log.d(TAG, when(err.type){
+                TYPE_SOURCE -> "error type: ${err.type} error message: ${err.sourceException.message}"
+                TYPE_RENDERER -> "error type: ${err.type} error message: ${err.rendererException.message}"
+                TYPE_UNEXPECTED -> "error type: ${err.type} error message: ${err.unexpectedException.message}"
+                TYPE_REMOTE -> "error type: ${err.type} error message: ${err.message}"
+                TYPE_OUT_OF_MEMORY -> "error type: ${err.type} error message: ${err.outOfMemoryError.message}"
+                else -> err.message
+            } ?: "")
             if (err.cause is BehindLiveWindowException) {
                 player.prepare(getMediaSource(streamUrl), false, true)
+            } else {
+                error.postValue(err.toString())
             }
-
-            error.postValue(err.toString())
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
