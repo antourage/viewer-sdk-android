@@ -27,11 +27,13 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     companion object {
         val ARGS_POLL_ID = "args_poll_id"
         val ARGS_STREAM_ID = "args_stream_id"
+        val ARGS_USER_ID = "args_user_id"
 
-        fun newInstance(streamId: Int, pollId: String): PollDetailsFragment {
+        fun newInstance(streamId: Int, pollId: String, userId: Int): PollDetailsFragment {
             val bundle = Bundle()
             bundle.putString(ARGS_POLL_ID, pollId)
             bundle.putInt(ARGS_STREAM_ID, streamId)
+            bundle.putInt(ARGS_USER_ID, userId)
             val fragment = PollDetailsFragment()
             fragment.arguments = bundle
             return fragment
@@ -81,7 +83,8 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         arguments?.let { arguments ->
             viewModel.initPollDetails(
                 arguments.getInt(ARGS_STREAM_ID, -1),
-                arguments.getString(ARGS_POLL_ID, "")
+                arguments.getString(ARGS_POLL_ID, ""),
+                arguments.getInt(ARGS_USER_ID, -1)
             )
         }
         view?.let {
@@ -107,7 +110,9 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     }
 
     override fun onAnswerChosen(position: Int) {
-        viewModel.onAnswerChosen(position)
+        viewModel.userId?.let { userId ->
+            viewModel.onAnswerChosen(position, userId)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

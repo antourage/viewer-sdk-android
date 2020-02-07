@@ -44,34 +44,11 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.btnSend
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.etMessage
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivFirstFrame
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivUserPhoto
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.llNoChat
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ll_wrapper
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvBroadcastedBy
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.tvStreamName
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.exo_play
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.llTopLeftLabels
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.tvWasLive
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.txtNumberOfViewers
-import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 import kotlin.math.roundToInt
@@ -87,6 +64,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
+        const val ARGS_USER_ID = "args_user_id"
 
         fun newInstance(stream: StreamResponse): PlayerFragment {
             val fragment = PlayerFragment()
@@ -238,14 +216,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             wasDrawerClosed = true
                         }
                     }
-                    arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let {
-                        PollDetailsFragment.newInstance(
-                            it,
-                            state.pollId
-                        )
-                    }?.let {
+                    val streamId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId
+                    val userId = arguments?.getInt(ARGS_USER_ID)
+                    if (streamId != null && userId != null) {
                         replaceChildFragment(
-                            it, R.id.bottomLayout, true
+                            PollDetailsFragment.newInstance(
+                                streamId,
+                                state.pollId,
+                                userId
+                            ), R.id.bottomLayout, true
                         )
                     }
                     childFragmentManager.addOnBackStackChangedListener {
@@ -300,7 +279,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         User id fot firebase synchronized with back end user id with messages;
          */
         message.userID = viewModel.getUser()?.id.toString()
-//        FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid
         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { streamId ->
             viewModel.addMessage(
                 message,

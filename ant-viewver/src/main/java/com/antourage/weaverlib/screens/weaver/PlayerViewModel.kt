@@ -187,8 +187,8 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     private fun wasAnswered(answeredUsers: List<AnsweredUser>): Boolean {
-        for (j in 0 until answeredUsers.size) {
-            if (answeredUsers[j].id == FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName)).uid) {
+        for (answeredUser in answeredUsers) {
+            if (answeredUser.id == user?.id.toString()) {
                 return true
             }
         }

@@ -21,6 +21,7 @@ internal class PollDetailsViewModel @Inject constructor(
     application: Application
 ) : BaseViewModel(application) {
 
+    internal var userId: Int? = null
     private val pollLiveData = MutableLiveData<Poll>()
     private var answersLiveData: MutableLiveData<List<AnswersCombined>> = MutableLiveData()
     private var streamId: Int = -1
@@ -31,9 +32,10 @@ internal class PollDetailsViewModel @Inject constructor(
     internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
     internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
 
-    fun initPollDetails(streamId: Int, pollId: String) {
+    fun initPollDetails(streamId: Int, pollId: String, userId: Int) {
         this.streamId = streamId
         this.pollId = pollId
+        this.userId = userId
         repository.getPollDetails(streamId, pollId).observeForever { resource ->
             resource?.status?.let { status ->
                 if (status is Status.Success) {
@@ -57,13 +59,13 @@ internal class PollDetailsViewModel @Inject constructor(
         return sum
     }
 
-    fun onAnswerChosen(pos: Int) {
+    fun onAnswerChosen(pos: Int, userId: Int) {
         FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
             .currentUser?.let {
             val userAnswer = AnsweredUser()
             userAnswer.chosenAnswer = pos
             userAnswer.timestamp = Timestamp(Date())
-            userAnswer.id = it.uid
+            userAnswer.id = userId.toString()
             repository.vote(streamId, pollId, userAnswer)
             isAnswered = true
         }
@@ -76,12 +78,8 @@ internal class PollDetailsViewModel @Inject constructor(
             if (poll?.answers != null && answeredUsers != null)
                 for (i in 0 until (poll.answers?.size ?: 0)) {
                     var counter = 0
-                    for (j in 0 until answeredUsers.size) {
-                        if (answeredUsers[j].id == FirebaseAuth.getInstance(
-                                FirebaseApp.getInstance(
-                                    BuildConfig.FirebaseName
-                                )
-                            ).uid
+                    for (j in answeredUsers.indices) {
+                        if (answeredUsers[j].id == userId.toString()
                         ) {
                             isAnswered = true
                         }
