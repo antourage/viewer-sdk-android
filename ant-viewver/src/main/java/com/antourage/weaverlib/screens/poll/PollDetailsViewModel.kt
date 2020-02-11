@@ -36,12 +36,12 @@ internal class PollDetailsViewModel @Inject constructor(
         this.streamId = streamId
         this.pollId = pollId
         this.userId = userId
-        repository.getPollDetails(streamId, pollId).observeForever { resource ->
+        Repository.getPollDetails(streamId, pollId).observeForever { resource ->
             resource?.status?.let { status ->
                 if (status is Status.Success) {
                     val poll = status.data
                     pollLiveData.postValue(poll)
-                    repository.getAnsweredUsers(streamId, pollId)
+                    Repository.getAnsweredUsers(streamId, pollId)
                         .observeForever { answeredUsersResource ->
                             answeredUsersResource?.apply { manageAnswers(this, poll) }
                         }
@@ -66,7 +66,7 @@ internal class PollDetailsViewModel @Inject constructor(
             userAnswer.chosenAnswer = pos
             userAnswer.timestamp = Timestamp(Date())
             userAnswer.id = userId.toString()
-            repository.vote(streamId, pollId, userAnswer)
+            Repository.vote(streamId, pollId, userAnswer)
             isAnswered = true
         }
     }

@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
-import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import android.util.Log
@@ -43,7 +42,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
-        ReceivingVideosManager.startReceivingVideos()
+        ReceivingVideosManager.startReceivingLiveStreams()
     }
 
     fun refreshVODs(
@@ -300,7 +299,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         nickname?.let { UserCache.getInstance(getApplication())?.saveUserNickName(it) }
         UserCache.getInstance(getApplication())?.saveApiKey(apiKey)
 
-        val response = Repository().generateUser(UserRequest(apiKey, refUserId, nickname))
+        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {

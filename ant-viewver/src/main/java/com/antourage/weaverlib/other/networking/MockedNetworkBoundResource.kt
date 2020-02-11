@@ -1,16 +1,19 @@
 package com.antourage.weaverlib.other.networking
 
 import android.content.Intent
+import android.os.SystemClock
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.ModuleResourcesProvider
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.util.*
 
-internal abstract class NetworkBoundResource<ResultType>
-@MainThread constructor() {
+internal abstract class MockedNetworkBoundResource<ResultType>
+@MainThread constructor(mockResponse: ResultType) {
 
     private val result = MutableLiveData<Resource<ResultType>>()
 
@@ -19,7 +22,7 @@ internal abstract class NetworkBoundResource<ResultType>
         result.value = Resource.loading()
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
-                fetchFromNetwork()
+                fetchFromNetwork(mockResponse)
             } else {
                 val intent =
                     Intent(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
@@ -37,34 +40,11 @@ internal abstract class NetworkBoundResource<ResultType>
         }
     }
 
-    private fun fetchFromNetwork() {
-        val apiResponse = createCall()
-        apiResponse.observeForever { response ->
-            when (response) {
-                is ApiSuccessResponse -> {
-                    AppExecutors.diskIO().execute {
-                        AppExecutors.mainThread().execute {
-                            result.setValue(
-                                Resource.success(response.body)
-                            )
-                        }
-                    }
-                }
-                is ApiEmptyResponse -> {
-                    AppExecutors.mainThread().execute {
-                        //TODO: handle empty response
-                        //Got empty response
-                    }
-                }
-                is ApiErrorResponse -> {
-                    onFetchFailed()
-                    result.setValue(
-                        Resource.failure(
-                            response.errorMessage,
-                            response.errorCode
-                        )
-                    )
-                }
+    private fun fetchFromNetwork(mockResponse: ResultType) {
+        doAsync {
+            SystemClock.sleep(2000)
+            uiThread {
+                result.value = Resource.success(mockResponse)
             }
         }
     }
@@ -75,7 +55,4 @@ internal abstract class NetworkBoundResource<ResultType>
 
     @WorkerThread
     protected open fun processResponse(response: ApiSuccessResponse<ResultType>) = response.body
-
-    @MainThread
-    protected abstract fun createCall(): LiveData<ApiResponse<ResultType>>
 }

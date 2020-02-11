@@ -17,7 +17,6 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
-import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -129,12 +128,12 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                 if (!isChatTurnedOn) {
                     //TODO 17/06/2019 wth does not actually remove observer
                     streamId?.let { it1 ->
-                        repository.getMessages(it1).removeObserver(messagesObserver)
+                        Repository.getMessages(it1).removeObserver(messagesObserver)
                     }
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                 } else {
                     streamId?.let { it1 ->
-                        repository.getMessages(it1).observeForever(messagesObserver)
+                        Repository.getMessages(it1).observeForever(messagesObserver)
                     }
                 }
             }
@@ -144,8 +143,8 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     fun initUi(streamId: Int?, currentlyWatchedVideoId: Int?) {
         streamId?.let {
             this.streamId = it
-            repository.getPoll(streamId).observeForever(activePollObserver)
-            repository.getStream(streamId).observeForever(streamObserver)
+            Repository.getPoll(streamId).observeForever(activePollObserver)
+            Repository.getStream(streamId).observeForever(streamObserver)
         }
 
         currentlyWatchedVideoId?.let {
@@ -198,7 +197,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     fun observeAnsweredUsers() {
         currentPoll?.let { poll ->
             streamId?.let {
-                repository.getAnsweredUsers(it, poll.id).observeForever { resource ->
+                Repository.getAnsweredUsers(it, poll.id).observeForever { resource ->
                     resource?.status?.let {
                         if (it is Status.Success && it.data != null) {
                             if (wasAnswered(it.data)) {
@@ -235,7 +234,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             temp.add(
                 message
             )
-            repository.addMessage(message, streamId)
+            Repository.addMessage(message, streamId)
         }
     }
 
@@ -255,8 +254,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             .createMediaSource(Uri.parse(streamUrl))
     }
 
-    override fun onVideoChanged() {}
-
     override fun onResume() {
         super.onResume()
         player.seekTo(player.duration)
@@ -270,7 +267,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     fun initUser() {
         UserCache.getInstance(getApplication())?.getUserId()?.let { userId ->
             val response = UserCache.getInstance(getApplication())?.getApiKey()?.let { apiKey ->
-                repository.getUser(
+                Repository.getUser(
                     userId,
                     apiKey
                 )
@@ -296,7 +293,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     fun changeUserDisplayName(newDisplayName: String) {
         if (newDisplayName != user?.displayName) {
             changeDisplayNameForAllMessagesLocally(newDisplayName)
-            val response = repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
+            val response = Repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(it: Resource<SimpleResponse>?) {
                     when (it?.status) {
@@ -351,7 +348,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     fun changeUserAvatar() {
         newAvatar?.let { avatar ->
-            val userImgUpdateResponse = repository.uploadImage(avatar.toMultipart())
+            val userImgUpdateResponse = Repository.uploadImage(avatar.toMultipart())
             userImgUpdateResponse.observeForever(object : Observer<Resource<UpdateImageResponse>> {
                 override fun onChanged(t: Resource<UpdateImageResponse>?) {
                     t?.let {

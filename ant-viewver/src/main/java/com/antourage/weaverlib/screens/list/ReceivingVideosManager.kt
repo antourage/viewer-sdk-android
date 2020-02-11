@@ -31,7 +31,7 @@ internal class ReceivingVideosManager {
 
         fun loadVODs(count: Int) {
             Log.d(AntourageFab.TAG, "Trying to load VODs")
-            val response = Repository().getVODs(count)
+            val response = Repository.getVODs(count)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -65,13 +65,13 @@ internal class ReceivingVideosManager {
         val handlerLiveVideos = Handler()
         val handlerVODsCount = Handler()
 
-        fun startReceivingVideos() {
+        fun startReceivingLiveStreams() {
             Log.d(AntourageFab.TAG, "Started videos list timer")
             handlerLiveVideos.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
                         val streamResponse =
-                            Repository().getLiveVideos()
+                            Repository.getMockedLiveVideos()
                         streamResponse.observeForever(object :
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -98,7 +98,7 @@ internal class ReceivingVideosManager {
             }, 0)
         }
 
-        fun startReceivingVODsCount() {
+        fun startReceivingNewVODsCount() {
             Log.d(AntourageFab.TAG, "Started VODs count timer")
             handlerVODsCount.postDelayed(object : Runnable {
                 override fun run() {
@@ -119,7 +119,7 @@ internal class ReceivingVideosManager {
         }
 
         fun getNewVODsCount() {
-            val response = Repository().getNewVODsCount()
+            val response = Repository.getNewVODsCount()
             response.observeForever(object :
                 Observer<Resource<Int>> {
                 override fun onChanged(resource: Resource<Int>?) {

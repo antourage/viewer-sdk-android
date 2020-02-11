@@ -133,13 +133,15 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
         fun bindView(liveStream: StreamResponse) {
             with(itemView) {
                 liveStream.apply {
-                    if (!thumbnailUrl.isNullOrEmpty()) {
+                    val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
+                        .load(thumbnailUrl)
+                    else
                         Picasso.get()
-                            .load(thumbnailUrl)
-                            .placeholder(R.drawable.antourage_ic_no_content_content_loading)
-                            .error(R.drawable.antourage_ic_no_content_content_loading)
-                            .into(ivThumbnail_live)
-                    }
+                            .load(R.drawable.antourage_ic_no_content_content_loading)
+                    picasso
+                        .placeholder(R.drawable.antourage_ic_no_content_content_loading)
+                        .error(R.drawable.antourage_ic_no_content_content_loading)
+                        .into(ivThumbnail_live)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0
                             && adapterPosition < listOfStreams.size

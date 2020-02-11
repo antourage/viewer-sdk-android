@@ -269,4 +269,12 @@ internal class BadgeFab @JvmOverloads constructor(
 
         requestLayout()
     }
+
+    fun hideBadge() {
+        textBadge = ""
+    }
+
+    fun showNewVODsBadge() {
+        textBadge = " "
+    }
 }

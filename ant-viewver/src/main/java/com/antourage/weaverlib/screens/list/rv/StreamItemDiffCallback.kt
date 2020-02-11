@@ -20,6 +20,6 @@ internal class StreamItemDiffCallback(
                 oldList[oldItemPosition].viewersCount == newList[newItemPosition].viewersCount &&
                 oldList[oldItemPosition].viewsCount == newList[newItemPosition].viewsCount &&
                 oldList[oldItemPosition].isNew == newList[newItemPosition].isNew &&
-                oldList[oldItemPosition].stopTime.equals(newList[newItemPosition].stopTime)
+                oldList[oldItemPosition].startTime.equals(newList[newItemPosition].startTime)
     }
 }

@@ -17,6 +17,7 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -88,7 +89,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     abstract fun getMediaSource(streamUrl: String?): MediaSource?
 
-    abstract fun onVideoChanged()
+    open fun onVideoChanged() {}
 
     open fun onResume() {
         initStatisticsListeners()
@@ -107,7 +108,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     open fun onPause() {
         removeStatisticsListeners()
         player.playWhenReady = false
-        stopwatch.stop()
+        stopwatch.stopIfRunning()
         timerTickHandler.removeCallbacksAndMessages(null)
         sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
         stopUpdatingCurrentStreamInfo()
@@ -223,8 +224,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             )
         }?.let { statsItem ->
             when (this) {
-                is VideoViewModel -> Repository().statisticWatchVOD(statsItem)
-                is PlayerViewModel -> Repository().statisticWatchLiveStream(statsItem)
+                is VideoViewModel -> Repository.statisticWatchVOD(statsItem)
+                is PlayerViewModel -> Repository.statisticWatchLiveStream(statsItem)
                 else -> {
                 }
             }
@@ -257,9 +258,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             when (playbackState) {
                 Player.STATE_READY -> {
                     if (isPlaybackPaused()) {
-                        stopwatch.stop()
+                        stopwatch.stopIfRunning()
                     } else {
                         if (resetChronometer) {
+                            player.isPlaying
                             stopwatch.start()
                             resetChronometer = false
                         } else {
@@ -268,12 +270,12 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     }
                 }
                 Player.STATE_ENDED -> {
-                    stopwatch.stop()
+                    stopwatch.stopIfRunning()
                     onLiveStreamEnded()
                 }
 
                 Player.STATE_IDLE -> {
-                    stopwatch.stop()
+                    stopwatch.stopIfRunning()
                 }
             }
             onStreamStateChanged(playbackState)
@@ -304,8 +306,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
         override fun onPositionDiscontinuity(reason: Int) {
             currentWindow = player.currentWindowIndex
+            //TODO: change this, so reset chronometer only in case user switches to next or previous
+            // video;
             resetChronometer = true
-            handlerCall.removeCallbacksAndMessages(null)
+            stopUpdatingCurrentStreamInfo()
             onVideoChanged()
             currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
         }
@@ -321,8 +325,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             override fun run() {
                 if (Global.networkAvailable) {
                     val currentStreamInfo = when (this@BasePlayerViewModel) {
-                        is VideoViewModel -> Repository().getVODById(currentlyWatchedVideoId)
-                        else -> Repository().getLiveVideoById(currentlyWatchedVideoId)
+                        is VideoViewModel -> Repository.getVODById(currentlyWatchedVideoId)
+                        else -> Repository.getLiveVideoById(currentlyWatchedVideoId)
                     }
                     val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
                         override fun onChanged(resource: Resource<StreamResponse>?) {

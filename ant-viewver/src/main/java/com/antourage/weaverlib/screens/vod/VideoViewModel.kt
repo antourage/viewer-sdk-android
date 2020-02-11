@@ -89,7 +89,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
             is Status.Success -> {
                 status.data?.apply {
                     chatDataLiveData =
-                        this@VideoViewModel.streamId?.let { repository.getMessages(it) }
+                        this@VideoViewModel.streamId?.let { Repository.getMessages(it) }
                     chatDataLiveData?.observeOnce(chatDataObserver)
                 }
             }
@@ -112,7 +112,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         this.startTime = startTime?.parseToDate()
         streamId?.let {
             this.streamId = it
-            repository.getStream(streamId).observeOnce(streamObserver)
+            Repository.getStream(streamId).observeOnce(streamObserver)
         }
         this.vodId = vodId
         this.currentlyWatchedVideoId = vodId
@@ -138,7 +138,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
             setVODStopWatchingTimeLocally()
             stopWatchingTime?.let { stopWatchingTime ->
                 if (stopWatchingTime > 0) {
-                    Repository().stopWatchingVOD(
+                    Repository.stopWatchingVOD(
                         StopWatchVodRequest(
                             vodId, stopWatchingTime.formatDuration()
                         )
@@ -162,7 +162,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         this.vodId = currentVod.id
         this.currentlyWatchedVideoId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
-        currentVod.streamId?.let { repository.getStream(it).observeOnce(streamObserver) }
+        currentVod.streamId?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
         if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
             player.playWhenReady = true

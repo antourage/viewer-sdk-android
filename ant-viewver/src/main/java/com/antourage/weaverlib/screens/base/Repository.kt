@@ -6,6 +6,7 @@ import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.ApiClient
+import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.google.firebase.firestore.Query
@@ -15,125 +16,154 @@ internal class Repository {
 
     companion object {
         var vods: List<StreamResponse>? = null
+
+        fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
+            object : NetworkBoundResource<List<StreamResponse>>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getLiveStreams()
+            }.asLiveData()
+
+        fun getMockedLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
+            val mockedLiveVideos = List(10) { index ->
+                StreamResponse(
+                    index,
+                    index,
+                    "Stream $index",
+                    "Stream $index",
+                    null,
+                    null,
+                    "Creator $index",
+                    "Creator $index",
+                    "https://djyokoo.com/wp-content/uploads/2018/06/blog-placeholder-800x400.jpg",
+                    null, null, null, null, null,
+                    null, null, index, true, index, true, null
+                )
+            }
+            mockedLiveVideos.forEach { }
+            return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
+            }.asLiveData()
+        }
+
+        fun getLiveVideoById(id: Int): LiveData<Resource<StreamResponse>> =
+            object : NetworkBoundResource<StreamResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.getLiveStreamById(id)
+            }.asLiveData()
+
+        fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
+            object : NetworkBoundResource<List<StreamResponse>>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
+            }.asLiveData()
+
+        fun getVODById(id: Int): LiveData<Resource<StreamResponse>> =
+            object : NetworkBoundResource<StreamResponse>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getVODById(id)
+            }.asLiveData()
+
+        fun getNewVODsCount(): LiveData<Resource<Int>> =
+            object : NetworkBoundResource<Int>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getNewVODsCount()
+            }.asLiveData()
+
+        fun generateUser(body: UserRequest): LiveData<Resource<User>> =
+            object : NetworkBoundResource<User>() {
+                override fun createCall() =
+                    ApiClient.getWebClient(false).webService.generateUser(body)
+            }.asLiveData()
+
+        fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
+            object : NetworkBoundResource<User>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
+            }.asLiveData()
+
+        fun updateDisplayName(body: UpdateDisplayNameRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.updateDisplayName(body)
+            }.asLiveData()
+
+        fun statisticWatchVOD(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.statisticWatchVOD(body)
+            }.asLiveData()
+
+        fun statisticWatchLiveStream(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
+            }.asLiveData()
+
+        fun stopWatchingVOD(body: StopWatchVodRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.stopWatchingVOD(body)
+            }.asLiveData()
+
+        fun uploadImage(image: MultipartBody.Part): LiveData<Resource<UpdateImageResponse>> =
+            object : NetworkBoundResource<UpdateImageResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.uploadImage(image)
+            }.asLiveData()
+
+        fun subscribeToPushNotifications(body: SubscribeToPushesRequest): LiveData<Resource<NotificationSubscriptionResponse>> =
+            object : NetworkBoundResource<NotificationSubscriptionResponse>() {
+                override fun createCall() =
+                    ApiClient.getWebClient().webService.subscribeToPushNotifications(body)
+            }.asLiveData()
+
+        //region Firebase
+        internal fun addMessage(message: Message, streamId: Int) {
+            FirestoreDatabase().getMessagesReferences(streamId).document().set(message)
+        }
+
+        internal fun getMessages(streamId: Int): QuerySnapshotLiveData<Message> {
+            return QuerySnapshotLiveData(
+                FirestoreDatabase().getMessagesReferences(streamId).orderBy(
+                    "timestamp",
+                    Query.Direction.ASCENDING
+                ), Message::class.java
+            )
+        }
+
+        internal fun getStream(streamId: Int): QuerySnapshotValueLiveData<Stream> {
+            val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
+            return QuerySnapshotValueLiveData(docRef, Stream::class.java)
+        }
+
+        internal fun getPoll(streamId: Int): QuerySnapshotLiveData<Poll> {
+            return QuerySnapshotLiveData(
+                FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive", true),
+                Poll::class.java
+            )
+        }
+
+        internal fun getPollDetails(
+            streamId: Int,
+            pollId: String
+        ): QuerySnapshotValueLiveData<Poll> {
+            return QuerySnapshotValueLiveData(
+                FirestoreDatabase().getPollsReferences(streamId).document(
+                    pollId
+                ), Poll::class.java
+            )
+        }
+
+        internal fun getAnsweredUsers(
+            streamId: Int,
+            pollId: String
+        ): QuerySnapshotLiveData<AnsweredUser> {
+            return QuerySnapshotLiveData(
+                FirestoreDatabase().getAnsweredUsersReference(
+                    streamId,
+                    pollId
+                ), AnsweredUser::class.java
+            )
+        }
+
+        internal fun vote(streamId: Int, pollId: String, user: AnsweredUser) {
+            FirestoreDatabase().getAnsweredUsersReference(streamId, pollId).document(user.id)
+                .set(user)
+        }
+        //endregion
     }
-
-    fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
-        object : NetworkBoundResource<List<StreamResponse>>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getLiveStreams()
-        }.asLiveData()
-
-    fun getLiveVideoById(id: Int): LiveData<Resource<StreamResponse>> =
-        object : NetworkBoundResource<StreamResponse>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getLiveStreamById(id)
-        }.asLiveData()
-
-    fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
-        object : NetworkBoundResource<List<StreamResponse>>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
-        }.asLiveData()
-
-    fun getVODById(id: Int): LiveData<Resource<StreamResponse>> =
-        object : NetworkBoundResource<StreamResponse>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getVODById(id)
-        }.asLiveData()
-
-    fun getNewVODsCount(): LiveData<Resource<Int>> =
-        object : NetworkBoundResource<Int>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getNewVODsCount()
-        }.asLiveData()
-
-    fun generateUser(body: UserRequest): LiveData<Resource<User>> =
-        object : NetworkBoundResource<User>() {
-            override fun createCall() = ApiClient.getWebClient(false).webService.generateUser(body)
-        }.asLiveData()
-
-    fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
-        object : NetworkBoundResource<User>() {
-            override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
-        }.asLiveData()
-
-    fun updateDisplayName(body: UpdateDisplayNameRequest): LiveData<Resource<SimpleResponse>> =
-        object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() = ApiClient.getWebClient().webService.updateDisplayName(body)
-        }.asLiveData()
-
-    fun statisticWatchVOD(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
-        object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() = ApiClient.getWebClient().webService.statisticWatchVOD(body)
-        }.asLiveData()
-
-    fun statisticWatchLiveStream(body: StatisticWatchVideoRequest): LiveData<Resource<SimpleResponse>> =
-        object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() =
-                ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
-        }.asLiveData()
-
-    fun stopWatchingVOD(body: StopWatchVodRequest): LiveData<Resource<SimpleResponse>> =
-        object : NetworkBoundResource<SimpleResponse>() {
-            override fun createCall() =
-                ApiClient.getWebClient().webService.stopWatchingVOD(body)
-        }.asLiveData()
-
-    fun uploadImage(image: MultipartBody.Part): LiveData<Resource<UpdateImageResponse>> =
-        object : NetworkBoundResource<UpdateImageResponse>() {
-            override fun createCall() =
-                ApiClient.getWebClient().webService.uploadImage(image)
-        }.asLiveData()
-
-    fun subscribeToPushNotifications(body: SubscribeToPushesRequest): LiveData<Resource<NotificationSubscriptionResponse>> =
-        object : NetworkBoundResource<NotificationSubscriptionResponse>() {
-            override fun createCall() =
-                ApiClient.getWebClient().webService.subscribeToPushNotifications(body)
-        }.asLiveData()
-
-    //region Firebase
-    internal fun addMessage(message: Message, streamId: Int) {
-        FirestoreDatabase().getMessagesReferences(streamId).document().set(message)
-    }
-
-    internal fun getMessages(streamId: Int): QuerySnapshotLiveData<Message> {
-        return QuerySnapshotLiveData(
-            FirestoreDatabase().getMessagesReferences(streamId).orderBy(
-                "timestamp",
-                Query.Direction.ASCENDING
-            ), Message::class.java
-        )
-    }
-
-    internal fun getStream(streamId: Int): QuerySnapshotValueLiveData<Stream> {
-        val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
-        return QuerySnapshotValueLiveData(docRef, Stream::class.java)
-    }
-
-    internal fun getPoll(streamId: Int): QuerySnapshotLiveData<Poll> {
-        return QuerySnapshotLiveData(
-            FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive", true),
-            Poll::class.java
-        )
-    }
-
-    internal fun getPollDetails(streamId: Int, pollId: String): QuerySnapshotValueLiveData<Poll> {
-        return QuerySnapshotValueLiveData(
-            FirestoreDatabase().getPollsReferences(streamId).document(
-                pollId
-            ), Poll::class.java
-        )
-    }
-
-    internal fun getAnsweredUsers(
-        streamId: Int,
-        pollId: String
-    ): QuerySnapshotLiveData<AnsweredUser> {
-        return QuerySnapshotLiveData(
-            FirestoreDatabase().getAnsweredUsersReference(
-                streamId,
-                pollId
-            ), AnsweredUser::class.java
-        )
-    }
-
-    internal fun vote(streamId: Int, pollId: String, user: AnsweredUser) {
-        FirestoreDatabase().getAnsweredUsersReference(streamId, pollId).document(user.id).set(user)
-    }
-    //endregion
 }

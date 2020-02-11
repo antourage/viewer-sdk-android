@@ -106,6 +106,6 @@ internal class MotionOverlayView @JvmOverloads constructor(
     internal interface FabExpansionListener {
         fun onFabExpansionClicked()
 
-        fun onSwipeStarted()
+        fun onSwipeStarted() {}
     }
 }
