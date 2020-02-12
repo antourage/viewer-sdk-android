@@ -84,7 +84,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private val handlerFabExpansion: Handler = Handler(Looper.getMainLooper())
-    private var currentlyDisplayedLiveStreamIndex = 0
+    private var currentlyDisplayedLiveStreamId = 0
     private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private val currentLiveStreams = arrayListOf<StreamResponse>()
 
@@ -154,10 +154,13 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onFabExpansionClicked() {
-        val intent = Intent(context, AntourageActivity::class.java)
-        intent.putExtra(ARGS_STREAM_SELECTED, getCurrentlyDisplayedLiveStream())
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        context.applicationContext.startActivity(intent)
+        val liveStreamToOpen = getCurrentlyDisplayedLiveStream()
+        if (liveStreamToOpen != null) {
+            val intent = Intent(context, AntourageActivity::class.java)
+            intent.putExtra(ARGS_STREAM_SELECTED, liveStreamToOpen)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.applicationContext.startActivity(intent)
+        }
     }
 
     private fun manageNewUnseenVideosBadge(newVideosCount: Int) {
@@ -183,36 +186,15 @@ class AntourageFab @JvmOverloads constructor(
                                 if (allTheLiveStreamsWereShown(listOfStreams)) {
                                     handlerFabExpansion.removeCallbacksAndMessages(null)
                                 } else {
-//                                    currentlyDisplayedLiveStream =
-//                                        listOfStreams[currentlyDisplayedLiveStreamIndex]
-//                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-//                                        R.id.tvStreamTitle
-//                                    ).text =
-//                                        listOfStreams[currentlyDisplayedLiveStreamIndex].streamTitle
-//                                    findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-//                                        R.id.tvViewers
-//                                    ).text = resources.getQuantityString(
-//                                        R.plurals.ant_number_of_viewers,
-//                                        currentlyDisplayedLiveStream.viewersCount ?: 0,
-//                                        currentlyDisplayedLiveStream.viewersCount
-//                                    )
-//                                    expandableLayout.visibility = View.VISIBLE
-//                                    expandableLayout.transitionToEnd()
-//                                    tvStreamTitle.text =
-//                                        listOfStreams[currentlyDisplayedLiveStreamIndex].streamTitle
-//                                    tvViewers.text = resources.getQuantityString(
-//                                        R.plurals.ant_number_of_viewers,
-//                                        currentlyDisplayedLiveStream.viewersCount ?: 0,
-//                                        currentlyDisplayedLiveStream.viewersCount
-//                                    )
-//                                    Handler(Looper.getMainLooper()).postDelayed({
-//                                        expandableLayout.transitionToStart()
-//                                    }, FAB_EXPANSION_ANIM_DURATION)
-//                                    handlerFabExpansion.postDelayed(
-//                                        this,
-//                                        2 * FAB_EXPANSION_ANIM_DURATION
-//                                    )
-//                                    currentlyDisplayedLiveStreamIndex++
+                                    val streamToDisplay = getNextStreamToDisplay(listOfStreams)
+                                    streamToDisplay?.let {
+                                        expandWithAnimation(streamToDisplay)
+                                        shownLiveStreams.add(streamToDisplay)
+                                    }
+                                    handlerFabExpansion.postDelayed(
+                                        this,
+                                        2 * FAB_EXPANSION_ANIM_DURATION
+                                    )
                                 }
                             }
                         }
@@ -226,8 +208,33 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private fun expandWithAnimation(streamToDisplay: StreamResponse) {
+
+        streamToDisplay.apply {
+            tvStreamTitle.text = streamTitle
+            tvViewers.text = resources.getQuantityString(
+                R.plurals.ant_number_of_viewers, viewersCount ?: 0, viewersCount
+            )
+        }
+
+        expandableLayout.visibility = View.VISIBLE
+        expandableLayout.transitionToEnd()
+        Handler(Looper.getMainLooper()).postDelayed({
+            expandableLayout.transitionToStart()
+        }, FAB_EXPANSION_ANIM_DURATION)
+    }
+
+    private fun getNextStreamToDisplay(listOfStreams: List<StreamResponse>): StreamResponse? {
+        for (element in listOfStreams) {
+            if (shownLiveStreams.none { it.id == element.id }) {
+                return element
+            }
+        }
+        return null
+    }
+
     private fun allTheLiveStreamsWereShown(liveStreams: List<StreamResponse>): Boolean {
-        return !liveStreams.any(shownLiveStreams::contains)
+        return shownLiveStreams.containsAll(liveStreams)
     }
 
     public fun authWith(
@@ -303,11 +310,11 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun resetFabExpansion() {
         handlerFabExpansion.removeCallbacksAndMessages(null)
-        currentlyDisplayedLiveStreamIndex = 0
+        currentlyDisplayedLiveStreamId = 0
         shownLiveStreams.clear()
         currentLiveStreams.clear()
     }
 
-    private fun getCurrentlyDisplayedLiveStream(): StreamResponse =
-        shownLiveStreams.elementAt(currentlyDisplayedLiveStreamIndex)
+    private fun getCurrentlyDisplayedLiveStream(): StreamResponse? =
+        shownLiveStreams.find { it.id == currentlyDisplayedLiveStreamId }
 }
