@@ -256,7 +256,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     override fun onResume() {
         super.onResume()
-        player.seekTo(player.duration)
+        player?.seekTo(player?.duration ?: 0)
     }
 
     override fun onLiveStreamEnded() {

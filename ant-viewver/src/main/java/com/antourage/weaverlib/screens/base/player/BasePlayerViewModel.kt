@@ -17,7 +17,6 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
-import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -39,7 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import java.sql.Timestamp
 
-
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
     protected var currentWindow = 0
@@ -53,7 +51,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var stopwatch = Stopwatch()
     private var resetChronometer = true
 
-    protected lateinit var player: SimpleExoPlayer
+    protected var player: SimpleExoPlayer? = null
     private lateinit var trackSelector: DefaultTrackSelector
 
     private var batteryStatus: Intent? = null
@@ -66,7 +64,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var timerTickHandler = Handler()
     private var timerTickRunnable = object : Runnable {
         override fun run() {
-            stopWatchingTime = player.currentPosition
+            stopWatchingTime = player?.currentPosition
             timerTickHandler.postDelayed(this, 1000)
         }
     }
@@ -93,8 +91,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     open fun onResume() {
         initStatisticsListeners()
-        if (player.playbackState != Player.STATE_READY) {
-            player.playWhenReady = true
+        if (player?.playbackState != Player.STATE_READY) {
+            player?.playWhenReady = true
         }
         batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
             getApplication<Application>().registerReceiver(null, ifilter)
@@ -107,7 +105,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     open fun onPause() {
         removeStatisticsListeners()
-        player.playWhenReady = false
+        player?.playWhenReady = false
         stopwatch.stopIfRunning()
         timerTickHandler.removeCallbacksAndMessages(null)
         sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
@@ -117,9 +115,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     fun getExoPlayer(streamUrl: String): SimpleExoPlayer? {
         player = getSimpleExoPlayer()
         this.streamUrl = streamUrl
-        player.playWhenReady = playWhenReady
-        player.prepare(getMediaSource(streamUrl), false, true)
-        player.seekTo(currentWindow, C.TIME_UNSET)
+        player?.playWhenReady = playWhenReady
+        player?.prepare(getMediaSource(streamUrl), false, true)
+        player?.seekTo(currentWindow, C.TIME_UNSET)
         initStatisticsListeners()
         return player
     }
@@ -137,19 +135,19 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         return list
     }
 
-    fun isPlaybackPaused(): Boolean = !player.playWhenReady
+    fun isPlaybackPaused(): Boolean = !(player?.playWhenReady ?: false)
 
     fun releasePlayer() {
         removeStatisticsListeners()
-        playbackPosition = player.currentPosition
-        currentWindow = player.currentWindowIndex
-        playWhenReady = player.playWhenReady
-        player.release()
+        playbackPosition = player?.currentPosition ?: 0
+        currentWindow = player?.currentWindowIndex ?: 0
+        playWhenReady = player?.playWhenReady ?: false
+        player?.release()
     }
 
     fun onNetworkGained() {
-        player.prepare(getMediaSource(streamUrl), false, true)
-        player.seekTo(currentWindow, player.currentPosition)
+        player?.prepare(getMediaSource(streamUrl), false, true)
+        player?.seekTo(currentWindow, player?.currentPosition ?: 0)
     }
 
     fun onResolutionChanged(pos: Int) {
@@ -174,13 +172,13 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun initStatisticsListeners() {
-        player.addAnalyticsListener(streamAnalyticsListener)
-        player.addListener(playerEventListener)
+        player?.addAnalyticsListener(streamAnalyticsListener)
+        player?.addListener(playerEventListener)
     }
 
     fun removeStatisticsListeners() {
-        player.removeAnalyticsListener(streamAnalyticsListener)
-        player.removeListener(playerEventListener)
+        player?.removeAnalyticsListener(streamAnalyticsListener)
+        player?.removeListener(playerEventListener)
     }
 
     private fun getSimpleExoPlayer(): SimpleExoPlayer {
@@ -261,7 +259,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         stopwatch.stopIfRunning()
                     } else {
                         if (resetChronometer) {
-                            player.isPlaying
                             stopwatch.start()
                             resetChronometer = false
                         } else {
@@ -284,8 +281,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
-                playbackPosition = player.currentPosition
-                currentWindow = player.currentWindowIndex
+                playbackPosition = player?.currentPosition ?: 0
+                currentWindow = player?.currentWindowIndex ?: 0
                 errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
@@ -298,14 +295,14 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 else -> err.message
             } ?: "")
             if (err.cause is BehindLiveWindowException) {
-                player.prepare(getMediaSource(streamUrl), false, true)
+                player?.prepare(getMediaSource(streamUrl), false, true)
             } else {
                 error.postValue(err.toString())
             }
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
-            currentWindow = player.currentWindowIndex
+            currentWindow = player?.currentWindowIndex ?: 0
             //TODO: change this, so reset chronometer only in case user switches to next or previous
             // video;
             resetChronometer = true

@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.Keep
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -84,7 +83,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private val handlerFabExpansion: Handler = Handler(Looper.getMainLooper())
-    private var currentlyDisplayedLiveStreamId = 0
+    private val handlerEndTransitionAnim: Handler = Handler(Looper.getMainLooper())
+    private var currentlyDisplayedLiveStream: StreamResponse? = null
     private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private val currentLiveStreams = arrayListOf<StreamResponse>()
 
@@ -111,6 +111,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onResume() {
+        expandableLayout.progress = 0f
         expandableLayout.setTransitionListener(transitionListener)
         ReceivingVideosManager.setReceivingVideoCallback(object :
             ReceivingVideosManager.ReceivingVideoCallback {
@@ -148,16 +149,17 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onPause() {
-        expandableLayout.visibility = View.INVISIBLE
         expandableLayout.setTransitionListener(null)
+        handlerEndTransitionAnim.removeCallbacksAndMessages(null)
+        handlerFabExpansion.removeCallbacksAndMessages(null)
+        expandableLayout.visibility = View.INVISIBLE
         ReceivingVideosManager.stopReceivingVideos()
     }
 
     override fun onFabExpansionClicked() {
-        val liveStreamToOpen = getCurrentlyDisplayedLiveStream()
-        if (liveStreamToOpen != null) {
+        if (currentlyDisplayedLiveStream != null) {
             val intent = Intent(context, AntourageActivity::class.java)
-            intent.putExtra(ARGS_STREAM_SELECTED, liveStreamToOpen)
+            intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedLiveStream)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.applicationContext.startActivity(intent)
         }
@@ -179,15 +181,18 @@ class AntourageFab @JvmOverloads constructor(
                 floatingActionButton?.hideBadge()
             }
             is WidgetStatus.ActiveLiveStream -> {
-                if (!handlerFabExpansion.hasMessages(0))
+                if (!handlerFabExpansion.hasMessages(0)) {
                     handlerFabExpansion.post(object : Runnable {
                         override fun run() {
                             status.list.let { listOfStreams ->
+                                currentLiveStreams.clear()
+                                currentLiveStreams.addAll(listOfStreams)
                                 if (allTheLiveStreamsWereShown(listOfStreams)) {
                                     handlerFabExpansion.removeCallbacksAndMessages(null)
                                 } else {
                                     val streamToDisplay = getNextStreamToDisplay(listOfStreams)
                                     streamToDisplay?.let {
+                                        currentlyDisplayedLiveStream = streamToDisplay
                                         expandWithAnimation(streamToDisplay)
                                         shownLiveStreams.add(streamToDisplay)
                                     }
@@ -199,6 +204,7 @@ class AntourageFab @JvmOverloads constructor(
                             }
                         }
                     })
+                }
                 floatingActionButton.setTextToBadge(context.getString(R.string.ant_live))
             }
             is WidgetStatus.ActiveUnseenVideos -> {
@@ -219,7 +225,7 @@ class AntourageFab @JvmOverloads constructor(
 
         expandableLayout.visibility = View.VISIBLE
         expandableLayout.transitionToEnd()
-        Handler(Looper.getMainLooper()).postDelayed({
+        handlerEndTransitionAnim.postDelayed({
             expandableLayout.transitionToStart()
         }, FAB_EXPANSION_ANIM_DURATION)
     }
@@ -294,9 +300,18 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun openAntActivity() {
+        setAllLiveStreamsAsSeen()
         val intent = Intent(context, AntourageActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
+    }
+
+    /**
+    if user goes to videos list screen, he will see all live videos anyway
+    so no need to show them in fab expansion
+     */
+    private fun setAllLiveStreamsAsSeen() {
+        shownLiveStreams.addAll(currentLiveStreams)
     }
 
     private fun startAntRequests() {
@@ -310,11 +325,8 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun resetFabExpansion() {
         handlerFabExpansion.removeCallbacksAndMessages(null)
-        currentlyDisplayedLiveStreamId = 0
+        currentlyDisplayedLiveStream = null
         shownLiveStreams.clear()
         currentLiveStreams.clear()
     }
-
-    private fun getCurrentlyDisplayedLiveStream(): StreamResponse? =
-        shownLiveStreams.find { it.id == currentlyDisplayedLiveStreamId }
 }

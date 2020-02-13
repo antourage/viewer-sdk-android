@@ -68,7 +68,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         if (userProcessedMessages.isNotEmpty()) {
             for (message in userProcessedMessages) {
                 message.pushTimeMills?.let { pushedTimeMills ->
-                    if (player.currentPosition >= pushedTimeMills) {
+                    if (player?.currentPosition ?: 0 >= pushedTimeMills) {
                         shownMessages.add(message)
                     }
                 }
@@ -123,12 +123,12 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     override fun onResume() {
         super.onResume()
-        predefinedStopWatchingTime?.let { player.seekTo(it) }
+        predefinedStopWatchingTime?.let { player?.seekTo(it) }
     }
 
     override fun onPause() {
         super.onPause()
-        predefinedStopWatchingTime = player.currentPosition
+        predefinedStopWatchingTime = player?.currentPosition
         setVodStopWatchingTime()
         stopMonitoringChatMessages()
     }
@@ -164,18 +164,18 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
-        if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
-            player.playWhenReady = true
+        if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
+            player?.playWhenReady = true
         }
         markVODAsWatched()
     }
 
     fun skipForward() {
-        player.seekTo(player.currentPosition + SKIP_VIDEO_TIME_MILLS)
+        player?.seekTo((player?.currentPosition ?: 0) + SKIP_VIDEO_TIME_MILLS)
     }
 
     fun skipBackward() {
-        player.seekTo(player.currentPosition - SKIP_VIDEO_TIME_MILLS)
+        player?.seekTo((player?.currentPosition ?: 0) - SKIP_VIDEO_TIME_MILLS)
     }
 
     fun onVideoStarted(streamId: Int) {
@@ -266,7 +266,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     fun seekToLastWatchingTime() {
         if (videoChanged) {
-            predefinedStopWatchingTime?.let { player.seekTo(it) }
+            predefinedStopWatchingTime?.let { player?.seekTo(it) }
             videoChanged = false
         }
     }

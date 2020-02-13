@@ -106,7 +106,7 @@ dependencies {
     implementation "androidx.preference:preference-ktx:1.1.0"
     //Constraint layout
     //Do not update as there is some weird bug with adjustResize
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
     //Architecture Components
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0'
