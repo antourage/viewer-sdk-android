@@ -71,7 +71,7 @@ internal class ReceivingVideosManager {
                 override fun run() {
                     if (Global.networkAvailable) {
                         val streamResponse =
-                            Repository.getMockedLiveVideos()
+                            Repository.getLiveVideos()
                         streamResponse.observeForever(object :
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {

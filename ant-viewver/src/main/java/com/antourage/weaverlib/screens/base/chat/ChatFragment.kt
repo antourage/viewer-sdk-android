@@ -23,9 +23,6 @@ import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
-/**
- * handles Chat visibility
- */
 internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
