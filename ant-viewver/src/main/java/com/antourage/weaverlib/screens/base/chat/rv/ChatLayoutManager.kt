@@ -17,7 +17,7 @@ internal class ChatLayoutManager(context: Context?) : LinearLayoutManager(contex
         super.onItemsAdded(recyclerView, positionStart, itemCount)
         val pos = findLastCompletelyVisibleItemPosition()
         if ((pos + 1) == (recyclerView.adapter?.itemCount?.minus(1))) {
-            recyclerView.scrollToPosition(positionStart)
+//            recyclerView.smoothScrollToPosition(positionStart)
         }
     }
 }

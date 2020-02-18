@@ -7,7 +7,6 @@ internal class MessageListDiffUtilCallback(
     private val prevList: List<Message>,
     private val newList: List<Message>
 ) : DiffUtil.Callback() {
-    //TODO change to messageId
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
         prevList[oldItemPosition].id == newList[newItemPosition].id &&
         prevList[oldItemPosition].nickname == newList[newItemPosition].nickname &&

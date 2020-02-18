@@ -302,9 +302,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                if (isChatDismissed) {
-                    drawerLayout.closeDrawer(navView)
-                }
                 showChatTurnedOffPlaceholder(false)
             }
             Configuration.ORIENTATION_PORTRAIT -> {

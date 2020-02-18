@@ -17,16 +17,18 @@ import com.antourage.weaverlib.other.orientation
 import com.antourage.weaverlib.other.ui.ChatItemDecoratorLandscape
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.other.ui.MarginItemDecoration
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
+
 internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
-    protected var isChatDismissed: Boolean = false
+    private var isChatDismissed: Boolean = false
 
     private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
@@ -84,11 +86,15 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (isChatDismissed) {
+                (activity as AntourageActivity).hideSoftKeyboard()
+                drawerLayout.closeDrawer(navView)
+            }
             context?.let { setLandscapeUI(it) }
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
             rvMessages.adapter =
-                MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
+                MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
             updateMessagesList(viewModel.getMessagesLiveData().value!!)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
@@ -139,7 +145,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             overScrollMode = View.OVER_SCROLL_NEVER
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
-            adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_PORTRAIT)
+            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
             initMessagesDivider(context, orientation() == Configuration.ORIENTATION_LANDSCAPE)
         }
     }
@@ -147,12 +153,10 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private fun setLandscapeUI(context: Context) {
         rvMessages.apply {
             isVerticalFadingEdgeEnabled = true
-            adapter = MessagesAdapter(listOf(), Configuration.ORIENTATION_LANDSCAPE)
+            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_LANDSCAPE)
 
             val messages = viewModel.getMessagesLiveData().value
             updateMessagesList(messages?.let { it } ?: listOf())
-
-//            rvMessages.adapter?.itemCount?.let { smoothScrollToPosition(it) }
         }
         initMessagesDivider(context, true)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)

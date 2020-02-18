@@ -13,7 +13,7 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.squareup.picasso.Picasso
 
-internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
+internal class MessagesAdapter(var list: MutableList<Message>, val orientation: Int) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MessageViewHolder(
@@ -44,9 +44,9 @@ internal class MessagesAdapter(var list: List<Message>, val orientation: Int) :
         val userMessagesList = newList.filter { it.type == MessageType.USER }
         val diffResult = DiffUtil.calculateDiff(MessageListDiffUtilCallback(list, userMessagesList))
 
+        this.list.clear()
+        this.list.addAll(userMessagesList)
         diffResult.dispatchUpdatesTo(this)
-        this.list = userMessagesList
-        notifyDataSetChanged()
     }
 
     fun newMessagesWereAdded(list: List<Message>?): Boolean {

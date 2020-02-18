@@ -32,6 +32,9 @@ import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 import org.jetbrains.anko.sdk27.coroutines.onClick
 
+/**
+ * handles Loader; screen rotation and player controls visibility
+ */
 internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>() {
 
     companion object {

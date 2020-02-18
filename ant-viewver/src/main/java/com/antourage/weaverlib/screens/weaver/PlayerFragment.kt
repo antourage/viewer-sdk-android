@@ -547,12 +547,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.getPollStatusLiveData().reObserve(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
 
-        if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (isChatDismissed) {
-                (activity as AntourageActivity).hideSoftKeyboard()
-                drawerLayout.closeDrawer(navView)
-            }
-        }
         showFullScreenIcon()
     }
 
