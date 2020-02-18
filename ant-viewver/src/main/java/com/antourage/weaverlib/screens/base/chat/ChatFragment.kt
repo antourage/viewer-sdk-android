@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
@@ -18,7 +19,6 @@ import com.antourage.weaverlib.other.ui.ChatItemDecoratorLandscape
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.AntourageActivity
-import com.antourage.weaverlib.screens.base.chat.rv.ChatLayoutManager
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
 import com.google.android.material.navigation.NavigationView
@@ -35,14 +35,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var navigationView: NavigationView
     private lateinit var llMessageWrapper: LinearLayout
 
-    //region Observers
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
             rvMessages.apply {
+                (adapter as MessagesAdapter).setMessageList(list)
                 var shouldScrollToBottom =
                     ((adapter as MessagesAdapter).newMessagesWereAdded(list) &&
                             userIsAtTheBottomOfTheChat())
-                (adapter as MessagesAdapter).setMessageList(list)
                 if (shouldScrollToBottom) {
                     adapter?.itemCount?.let { scrollToPosition(it - 1) }
                 }
@@ -52,17 +51,19 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
 
     private fun userIsAtTheBottomOfTheChat(): Boolean {
         val layoutManager = rvMessages.layoutManager
-        if (layoutManager is ChatLayoutManager) {
+        if (layoutManager is LinearLayoutManager) {
             if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.itemCount - 1)
                 return true
         }
         return false
     }
 
-    //endregion
-
+    /**
+     * as drawer intercepts touch events, event when it's closed,  we need to provide
+     * the possibility to toggle player controls on single tap
+     */
     override fun onDrawerSingleClick() {
-        handleControlsVisibility()
+        toggleControlsVisibility()
     }
 
     override fun initUi(view: View?) {
@@ -70,12 +71,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         view?.apply {
             drawerLayout = findViewById(R.id.drawerLayout)
             drawerLayout.touchListener = this@ChatFragment
+
             navigationView = findViewById(R.id.navView)
             rvMessages = findViewById(R.id.rvMessages)
             llMessageWrapper = findViewById(R.id.ll_wrapper)
         }
         initMessagesRV()
-        initNavigationView()
+        initAndOpenNavigationDrawer()
     }
 
     override fun subscribeToObservers() {
@@ -101,11 +103,12 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         }
     }
 
-    private fun initNavigationView() {
+    private fun initAndOpenNavigationDrawer() {
         drawerLayout.apply {
             setScrimColor(Color.TRANSPARENT)
-            openDrawer(navigationView)
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+
+            openDrawer(navigationView)
         }
         navigationView.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
@@ -139,7 +142,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     }
 
     private fun initMessagesRV() {
-        val linearLayoutManager = ChatLayoutManager(context)
+        val linearLayoutManager = LinearLayoutManager(context)
         linearLayoutManager.stackFromEnd = true
         rvMessages.apply {
             overScrollMode = View.OVER_SCROLL_NEVER

@@ -362,7 +362,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     context,
                     object : GestureDetector.SimpleOnGestureListener() {
                         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                            handleControlsVisibility()
+                            toggleControlsVisibility()
                             return super.onSingleTapConfirmed(e)
                         }
                     })

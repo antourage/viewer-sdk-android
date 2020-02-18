@@ -19,7 +19,9 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MessageViewHolder(
         LayoutInflater.from(parent.context).inflate(
             if (orientation == Configuration.ORIENTATION_PORTRAIT)
-                R.layout.item_message_portrait else R.layout.item_message_landscape,
+                R.layout.item_message_portrait
+            else
+                R.layout.item_message_landscape,
             parent, false
         )
     )
@@ -29,14 +31,16 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         val messageItem = list[position]
         with(messageItem) {
-            holder.txtMessage.text = text
-            if (!avatarUrl.isNullOrEmpty()) {
-                Picasso.get().load(avatarUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
-                    .into(holder.ivAvatar)
+            with(holder) {
+                txtMessage.text = text
+                txtUser.text = nickname
+                if (!avatarUrl.isNullOrEmpty()) {
+                    Picasso.get().load(avatarUrl)
+                        .placeholder(R.drawable.antourage_ic_default_user)
+                        .error(R.drawable.antourage_ic_default_user)
+                        .into(ivAvatar)
+                }
             }
-            holder.txtUser.text = nickname
         }
     }
 

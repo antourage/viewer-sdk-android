@@ -176,7 +176,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             initAndShowLoader()
     }
 
-    protected fun handleControlsVisibility() {
+    protected fun toggleControlsVisibility() {
         if (playerControls.isVisible)
             playerControls.hide()
         else {

@@ -34,7 +34,6 @@ import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -202,7 +201,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                        handleControlsVisibility()
+                        toggleControlsVisibility()
                         return super.onSingleTapConfirmed(e)
                     }
 
