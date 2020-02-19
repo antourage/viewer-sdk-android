@@ -38,7 +38,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private var postAnsweredUsers = false
     private var user: User? = null
 
-    var messagesResponse: QuerySnapshotLiveData<Message>? = null
+    private var messagesResponse: QuerySnapshotLiveData<Message>? = null
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
@@ -191,10 +191,10 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         return false
     }
 
-    fun observeAnsweredUsers() {
+    private fun observeAnsweredUsers() {
         currentPoll?.let { poll ->
-            streamId?.let {
-                Repository.getAnsweredUsers(it, poll.id).observeForever { resource ->
+            streamId?.let { streamId ->
+                Repository.getAnsweredUsers(streamId, poll.id).observeForever { resource ->
                     resource?.status?.let {
                         if (it is Status.Success && it.data != null) {
                             if (wasAnswered(it.data)) {
@@ -226,7 +226,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     internal fun addMessage(message: Message, streamId: Int) {
-        if (message.text != null && !message.text!!.isEmpty() && !message.text!!.isBlank()) {
+        if (message.text != null && message.text!!.isNotEmpty() && !message.text!!.isBlank()) {
             val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
             temp.add(
                 message
@@ -242,7 +242,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     override fun getMediaSource(streamUrl: String?): MediaSource? {
-        val defaultBandwidthMeter = DefaultBandwidthMeter()
+        val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(getApplication()).build()
         val dataSourceFactory = DefaultDataSourceFactory(
             getApplication(),
             Util.getUserAgent(getApplication(), "Exo2"), defaultBandwidthMeter

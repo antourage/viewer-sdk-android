@@ -293,7 +293,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     protected fun onCloseClicked() {
-        fragmentManager?.let { fragmentManager ->
+        parentFragmentManager.let { fragmentManager ->
             if (fragmentManager.backStackEntryCount > 0) {
                 fragmentManager.popBackStack()
             } else {

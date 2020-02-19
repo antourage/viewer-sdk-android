@@ -38,7 +38,6 @@ internal class Repository {
                     null, null, index, true, index, true, null
                 )
             }
-            mockedLiveVideos.forEach { }
             return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
             }.asLiveData()
         }

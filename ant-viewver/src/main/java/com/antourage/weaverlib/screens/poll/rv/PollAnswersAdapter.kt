@@ -12,6 +12,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.trueWidth
+import kotlin.math.roundToInt
 
 internal class PollAnswersAdapter(
     private val listOfAnswers: List<AnswersCombined>,
@@ -54,7 +55,7 @@ internal class PollAnswersAdapter(
             viewHolder.btnAnswer.setOnClickListener { callback.onAnswerChosen(viewHolder.getAdapterPosition()) }
         } else {
             (viewHolder as AnsweredViewHolder).tvAnswer.text = listOfAnswers[i].answerText
-            viewHolder.tvAnswerPercentage.text = (Math.round(getPercentage(i) * 100).toString()
+            viewHolder.tvAnswerPercentage.text = ((getPercentage(i) * 100).roundToInt().toString()
                     + "%")
             viewHolder.tvPollLength.background = ResourcesCompat.getDrawable(
                 context!!.resources,

@@ -24,7 +24,6 @@ import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
-
 internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
@@ -38,7 +37,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
             rvMessages.apply {
-                var shouldScrollToBottom =
+                val shouldScrollToBottom =
                     ((adapter as MessagesAdapter).newMessagesWereAdded(list) &&
                             userIsAtTheBottomOfTheChat())
                 (adapter as MessagesAdapter).setMessageList(list)

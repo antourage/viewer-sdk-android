@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.screens.list.rv.StreamListDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
+import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
@@ -120,10 +120,10 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
             if (listOfStreams[position].streamId == -2) {
                 return VIEW_PROGRESS
             }
-            if (listOfStreams[position].isLive) {
-                return VIEW_LIVE
+            return if (listOfStreams[position].isLive) {
+                VIEW_LIVE
             } else {
-                return VIEW_VOD
+                VIEW_VOD
             }
         } else
             return VIEW_VOD

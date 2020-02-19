@@ -27,7 +27,6 @@ internal class PollDetailsViewModel @Inject constructor(
     private var streamId: Int = -1
     private var pollId: String = ""
     var isAnswered: Boolean = false
-    private var repository = Repository()
 
     internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
     internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData

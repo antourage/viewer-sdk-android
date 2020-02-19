@@ -18,6 +18,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.stateful.ExtendableSavedState
+import kotlin.math.max
 
 private val STATE_KEY = BadgeFab::class.java.name + ".STATE"
 private val COUNT_STATE = BadgeFab::class.java.name + ".COUNT_STATE"
@@ -160,7 +161,7 @@ internal class BadgeFab @JvmOverloads constructor(
     }
 
     private fun calculateCircleBounds() {
-        val circleRadius = Math.max(textBounds.width(), textBounds.height()) / 2f + textPadding
+        val circleRadius = max(textBounds.width(), textBounds.height()) / 2f + textPadding
         val circleEnd = (circleRadius * 2).toInt()
         if (isSizeMini) {
             val circleStart = (circleRadius / 2).toInt()

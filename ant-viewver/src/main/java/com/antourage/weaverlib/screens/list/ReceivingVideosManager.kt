@@ -21,7 +21,7 @@ internal class ReceivingVideosManager {
         private var callback: ReceivingVideoCallback? = null
         const val LIVE_STREAMS_REQUEST_INTERVAL = 5_000L
         const val NEW_VODS_COUNT_REQUEST_INTERVAL = 61_000L
-        const val NEW_VODS_COUNT_REQUEST_DELAY = 1_000L
+        private const val NEW_VODS_COUNT_REQUEST_DELAY = 1_000L
         private var liveVideos: Resource<List<StreamResponse>>? = null
         private var vods: Resource<List<StreamResponse>>? = null
 

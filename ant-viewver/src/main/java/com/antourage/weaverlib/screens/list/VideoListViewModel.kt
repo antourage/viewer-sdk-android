@@ -34,11 +34,16 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     private var showCallResult = false
 
-    var liveVideosUpdated = false
-    var vodsUpdated = false
+    private var liveVideosUpdated = false
+    private var vodsUpdated = false
 
-    private val VODS_COUNT = 15
-    private val MIN_ANIM_SHOWING_TIME_MILLS = 1500L
+    companion object {
+        private const val VODS_COUNT = 15
+        private const val MIN_ANIM_SHOWING_TIME_MILLS = 1500L
+
+        private const val BE_CHOICE_TIMEOUT = 4000L
+        private const val BE_CHOICE_CLICKS = 4
+    }
 
     fun subscribeToLiveStreams() {
         ReceivingVideosManager.setReceivingVideoCallback(this)
@@ -150,7 +155,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     override fun onVODReceivedInitial(resource: Resource<List<StreamResponse>>) {
         when (resource.status) {
             is Status.Success -> {
-                var newList = (resource.status.data)?.toMutableList()
+                val newList = (resource.status.data)?.toMutableList()
                 Repository.vods = newList?.toList()
                 if (newList?.size == VODS_COUNT)
                     newList.add(
@@ -219,10 +224,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     }
 
     //region backend choice
-    companion object {
-        private const val BE_CHOICE_TIMEOUT = 4000L
-        private const val BE_CHOICE_CLICKS = 4
-    }
 
     private val showBeDialogLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var numberOfLogoClicks: Int = 0

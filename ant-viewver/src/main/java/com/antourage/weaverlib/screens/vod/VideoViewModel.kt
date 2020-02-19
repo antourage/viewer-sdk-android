@@ -27,7 +27,6 @@ import okhttp3.OkHttpClient
 import java.util.*
 import javax.inject.Inject
 
-
 internal class VideoViewModel @Inject constructor(application: Application) :
     ChatViewModel(application) {
 
@@ -196,7 +195,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     private fun findVideoPositionById(videoId: Int): Int {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
-        for (i in 0 until list.size) {
+        for (i in list.indices) {
             if (list[i].streamId == videoId) {
                 currentVideo.postValue(list[i])
                 return i

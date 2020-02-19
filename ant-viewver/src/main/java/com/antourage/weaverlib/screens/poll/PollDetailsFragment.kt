@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.annotation.Nullable
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
@@ -25,9 +25,9 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     PollAnswersAdapter.AnswerClickedCallback {
 
     companion object {
-        val ARGS_POLL_ID = "args_poll_id"
-        val ARGS_STREAM_ID = "args_stream_id"
-        val ARGS_USER_ID = "args_user_id"
+        const val ARGS_POLL_ID = "args_poll_id"
+        const val ARGS_STREAM_ID = "args_stream_id"
+        const val ARGS_USER_ID = "args_user_id"
 
         fun newInstance(streamId: Int, pollId: String, userId: Int): PollDetailsFragment {
             val bundle = Bundle()
@@ -65,8 +65,9 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, activity?.injector?.getPollViewModelFactory())
-            .get(PollDetailsViewModel::class.java)
+        activity?.injector?.getPollViewModelFactory()?.let {
+            viewModel = ViewModelProvider(this, it).get(PollDetailsViewModel::class.java)
+        }
     }
 
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {

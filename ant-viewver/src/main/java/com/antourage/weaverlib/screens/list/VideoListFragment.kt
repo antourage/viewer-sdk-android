@@ -8,6 +8,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -84,8 +85,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, activity?.injector?.getVideoListViewModelFactory())
-            .get(VideoListViewModel::class.java)
+        activity?.injector?.getVideoListViewModelFactory()?.let {
+            viewModel = ViewModelProvider(this, it).get(VideoListViewModel::class.java)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

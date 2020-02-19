@@ -19,7 +19,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
@@ -328,8 +328,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, activity?.injector?.getWeaverViewModelFactory())
-            .get(PlayerViewModel::class.java)
+        activity?.injector?.getWeaverViewModelFactory()?.let {
+            viewModel = ViewModelProvider(this, it).get(PlayerViewModel::class.java)
+        }
     }
 
     override fun subscribeToObservers() {
@@ -502,8 +503,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val newOrientation = newConfig.orientation
-        when (newOrientation) {
+        when (newConfig.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 ll_wrapper.background =
                     context?.let {
@@ -769,7 +769,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             view.id != btnConfirm.id &&
             view.id != btnUserSettings.id
         ) {
-            view.setOnTouchListener { v, event ->
+            view.setOnTouchListener { _, _ ->
                 hideKeyboard()
                 false
             }

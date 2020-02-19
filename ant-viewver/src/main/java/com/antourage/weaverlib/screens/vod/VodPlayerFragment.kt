@@ -12,7 +12,7 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.Global
@@ -152,8 +152,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, activity?.injector?.getVideoViewModelFactory())
-            .get(VideoViewModel::class.java)
+        activity?.injector?.getVideoViewModelFactory()?.let {
+            viewModel = ViewModelProvider(this, it).get(VideoViewModel::class.java)
+        }
     }
 
     override fun subscribeToObservers() {

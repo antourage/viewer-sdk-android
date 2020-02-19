@@ -7,6 +7,11 @@ internal class StreamItemDiffCallback(
     private val oldList: List<StreamResponse>,
     private val newList: List<StreamResponse>
 ) : DiffUtil.Callback() {
+
+    companion object {
+        const val ARGS_REFRESH_TIMESTAMP = "refresh_timestamp"
+    }
+
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition].id == newList[newItemPosition].id
     }
