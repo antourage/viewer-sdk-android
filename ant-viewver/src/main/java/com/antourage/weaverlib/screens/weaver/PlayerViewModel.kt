@@ -7,13 +7,14 @@ import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.reObserveForever
 import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
@@ -23,8 +24,6 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 
 internal class PlayerViewModel @Inject constructor(application: Application) :
@@ -39,7 +38,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private var postAnsweredUsers = false
     private var user: User? = null
 
-    private var repository = Repository()
+    var messagesResponse: QuerySnapshotLiveData<Message>? = null
 
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
@@ -73,7 +72,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null && isChatTurnedOn) {
                 if (chatContainsNonStatusMsg(it.data)) {
                     chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-//                    messagesLiveData.postValue(it.data)
                     messagesLiveData.value = it.data
                     user?.apply {
                         displayName?.let { displayName ->
@@ -127,13 +125,12 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
                     //TODO 17/06/2019 wth does not actually remove observer
-                    streamId?.let { it1 ->
-                        Repository.getMessages(it1).removeObserver(messagesObserver)
-                    }
+                    messagesResponse?.removeObserver(messagesObserver)
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                 } else {
                     streamId?.let { it1 ->
-                        Repository.getMessages(it1).observeForever(messagesObserver)
+                        messagesResponse = Repository.getMessages(it1)
+                        messagesResponse?.observeForever(messagesObserver)
                     }
                 }
             }
@@ -257,6 +254,12 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     override fun onResume() {
         super.onResume()
         player?.seekTo(player?.duration ?: 0)
+        messagesResponse?.reObserveForever(messagesObserver)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        messagesResponse?.removeObserver(messagesObserver)
     }
 
     override fun onLiveStreamEnded() {

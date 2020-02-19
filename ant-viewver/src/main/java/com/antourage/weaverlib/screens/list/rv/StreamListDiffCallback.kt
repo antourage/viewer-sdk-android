@@ -26,7 +26,6 @@ internal class StreamListDiffCallback(
     }
 
     override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
-        //TODO 6/8/2019 change list equality verification
         return prevList[oldPos].hlsUrl?.size == newList[newPos].hlsUrl?.size &&
                 prevList[oldPos].thumbnailUrl == newList[newPos].thumbnailUrl &&
                 prevList[oldPos].streamTitle == newList[newPos].streamTitle &&

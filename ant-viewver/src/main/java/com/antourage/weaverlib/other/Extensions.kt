@@ -89,6 +89,11 @@ internal fun <T> LiveData<T>.reObserve(@NonNull owner: LifecycleOwner, @NonNull 
     this.observe(owner, observer)
 }
 
+internal fun <T> LiveData<T>.reObserveForever(@NonNull observer: Observer<T>) {
+    this.removeObserver(observer)
+    this.observeForever(observer)
+}
+
 internal fun String.parseDate(context: Context): String {
     val localUTC = convertUtcToLocal(this)
     return localUTC?.parseToDisplayAgoTime(context) ?: ""
