@@ -18,14 +18,10 @@ import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
-public class AntourageActivity : AppCompatActivity() {
+class AntourageActivity : AppCompatActivity() {
     internal var keyboardIsVisible = false
         private set
 
-    /**
-     * Determines if need to trigger keyborad event callback, when keyboard was shown or hidden via
-     * [hideKeyborad] or [showKeyboard] methods
-     */
     private var triggerKeyboardCallback = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
