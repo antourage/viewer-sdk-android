@@ -9,7 +9,7 @@ import android.view.ViewTreeObserver
 
 /**
  * This listener works only with adjustPan
- * Used in Weaver fragment
+ * Used in Player fragment
  */
 internal class KeyboardEventListener(
     private val activity: AppCompatActivity,

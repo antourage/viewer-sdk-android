@@ -100,18 +100,18 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //Android general
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'androidx.exifinterface:exifinterface:1.0.0'
+    implementation 'androidx.exifinterface:exifinterface:1.1.0'
     implementation "androidx.preference:preference-ktx:1.1.0"
     //Constraint layout
     //Do not update as there is some weird bug with adjustResize
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
     //Architecture Components
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
     // RecyclerView
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     // CardView
     implementation 'androidx.cardview:cardview:1.0.0'
     // Retrofit stuff
@@ -120,7 +120,7 @@ dependencies {
     // for firebase
     //Do not update because further versions require AndroidX
     implementation 'com.google.firebase:firebase-auth:19.2.0'
-    implementation 'com.google.firebase:firebase-firestore:21.3.0'
+    implementation 'com.google.firebase:firebase-firestore:21.4.0'
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     //ExoPlayer
@@ -131,7 +131,7 @@ dependencies {
     //CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     // Dagger
-    implementation 'com.google.dagger:dagger:2.19'
+    implementation 'com.google.dagger:dagger:2.24'
     kapt 'com.google.dagger:dagger-compiler:2.19'
     //Testing
     testImplementation 'junit:junit:4.12'

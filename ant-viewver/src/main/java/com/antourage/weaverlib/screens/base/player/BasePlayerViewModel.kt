@@ -41,7 +41,6 @@ import java.sql.Timestamp
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     private var playWhenReady = true
     protected var currentWindow = 0
-    private var playbackPosition: Long = 0
     var streamId: Int? = null
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
@@ -58,7 +57,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     internal var stopWatchingTime: Long? = null
 
-    val handlerCall = Handler()
+    val requestingStreamInfoHandler = Handler()
     val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
 
     private var timerTickHandler = Handler()
@@ -75,10 +74,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     fun setStreamId(streamId: Int) {
         this.streamId = streamId
-    }
-
-    fun setCurrentlyWatchedVideoId(videoId: Int) {
-        this.currentlyWatchedVideoId = videoId
     }
 
     fun getPlaybackState(): LiveData<Int> = playbackStateLiveData
@@ -122,24 +117,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         return player
     }
 
-    fun getStreamGroups(): List<Format> {
-        val mappedTrackInfo = trackSelector.currentMappedTrackInfo
-        val list: MutableList<Format> = mutableListOf()
-        mappedTrackInfo?.let {
-            val trackGroupArray = mappedTrackInfo.getTrackGroups(0)
-            val trackGroup = trackGroupArray[0]
-            for (j in 0 until trackGroup.length) {
-                list.add(trackGroup.getFormat(j))
-            }
-        }
-        return list
-    }
-
     fun isPlaybackPaused(): Boolean = !(player?.playWhenReady ?: false)
 
     fun releasePlayer() {
         removeStatisticsListeners()
-        playbackPosition = player?.currentPosition ?: 0
         currentWindow = player?.currentWindowIndex ?: 0
         playWhenReady = player?.playWhenReady ?: false
         player?.release()
@@ -148,27 +129,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     fun onNetworkGained() {
         player?.prepare(getMediaSource(streamUrl), false, true)
         player?.seekTo(currentWindow, player?.currentPosition ?: 0)
-    }
-
-    fun onResolutionChanged(pos: Int) {
-        val builder = trackSelector.parameters.buildUpon()
-        val i = 0
-        builder
-            .clearSelectionOverrides(/* rendererIndex= */i)
-            .setRendererDisabled(
-                /* rendererIndex= */ i,
-                i == pos
-            )
-        val overrides: MutableList<DefaultTrackSelector.SelectionOverride> = mutableListOf()
-        overrides.add(0, DefaultTrackSelector.SelectionOverride(0, pos))
-        if (overrides.isNotEmpty()) {
-            builder.setSelectionOverride(
-                /* rendererIndex= */ i,
-                trackSelector.currentMappedTrackInfo?.getTrackGroups(/* rendererIndex= */i),
-                overrides[0]
-            )
-        }
-        trackSelector.setParameters(builder)
     }
 
     private fun initStatisticsListeners() {
@@ -212,7 +172,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun sendStatisticData(statisticAction: StatisticActions, span: String = "00:00:00") {
-        val statsItem = streamId?.let { streamId ->
+        streamId?.let { streamId ->
             StatisticWatchVideoRequest(
                 streamId,
                 statisticAction.ordinal,
@@ -281,7 +241,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
-                playbackPosition = player?.currentPosition ?: 0
                 currentWindow = player?.currentWindowIndex ?: 0
                 errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
             }
@@ -318,7 +277,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     on player screen
      */
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
-        handlerCall.postDelayed(object : Runnable {
+        requestingStreamInfoHandler.postDelayed(object : Runnable {
             override fun run() {
                 if (Global.networkAvailable) {
                     val currentStreamInfo = when (this@BasePlayerViewModel) {
@@ -349,7 +308,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         }
                     }
                     currentStreamInfo.observeForever(streamInfoObserver)
-                    handlerCall.postDelayed(
+                    requestingStreamInfoHandler.postDelayed(
                         this,
                         ReceivingVideosManager.LIVE_STREAMS_REQUEST_INTERVAL
                     )
@@ -359,7 +318,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun stopUpdatingCurrentStreamInfo() {
-        handlerCall.removeCallbacksAndMessages(null)
+        requestingStreamInfoHandler.removeCallbacksAndMessages(null)
     }
 
     open fun onLiveStreamEnded() {}
