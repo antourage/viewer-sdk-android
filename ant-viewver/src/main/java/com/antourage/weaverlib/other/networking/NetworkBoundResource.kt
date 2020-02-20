@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.ModuleResourcesProvider
-import java.util.*
 
 internal abstract class NetworkBoundResource<ResultType>
 @MainThread constructor() {

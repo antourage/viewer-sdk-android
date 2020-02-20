@@ -63,7 +63,7 @@ internal class ReceivingVideosManager {
         }
 
         val handlerLiveVideos = Handler()
-        val handlerVODsCount = Handler()
+        private val handlerVODsCount = Handler()
 
         fun startReceivingLiveStreams() {
             Log.d(AntourageFab.TAG, "Started videos list timer")

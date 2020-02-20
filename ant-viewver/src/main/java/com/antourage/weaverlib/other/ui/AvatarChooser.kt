@@ -12,17 +12,17 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.NonNull
-import androidx.exifinterface.media.ExifInterface
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.appcompat.app.AlertDialog
-import com.antourage.weaverlib.BuildConfig
+import androidx.exifinterface.media.ExifInterface
+import androidx.fragment.app.Fragment
 import com.antourage.weaverlib.R
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.io.File
 import java.io.IOException
+import kotlin.math.roundToInt
 
 internal class AvatarChooser(val context: Context) {
 
@@ -198,8 +198,8 @@ internal class AvatarChooser(val context: Context) {
         if (height > reqHeight || width > reqWidth) {
 
             // Calculate ratios of height and width to requested height and width
-            val heightRatio = Math.round(height.toFloat() / reqHeight.toFloat())
-            val widthRatio = Math.round(width.toFloat() / reqWidth.toFloat())
+            val heightRatio = (height.toFloat() / reqHeight.toFloat()).roundToInt()
+            val widthRatio = (width.toFloat() / reqWidth.toFloat()).roundToInt()
 
             // Choose the smallest ratio as inSampleSize value, this will guarantee a final image
             // with both dimensions larger than or equal to the requested height and width.

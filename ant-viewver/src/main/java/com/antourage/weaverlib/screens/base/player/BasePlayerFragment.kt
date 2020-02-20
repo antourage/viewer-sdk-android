@@ -60,7 +60,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private lateinit var controllerHeaderLayout: ConstraintLayout
 
     /**
-     * we need to know if user turns on screen autorotation or locks
+     * we need to know if user turns on screen auto rotation or locks
      * it to portrait manually in the android expanding quick settings menu
      */
     private val contentObserver = object : ContentObserver(Handler()) {

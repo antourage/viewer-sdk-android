@@ -89,8 +89,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         if (player?.playbackState != Player.STATE_READY) {
             player?.playWhenReady = true
         }
-        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { ifilter ->
-            getApplication<Application>().registerReceiver(null, ifilter)
+        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { filter ->
+            getApplication<Application>().registerReceiver(null, filter)
         }
         sendStatisticData(StatisticActions.JOINED)
         startUpdatingStopWatchingTime()

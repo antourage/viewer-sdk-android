@@ -26,6 +26,6 @@ internal abstract class OnSingleClickListener : View.OnClickListener {
          * class created to prevent bugs connected with very
          * quick taps on item
          */
-        private val MIN_CLICK_INTERVAL: Long = 1000
+        private const val MIN_CLICK_INTERVAL: Long = 1000
     }
 }

@@ -13,7 +13,7 @@ import android.view.WindowManager
  */
 object KeyboardVisibilityEvent {
 
-    private val KEYBOARD_MIN_HEIGHT_RATIO = 0.15
+    private const val KEYBOARD_MIN_HEIGHT_RATIO = 0.15
 
     /**
      * Variable for storing keyboard height (so it is known even when keyborad is not shown anymore)
@@ -63,9 +63,7 @@ object KeyboardVisibilityEvent {
 
         // fix for #37 and #38.
         // The window will not be resized in case of SOFT_INPUT_ADJUST_NOTHING
-        if (softInputAdjust and WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING == WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING) {
-            throw IllegalArgumentException("Parameter:activity window SoftInputMethod is SOFT_INPUT_ADJUST_NOTHING. In this case window will not be resized")
-        }
+        require(softInputAdjust and WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING != WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING) { "Parameter:activity window SoftInputMethod is SOFT_INPUT_ADJUST_NOTHING. In this case window will not be resized" }
 
         if (listener == null) {
             throw NullPointerException("Parameter:listener must not be null")

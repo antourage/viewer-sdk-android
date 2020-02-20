@@ -20,8 +20,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearSmoothScroller
-import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
@@ -103,7 +101,7 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
     val secondsInMinute = 60
     val minutesInHour = 60 * secondsInMinute
     val hoursInDay = minutesInHour * 24
-    var diff = getDateDiff(this, Date())
+    val diff = getDateDiff(this, Date())
     when {
         diff > 3 * hoursInDay -> {
             val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())

@@ -10,7 +10,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.ModuleResourcesProvider
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import java.util.*
 
 internal abstract class MockedNetworkBoundResource<ResultType>
 @MainThread constructor(mockResponse: ResultType) {
