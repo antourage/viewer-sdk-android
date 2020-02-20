@@ -74,7 +74,6 @@
             android:layout_marginTop="20dp"
             android:background="@android:color/transparent"
             android:clickable="false"
-            android:elevation="3dp"
             android:focusable="false"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
             app:layout_constraintLeft_toLeftOf="parent"

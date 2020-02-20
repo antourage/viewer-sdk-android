@@ -70,6 +70,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         view?.apply {
             drawerLayout = findViewById(R.id.drawerLayout)
             drawerLayout.touchListener = this@ChatFragment
+            drawerLayout.drawerElevation = 0f
 
             navigationView = findViewById(R.id.navView)
             rvMessages = findViewById(R.id.rvMessages)
