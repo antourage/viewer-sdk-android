@@ -10,5 +10,6 @@
         <domain includeSubdomains="true">192.168.20.196:4000</domain>
         <domain includeSubdomains="true">d3pqhz4gxngfhe.cloudfront.net</domain>
         <domain includeSubdomains="true">d382pphprxgdpj.cloudfront.net</domain>
+        <domain includeSubdomains="true">antourage.cluster.video</domain>
     </domain-config>
 </network-security-config>

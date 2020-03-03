@@ -15,7 +15,7 @@ import okhttp3.MultipartBody
 internal class Repository {
 
     companion object {
-        var vods: List<StreamResponse>? = null
+        var vods: MutableList<StreamResponse>? = null
 
         fun getLiveVideos(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
@@ -40,6 +40,52 @@ internal class Repository {
             }
             return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
             }.asLiveData()
+        }
+
+        private val adaptiveBitrateUrl =
+            "http://antourage.cluster.video/antourage/smil:team1.smil/playlist.m3u8"
+        private val bitrate_720p_1800 =
+            "http://antourage.cluster.video/antourage/team1_720p/playlist.m3u8"
+        private val bitrate_480p_800 =
+            "http://antourage.cluster.video/antourage/team1_480p/playlist.m3u8"
+        private val bitrate_360p_500 =
+            "http://antourage.cluster.video/antourage/team1_360p/playlist.m3u8"
+
+        fun getMockedStreamsForTheTest(): List<StreamResponse> {
+            val mockedStreams = mutableListOf<StreamResponse>()
+            mockedStreams.add(
+                StreamResponse(
+                    1001, 1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
+                    adaptiveBitrateUrl, null, null, null, null,
+                    null, null, 1, null, null, null,
+                    null, 0, false, 0, false, null
+                )
+            )
+            mockedStreams.add(
+                StreamResponse(
+                    1002, 1002, "bitrate_720p_1800", "bitrate_720p_1800",
+                    bitrate_720p_1800, null, null, null, null,
+                    null, null, 1, null, null, null,
+                    null, 0, false, 0, false, null
+                )
+            )
+            mockedStreams.add(
+                StreamResponse(
+                    1003, 1003, "bitrate_480p_800", "bitrate_480p_800",
+                    bitrate_480p_800, null, null, null, null,
+                    null, null, 1, null, null, null,
+                    null, 0, false, 0, false, null
+                )
+            )
+            mockedStreams.add(
+                StreamResponse(
+                    1004, 1004, "bitrate_360p_500", "bitrate_360p_500",
+                    bitrate_360p_500, null, null, null, null,
+                    null, null, 1, null, null, null,
+                    null, 0, false, 0, false, null
+                )
+            )
+            return mockedStreams
         }
 
         fun getLiveVideoById(id: Int): LiveData<Resource<StreamResponse>> =

@@ -130,7 +130,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 if (newList != null) {
                     list.addAll(list.size, newList)
                 }
-                Repository.vods = list.toList()
+                Repository.vods = list.toMutableList()
                 if (newList?.size == VODS_COUNT)
                     list.add(
                         list.size, getStreamLoaderPlaceholder()
@@ -156,7 +156,9 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         when (resource.status) {
             is Status.Success -> {
                 val newList = (resource.status.data)?.toMutableList()
-                Repository.vods = newList?.toList()
+                //TODO: delete (used for testing)
+//                newList?.addAll(Repository.getMockedStreamsForTheTest())
+                Repository.vods = newList?.toMutableList()
                 if (newList?.size == VODS_COUNT)
                     newList.add(
                         newList.size, getStreamLoaderPlaceholder()

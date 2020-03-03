@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
@@ -133,15 +134,7 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
         fun bindView(liveStream: StreamResponse) {
             with(itemView) {
                 liveStream.apply {
-                    val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
-                        .load(thumbnailUrl)
-                    else
-                        Picasso.get()
-                            .load(R.drawable.antourage_ic_no_content_content_loading)
-                    picasso
-                        .placeholder(R.drawable.antourage_ic_no_content_content_loading)
-                        .error(R.drawable.antourage_ic_no_content_content_loading)
-                        .into(ivThumbnail_live)
+                    loadThumbnailUrlOrShowPlaceholder(thumbnailUrl, ivThumbnail_live)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0
                             && adapterPosition < listOfStreams.size
@@ -166,17 +159,23 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
         }
     }
 
+    private fun loadThumbnailUrlOrShowPlaceholder(thumbnailUrl: String?, ivThumbnail: ImageView?) {
+        val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
+            .load(thumbnailUrl)
+        else
+            Picasso.get()
+                .load(R.drawable.antourage_ic_no_content_content_loading)
+        picasso
+            .placeholder(R.drawable.antourage_ic_no_content_content_loading)
+            .error(R.drawable.antourage_ic_no_content_content_loading)
+            .into(ivThumbnail)
+    }
+
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindView(vod: StreamResponse) {
             with(itemView) {
                 vod.apply {
-                    if (!thumbnailUrl.isNullOrEmpty()) {
-                        Picasso.get()
-                            .load(thumbnailUrl)
-                            .placeholder(R.drawable.antourage_ic_no_content_content_loading)
-                            .error(R.drawable.antourage_ic_no_content_content_loading)
-                            .into(ivThumbnail_vod)
-                    }
+                    loadThumbnailUrlOrShowPlaceholder(thumbnailUrl, ivThumbnail_vod)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0 && adapterPosition < listOfStreams.size &&
                             adapterPosition != -1
@@ -201,7 +200,7 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                     ) {
                         watchingProgress.progress =
                             (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
-                                ?: 0)).toInt()
+                                ?: 1)).toInt()
                         watchingProgress.visibility = View.VISIBLE
                     }
                 }
