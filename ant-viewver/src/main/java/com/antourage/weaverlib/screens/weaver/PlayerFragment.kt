@@ -269,11 +269,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private val onBtnSendClicked = View.OnClickListener {
         val message = Message(
             viewModel.getUser()?.imageUrl ?: "",
-            "osoluk@leobit.co",
+            null,
             viewModel.getUser()?.displayName,
             etMessage.text.toString(),
-            MessageType.USER,
-            Timestamp(Date())
+            MessageType.USER
         )
         /**
         User id fot firebase synchronized with back end user id with messages;

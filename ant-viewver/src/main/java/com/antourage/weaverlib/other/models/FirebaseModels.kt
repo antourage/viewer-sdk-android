@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.IgnoreExtraProperties
 import com.google.firebase.firestore.PropertyName
+import com.google.firebase.firestore.ServerTimestamp
 
 @Keep
 internal class MessageType {
@@ -24,6 +25,7 @@ internal data class Message(
     var nickname: String? = null,
     var text: String? = null,
     var type: Int? = null,
+    @ServerTimestamp
     var timestamp: Timestamp? = null,
     var userID: String? = null,
     var pushTimeMills: Long? = null

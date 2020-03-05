@@ -1,9 +1,9 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import android.util.Log
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
