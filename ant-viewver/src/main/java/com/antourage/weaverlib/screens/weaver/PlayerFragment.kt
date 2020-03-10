@@ -203,17 +203,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     txtPollStatus.text = state.pollStatus?.let { it }
                 }
                 is PollStatus.PollDetails -> {
+                    wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollPopup()
                     hidePollStatusLayout()
                     removeMessageInput()
                     showUserSettingsDialog(false)
                     bottomLayout.visibility = View.VISIBLE
-                    wasDrawerClosed = false
                     if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                         if (drawerLayout.isDrawerOpen(navView)) {
                             drawerLayout.closeDrawer(navView)
-                            wasDrawerClosed = true
                         }
                     }
                     val streamId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId
@@ -230,14 +229,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
-                            if (viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff)
-                                ll_wrapper.visibility = View.INVISIBLE else ll_wrapper.visibility =
-                                View.VISIBLE
+                            ll_wrapper.visibility = when {
+                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff -> View.INVISIBLE
+                                wasDrawerClosed -> View.INVISIBLE
+                                else -> View.VISIBLE
+                            }
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
                                 viewModel.startNewPollCountdown()
                             }
-                            if (wasDrawerClosed)
+                            if (!wasDrawerClosed)
                                 drawerLayout.openDrawer(navView)
                         }
                         enableMessageInput(childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)
