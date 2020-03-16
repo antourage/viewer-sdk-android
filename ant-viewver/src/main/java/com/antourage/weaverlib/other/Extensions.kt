@@ -103,7 +103,7 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
     val hoursInDay = minutesInHour * 24
     val diff = getDateDiff(this, Date())
     when {
-        diff > 3 * hoursInDay -> {
+        diff > 7 * hoursInDay -> {
             val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             return df.format(this)
         }
