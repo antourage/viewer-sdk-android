@@ -26,8 +26,7 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
         private const val SP_USER_ID = "sp_user_id"
-        private const val SP_VOD_WATCHING_TIME = "sp_vod_watching_time"
-        private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
+        private const val SP_STATISTIC_WATCHING_TIME = "sp_statistic_watching_time"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
         private const val SP_USER_REF_ID = "sp_user_ref_id"
@@ -145,25 +144,19 @@ internal class UserCache private constructor(context: Context) {
         return prefs?.getString(SP_USER_NICKNAME, null)
     }
 
-    internal fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
+    internal fun updateStatisticWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
         val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
         prefs?.edit()
-            ?.putString(SP_VOD_WATCHING_TIME, json)
+            ?.putString(SP_STATISTIC_WATCHING_TIME, json)
             ?.apply()
     }
 
     internal fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
-        val json = prefs?.getString("SP_VOD_WATCHING_TIME", null)
+        val json = prefs?.getString(SP_STATISTIC_WATCHING_TIME, null)
         return if (json == null) null else Gson().fromJson(
             json,
             StatisticWatchVideoRequest::class.java
         )
-    }
-
-    fun updateLiveStreamWatchingTime(watchingTimeSpan: String?) {
-        prefs?.edit()
-            ?.putString(SP_LIVE_STREAM_WATCHING_TIME, watchingTimeSpan)
-            ?.apply()
     }
 
     private fun clearUserData() {

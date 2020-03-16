@@ -124,7 +124,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null) {
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
-                    //TODO 17/06/2019 wth does not actually remove observer
                     messagesResponse?.removeObserver(messagesObserver)
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
                 } else {

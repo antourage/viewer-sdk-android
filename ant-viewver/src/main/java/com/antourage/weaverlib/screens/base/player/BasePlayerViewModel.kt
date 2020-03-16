@@ -39,6 +39,10 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator
 import java.sql.Timestamp
 
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
+    companion object {
+        private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
+    }
+
     private var playWhenReady = true
     protected var currentWindow = 0
     var streamId: Int? = null
@@ -63,8 +67,18 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var timerTickHandler = Handler()
     private var timerTickRunnable = object : Runnable {
         override fun run() {
-            stopWatchingTime = player?.currentPosition
-            timerTickHandler.postDelayed(this, 1000)
+            streamId?.let { streamId ->
+                updateWatchingTimeSpan(
+                    StatisticWatchVideoRequest(
+                        streamId,
+                        StatisticActions.LEFT.ordinal,
+                        getBatteryLevel(),
+                        stopwatch.toString(),
+                        Timestamp(System.currentTimeMillis()).toString()
+                    )
+                )
+            }
+            timerTickHandler.postDelayed(this, STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS)
         }
     }
 
@@ -164,20 +178,24 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun updateWatchingTimeSpan(watchingTime: StatisticWatchVideoRequest) {
-        UserCache.getInstance(getApplication())?.updateVODWatchingTime(watchingTime)
+        UserCache.getInstance(getApplication())?.updateStatisticWatchingTime(watchingTime)
     }
 
     private fun getBatteryLevel(): Int {
         return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: 0
     }
 
-    private fun sendStatisticData(statisticAction: StatisticActions, span: String = "00:00:00") {
+    private fun sendStatisticData(
+        statisticAction: StatisticActions,
+        span: String = "00:00:00",
+        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+    ) {
         streamId?.let { streamId ->
             StatisticWatchVideoRequest(
                 streamId,
                 statisticAction.ordinal,
                 getBatteryLevel(),
-                Timestamp(System.currentTimeMillis()).toString(),
+                timestamp,
                 span
             )
         }?.let { statsItem ->
@@ -245,14 +263,16 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
-            Log.d(TAG, when(err.type){
-                TYPE_SOURCE -> "error type: ${err.type} error message: ${err.sourceException.message}"
-                TYPE_RENDERER -> "error type: ${err.type} error message: ${err.rendererException.message}"
-                TYPE_UNEXPECTED -> "error type: ${err.type} error message: ${err.unexpectedException.message}"
-                TYPE_REMOTE -> "error type: ${err.type} error message: ${err.message}"
-                TYPE_OUT_OF_MEMORY -> "error type: ${err.type} error message: ${err.outOfMemoryError.message}"
-                else -> err.message
-            } ?: "")
+            Log.d(
+                TAG, when (err.type) {
+                    TYPE_SOURCE -> "error type: ${err.type} error message: ${err.sourceException.message}"
+                    TYPE_RENDERER -> "error type: ${err.type} error message: ${err.rendererException.message}"
+                    TYPE_UNEXPECTED -> "error type: ${err.type} error message: ${err.unexpectedException.message}"
+                    TYPE_REMOTE -> "error type: ${err.type} error message: ${err.message}"
+                    TYPE_OUT_OF_MEMORY -> "error type: ${err.type} error message: ${err.outOfMemoryError.message}"
+                    else -> err.message
+                } ?: ""
+            )
             if (err.cause is BehindLiveWindowException) {
                 player?.prepare(getMediaSource(streamUrl), false, true)
             } else {

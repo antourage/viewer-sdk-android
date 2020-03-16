@@ -52,10 +52,6 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 
-    private fun updateWatchingTimeSpan(watchingTime: StatisticWatchVideoRequest) {
-        UserCache.getInstance(getApplication())?.updateVODWatchingTime(watchingTime)
-    }
-
     private val messagesSingleEventRunnable = Runnable {
         manageShownMessages()
         messagesHandler.removeCallbacksAndMessages(null)
@@ -134,6 +130,10 @@ internal class VideoViewModel @Inject constructor(application: Application) :
 
     private fun setVodStopWatchingTime() {
         vodId?.let { vodId ->
+            /**
+             * set stopWatching time to avoid additional server call when
+             * turning back from player to videos list screen
+             */
             setVODStopWatchingTimeLocally()
             stopWatchingTime?.let { stopWatchingTime ->
                 if (stopWatchingTime > 0) {

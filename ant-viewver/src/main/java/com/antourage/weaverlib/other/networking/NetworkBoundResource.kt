@@ -51,7 +51,7 @@ internal abstract class NetworkBoundResource<ResultType>
                 }
                 is ApiEmptyResponse -> {
                     AppExecutors.mainThread().execute {
-                        //TODO: handle empty response
+                        //TODO: handle empty response in scope of error handling implementation
                         //Got empty response
                     }
                 }
