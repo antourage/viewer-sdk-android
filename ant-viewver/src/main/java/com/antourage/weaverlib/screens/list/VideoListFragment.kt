@@ -144,7 +144,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>(),
     override fun initUi(view: View?) {
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             if (streamResponse.isLive) {
-                replaceFragment(PlayerFragment.newInstance(streamResponse), R.id.mainContent, true)
+                val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
+                replaceFragment(PlayerFragment.newInstance(streamResponse, userId), R.id.mainContent, true)
             } else {
                 context?.let { context ->
                     streamResponse.streamId?.let {

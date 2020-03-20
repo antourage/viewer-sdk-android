@@ -75,6 +75,7 @@ internal class Poll : FirestoreModel() {
 @Keep
 internal data class AnsweredUser(
     var chosenAnswer: Int? = null,
+    @ServerTimestamp
     var timestamp: Timestamp? = null
 ) : FirestoreModel()
 

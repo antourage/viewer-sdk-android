@@ -66,10 +66,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         const val ARGS_STREAM = "args_stream"
         const val ARGS_USER_ID = "args_user_id"
 
-        fun newInstance(stream: StreamResponse): PlayerFragment {
+        fun newInstance(stream: StreamResponse, userId: Int): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
+            bundle.putInt(ARGS_USER_ID, userId)
             fragment.arguments = bundle
             return fragment
         }

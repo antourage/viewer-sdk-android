@@ -36,7 +36,7 @@ class AntourageActivity : AppCompatActivity() {
             .replace(
                 R.id.mainContent,
                 if (streamToWatch != null)
-                    PlayerFragment.newInstance(streamToWatch)
+                    PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
                 else VideoListFragment.newInstance()
             )
             .commit()

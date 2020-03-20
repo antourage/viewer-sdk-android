@@ -63,7 +63,6 @@ internal class PollDetailsViewModel @Inject constructor(
             .currentUser?.let {
             val userAnswer = AnsweredUser()
             userAnswer.chosenAnswer = pos
-            userAnswer.timestamp = Timestamp(Date())
             userAnswer.id = userId.toString()
             Repository.vote(streamId, pollId, userAnswer)
             isAnswered = true
