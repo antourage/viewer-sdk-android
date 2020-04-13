@@ -267,26 +267,19 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     }
 
     fun initUser() {
-        UserCache.getInstance(getApplication())?.getUserId()?.let { userId ->
-            val response = UserCache.getInstance(getApplication())?.getApiKey()?.let { apiKey ->
-                Repository.getUser(
-                    userId,
-                    apiKey
-                )
-            }
-            response?.observeForever(object : Observer<Resource<User>> {
-                override fun onChanged(it: Resource<User>?) {
-                    when (val responseStatus = it?.status) {
-                        is Status.Success -> {
-                            user = responseStatus.data
-                            userInfoLiveData.postValue(user)
-                            response.removeObserver(this)
-                        }
-                        is Status.Failure -> response.removeObserver(this)
+        val response = Repository.getUser()
+        response.observeForever(object : Observer<Resource<User>> {
+            override fun onChanged(it: Resource<User>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        user = responseStatus.data
+                        userInfoLiveData.postValue(user)
+                        response.removeObserver(this)
                     }
+                    is Status.Failure -> response.removeObserver(this)
                 }
-            })
-        }
+            }
+        })
     }
 
     fun noDisplayNameSet() =

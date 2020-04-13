@@ -2,6 +2,7 @@
 <resources>
     <color name="ant_white">#FFFFFF</color>
     <color name="ant_black">#000000</color>
+    <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget">#FF464646</color>
     <color name="ant_bg_fab">#222</color>
     <color name="ant_bg_color_widget_expantion">#131313</color>
@@ -28,4 +29,6 @@
     <color name="ant_no_content_placeholder_color_1">#353535</color>
     <color name="ant_no_content_placeholder_color_2">#3A3A3A</color>
     <color name="ant_no_content_placeholder_color_3">#444444</color>
+
+    <color name="ant_streamer_name_color">#9BA3A9</color>
 </resources>

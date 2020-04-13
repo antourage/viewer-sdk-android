@@ -1,6 +1,7 @@
 <resources>
     <public />
-    <string name="ant_live">Live</string>
+    <string name="ant_live">LIVE</string>
+    <string name="ant_new_vod">NEW</string>
     <string name="ant_say_something">Say something</string>
 
     <string name="ant_new_poll">New poll!</string>

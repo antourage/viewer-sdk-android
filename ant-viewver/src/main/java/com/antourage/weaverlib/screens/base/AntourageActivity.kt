@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
@@ -14,6 +15,7 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
@@ -23,6 +25,7 @@ class AntourageActivity : AppCompatActivity() {
         private set
 
     private var triggerKeyboardCallback = true
+    private var shouldGoBackToList = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +35,18 @@ class AntourageActivity : AppCompatActivity() {
             ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
+        shouldGoBackToList = streamToWatch != null
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.mainContent,
-                if (streamToWatch != null)
-                    PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
+                if (streamToWatch != null){
+                    if(streamToWatch.isLive){
+                        PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
+                    }
+                    else{
+                        VodPlayerFragment.newInstance(streamToWatch)
+                    }
+                }
                 else VideoListFragment.newInstance()
             )
             .commit()
@@ -98,6 +108,23 @@ class AntourageActivity : AppCompatActivity() {
             && currentFragment.isVisible
         ) {
             doStuff(currentFragment as BaseFragment<BaseViewModel>)
+        }
+    }
+
+    // used in case video was open from FAB
+    // to open initial list of streams
+    private fun reopenActivity(){
+        val intent = Intent(this, AntourageActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        this.startActivity(intent)
+        finish()
+    }
+
+    override fun onBackPressed() {
+        if(shouldGoBackToList){
+            reopenActivity()
+        }else{
+            super.onBackPressed()
         }
     }
 }

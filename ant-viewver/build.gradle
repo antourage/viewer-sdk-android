@@ -16,9 +16,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "0.2.21"
+        versionName "0.2.24"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
     testOptions {
         unitTests.returnDefaultValues = true

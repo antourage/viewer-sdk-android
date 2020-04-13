@@ -15,6 +15,9 @@ internal interface WebService {
     @GET("vod")
     fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
 
+    @GET("vod/new")
+    fun getVODsForFab(): LiveData<ApiResponse<List<StreamResponse>>>
+
     @GET("vod/{id}")
     fun getVODById(@Path("id") id: Int): LiveData<ApiResponse<StreamResponse>>
 
@@ -24,8 +27,8 @@ internal interface WebService {
     @POST("users")
     fun generateUser(@Body body: UserRequest): LiveData<ApiResponse<User>>
 
-    @GET("users/{id}")
-    fun getUser(@Path("id") id: Int, @Query("apiKey") apiKey: String): LiveData<ApiResponse<User>>
+    @GET("users")
+    fun getUser(): LiveData<ApiResponse<User>>
 
     @PUT("users")
     fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>

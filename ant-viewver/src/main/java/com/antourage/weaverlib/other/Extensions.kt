@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -25,6 +26,7 @@ import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -240,6 +242,28 @@ internal inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block
 internal fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
 internal fun Context.dpToPx(dp: Float): Int =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
+
+internal fun TextView.hideBadge(){
+    this.animate()
+        .scaleY(0.0f)
+        .scaleX(0.0f)
+        .alpha(0.0f)
+        .setDuration(300)
+        .withEndAction { this.text="" }
+        .start()
+}
+
+internal fun TextView.showBadge(){
+    this.scaleX = 0.5f
+    this.scaleY = 0.5f
+    this.alpha = 0.0f
+    this.animate()
+        .scaleY(1.0f)
+        .scaleX(1.0f)
+        .alpha(1.0f)
+        .setDuration(300)
+        .start();
+}
 
 internal fun View.removeConstraints(parent: ConstraintLayout) {
     val set = ConstraintSet()

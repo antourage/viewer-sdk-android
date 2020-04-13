@@ -99,6 +99,11 @@ internal class Repository {
                 override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
             }.asLiveData()
 
+        fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
+            object : NetworkBoundResource<List<StreamResponse>>() {
+                override fun createCall() = ApiClient.getWebClient(v2 = true).webService.getVODsForFab()
+            }.asLiveData()
+
         fun getVODById(id: Int): LiveData<Resource<StreamResponse>> =
             object : NetworkBoundResource<StreamResponse>() {
                 override fun createCall() = ApiClient.getWebClient().webService.getVODById(id)
@@ -115,9 +120,14 @@ internal class Repository {
                     ApiClient.getWebClient(false).webService.generateUser(body)
             }.asLiveData()
 
-        fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
+//        fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
+//            object : NetworkBoundResource<User>() {
+//                override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
+//            }.asLiveData()
+
+        fun getUser(): LiveData<Resource<User>> =
             object : NetworkBoundResource<User>() {
-                override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
+                override fun createCall() = ApiClient.getWebClient().webService.getUser()
             }.asLiveData()
 
         fun updateDisplayName(body: UpdateDisplayNameRequest): LiveData<Resource<SimpleResponse>> =

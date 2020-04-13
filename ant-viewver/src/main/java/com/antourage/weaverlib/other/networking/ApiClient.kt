@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
+import android.util.Log
 import com.antourage.weaverlib.UserCache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -10,20 +11,25 @@ import java.util.concurrent.TimeUnit
 internal object ApiClient {
 
     var BASE_URL = ""
-    private const val HEADER_TOKEN = "token"
+    private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/"
+    private const val VERSION_2_SUFFIX = "api/v2/"
 
     lateinit var webService: WebService
     private var retrofit: Retrofit? = null
     private var usingAuth = false
 
-    fun getWebClient(useAuth: Boolean = true): ApiClient {
+    private var shouldRebuild = false
+
+    fun getWebClient(useAuth: Boolean = true, v2: Boolean = false): ApiClient {
         if (retrofit == null
             || usingAuth != useAuth
             || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)
+            || v2
+            || shouldRebuild
         ) {
-            rebuildRetrofit(useAuth)
+            rebuildRetrofit(useAuth, v2)
         }
         return this
     }
@@ -36,15 +42,16 @@ internal object ApiClient {
         } ?: ""
     }
 
-    private fun rebuildRetrofit(useAuth: Boolean) {
+    private fun rebuildRetrofit(useAuth: Boolean, v2: Boolean = false) {
         val client = buildOkHttpClient(useAuth)
         retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL + VERSION_SUFFIX)
+            .baseUrl(if (v2){ (BASE_URL + VERSION_2_SUFFIX)} else (BASE_URL + VERSION_SUFFIX) )
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
         webService = retrofit?.create(WebService::class.java)!!
+        if(v2) shouldRebuild = true
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
@@ -81,7 +88,7 @@ internal object ApiClient {
             val request = chain.request()
             var newRequest = request
             newRequest = newRequest.newBuilder()
-                .addHeader(HEADER_TOKEN, getTokenForRequest())
+                .addHeader(HEADER_TOKEN, "Bearer ${getTokenForRequest()}")
                 .addHeader(HEADER_LANGUAGE, "en")
                 .build()
             chain.proceed(newRequest)

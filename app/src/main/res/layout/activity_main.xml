@@ -6,6 +6,7 @@
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
+        android:background="@color/ant_white"
         android:overScrollMode="never"
         tools:context=".MainActivity">
 
@@ -23,13 +24,22 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/landing_page_main" />
+
+<!--        <ImageView-->
+<!--                android:id="@+id/test"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="fitXY"/>-->
     </ScrollView>
 
     <com.antourage.weaverlib.ui.fab.AntourageFab
             android:id="@+id/antfab"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
