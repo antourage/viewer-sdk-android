@@ -31,4 +31,6 @@
     <color name="ant_no_content_placeholder_color_3">#444444</color>
 
     <color name="ant_streamer_name_color">#9BA3A9</color>
+    <color name="ant_feed_bg_color">#191919</color>
+    <color name="ant_feed_header_separator_color">#454545</color>
 </resources>

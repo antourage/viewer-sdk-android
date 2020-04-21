@@ -12,7 +12,7 @@ internal class VideosLayoutManager(context: Context?) : LinearLayoutManager(cont
 
     override fun onItemsAdded(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
         super.onItemsAdded(recyclerView, positionStart, itemCount)
-        recyclerView.smoothScrollToPosition(positionStart)
+//        recyclerView.smoothScrollToPosition(positionStart)
     }
 
     override fun canScrollVertically(): Boolean {

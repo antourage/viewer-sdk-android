@@ -4,13 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.Keep
-import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
-import com.antourage.weaverlib.other.networking.Resource
-import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
@@ -39,7 +33,7 @@ internal class StreamPreviewManager {
             player?.playWhenReady = true
             player?.volume = 0f
             player?.prepare(getMediaSource(streamUrl, context), false, true)
-            initStatisticsListeners()
+            initEventListener()
             return player
         }
 
@@ -76,7 +70,7 @@ internal class StreamPreviewManager {
         }
 
 
-        private fun initStatisticsListeners() {
+        private fun initEventListener() {
             player?.addListener(playerEventListener)
         }
 
@@ -103,6 +97,10 @@ internal class StreamPreviewManager {
 
         fun releasePlayer(){
             player?.release()
+            player?.removeListener(playerEventListener)
+        }
+
+        fun removeEventListener(){
             player?.removeListener(playerEventListener)
         }
     }

@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.list
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -19,6 +20,7 @@ import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedLis
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.UserAuthResult
 import java.util.*
+import java.util.logging.Handler
 import javax.inject.Inject
 import kotlin.concurrent.schedule
 
@@ -66,12 +68,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         if (canRefresh) {
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
-            if (resultList.size > 0) {
-                resultList.add(
-                    getStreamDividerPlaceholder()
-                )
-            }
-
             var addBottomLoader = false
             if (vods?.find { it.streamId == -2 } != null) {
                 addBottomLoader = true
@@ -127,14 +123,19 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                     list.addAll(it)
                 }
                 val newList = (resource.status.data)?.toMutableList()
+
                 if (newList != null) {
                     list.addAll(list.size, newList)
                 }
                 Repository.vods = list.toMutableList()
-                if (newList?.size == VODS_COUNT)
+
+                if (newList?.size == VODS_COUNT) {
                     list.add(
                         list.size, getStreamLoaderPlaceholder()
                     )
+                } else if (newList?.size!! < VODS_COUNT && newList.size != 0) {
+                    list.add(list.size, getListEndPlaceHolder())
+                }
                 vods = list
                 vodsUpdated = true
                 if (liveVideosUpdated) {
@@ -159,10 +160,11 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 //TODO: delete (used for testing)
 //                newList?.addAll(Repository.getMockedStreamsForTheTest())
                 Repository.vods = newList?.toMutableList()
-                if (newList?.size == VODS_COUNT)
+                if (newList?.size == VODS_COUNT) {
                     newList.add(
                         newList.size, getStreamLoaderPlaceholder()
                     )
+                }
                 vods = newList
                 vodsUpdated = true
                 if (liveVideosUpdated) {
@@ -193,13 +195,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         if (showCallResult || updateLiveStreams) {
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
-            if (resultList.size > 0) {
-                Log.d("VOD_TEST", "${liveVideos?.size} > 0, adding separator")
-                resultList.add(
-                    getStreamDividerPlaceholder()
-                )
-            }
-
             vods?.let { resultList.addAll(it.toList()) }
             loaderLiveData.postValue(false)
             listOfStreams.postValue(resultList.toList())
@@ -207,7 +202,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         }
     }
 
-    private fun getStreamDividerPlaceholder(): StreamResponse {
+    private fun getListEndPlaceHolder(): StreamResponse {
         return StreamResponse(
             -1, -1, null, null,
             null, null, null, null,

@@ -54,8 +54,6 @@
     <style name="Title">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">30dp</item>
-        <item name="android:layout_marginRight">30dp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">@font/roboto_condensed_regular</item>
         <item name="android:textColor">@color/ant_white</item>

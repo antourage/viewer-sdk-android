@@ -58,7 +58,7 @@ internal class Repository {
                     1001, 1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
                     adaptiveBitrateUrl, null, null, null, null,
                     null, null, 1, null, null, null,
-                    null, 0, false, 0, false, null
+                    null, 0, true, 0, false, null
                 )
             )
             mockedStreams.add(
@@ -119,11 +119,6 @@ internal class Repository {
                 override fun createCall() =
                     ApiClient.getWebClient(false).webService.generateUser(body)
             }.asLiveData()
-
-//        fun getUser(id: Int, apiKey: String): LiveData<Resource<User>> =
-//            object : NetworkBoundResource<User>() {
-//                override fun createCall() = ApiClient.getWebClient().webService.getUser(id, apiKey)
-//            }.asLiveData()
 
         fun getUser(): LiveData<Resource<User>> =
             object : NetworkBoundResource<User>() {

@@ -43,7 +43,7 @@
                 tools:text="5 m ago" />
 
         <TextView
-                android:id="@+id/txtViewersCount"
+                android:id="@+id/txtViewersCount_live"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="8dp"
                 android:drawableStart="@drawable/antourage_ic_watcher_12dp"

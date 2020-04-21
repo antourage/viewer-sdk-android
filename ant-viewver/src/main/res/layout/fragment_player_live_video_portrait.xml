@@ -142,7 +142,7 @@
             tools:text="my nicname sometimes gets messed up" />
 
     <ImageButton
-            android:id="@+id/btnShare"
+            android:id="@+id/btnShare_vod"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -164,7 +164,7 @@
             android:background="@drawable/antourage_rounded_green_bg"
             android:orientation="horizontal"
             android:padding="4dp"
-            app:layout_constraintEnd_toStartOf="@id/btnShare"
+            app:layout_constraintEnd_toStartOf="@id/btnShare_vod"
             app:layout_constraintTop_toBottomOf="@id/playerView">
 
         <ImageView

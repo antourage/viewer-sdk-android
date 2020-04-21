@@ -18,19 +18,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/landing_page_main" />
-
 <!--        <ImageView-->
-<!--                android:id="@+id/test"-->
 <!--                android:layout_width="match_parent"-->
 <!--                android:layout_height="wrap_content"-->
 <!--                android:adjustViewBounds="true"-->
-<!--                android:scaleType="fitXY"/>-->
+<!--                android:scaleType="fitXY"-->
+<!--                android:src="@drawable/landing_page_main" />-->
+
+        <ImageView
+                android:id="@+id/test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"/>
     </ScrollView>
 
     <com.antourage.weaverlib.ui.fab.AntourageFab

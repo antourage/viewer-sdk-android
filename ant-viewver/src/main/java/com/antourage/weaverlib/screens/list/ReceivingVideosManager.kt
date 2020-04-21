@@ -67,7 +67,6 @@ internal class ReceivingVideosManager {
         }
 
         val handlerLiveVideos = Handler()
-        private val handlerVODsCount = Handler()
         private val handlerVODs = Handler()
 
         fun startReceivingLiveStreams(isForFab: Boolean = false) {
@@ -84,7 +83,7 @@ internal class ReceivingVideosManager {
                                     if(isFirstRequest && isForFab) {
                                         isFirstRequest = false
                                         Handler().postDelayed({
-                                            startReceivingVODs()
+                                            startReceivingVODsForFab()
                                         }, 2000)
                                     }
                                     when (resource.status) {
@@ -109,7 +108,7 @@ internal class ReceivingVideosManager {
             }, 0)
         }
 
-        fun startReceivingVODs(){
+        fun startReceivingVODsForFab(){
             handlerVODs.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
@@ -121,13 +120,13 @@ internal class ReceivingVideosManager {
                                 if (resource != null) {
                                     when (resource.status) {
                                         is Status.Failure -> {
-                                            callback?.onVODReceived(resource)
+                                            callback?.onVODForFabReceived(resource)
                                             Log.d(AntourageFab.TAG, "Get vods list request failed")
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
                                             Log.d(AntourageFab.TAG, "Successfully received vods list")
-                                            callback?.onVODReceived(resource)
+                                            callback?.onVODForFabReceived(resource)
                                             vodsForFab = resource
                                             streamResponse.removeObserver(this)
                                         }
@@ -141,24 +140,11 @@ internal class ReceivingVideosManager {
             }, NEW_VODS_COUNT_REQUEST_DELAY)
         }
 
-        fun startReceivingNewVODsCount() {
-            Log.d(AntourageFab.TAG, "Started VODs count timer")
-            handlerVODsCount.postDelayed(object : Runnable {
-                override fun run() {
-                    if (Global.networkAvailable) {
-                        getNewVODsCount()
-                    }
-                    handlerLiveVideos.postDelayed(this, NEW_VODS_COUNT_REQUEST_INTERVAL)
-                }
-            }, NEW_VODS_COUNT_REQUEST_DELAY)
-        }
-
         fun stopReceivingVideos() {
             Log.d(AntourageFab.TAG, "Cancelled videos list timer")
             Log.d(AntourageFab.TAG, "Cancelled VODs count timer")
             Log.d(AntourageFab.TAG, "Cancelled VODs list timer")
             handlerLiveVideos.removeCallbacksAndMessages(null)
-            handlerVODsCount.removeCallbacksAndMessages(null)
             handlerVODs.removeCallbacksAndMessages(null)
             callback = null
             isFirstRequest = true
@@ -193,6 +179,8 @@ internal class ReceivingVideosManager {
         fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>)
 
         fun onVODReceived(resource: Resource<List<StreamResponse>>) {}
+
+        fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {}
 
         fun onVODReceivedInitial(resource: Resource<List<StreamResponse>>) {}
 

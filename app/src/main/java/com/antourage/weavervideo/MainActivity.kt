@@ -30,24 +30,22 @@ class MainActivity : AppCompatActivity() {
         MultiDex.install(this)
         setContentView(R.layout.activity_main)
 
-//        val animation = applicationContext?.let {
-//            AnimatedVectorDrawableCompat.create(
-//                it,
-//                R.drawable.antourage_pull_refresh_background_animation
-//            )
-//        }
-//
-//        animation?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback(){
-//            override fun onAnimationEnd(drawable: Drawable?) {
-//                super.onAnimationEnd(drawable)
-//                animation.start()
-//            }
-//        })
-//
-//        test.setImageDrawable(animation)
-//        animation?.start()
+        val animation = applicationContext?.let {
+            AnimatedVectorDrawableCompat.create(
+                it,
+                R.drawable.antourage_pull_refresh_background_animation
+            )
+        }
 
+        animation?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback(){
+            override fun onAnimationEnd(drawable: Drawable?) {
+                super.onAnimationEnd(drawable)
+                animation.start()
+            }
+        })
 
+        test.setImageDrawable(animation)
+        animation?.start()
 
 
         //region Antourage authorization

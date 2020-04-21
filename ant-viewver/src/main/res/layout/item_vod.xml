@@ -44,7 +44,7 @@
                 tools:text="20s ago" />
 
         <TextView
-                android:id="@+id/txtDuration"
+                android:id="@+id/txtDuration_vod"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
@@ -53,13 +53,13 @@
                 tools:text="00:01:02" />
 
         <TextView
-                android:id="@+id/txtViewsCount"
+                android:id="@+id/txtViewsCount_vod"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 android:drawableStart="@drawable/antourage_ic_watcher_12dp"
                 android:drawablePadding="4dp"
-                app:layout_constraintLeft_toRightOf="@+id/txtDuration"
+                app:layout_constraintLeft_toRightOf="@+id/txtDuration_vod"
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
                 tools:text="6,385" />
 

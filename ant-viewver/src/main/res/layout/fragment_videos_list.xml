@@ -5,7 +5,7 @@
         android:id="@+id/videoRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ant_bg_color"
+        android:background="@color/ant_feed_bg_color"
         tools:context=".screens.list.VideoListFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -79,8 +79,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:overScrollMode="always"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
                     android:scrollIndicators="none"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     tools:itemCount="4"
@@ -106,8 +104,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:overScrollMode="always"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
                     android:scrollIndicators="none"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"
                     tools:itemCount="4"

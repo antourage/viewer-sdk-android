@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
@@ -263,6 +265,28 @@ internal fun TextView.showBadge(){
         .alpha(1.0f)
         .setDuration(300)
         .start();
+}
+
+internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
+    layoutManager?.apply {
+        val maxScroll = 10
+        when (this) {
+            is LinearLayoutManager -> {
+                val topItem = findFirstVisibleItemPosition()
+                val distance = topItem - targetItem
+                val anchorItem = when {
+                    distance > maxScroll -> targetItem + maxScroll
+                    distance < -maxScroll -> targetItem - maxScroll
+                    else -> topItem
+                }
+                if (anchorItem != topItem) scrollToPosition(anchorItem)
+                post {
+                    smoothScrollToPosition(targetItem)
+                }
+            }
+            else -> smoothScrollToPosition(targetItem)
+        }
+    }
 }
 
 internal fun View.removeConstraints(parent: ConstraintLayout) {

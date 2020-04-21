@@ -8,6 +8,7 @@ import android.os.Handler
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -32,6 +33,7 @@ import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.util.*
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
@@ -125,8 +127,8 @@ class AntourageFab @JvmOverloads constructor(
         Handler().postDelayed({
             ReceivingVideosManager.setReceivingVideoCallback(object :
                 ReceivingVideosManager.ReceivingVideoCallback {
-                override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
-                    super.onVODReceived(resource)
+                override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
+                    super.onVODForFabReceived(resource)
                     when (val status = resource.status) {
                         is Status.Success -> {
                             if (!status.data.isNullOrEmpty()) {
@@ -317,7 +319,8 @@ class AntourageFab @JvmOverloads constructor(
                         FabState.VOD -> {
                             startAnimation(FabState.VOD)
                         }
-                        FabState.INACTIVE -> {}
+                        FabState.INACTIVE -> {
+                        }
                     }
                 }
             })
@@ -402,6 +405,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onPause() {
+        StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
         currentPlayerState = 0
         isAnimationRunning = false

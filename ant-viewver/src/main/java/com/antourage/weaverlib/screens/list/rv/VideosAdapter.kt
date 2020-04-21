@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.ARGS_REFRESH_TIMESTAMP
+import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.ARGS_REFRESH_VIEWS
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
@@ -100,12 +100,12 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
         payloads: MutableList<Any>
     ) {
         if (payloads.size > 0 && payloads[0] is Bundle) {
-            if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_TIMESTAMP, false)) {
+            if ((payloads[0] as Bundle).getBoolean(ARGS_REFRESH_VIEWS, false)) {
                 if (holder is LiveVideoViewHolder) {
-                    holder.itemView.txtViewersCount.text =
+                    holder.itemView.txtViewersCount_live.text =
                         listOfStreams[position].viewsCount.toString()
                 } else if (holder is VODViewHolder) {
-                    holder.itemView.txtViewsCount.text =
+                    holder.itemView.txtViewsCount_vod.text =
                         listOfStreams[position].viewsCount.toString()
                 }
             }
@@ -143,8 +143,8 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                             listOfStreams[adapterPosition].let { onClick.invoke(it) }
                     }
                     txtTitle_live.text = streamTitle
-                    txtViewersCount.text = viewersCount.toString()
-                    txtViewersCount.gone(viewersCount == null)
+                    txtViewersCount_live.text = viewersCount.toString()
+                    txtViewersCount_live.gone(viewersCount == null)
                     val formattedStartTime = startTime?.parseDate(context)
                     txtWasLive_live.text = formattedStartTime
                     txtWasLive_live.gone(formattedStartTime.isNullOrEmpty())
@@ -190,10 +190,10 @@ internal class VideosAdapter(private val onClick: (stream: StreamResponse) -> Un
                         }
                     txtWasLive_vod.text = formattedStartTime
                     txtWasLive_vod.gone(formattedStartTime.isNullOrEmpty())
-                    txtDuration.text = duration?.take(8)
-                    txtDuration.gone(duration == null || duration.isEmpty())
-                    txtViewsCount.text = viewsCount.toString()
-                    txtViewsCount.gone(viewsCount == null)
+                    txtDuration_vod.text = duration?.take(8)
+                    txtDuration_vod.gone(duration == null || duration.isEmpty())
+                    txtViewsCount_vod.text = viewsCount.toString()
+                    txtViewsCount_vod.gone(viewsCount == null)
                     if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
                             "00:00:00"
                         )
