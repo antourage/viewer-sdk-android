@@ -38,19 +38,15 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
-import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.util.*
+import kotlinx.android.synthetic.main.player_header.*
 import kotlin.math.roundToInt
 
 /**
@@ -180,8 +176,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         txtLabelLive.visibility = View.GONE
         controls.visibility = View.GONE
         playerView.visibility = View.INVISIBLE
-        ivIndividualCloseImage.visibility = View.VISIBLE
-        ivIndividualCloseImage.onClick { onCloseClicked() }
+        //@author imurashova TODO: test whether implemented :
+        // "
+        // If stream was stopped when user was in
+        // the landscape mode we bring him back to the portrait view (this mode)
+        // "
+        //todo: if not add implementation here;
+
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -514,7 +515,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         )
                     }
                 txtPollStatus.visibility = View.VISIBLE
-                divider.visibility = View.GONE
                 if (!viewModel.isUserSettingsDialogShown) {
                     if (keyboardIsVisible) {
                         etMessage.requestFocus()
@@ -537,7 +537,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     ll_wrapper.setBackgroundColor(it)
                 }
                 txtPollStatus.visibility = View.GONE
-                divider.visibility = View.VISIBLE
 
                 if (viewModel.getCurrentLiveStreamInfo().value == false) {
                     showEndStreamUI()
@@ -638,17 +637,18 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
-            tvControllerStreamName.text = streamTitle
-            tvControllerBroadcastedBy.text = creatorFullName
+           // tvControllerStreamName.text = streamTitle
+           // tvControllerBroadcastedBy.text = creatorFullName
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
-                    .into(ivUserPhoto)
-                Picasso.get().load(broadcasterPicUrl)
+                    .into(play_header_iv_photo)
+                //@author imurashova TODO: test after delete this, as it's not in use
+                /*Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
-                    .into(ivControllerUserPhoto)
+                    .into(ivControllerUserPhoto)*/
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })

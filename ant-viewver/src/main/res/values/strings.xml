@@ -43,9 +43,12 @@
     <string name="ant_set">set</string>
     <string name="ant_main_title">Latest videos</string>
 
+    <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>
     <string name="ant_confirm">Confirm</string>
+    <string name="ant_save">Save</string>
     <string name="ant_type_your_display_name">Type your display name</string>
+    <string name="ant_your_chat_name">Your chat name</string>
 
     <string name="ant_choose_image_source">Add image</string>
     <string name="ant_delete_image">Delete image</string>
@@ -61,4 +64,6 @@
 
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
     <string name="ant_new_live">NEW LIVE VIDEO</string>
+
+    <string name="ant_delimiter" translatable="false">•</string>
 </resources>

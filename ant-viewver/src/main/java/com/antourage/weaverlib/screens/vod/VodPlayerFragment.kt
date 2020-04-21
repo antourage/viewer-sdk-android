@@ -30,10 +30,10 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -67,11 +67,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                             Picasso.get().load(broadcasterPicUrl)
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
-                                .into(ivUserPhoto)
-                            Picasso.get().load(broadcasterPicUrl)
+                                .into(play_header_iv_photo)
+                            //@author imurashova TODO: test after delete this, as it not in use
+                            /*Picasso.get().load(broadcasterPicUrl)
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
-                                .into(ivControllerUserPhoto)
+                                .into(ivControllerUserPhoto)*/
                         }
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
@@ -98,8 +99,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         video?.apply {
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorFullName
-            tvControllerStreamName.text = videoName
-            tvControllerBroadcastedBy.text = creatorFullName
+            //tvControllerStreamName.text = videoName
+            //tvControllerBroadcastedBy.text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
             /**delete this code if image loading has no serious impact on
              * video loading (as it's too long in low bandwidth conditions)
@@ -407,8 +408,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
                     Date(it).parseToDisplayAgoTime(this)
                 }
-            tvWasLive.text = formattedStartTime
-            tvWasLive.gone(formattedStartTime.isNullOrEmpty())
+            play_header_tv_ago.text = formattedStartTime
+            play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())
         }
     }
 

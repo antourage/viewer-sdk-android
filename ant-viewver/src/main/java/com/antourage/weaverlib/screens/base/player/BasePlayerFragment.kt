@@ -110,9 +110,12 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             playerControls = findViewById(R.id.controls)
             playerControls.setTimeBarMinUpdateInterval(MIN_TIME_BAR_UPDATE_INTERVAL_MS)
             playBtnPlaceholder = findViewById(R.id.playBtnPlaceholder)
-            controllerHeaderLayout = findViewById(R.id.controllerHeaderLayout)
+            controllerHeaderLayout = findViewById(R.id.player_control_header)
+            //sets white tint for close button in player header
+            controllerHeaderLayout
+                .findViewById<ImageView>(R.id.play_header_iv_close).isActivated = true
 
-            ivClose = findViewById(R.id.ivClose)
+            ivClose = findViewById(R.id.play_header_iv_close)
             ivClose.setOnClickListener { onCloseClicked() }
 
             controllerHeaderLayout.visibility = View.GONE

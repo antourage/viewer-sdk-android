@@ -7,15 +7,6 @@
         android:background="@color/ant_semitransparent"
         android:elevation="6dp">
 
-    <ImageButton
-            android:id="@+id/ivClose"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/antourage_image_btn_bg"
-            android:src="@drawable/antourage_ic_close"
-            app:layout_constraintBottom_toBottomOf="@+id/llTopLeftLabels"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/llTopLeftLabels" />
 
     <LinearLayout
             android:id="@+id/llTopLeftLabels"
@@ -24,7 +15,7 @@
             android:layout_marginRight="12dp"
             android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/player_control_header">
 
         <TextView
                 android:id="@+id/txtStatus"
@@ -87,11 +78,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
+    <!--should be shown only in landscape-->
     <include
-            layout="@layout/broadcaster_header"
+            android:id="@+id/player_control_header"
+            layout="@layout/player_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/llTopLeftLabels" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
