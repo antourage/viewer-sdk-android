@@ -7,6 +7,8 @@ import android.os.Handler
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -68,11 +70,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
                                 .into(play_header_iv_photo)
-                            //@author imurashova TODO: test after delete this, as it not in use
-                            /*Picasso.get().load(broadcasterPicUrl)
+
+                            Picasso.get().load(broadcasterPicUrl)
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
-                                .into(ivControllerUserPhoto)*/
+                                .into(player_control_header
+                                    .findViewById(R.id.play_header_iv_photo) as ImageView)
                         }
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
@@ -99,8 +102,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         video?.apply {
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorFullName
-            //tvControllerStreamName.text = videoName
-            //tvControllerBroadcastedBy.text = creatorFullName
+            player_control_header.findViewById<TextView>(R.id.tvStreamName).text = videoName
+            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
             /**delete this code if image loading has no serious impact on
              * video loading (as it's too long in low bandwidth conditions)
@@ -196,6 +199,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             R.string.ant_no_comments_yet
         )
         initSkipControls()
+        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close).setOnClickListener{
+            onCloseClicked()
+        }
     }
 
     private fun initSkipControls() {
@@ -386,7 +392,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         )
     }
 
-    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View) {
+    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?) {
         vDrawable?.apply {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
@@ -397,7 +403,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     }
                 })
                 start()
-                iv.visibility = View.VISIBLE
+                iv?.visibility = View.VISIBLE
             }
         }
     }
@@ -410,6 +416,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 }
             play_header_tv_ago.text = formattedStartTime
             play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())
+            val tvAgoLandscape = player_control_header
+                .findViewById<TextView>(R.id.play_header_tv_ago)
+            tvAgoLandscape.text = formattedStartTime
+            tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
         }
     }
 

@@ -12,6 +12,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -637,18 +639,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
-           // tvControllerStreamName.text = streamTitle
-           // tvControllerBroadcastedBy.text = creatorFullName
+            player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
+            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text = creatorFullName
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
                     .into(play_header_iv_photo)
-                //@author imurashova TODO: test after delete this, as it's not in use
-                /*Picasso.get().load(broadcasterPicUrl)
+                Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
-                    .into(ivControllerUserPhoto)*/
+                    .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })
@@ -671,6 +672,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         pollPopupLayout.setOnClickListener {
             playerControls.hide()
             onPollDetailsClicked()
+        }
+
+        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close).setOnClickListener{
+            onCloseClicked()
         }
     }
 
