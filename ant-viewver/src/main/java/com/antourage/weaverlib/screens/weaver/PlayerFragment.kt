@@ -47,7 +47,10 @@ import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.llTopLeftLabels
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_header.*
 import kotlin.math.roundToInt
 
@@ -688,12 +691,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun setWasLiveText(text: String?) {
+        val tvAgoLandscape = player_control_header
+            .findViewById<TextView>(R.id.play_header_tv_ago)
         if (text != null && text.isNotEmpty()) {
-            tvWasLive.text = text
-            tvWasLive.visibility = View.VISIBLE
-        } else {
-            tvWasLive.visibility = View.GONE
+            tvAgoLandscape.text = text
+            play_header_tv_ago.text = text
         }
+        play_header_tv_ago.gone(text.isNullOrBlank())
+        tvAgoLandscape.gone(text.isNullOrBlank())
     }
 
     private fun toggleUserSettingsDialog() {

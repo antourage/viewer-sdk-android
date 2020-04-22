@@ -26,12 +26,6 @@
                 android:visibility="gone" />
 
         <TextView
-                android:id="@+id/tvWasLive"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="4dp"
-                tools:text="12:45" />
-
-        <TextView
                 android:id="@+id/txtNumberOfViewers"
                 style="@style/PlayerControlsTxt"
                 android:layout_marginLeft="4dp"
