@@ -730,7 +730,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun validateNewUserName(newName: String): Boolean =
-        newName.isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(newName)
+        !newName.isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(newName)
 
 
     private fun initUser() {
