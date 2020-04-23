@@ -12,19 +12,19 @@ The entry point for a user is the magnetic button that appears on the host app, 
 
 When a video is live, the button changes state and shows the title of the broadcast, and the name of the broadcaster. If the user taps the button at this point, they are taken directly to the live broadcast.
 
-<img src="/screenshots/widget_Live.jpeg" alt="Screenshots" width="200" />
+<img src="https://user-images.githubusercontent.com/52660451/72547997-75c02d00-3896-11ea-83e7-ccb1b7af69f0.jpg" width="200" />
 
 When no video is live, the button shows how many on-demand videos the viewer has not yet watched. If they tap the button at this point, they are taken to the main view:
 
-<img src="/screenshots/list_VOD_new.jpeg" alt="Screenshots" width="200" />
+<img src="https://user-images.githubusercontent.com/52660451/72547993-75c02d00-3896-11ea-8701-26bfa1981ecd.jpg" width="200" />
 
 ### Viewing Live Broadcasts
 
 The video player may be used in portrait or landscape mode. In both modes, the viewer can watch the broadcast, see and contribute to comments, and see and respond to polls.
 
 <div>
-  <img src="/screenshots/player_portrait.jpeg" alt="Screenshots" width="200" />
-  <img src="/screenshots/landscape_poll_chat.jpeg" alt="Screenshots" width="400" />
+  <img src="https://user-images.githubusercontent.com/52660451/72547996-75c02d00-3896-11ea-84dc-e7c6b5976174.jpg" alt="Screenshots" width="200" />
+  <img src="https://user-images.githubusercontent.com/52660451/72547994-75c02d00-3896-11ea-99a5-12b378401bf6.jpg" alt="Screenshots" width="400" />
 </div>
 
 ### Viewing On-demand videos
@@ -45,7 +45,7 @@ Comments are contributed by viewers of the live broadcast only. When a video is 
 
 Polls are created by the broadcaster, and sent out during a live broadcast. They appear on the screen when they are first pushed out to the audience, and viewers can respond or simply close the poll if they do not want to answer. If they answer, they are shown the results right away, and they can see updated results as they come in.
 
-<img src="/screenshots/poll_opened.jpeg" alt="Screenshots" width="200" />
+<img src="https://user-images.githubusercontent.com/52660451/72547995-75c02d00-3896-11ea-87da-8c48361546ac.jpg" alt="Screenshots" width="200" />
 
 ### Curation
 
@@ -120,53 +120,4 @@ Make sure that layout_width attribute value is set to "match_parent".
             }
         })
 
-```
-### Push notifications
-
-We use Firebase for PN in our project. To support PN on your side you should retrieve token for our senderID, send all needed data to us right after successful auth (you can call it in auth success block) and subscribe yourself to our topic.   
-senderID = 1090288296965
-
-Please, note that subscription for push notifications should be called in case of successful authorization.
-
-```kotlin
-//region Antourage push notification subscription
-                    Thread(Runnable {
-                        try {
-                            //Get firebase cloud messaging token
-                            val fcmToken =
-                                FirebaseInstanceId.getInstance().getToken(getString(R.string.SENDER_ID), "FCM")
-                            runOnUiThread {
-                                fcmToken?.let { fcmToken ->
-                                    AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
-                                        //Handle subscription result
-                                        when (subscriptionResult) {
-                                            //If result is successful, subscribe to the topic with
-                                            //topic name from result.
-                                            is RegisterPushNotificationsResult.Success -> {
-                                                Log.d(
-                                                    TAG,
-                                                    "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
-                                                )
-                                                FirebaseMessaging.getInstance()
-                                                    .subscribeToTopic(subscriptionResult.topicName)
-                                                    .addOnCompleteListener { task ->
-                                                        if (task.isSuccessful) {
-                                                            Log.d(TAG, "Subscribed successfully!")
-                                                        } else {
-                                                            Log.d(TAG, "Subscription failed(")
-                                                        }
-                                                    }
-                                            }
-                                            is RegisterPushNotificationsResult.Failure -> {
-                                                Log.d(TAG, "Subscription failed: ${subscriptionResult.cause}")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (e: IOException) {
-                            e.printStackTrace()
-                        }
-                    }).start()
-                    //endregion
 ```
