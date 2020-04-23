@@ -8,14 +8,15 @@
         android:animateLayoutChanges="true"
         android:background="@color/ant_bg_color">
 
-    <include android:id="@+id/vod_header_layout"
+    <include
+            android:id="@+id/vod_header_layout"
             layout="@layout/player_header"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="visible"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     <View
             android:id="@+id/fastForward"
@@ -75,6 +76,27 @@
             app:show_buffering="never"
             app:show_timeout="2000" />
 
+    <TextView
+            android:id="@+id/txtNumberOfViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
+            android:elevation="10dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_dark_gray_3_a80"
+            android:drawableStart="@drawable/antourage_ic_watcher_16dp"
+            android:drawablePadding="4dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingEnd="6dp"
+            android:paddingStart="6dp"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:text="6,385" />
 
     <ImageView
             android:id="@+id/skipForward"
@@ -136,8 +158,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
-                android:layout_marginRight="-65dp"
                 android:layout_marginEnd="-65dp"
+                android:layout_marginRight="-65dp"
                 android:background="@android:color/transparent">
 
             <androidx.constraintlayout.widget.ConstraintLayout

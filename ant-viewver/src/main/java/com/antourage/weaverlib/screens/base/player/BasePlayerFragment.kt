@@ -320,6 +320,8 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         }
     }
 
+    fun disableOrientationChange() = orientationEventListener.disable()
+
     private fun getScreenOrientation(): Int {
         val rotation = activity?.windowManager?.defaultDisplay?.rotation
         val dm = DisplayMetrics()

@@ -8,34 +8,6 @@
         android:animateLayoutChanges="true"
         android:background="@color/ant_dark_transparent">
 
-    <LinearLayout
-            android:id="@+id/llTopLeftLabels"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="12dp"
-            android:orientation="horizontal"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/player_control_header">
-
-        <!--        this TextView's text value is set buy exo player lib, that is why-->
-        <!--        you should not change its id-->
-        <TextView
-                android:id="@+id/exo_duration"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="4dp"
-                tools:text="12:45" />
-
-        <TextView
-                android:id="@+id/txtNumberOfViewers"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="4dp"
-                android:drawableStart="@drawable/antourage_ic_watcher_12dp"
-                android:drawablePadding="4dp"
-                tools:text="6,385" />
-    </LinearLayout>
-
     <View
             android:id="@+id/playBtnPlaceholder"
             android:layout_width="70dp"
@@ -103,7 +75,20 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@+id/exo_progress"
-            app:layout_constraintLeft_toLeftOf="parent" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:text="00:45" />
+
+    <!--        this TextView's text value is set buy exo player lib, that is why-->
+    <!--        you should not change its id-->
+
+    <TextView
+            android:id="@+id/exo_duration"
+            style="@style/PlayerControlsTxt"
+            android:layout_marginStart="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/exo_position"
+            app:layout_constraintStart_toEndOf="@+id/exo_position"
+            app:layout_constraintTop_toTopOf="@+id/exo_position"
+            tools:text="12:45" />
 
     <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@+id/exo_progress"

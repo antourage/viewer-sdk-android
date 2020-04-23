@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -36,7 +37,6 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
-import com.antourage.weaverlib.other.ui.keyboard.convertDpToPx
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
@@ -49,7 +49,6 @@ import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_header.*
-import kotlin.math.roundToInt
 
 /**
  * Be careful not to create multiple instances of player
@@ -148,17 +147,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         controls.visibility = View.GONE
         playerView.visibility = View.INVISIBLE
-        //@author imurashova TODO: test whether implemented :
-        // "
-        // If stream was stopped when user was in
-        // the landscape mode we bring him back to the portrait view (this mode)
-        // "
-        //@author imurashova todo: if not add implementation here;
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        disableOrientationChange()
+        txtNumberOfViewers.margin(6f, 6f)
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -349,25 +346,23 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         initClickListeners()
         initKeyboardListener()
-        initLabelLive()
+        initControlsVisibilityListener()
     }
 
-    /**
-     * method used to position player controls in proper way according to "Live" label's location
-     * as this label should not disappear with all the other player controls (so they are
-     * located in different layouts, but at the same time
-     * other views should depend ot "Live" label's size
-     * */
-    private fun initLabelLive() {
-        txtLabelLive.post {
-            val marginLeft =
-                (txtLabelLive?.width ?: 0) + (context?.convertDpToPx(12f)?.roundToInt() ?: 0)
-            val marginTop = (context?.convertDpToPx(10f)?.roundToInt() ?: 0)
-            if (marginLeft > 0) {
-                llTopLeftLabels.setMargins(marginLeft, marginTop, 0, 0)
+    private fun initControlsVisibilityListener() {
+        playerControls.setVisibilityListener { visibility ->
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                if (visibility == View.VISIBLE){
+                    txtNumberOfViewers.margin(4f, 62f)
+                    txtLabelLive.margin(12f, 62f)
+                } else {
+                    txtLabelLive.margin(12f, 12f)
+                    txtNumberOfViewers.margin(4f, 12f)
+                }
             }
         }
     }
+
 
     private fun initKeyboardListener() {
         KeyboardEventListener(activity as AppCompatActivity) {

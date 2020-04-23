@@ -202,6 +202,19 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close).setOnClickListener{
             onCloseClicked()
         }
+        initControlsVisibilityListener()
+    }
+
+    private fun initControlsVisibilityListener() {
+        playerControls.setVisibilityListener { visibility ->
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                if (visibility == View.VISIBLE){
+                    txtNumberOfViewers.margin(12f, 62f)
+                } else {
+                    txtNumberOfViewers.margin(12f, 12f)
+                }
+            }
+        }
     }
 
     private fun initSkipControls() {

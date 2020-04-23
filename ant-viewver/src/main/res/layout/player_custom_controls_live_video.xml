@@ -7,33 +7,6 @@
         android:background="@color/ant_dark_transparent"
         android:elevation="6dp">
 
-
-    <LinearLayout
-            android:id="@+id/llTopLeftLabels"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="12dp"
-            android:orientation="horizontal"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/player_control_header">
-
-        <TextView
-                android:id="@+id/txtStatus"
-                style="@style/PlayerControlsTxt"
-                android:background="@drawable/antourage_bg_rounded_corners_pink"
-                android:text="@string/ant_live"
-                android:textAllCaps="true"
-                android:visibility="gone" />
-
-        <TextView
-                android:id="@+id/txtNumberOfViewers"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="4dp"
-                android:drawableStart="@drawable/antourage_ic_watcher_12dp"
-                android:drawablePadding="4dp"
-                tools:text="6,385" />
-    </LinearLayout>
-
     <View
             android:id="@+id/playBtnPlaceholder"
             android:layout_width="70dp"
@@ -51,7 +24,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
     <ImageButton
             android:id="@+id/exo_pause"
@@ -60,17 +34,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
 
     <ImageView
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginRight="12dp"
+            android:layout_marginEnd="12dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/antourage_ic_full_screen"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            tools:ignore="ContentDescription" />
 
     <!--should be shown only in landscape-->
     <include
