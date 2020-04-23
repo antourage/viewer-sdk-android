@@ -288,15 +288,4 @@
                 android:src="@drawable/antourage_ic_user_settings"
                 tools:ignore="ContentDescription" />
     </LinearLayout>
-
-    <include
-            layout="@layout/dialog_user_authorization_portrait"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/dividerChat"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:visibility="visible" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

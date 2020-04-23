@@ -460,7 +460,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     }
                 txtPollStatus.visibility = View.VISIBLE
                 if (userDialog != null) {
-                    val input = userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                    val input =
+                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
                     val isKeyboardVisible = keyboardIsVisible
                     userDialog?.dismiss()
                     showUserNameDialog(input, isKeyboardVisible)
@@ -472,7 +473,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (userDialog != null) {
-                    val input = userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                    val input =
+                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
                     val isKeyboardVisible = keyboardIsVisible
                     userDialog?.dismiss()
                     showUserNameDialog(input, isKeyboardVisible)
@@ -586,7 +588,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
-            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text = creatorFullName
+            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
+                creatorFullName
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
@@ -615,9 +618,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             onPollDetailsClicked()
         }
 
-        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close).setOnClickListener{
-            onCloseClicked()
-        }
+        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
+            .setOnClickListener {
+                onCloseClicked()
+            }
     }
 
     private fun showFullScreenIcon() {
@@ -639,47 +643,55 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         tvAgoLandscape.gone(text.isNullOrBlank())
     }
 
+    /**
+     * Shows dialog for choosing userName.
+     * Both parameters used in case of configuration change in order to save state and
+     * restore keyboard(as it hides on dialog dismiss).
+     * @inputName: text inputted by user before configuration change. Will be set to ET.
+     * @showKeyboard: indicates, whether we should show keyboard in recreated dialog.
+     * Basic dialog can be shown without parameters.
+     * On dialog shown/closed updates Player fragment field @userDialog so it can be used to check
+     * whether dialog is shown on configuration change.
+     */
     @SuppressLint("InflateParams") //for dialog can be null
-    fun showUserNameDialog( inputName: String? = null, showKeyboard: Boolean = false) {
+    fun showUserNameDialog(inputName: String? = null, showKeyboard: Boolean = false) {
         with(Dialog(requireContext())) {
             val currentDialogOrientation = resources.configuration.orientation
-            setContentView(layoutInflater.inflate(
-                if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    R.layout.dialog_chat_name
-                } else {
-                    R.layout.dialog_chat_name_land
-                }, null))
+            setContentView(
+                layoutInflater.inflate(
+                    if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                        R.layout.dialog_chat_name
+                    } else {
+                        R.layout.dialog_chat_name_land
+                    }, null
+                )
+            )
 
-            val initUserName =  inputName ?:  (viewModel.getUser()?.displayName ?: "")
+            val initUserName = inputName ?: (viewModel.getUser()?.displayName ?: "")
 
             val eText = findViewById<EditText>(R.id.etDisplayName)
             val saveButton = findViewById<TextView>(R.id.btnConfirm)
-            val cancelButton = findViewById<TextView>(R.id.btnCancel)
-            cancelButton.setOnClickListener{
+            findViewById<TextView>(R.id.btnCancel).setOnClickListener {
                 eText.setText(viewModel.getUser()?.displayName)
                 dismiss()
             }
-            val closeButton = findViewById<ImageButton>(R.id.d_name_close)
-            closeButton.setOnClickListener{
+            findViewById<ImageButton>(R.id.d_name_close).setOnClickListener {
                 eText.setText(viewModel.getUser()?.displayName)
                 dismiss()
             }
 
             with(eText) {
-                if (initUserName.isNotBlank()){
+                if (initUserName.isNotBlank()) {
                     setText(initUserName)
                 } else {
                     isFocusableInTouchMode = true
                     isFocusable = true
                 }
 
-                afterTextChanged {
-                    saveButton.isEnabled =
-                        !this.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(it)
+                afterTextChanged { saveButton.isEnabled = validateNewUserName(it) }
+                setOnFocusChangeListener { _, _ ->
+                    saveButton.isEnabled = validateNewUserName(text.toString())
                 }
-
-                setOnFocusChangeListener { _, _ ->  saveButton.isEnabled =
-                    !this.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(this.text.toString()) }
             }
 
             saveButton.setOnClickListener {
@@ -689,7 +701,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
 
             setOnDismissListener {
-                if (currentDialogOrientation == resources.configuration.orientation){
+                if (currentDialogOrientation == resources.configuration.orientation) {
                     userDialog = null
                 }
             }
@@ -697,28 +709,38 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             show()
             window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), 50))
             window?.setLayout(
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    WindowManager.LayoutParams.MATCH_PARENT
+                } else {
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                },
                 WindowManager.LayoutParams.WRAP_CONTENT
             )
-            userDialog = this
 
+            userDialog = this
             if (showKeyboard) {
                 window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 
                 eText.requestFocus()
-                val imm: InputMethodManager =
-                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                val imm = requireContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(eText, InputMethodManager.SHOW_IMPLICIT)
             }
         }
     }
+
+    private fun validateNewUserName(newName: String): Boolean =
+        newName.isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(newName)
+
 
     private fun initUser() {
         viewModel.initUser()
     }
 
     private fun checkIfRequireDisplayNameSetting() {
-        if (viewModel.noDisplayNameSet()) { showUserNameDialog() }
+        if (viewModel.noDisplayNameSet()) {
+            showUserNameDialog()
+        }
     }
 
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
