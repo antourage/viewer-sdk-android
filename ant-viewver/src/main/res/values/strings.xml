@@ -66,4 +66,6 @@
     <string name="ant_new_live">NEW LIVE VIDEO</string>
 
     <string name="ant_delimiter" translatable="false">•</string>
+    <string name="ant_slash" translatable="false">/</string>
+    <string name="ant_init_time" translatable="false">00:00</string>
 </resources>

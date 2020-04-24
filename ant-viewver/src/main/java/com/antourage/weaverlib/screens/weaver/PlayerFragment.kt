@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.os.SystemClock
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
@@ -59,6 +60,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private var wasDrawerClosed = false
     private var userDialog: Dialog? = null
+    private var isChronometerRunning = false
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -99,6 +101,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hideLoading()
                 }
             }
+        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()){
+            if (!isChronometerRunning){
+                isChronometerRunning = true
+                live_control_chronometer.start()
+            }
+        } else {
+            if (isChronometerRunning){
+                isChronometerRunning = false
+                live_control_chronometer.stop()
+            }
+        }
     }
 
     private val chatStateObserver: Observer<ChatStatus> = Observer { state ->
@@ -597,6 +610,21 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })
+            if (startTime !=null){
+                initChronometer(startTime)
+            } else  {
+                live_control_chronometer.visibility = View.GONE
+            }
+        }
+    }
+
+    //starts updates of current time of live video watching
+    private fun initChronometer(startTime: String) {
+        if  (!isChronometerRunning){
+            live_control_chronometer.visibility = View.VISIBLE
+            live_control_chronometer.base = SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(startTime)?.time ?: 0))
+            isChronometerRunning = true
+            live_control_chronometer.start()
         }
     }
 
