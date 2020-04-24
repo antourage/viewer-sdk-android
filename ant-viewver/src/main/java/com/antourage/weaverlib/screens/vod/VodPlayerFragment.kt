@@ -139,7 +139,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.GONE
+            playBtnPlaceholder.visibility = View.INVISIBLE
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 context?.resources?.getString(R.string.ant_no_internet)

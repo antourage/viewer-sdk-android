@@ -18,9 +18,10 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
+    <ImageView
             android:id="@+id/exo_play"
-            style="@style/PlayBtn"
+            android:layout_height="56dp"
+            android:layout_width="56dp"
             android:src="@drawable/antourage_ic_play_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -30,7 +31,8 @@
 
     <ImageButton
             android:id="@+id/exo_pause"
-            style="@style/PlayBtn"
+            android:layout_height="56dp"
+            android:layout_width="56dp"
             android:src="@drawable/antourage_ic_pause"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -41,19 +43,20 @@
             android:id="@+id/exo_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="100dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/antourage_ic_skip_next"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/exo_pause"
+            app:layout_constraintStart_toEndOf="@+id/playBtnPlaceholder"
             app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
             android:id="@+id/exo_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="100dp"
+            android:layout_marginEnd="30dp"
             android:src="@drawable/antourage_ic_skip_previous"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/playBtnPlaceholder"
             app:layout_constraintRight_toLeftOf="@+id/exo_pause"
             app:layout_constraintTop_toTopOf="parent" />
 

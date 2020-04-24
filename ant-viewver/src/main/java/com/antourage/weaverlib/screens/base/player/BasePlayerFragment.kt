@@ -128,7 +128,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             if (!Global.networkAvailable) {
                 playBtnPlaceholder.visibility = View.VISIBLE
             } else {
-                playBtnPlaceholder.visibility = View.GONE
+                playBtnPlaceholder.visibility = View.INVISIBLE
             }
             playBtnPlaceholder.onClick {
                 if (!ConnectionStateMonitor.isNetworkAvailable(context) && playerControls.isVisible) {
