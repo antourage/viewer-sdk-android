@@ -11,5 +11,6 @@
         <domain includeSubdomains="true">d3pqhz4gxngfhe.cloudfront.net</domain>
         <domain includeSubdomains="true">d382pphprxgdpj.cloudfront.net</domain>
         <domain includeSubdomains="true">antourage.cluster.video</domain>
+<!--        <domain includeSubdomains="true">docker.staging-myra.com</domain>-->
     </domain-config>
 </network-security-config>

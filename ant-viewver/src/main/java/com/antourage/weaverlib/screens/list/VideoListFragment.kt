@@ -1,7 +1,5 @@
 package com.antourage.weaverlib.screens.list
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -29,38 +27,26 @@ import com.antourage.weaverlib.screens.list.rv.VideosAdapter2
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import kotlinx.android.synthetic.main.fragment_videos_list3.*
-import kotlinx.android.synthetic.main.fragment_videos_list3.ivClose
-import kotlinx.android.synthetic.main.fragment_videos_list3.placeHolderRV
-import kotlinx.android.synthetic.main.fragment_videos_list3.tvNoContent
-import kotlinx.android.synthetic.main.fragment_videos_list3.tvTitle
-import kotlinx.android.synthetic.main.fragment_videos_list3.videoRefreshLayout
-import kotlinx.android.synthetic.main.fragment_videos_list3.videosRV
-import kotlinx.android.synthetic.main.fragment_videos_list3.viewBEChoice
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun getLayoutId() = R.layout.fragment_videos_list3
 
     private lateinit var videoAdapter: VideosAdapter2
-    private lateinit var placeHolderAdapter: VideoPlaceholdersAdapter
-    private lateinit var rvLayoutManager: PreCachingLayoutManager
-    private val loadingAnimHandler = Handler()
+
+//    private lateinit var rvLayoutManager: PreCachingLayoutManager
+    private lateinit var rvLayoutManager: LinearLayoutManager
+    private val placeHolderHandler = Handler()
     private var refreshVODs = true
     private var isLoading = false
     private var isNewLiveButtonShown = false
     private var isInitialListSet = true
+    private var firstTime = true
     private var newLivesList = mutableListOf<StreamResponse>()
 
     companion object {
         fun newInstance(): VideoListFragment {
             return VideoListFragment()
-        }
-    }
-
-    private val loadingAnimRunnable = object : Runnable {
-        override fun run() {
-            placeHolderAdapter.shiftItems()
-            loadingAnimHandler.postDelayed(this, 350)
         }
     }
 
@@ -73,9 +59,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 isLoading = false
                 checkIsNewLiveAdded(newStreams)
                 checkIsLiveWasRemoved(newStreams)
-                if(videoRefreshLayout.isRefreshing){
+                if (videoRefreshLayout.isRefreshing) {
+//                    videosRV.setStreams(newStreams)
                     videoAdapter.setStreamListForceUpdate(newStreams)
-                }else{
+                } else {
+//                    videosRV.setStreams(newStreams)
                     videoAdapter.setStreamList(newStreams)
                 }
                 isInitialListSet = false
@@ -85,35 +73,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videoRefreshLayout.isRefreshing = false
     }
 
-    private fun checkIsLiveWasRemoved(newStreams: List<StreamResponse>){
-        val iterator = newLivesList.iterator()
-        for (stream in iterator) {
-            if(newStreams.none() {it.id == stream.id}){
-                iterator.remove()
-            }
-        }
-        if(newLivesList.isEmpty()){
-            triggerNewLiveButton(false)
-        }
-    }
-
-    private fun checkIsNewLiveAdded(newStreams: List<StreamResponse>) {
-        if (!isInitialListSet) {
-            for (stream in newStreams) {
-                if (stream.isLive && videoAdapter.getStreams().none { it.id == stream.id }) {
-                    newLivesList.add(stream)
-                    triggerNewLiveButton(true)
-                    break
-                }
-            }
-        }
-    }
-
     private val loaderObserver: Observer<Boolean> = Observer { show ->
         if (show == true) {
             showLoadingLayout()
-        } else {
-            hideLoadingLayout()
         }
     }
 
@@ -134,17 +96,20 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
-
-        videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (isNewLiveButtonShown) {
-                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-                        triggerNewLiveButton(false)
-                    }
-                }
-            }
-        })
+        initOnScrollListener()
+//        videosRV.viewTreeObserver
+//            .addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+//                override fun onGlobalLayout() {
+//                    if (firstTime) {
+//                        Handler().postDelayed({
+//                            videosRV.playVideo(false)
+//                            firstTime = false
+//                        }, 1200)
+//
+//                    }
+//                    videosRV.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                }
+//            })
     }
 
     private fun subscribeToObservers() {
@@ -178,7 +143,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
-        loadingAnimHandler.removeCallbacksAndMessages(null)
+        videosRV.releasePlayer()
     }
 
     override fun onDestroyView() {
@@ -217,32 +182,18 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         btnNewLive.setOnClickListener { videosRV.betterSmoothScrollToPosition(0) }
 
-        videoAdapter = VideosAdapter2(onClick)
-        placeHolderAdapter = VideoPlaceholdersAdapter()
+        videoAdapter = VideosAdapter2(onClick, videosRV)
 
         initRecyclerView(videoAdapter, videosRV)
-        initRecyclerView(placeHolderAdapter, placeHolderRV)
 
-        rvLayoutManager = PreCachingLayoutManager(context)
+        rvLayoutManager = LinearLayoutManager(context)
+//        rvLayoutManager = PreCachingLayoutManager(context)
         rvLayoutManager.orientation = LinearLayoutManager.VERTICAL
-        rvLayoutManager.setExtraLayoutSpace()
+//        rvLayoutManager.setExtraLayoutSpace()
 
         videosRV.layoutManager = rvLayoutManager
 
-        videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    val total = rvLayoutManager.itemCount
-                    val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
-                    if (!isLoading && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
-                        viewModel.refreshVODs(noLoadingPlaceholder = true)
-                        isLoading = true
-                        Log.d("REFRESH_VODS", "onBottomReached")
-                    }
-                }
-            }
-        })
+        initOnScrollListener()
 
         videoRefreshLayout.setOnRefreshListener {
             context?.let {
@@ -260,7 +211,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         }
 
-        placeHolderRV.layoutManager = LinearLayoutManager(context)
+//        placeHolderRV.layoutManager = LinearLayoutManager(context)
 
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
@@ -283,33 +234,65 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         recyclerView.addItemDecoration(dividerItemDecoration)
     }
 
-    private fun hideLoadingLayout() {
-        loadingAnimHandler.removeCallbacksAndMessages(null)
+    private fun initOnScrollListener() {
+        videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (isNewLiveButtonShown) {
+                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+                        triggerNewLiveButton(false)
+                    }
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val total = rvLayoutManager.itemCount
+                    val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
+                    if (!isLoading && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
+                        viewModel.refreshVODs(noLoadingPlaceholder = true)
+                        isLoading = true
+                        Log.d("REFRESH_VODS", "onBottomReached")
+                    }
+                }
+            }
+        })
     }
 
     private fun showLoadingLayout() {
-        showLoadingListPlaceholder()
-        placeHolderAdapter.setItems(
-            arrayListOf(
-                R.color.ant_no_content_placeholder_color_3,
-                R.color.ant_no_content_placeholder_color_2,
-                R.color.ant_no_content_placeholder_color_1
-            )
-        )
-        loadingAnimHandler.postDelayed(loadingAnimRunnable, 350)
+        showEmptyListPlaceholder()
+//        placeHolderHandler.postDelayed({
+//            videosRV.visibility = View.INVISIBLE
+//            placeHolderAdapter.setItems(
+//                arrayListOf(
+//                    R.color.ant_no_content_placeholder_color_3
+//                )
+//            )
+//            placeHolderRV.alpha = 0f
+//            placeHolderRV.visibility = View.VISIBLE
+//            placeHolderRV.animate().alpha(1f).setDuration(300).start()
+//        }, 300)
+    }
+
+    private fun hidePlaceholder() {
+        viewNoContentContainer.animate().alpha(0f)
+            .withEndAction { viewNoContentContainer.visibility = View.INVISIBLE }.setDuration(300)
+            .start()
+//        tvNoContent.visibility = View.INVISIBLE
+//        placeHolderRV.clearAnimation()
+//        placeHolderRV.animate().alpha(0f).setDuration(300)
+//            .withEndAction { placeHolderRV.visibility = View.INVISIBLE }.start()
+        videosRV.visibility = View.VISIBLE
     }
 
     private fun showEmptyListPlaceholder() {
-        showLoadingListPlaceholder()
-        placeHolderAdapter.setItems(
-            arrayListOf(
-                R.color.ant_no_content_placeholder_color_1,
-                R.color.ant_no_content_placeholder_color_1,
-                R.color.ant_no_content_placeholder_color_1
-            )
-        )
-        tvTitle.visibility = View.INVISIBLE
-        tvNoContent.visibility = View.VISIBLE
+//        placeHolderRV.clearAnimation()
+//        placeHolderRV.animate().alpha(0f).setDuration(300)
+//            .withEndAction { placeHolderRV.visibility = View.INVISIBLE }.start()
+        viewNoContentContainer.alpha = 0f
+        viewNoContentContainer.visibility = View.VISIBLE
+        viewNoContentContainer.animate().alpha(1f).setDuration(300).start()
     }
 
     private fun triggerNewLiveButton(isVisible: Boolean) {
@@ -322,24 +305,28 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun showLoadingListPlaceholder() {
-        videosRV.visibility = View.INVISIBLE
-        placeHolderRV.visibility = View.VISIBLE
+    private fun checkIsLiveWasRemoved(newStreams: List<StreamResponse>) {
+        val iterator = newLivesList.iterator()
+        for (stream in iterator) {
+            if (newStreams.none() { it.id == stream.id }) {
+                iterator.remove()
+            }
+        }
+        if (newLivesList.isEmpty()) {
+            triggerNewLiveButton(false)
+        }
     }
 
-    private fun hidePlaceholder() {
-        tvTitle.visibility = View.VISIBLE
-        tvNoContent.visibility = View.INVISIBLE
-        placeHolderRV.animate()
-            .alpha(0.0f)
-            .setDuration(600)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    super.onAnimationEnd(animation)
-                    placeHolderRV?.visibility = View.INVISIBLE
+    private fun checkIsNewLiveAdded(newStreams: List<StreamResponse>) {
+        if (!isInitialListSet) {
+            for (stream in newStreams) {
+                if (stream.isLive && videoAdapter.getStreams().none { it.id == stream.id }) {
+                    newLivesList.add(stream)
+                    triggerNewLiveButton(true)
+                    break
                 }
-            })
-        videosRV.visibility = View.VISIBLE
+            }
+        }
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
@@ -359,4 +346,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         }
     }
+
+
 }

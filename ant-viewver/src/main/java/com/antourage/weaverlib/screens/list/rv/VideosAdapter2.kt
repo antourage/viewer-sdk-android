@@ -8,29 +8,22 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import androidx.constraintlayout.widget.Placeholder
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.ARGS_REFRESH_VIEWS
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_jump_to_top.view.*
-import kotlinx.android.synthetic.main.item_live_video.view.ivThumbnail_live
-import kotlinx.android.synthetic.main.item_live_video.view.txtTitle_live
-import kotlinx.android.synthetic.main.item_live_video.view.txtViewersCount_live
 import kotlinx.android.synthetic.main.item_live_video2.view.*
 import kotlinx.android.synthetic.main.item_progress.view.*
-import kotlinx.android.synthetic.main.item_vod.view.ivThumbnail_vod
-import kotlinx.android.synthetic.main.item_vod.view.txtDuration_vod
-import kotlinx.android.synthetic.main.item_vod.view.txtNew
-import kotlinx.android.synthetic.main.item_vod.view.txtTitle_vod
-import kotlinx.android.synthetic.main.item_vod.view.txtViewsCount_vod
-import kotlinx.android.synthetic.main.item_vod.view.watchingProgress
 import kotlinx.android.synthetic.main.item_vod2.view.*
 import java.util.*
 
-internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> Unit) :
+internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> Unit, private val recyclerView: VideoPlayerRecyclerView) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var listOfStreams: MutableList<StreamResponse> = mutableListOf()
     lateinit var context: Context
@@ -47,6 +40,7 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         this.listOfStreams.clear()
         this.listOfStreams.addAll(newListOfStreams)
+        recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
         diffResult.dispatchUpdatesTo(this)
     }
 
@@ -153,11 +147,61 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
             return VIEW_VOD
     }
 
+    private fun loadThumbnailUrlOrShowPlaceholder(
+        thumbnailUrl: String?,
+        ivThumbnail: ImageView?,
+        ivPlaceholder: ImageView
+    ) {
+
+        val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
+            .load(thumbnailUrl)
+        else
+            Picasso.get()
+                .load(R.drawable.antourage_ic_placeholder_video)
+
+        picasso.into(ivThumbnail, object : Callback {
+            override fun onSuccess() {
+                ivPlaceholder.animate()?.setDuration(300)?.alpha(0f)?.start()
+                ivThumbnail?.alpha = 0f
+                ivThumbnail?.animate()?.setDuration(300)?.alpha(1f)?.start()
+            }
+
+            override fun onError(e: Exception?) {}
+        })
+
+
+//        picasso
+//            .fit()
+//            .centerCrop()
+////            .noFade()
+//            .placeholder(R.drawable.antourage_ic_placeholder_video)
+//            .error(R.drawable.antourage_ic_placeholder_video)
+//            .into(ivThumbnail)
+    }
+
+    private fun loadStreamerImageOrShowPlaceholder(imageUrl: String?, imageView: ImageView?) {
+        val picasso = if (!imageUrl.isNullOrBlank()) Picasso.get()
+            .load(imageUrl)
+        else
+            Picasso.get()
+                .load(R.drawable.antourage_ic_default_user)
+        picasso
+            .placeholder(R.drawable.antourage_ic_default_user)
+            .error(R.drawable.antourage_ic_default_user)
+            .into(imageView)
+    }
+
     inner class LiveVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var parent: View = itemView
         fun bindView(liveStream: StreamResponse) {
+            parent.tag = this
             with(itemView) {
                 liveStream.apply {
-                    loadThumbnailUrlOrShowPlaceholder(thumbnailUrl, ivThumbnail_live)
+                    loadThumbnailUrlOrShowPlaceholder(
+                        thumbnailUrl,
+                        ivThumbnail_live,
+                        ivThumbnail_live_placeholder
+                    )
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_live)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0
@@ -184,35 +228,17 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
         }
     }
 
-    private fun loadThumbnailUrlOrShowPlaceholder(thumbnailUrl: String?, ivThumbnail: ImageView?) {
-        val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
-            .load(thumbnailUrl)
-        else
-            Picasso.get()
-                .load(R.drawable.antourage_ic_no_content_content_loading)
-        picasso
-            .placeholder(R.drawable.antourage_ic_no_content_content_loading)
-            .error(R.drawable.antourage_ic_no_content_content_loading)
-            .into(ivThumbnail)
-    }
-
-    private fun loadStreamerImageOrShowPlaceholder(imageUrl: String?, imageView: ImageView?) {
-        val picasso = if (!imageUrl.isNullOrBlank()) Picasso.get()
-            .load(imageUrl)
-        else
-            Picasso.get()
-                .load(R.drawable.antourage_ic_default_user)
-        picasso
-            .placeholder(R.drawable.antourage_ic_default_user)
-            .error(R.drawable.antourage_ic_default_user)
-            .into(imageView)
-    }
-
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var parent: View = itemView
         fun bindView(vod: StreamResponse) {
+            parent.tag = this
             with(itemView) {
                 vod.apply {
-                    loadThumbnailUrlOrShowPlaceholder(thumbnailUrl, ivThumbnail_vod)
+                    loadThumbnailUrlOrShowPlaceholder(
+                        thumbnailUrl,
+                        ivThumbnail_vod,
+                        ivThumbnail_vod_placeholder
+                    )
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_vod)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0 && adapterPosition < listOfStreams.size &&

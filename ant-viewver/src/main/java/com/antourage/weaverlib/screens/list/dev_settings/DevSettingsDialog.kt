@@ -19,6 +19,7 @@ internal class DevSettingsDialog(
 
     companion object {
         const val BASE_URL_DEV = "http://35.156.199.125/"
+//        const val BASE_URL_DEV = "http://docker.staging-myra.com:5544/"
         const val BASE_URL_STAGING = "http://harv-staging.eu-central-1.elasticbeanstalk.com/"
         const val BASE_URL_PROD = "https://harv.antourage.com/"
         const val DEFAULT_URL = BASE_URL_PROD
@@ -32,7 +33,7 @@ internal class DevSettingsDialog(
         rb_dev.text = "dev: $BASE_URL_DEV"
         rb_staging.text = "stage: $BASE_URL_STAGING"
         rb_prod.text = "prod: $BASE_URL_PROD"
-        setTxt.setOnClickListener { v ->
+        setTxt.setOnClickListener { _ ->
             val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
             val backEndUrl = when {
                 radioButton.text.contains("dev") -> BASE_URL_DEV

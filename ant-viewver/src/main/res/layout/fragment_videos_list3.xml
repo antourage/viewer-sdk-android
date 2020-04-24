@@ -18,20 +18,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <ImageView
-                    android:id="@+id/ivLoader"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+            <com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
                     android:id="@+id/videosRV"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:scrollIndicators="none"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -40,20 +31,42 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:listitem="@layout/item_live_video2" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/placeHolderRV"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/viewNoContentContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:overScrollMode="always"
-                    android:scrollIndicators="none"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:itemCount="4"
-                    tools:listitem="@layout/item_video_placeholder" />
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent">
 
+                <ImageView
+                        android:id="@+id/ivNoContent"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/antourage_ic_holderlogolarge"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                        android:id="@+id/tvNoContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/ant_videos_empty_list_placeholder_text_new"
+                        android:textAllCaps="true"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAlignment="center"
+                        android:textColor="@color/ant_white"
+                        android:textSize="15sp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/ivNoContent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -101,7 +114,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="12dp"
-                android:src="@drawable/antourage_ic_default_user"
+                android:src="@drawable/antourage_ic_holderlogosmall"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -132,19 +145,6 @@
                 app:layout_constraintLeft_toRightOf="@id/ivTeamImage"
                 app:layout_constraintRight_toLeftOf="@id/ivClose"
                 app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-                android:id="@+id/tvNoContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:maxLines="2"
-                android:text="@string/ant_videos_empty_list_placeholder_text"
-                android:textSize="24sp"
-                android:visibility="invisible"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ivClose" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
