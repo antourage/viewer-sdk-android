@@ -56,6 +56,7 @@
     <string name="ant_from_camera">From camera</string>
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
+    <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>
     <string name="ant_version_name">Version %1$s</string>
     <string name="ant_no_internet">No internet connection available</string>
     <string name="ant_no_internet_action">No_internet_connection_available</string>
@@ -64,6 +65,7 @@
 
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
     <string name="ant_new_live">NEW LIVE VIDEO</string>
+    <string name="ant_join_conversation">Join conversation</string>
 
     <string name="ant_delimiter" translatable="false">•</string>
     <string name="ant_slash" translatable="false">/</string>
