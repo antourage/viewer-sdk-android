@@ -8,6 +8,16 @@
         android:animateLayoutChanges="true"
         android:background="@color/ant_bg_color">
 
+    <include
+            android:id="@+id/vod_header_layout"
+            layout="@layout/player_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <View
             android:id="@+id/fastForward"
             android:layout_width="0dp"
@@ -33,7 +43,7 @@
             android:layout_gravity="top"
             android:animateLayoutChanges="true"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vod_header_layout"
             app:resize_mode="fit"
             app:use_controller="false" />
 
@@ -66,6 +76,27 @@
             app:show_buffering="never"
             app:show_timeout="2000" />
 
+    <TextView
+            android:id="@+id/txtNumberOfViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
+            android:elevation="10dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_dark_gray_3_a80"
+            android:drawableStart="@drawable/antourage_ic_watcher_16dp"
+            android:drawablePadding="4dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingEnd="6dp"
+            android:paddingStart="6dp"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:text="6,385" />
 
     <ImageView
             android:id="@+id/skipForward"
@@ -100,68 +131,6 @@
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/headerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playerView">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/ivUserPhoto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/antourage_ic_default_user"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-                android:id="@+id/tvStreamName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:includeFontPadding="false"
-                android:maxLines="2"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                app:layout_constraintBottom_toTopOf="@+id/tvBroadcastedBy"
-                app:layout_constraintLeft_toRightOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ivUserPhoto"
-                tools:text="Olena Soluk" />
-
-        <TextView
-                android:id="@+id/tvBroadcastedBy"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_light"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivUserPhoto"
-                app:layout_constraintLeft_toRightOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvStreamName"
-                tools:text=" change often or at alll" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -182,15 +151,15 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+            app:layout_constraintTop_toBottomOf="@+id/playerView">
 
         <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
-                android:layout_marginRight="-65dp"
                 android:layout_marginEnd="-65dp"
+                android:layout_marginRight="-65dp"
                 android:background="@android:color/transparent">
 
             <androidx.constraintlayout.widget.ConstraintLayout

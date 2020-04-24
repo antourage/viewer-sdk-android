@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ant_white">#FFFFFF</color>
+    <color name="ant_white_a60">#99FFFFFF</color>
     <color name="ant_black">#000000</color>
     <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget">#FF464646</color>
@@ -14,8 +15,12 @@
     <color name="ant_gray_text">#8C8C8C</color>
     <color name="ant_semitransparent">#66424242</color>
     <color name="ant_halftransparent">#80000000</color>
+    <color name="ant_dark_transparent">#AB000000</color>
     <color name="ant_dark_gray_a40">#66000000</color>
+    <color name="ant_dark_gray_2">#1F1F1F</color>
+    <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>
     <color name="ant_green">#04A854</color>
+    <color name="ant_green_2">#00A854</color>
     <color name="ant_bleak_pink">#F8BFAD</color>
     <color name="ant_orange">#F8BC6D</color>
     <color name="ant_blue">#3596C5</color>

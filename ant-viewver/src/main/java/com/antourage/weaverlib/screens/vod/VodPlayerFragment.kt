@@ -7,6 +7,8 @@ import android.os.Handler
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -30,10 +32,10 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.broadcaster_header.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
+import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -67,11 +69,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                             Picasso.get().load(broadcasterPicUrl)
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
-                                .into(ivUserPhoto)
+                                .into(play_header_iv_photo)
+
                             Picasso.get().load(broadcasterPicUrl)
                                 .placeholder(R.drawable.antourage_ic_default_user)
                                 .error(R.drawable.antourage_ic_default_user)
-                                .into(ivControllerUserPhoto)
+                                .into(player_control_header
+                                    .findViewById(R.id.play_header_iv_photo) as ImageView)
                         }
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
@@ -98,8 +102,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         video?.apply {
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorFullName
-            tvControllerStreamName.text = videoName
-            tvControllerBroadcastedBy.text = creatorFullName
+            player_control_header.findViewById<TextView>(R.id.tvStreamName).text = videoName
+            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
             /**delete this code if image loading has no serious impact on
              * video loading (as it's too long in low bandwidth conditions)
@@ -135,7 +139,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.GONE
+            playBtnPlaceholder.visibility = View.INVISIBLE
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 context?.resources?.getString(R.string.ant_no_internet)
@@ -195,6 +199,22 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             R.string.ant_no_comments_yet
         )
         initSkipControls()
+        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close).setOnClickListener{
+            onCloseClicked()
+        }
+        initControlsVisibilityListener()
+    }
+
+    private fun initControlsVisibilityListener() {
+        playerControls.setVisibilityListener { visibility ->
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                if (visibility == View.VISIBLE){
+                    txtNumberOfViewers.margin(12f, 62f)
+                } else {
+                    txtNumberOfViewers.margin(12f, 12f)
+                }
+            }
+        }
     }
 
     private fun initSkipControls() {
@@ -385,7 +405,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         )
     }
 
-    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View) {
+    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?) {
         vDrawable?.apply {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
@@ -396,7 +416,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     }
                 })
                 start()
-                iv.visibility = View.VISIBLE
+                iv?.visibility = View.VISIBLE
             }
         }
     }
@@ -407,8 +427,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
                     Date(it).parseToDisplayAgoTime(this)
                 }
-            tvWasLive.text = formattedStartTime
-            tvWasLive.gone(formattedStartTime.isNullOrEmpty())
+            play_header_tv_ago.text = formattedStartTime
+            play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())
+            val tvAgoLandscape = player_control_header
+                .findViewById<TextView>(R.id.play_header_tv_ago)
+            tvAgoLandscape.text = formattedStartTime
+            tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
         }
     }
 

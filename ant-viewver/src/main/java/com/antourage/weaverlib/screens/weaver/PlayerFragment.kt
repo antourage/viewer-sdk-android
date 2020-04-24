@@ -1,21 +1,28 @@
 package com.antourage.weaverlib.screens.weaver
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
+import android.app.Dialog
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.os.SystemClock
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
@@ -30,28 +37,22 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.User
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.ui.AvatarChooser
 import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
-import com.antourage.weaverlib.other.ui.keyboard.convertDpToPx
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
-import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.broadcaster_header.*
-import kotlinx.android.synthetic.main.dialog_user_authorization_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.divider
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.util.*
-import kotlin.math.roundToInt
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
+import kotlinx.android.synthetic.main.player_header.*
 
 /**
  * Be careful not to create multiple instances of player
@@ -61,6 +62,8 @@ import kotlin.math.roundToInt
 internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private var wasDrawerClosed = false
+    private var userDialog: Dialog? = null
+    private var isChronometerRunning = false
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -77,22 +80,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     override fun getLayoutId() = R.layout.fragment_player_live_video_portrait
-
-    private val avatarChooser by lazy { context?.let { AvatarChooser(it) } }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        avatarChooser?.onRequestPermissionsResult(this, requestCode, permissions, grantResults)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        avatarChooser?.onActivityResult(requestCode, resultCode, data)
-    }
 
     //region Observers
     private val streamStateObserver: Observer<Int> = Observer { state ->
@@ -117,6 +104,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hideLoading()
                 }
             }
+        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()){
+            if (!isChronometerRunning){
+                isChronometerRunning = true
+                live_control_chronometer.start()
+            }
+        } else {
+            if (isChronometerRunning){
+                isChronometerRunning = false
+                live_control_chronometer.stop()
+            }
+        }
     }
 
     private val chatStateObserver: Observer<ChatStatus> = Observer { state ->
@@ -145,16 +143,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (!viewModel.noDisplayNameSet()) {
                 etMessage.isFocusable = true
                 etMessage.isFocusableInTouchMode = true
-                etDisplayName.setText(displayName)
-            }
-            viewModel.newAvatar?.let {
-                ivSetUserPhoto.setImageBitmap(it)
-            } ?: run {
-                Picasso.get()
-                    .load(imageUrl).fit().centerCrop()
-                    .placeholder(R.drawable.antourage_ic_user_grayed)
-                    .error(R.drawable.antourage_ic_user_grayed)
-                    .into(ivSetUserPhoto)
             }
         }
     }
@@ -175,13 +163,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         controls.visibility = View.GONE
         playerView.visibility = View.INVISIBLE
-        ivIndividualCloseImage.visibility = View.VISIBLE
-        ivIndividualCloseImage.onClick { onCloseClicked() }
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        disableOrientationChange()
+        txtNumberOfViewers.margin(6f, 6f)
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -209,7 +199,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hidePollPopup()
                     hidePollStatusLayout()
                     removeMessageInput()
-                    showUserSettingsDialog(false)
+                    /*showUserSettingsDialog(false)*/
                     bottomLayout.visibility = View.VISIBLE
                     if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                         if (drawerLayout.isDrawerOpen(navView)) {
@@ -253,7 +243,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             showLoading()
             viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.GONE
+            playBtnPlaceholder.visibility = View.INVISIBLE
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 context?.resources?.getString(R.string.ant_no_internet)
@@ -303,28 +293,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private val onUserSettingsClicked = View.OnClickListener {
-        toggleUserSettingsDialog()
+        showUserNameDialog()
         if (!etMessage.isFocused)
             hideKeyboard()
     }
 
     private val onMessageETClicked = View.OnClickListener {
         checkIfRequireDisplayNameSetting()
-    }
-
-    private val onCancelClicked = View.OnClickListener {
-        etDisplayName.setText(viewModel.getUser()?.displayName)
-        toggleUserSettingsDialog()
-        if (!etMessage.isFocused)
-            hideKeyboard()
-        viewModel.newAvatar = null
-        viewModel.oldAvatar?.let {
-            ivSetUserPhoto.setImageBitmap(it)
-        }
-    }
-
-    private val onUserPhotoClicked = View.OnClickListener {
-        showImagePickerDialog()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -387,32 +362,23 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         initClickListeners()
         initKeyboardListener()
-        initLabelLive()
-
-        etDisplayName.afterTextChanged {
-            btnConfirm.isEnabled =
-                !etDisplayName.text.toString().isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(
-                    it
-                )
-        }
+        initControlsVisibilityListener()
     }
 
-    /**
-     * method used to position player controls in proper way according to "Live" label's location
-     * as this label should not disappear with all the other player controls (so they are
-     * located in different layouts, but at the same time
-     * other views should depend ot "Live" label's size
-     * */
-    private fun initLabelLive() {
-        txtLabelLive.post {
-            val marginLeft =
-                (txtLabelLive?.width ?: 0) + (context?.convertDpToPx(12f)?.roundToInt() ?: 0)
-            val marginTop = (context?.convertDpToPx(10f)?.roundToInt() ?: 0)
-            if (marginLeft > 0) {
-                llTopLeftLabels.setMargins(marginLeft, marginTop, 0, 0)
+    private fun initControlsVisibilityListener() {
+        playerControls.setVisibilityListener { visibility ->
+            if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                if (visibility == View.VISIBLE){
+                    txtNumberOfViewers.margin(4f, 62f)
+                    txtLabelLive.margin(12f, 62f)
+                } else {
+                    txtLabelLive.margin(12f, 12f)
+                    txtNumberOfViewers.margin(4f, 12f)
+                }
             }
         }
     }
+
 
     private fun initKeyboardListener() {
         KeyboardEventListener(activity as AppCompatActivity) {
@@ -465,16 +431,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.seePollDetails()
     }
 
-    private fun onConfirmClicked() {
-        viewModel.changeUserDisplayName(etDisplayName.text.toString())
-        if (viewModel.newAvatar != null) {
-            viewModel.oldAvatar = viewModel.newAvatar
-            viewModel.changeUserAvatar()
-        }
-        showUserSettingsDialog(false)
-        hideKeyboard()
-    }
-
     private fun startPlayingStream() {
         playerView.player =
             arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(
@@ -514,20 +470,25 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         )
                     }
                 txtPollStatus.visibility = View.VISIBLE
-                divider.visibility = View.GONE
-                if (!viewModel.isUserSettingsDialogShown) {
+                if (userDialog != null) {
+                    val input =
+                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                    val isKeyboardVisible = keyboardIsVisible
+                    userDialog?.dismiss()
+                    showUserNameDialog(input, isKeyboardVisible)
+                } else {
                     if (keyboardIsVisible) {
                         etMessage.requestFocus()
                     }
                 }
             }
             Configuration.ORIENTATION_PORTRAIT -> {
-                userSettingsDialogUIToPortrait()
-                if (viewModel.isUserSettingsDialogShown) {
-                    showUserSettingsDialog(true)
-                    if (keyboardIsVisible) {
-                        etDisplayName.requestFocus()
-                    }
+                if (userDialog != null) {
+                    val input =
+                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                    val isKeyboardVisible = keyboardIsVisible
+                    userDialog?.dismiss()
+                    showUserNameDialog(input, isKeyboardVisible)
                 } else {
                     if (keyboardIsVisible) {
                         etMessage.requestFocus()
@@ -537,11 +498,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     ll_wrapper.setBackgroundColor(it)
                 }
                 txtPollStatus.visibility = View.GONE
-                divider.visibility = View.VISIBLE
 
                 if (viewModel.getCurrentLiveStreamInfo().value == false) {
                     showEndStreamUI()
                 }
+
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
@@ -549,6 +510,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
 
         showFullScreenIcon()
+    }
+
+    //@imurashova TODO: think have to fix button size on landscape;
+    private fun changeButtonsSize(isEnlarge: Boolean) {
+        if (isEnlarge){
+            exo_play.layoutParams = ConstraintLayout.LayoutParams(110, 110)
+            //exo_next.layoutParams = ConstraintLayout.LayoutParams(72, 72)
+        } else {
+            exo_play.layoutParams = ConstraintLayout.LayoutParams(56, 56)
+            //exo_next.layoutParams = ConstraintLayout.LayoutParams(36, 36
+        }
     }
 
     //region chatUI helper func
@@ -638,20 +610,36 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorFullName
-            tvControllerStreamName.text = streamTitle
-            tvControllerBroadcastedBy.text = creatorFullName
+            player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
+            player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
+                creatorFullName
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
-                    .into(ivUserPhoto)
+                    .into(play_header_iv_photo)
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)
                     .error(R.drawable.antourage_ic_default_user)
-                    .into(ivControllerUserPhoto)
+                    .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDate(it) })
+            if (startTime !=null){
+                initChronometer(startTime)
+            } else  {
+                live_control_chronometer.visibility = View.GONE
+            }
+        }
+    }
+
+    //starts updates of current time of live video watching
+    private fun initChronometer(startTime: String) {
+        if  (!isChronometerRunning){
+            live_control_chronometer.visibility = View.VISIBLE
+            live_control_chronometer.base = SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(startTime)?.time ?: 0))
+            isChronometerRunning = true
+            live_control_chronometer.start()
         }
     }
 
@@ -659,19 +647,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
-        btnCancel.setOnClickListener(onCancelClicked)
-        ivSetUserPhoto.setOnClickListener(onUserPhotoClicked)
-        avatarChooser?.setListener {
-            setNewAvatar(it)
-            btnConfirm.isEnabled = true
-        }
+
         ivDismissPoll.setOnClickListener { viewModel.startNewPollCountdown() }
         llPollStatus.setOnClickListener { onPollDetailsClicked() }
-        btnConfirm.setOnClickListener { onConfirmClicked() }
+
         pollPopupLayout.setOnClickListener {
             playerControls.hide()
             onPollDetailsClicked()
         }
+
+        player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
+            .setOnClickListener {
+                onCloseClicked()
+            }
     }
 
     private fun showFullScreenIcon() {
@@ -683,74 +671,105 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun setWasLiveText(text: String?) {
+        val tvAgoLandscape = player_control_header
+            .findViewById<TextView>(R.id.play_header_tv_ago)
         if (text != null && text.isNotEmpty()) {
-            tvWasLive.text = text
-            tvWasLive.visibility = View.VISIBLE
-        } else {
-            tvWasLive.visibility = View.GONE
+            tvAgoLandscape.text = text
+            play_header_tv_ago.text = text
         }
+        play_header_tv_ago.gone(text.isNullOrBlank())
+        tvAgoLandscape.gone(text.isNullOrBlank())
     }
 
-    private fun toggleUserSettingsDialog() {
-        showUserSettingsDialog(userSettingsDialog?.visibility == View.GONE)
-    }
-
-    private fun userSettingsDialogShown() =
-        userSettingsDialog?.visibility == View.VISIBLE
-
-    private fun showUserSettingsDialog(show: Boolean) {
-        viewModel.isUserSettingsDialogShown = show
-        if (show && !userSettingsDialogShown() || !show && userSettingsDialogShown()) {
-            userSettingsDialog?.visibility =
-                if (show) View.VISIBLE else View.GONE
-            btnUserSettings.setImageResource(
-                if (show) R.drawable.antourage_ic_user_settings_highlighted else R.drawable.antourage_ic_user_settings
+    /**
+     * Shows dialog for choosing userName.
+     * Both parameters used in case of configuration change in order to save state and
+     * restore keyboard(as it hides on dialog dismiss).
+     * @inputName: text inputted by user before configuration change. Will be set to ET.
+     * @showKeyboard: indicates, whether we should show keyboard in recreated dialog.
+     * Basic dialog can be shown without parameters.
+     * On dialog shown/closed updates Player fragment field @userDialog so it can be used to check
+     * whether dialog is shown on configuration change.
+     */
+    @SuppressLint("InflateParams") //for dialog can be null
+    fun showUserNameDialog(inputName: String? = null, showKeyboard: Boolean = false) {
+        with(Dialog(requireContext())) {
+            val currentDialogOrientation = resources.configuration.orientation
+            setContentView(
+                layoutInflater.inflate(
+                    if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                        R.layout.dialog_chat_name
+                    } else {
+                        R.layout.dialog_chat_name_land
+                    }, null
+                )
             )
-            if (show) {
-                if (orientation() == Configuration.ORIENTATION_LANDSCAPE && keyboardIsVisible) {
-                    userSettingsDialogUIToLandscape()
+
+            val initUserName = inputName ?: (viewModel.getUser()?.displayName ?: "")
+
+            val eText = findViewById<EditText>(R.id.etDisplayName)
+            val saveButton = findViewById<TextView>(R.id.btnConfirm)
+            findViewById<TextView>(R.id.btnCancel).setOnClickListener {
+                eText.setText(viewModel.getUser()?.displayName)
+                dismiss()
+            }
+            findViewById<ImageButton>(R.id.d_name_close).setOnClickListener {
+                eText.setText(viewModel.getUser()?.displayName)
+                dismiss()
+            }
+
+            with(eText) {
+                if (initUserName.isNotBlank()) {
+                    setText(initUserName)
                 } else {
-                    userSettingsDialogUIToPortrait()
+                    isFocusableInTouchMode = true
+                    isFocusable = true
                 }
-                etMessage.isFocusable = false
-                btnConfirm.isEnabled = false
-                viewModel.getUser()?.imageUrl?.apply {
-                    viewModel.newAvatar?.let {
-                        ivSetUserPhoto.setImageBitmap(it)
-                    } ?: run {
-                        Picasso.get()
-                            .load(this).fit().centerCrop()
-                            .placeholder(R.drawable.antourage_ic_user_grayed)
-                            .error(R.drawable.antourage_ic_user_grayed)
-                            .into(ivSetUserPhoto)
-                    }
+
+                afterTextChanged { saveButton.isEnabled = validateNewUserName(it) }
+                setOnFocusChangeListener { _, _ ->
+                    saveButton.isEnabled = validateNewUserName(text.toString())
                 }
-            } else {
-                if (!viewModel.noDisplayNameSet()) {
-                    etMessage.isFocusableInTouchMode = true
-                    etMessage.isFocusable = true
+            }
+
+            saveButton.setOnClickListener {
+                viewModel.changeUserDisplayName(eText.text.toString())
+                hideKeyboard()
+                dismiss()
+            }
+
+            setOnDismissListener {
+                if (currentDialogOrientation == resources.configuration.orientation) {
+                    userDialog = null
                 }
+            }
+
+            show()
+            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), 50))
+            window?.setLayout(
+                if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                    WindowManager.LayoutParams.MATCH_PARENT
+                } else {
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                },
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+
+            userDialog = this
+            if (showKeyboard) {
+                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+
+                eText.requestFocus()
+                val imm = requireContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(eText, InputMethodManager.SHOW_IMPLICIT)
             }
         }
     }
 
-    private fun showImagePickerDialog() {
-        if (viewModel.avatarDeleted || viewModel.profileInfo?.imagePath == null) {
-            avatarChooser?.showChoose(this)
-        } else {
-            avatarChooser?.showChooseDelete(this)
-        }
-    }
+    private fun validateNewUserName(newName: String): Boolean =
+        !newName.isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(newName)
 
-    private fun setNewAvatar(it: Bitmap?) {
-        it?.let {
-            ivSetUserPhoto.setImageBitmap(it)
-            viewModel.onAvatarChanged(it)
-        } ?: run {
-            ivSetUserPhoto.setImageResource(R.drawable.antourage_ic_user_grayed)
-            viewModel.onAvatarDeleted()
-        }
-    }
 
     private fun initUser() {
         viewModel.initUser()
@@ -758,16 +777,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun checkIfRequireDisplayNameSetting() {
         if (viewModel.noDisplayNameSet()) {
-            showUserSettingsDialog(true)
+            showUserNameDialog()
         }
     }
 
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
 
         // Set up touch listener for non-text box views to hide keyboard.
-        if (view !is EditText && view.id != btnCancel.id &&
+        if (view !is EditText &&
             view.id != btnSend.id &&
-            view.id != btnConfirm.id &&
             view.id != btnUserSettings.id
         ) {
             view.setOnTouchListener { _, _ ->
@@ -783,199 +801,5 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 setupUIForHidingKeyboardOnOutsideTouch(innerView)
             }
         }
-    }
-
-    private fun userSettingsDialogUIToPortrait() {
-        ivSetUserPhoto.removeConstraints(clUserSettings)
-        etDisplayName.removeConstraints(clUserSettings)
-        btnConfirm.removeConstraints(clUserSettings)
-        btnCancel.removeConstraints(clUserSettings)
-
-        userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        userSettingsDialog.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        clUserSettings.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        activity?.applicationContext?.apply {
-            btnCancel.layoutParams.width = dp2px(this, 144f).roundToInt()
-            btnConfirm.layoutParams.width = dp2px(this, 186f).roundToInt()
-        }
-
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(clUserSettings)
-
-        constraintSet.connect(
-            ivSetUserPhoto.id,
-            ConstraintSet.LEFT,
-            R.id.clUserSettings,
-            ConstraintSet.LEFT
-        )
-
-        constraintSet.connect(
-            ivSetUserPhoto.id,
-            ConstraintSet.TOP,
-            R.id.etDisplayName,
-            ConstraintSet.TOP
-        )
-
-        constraintSet.connect(
-            etDisplayName.id,
-            ConstraintSet.BOTTOM,
-            R.id.btnCancel,
-            ConstraintSet.TOP
-        )
-
-        constraintSet.connect(
-            etDisplayName.id,
-            ConstraintSet.LEFT,
-            R.id.ivSetUserPhoto,
-            ConstraintSet.RIGHT
-        )
-
-        constraintSet.connect(
-            etDisplayName.id,
-            ConstraintSet.RIGHT,
-            ((R.id.clUserSettings)),
-            ConstraintSet.RIGHT
-        )
-
-        constraintSet.connect(
-            etDisplayName.id,
-            ConstraintSet.TOP,
-            ((R.id.clUserSettings)),
-            ConstraintSet.TOP
-        )
-
-        constraintSet.connect(
-            btnCancel.id,
-            ConstraintSet.BOTTOM,
-            ((R.id.clUserSettings)),
-            ConstraintSet.BOTTOM
-        )
-
-        constraintSet.connect(
-            btnCancel.id,
-            ConstraintSet.LEFT,
-            ((R.id.clUserSettings)),
-            ConstraintSet.LEFT
-        )
-
-        constraintSet.connect(
-            btnCancel.id,
-            ConstraintSet.RIGHT,
-            (R.id.btnConfirm),
-            ConstraintSet.LEFT
-        )
-
-        constraintSet.connect(
-            btnConfirm.id,
-            ConstraintSet.BOTTOM,
-            R.id.clUserSettings,
-            ConstraintSet.BOTTOM
-        )
-
-        constraintSet.connect(
-            btnConfirm.id,
-            ConstraintSet.LEFT,
-            R.id.btnCancel,
-            ConstraintSet.RIGHT
-        )
-
-        constraintSet.connect(
-            btnConfirm.id,
-            ConstraintSet.RIGHT,
-            R.id.clUserSettings,
-            ConstraintSet.RIGHT
-        )
-
-        constraintSet.applyTo(clUserSettings)
-
-        ivSetUserPhoto.margin(left = 20f)
-        etDisplayName.margin(top = 40f, bottom = 20f, left = 20f, right = 20f)
-        btnCancel.margin(bottom = 20f, left = 20f)
-        btnConfirm.margin(bottom = 20f, left = 20f, right = 20f)
-    }
-
-    override fun onHideKeyboard(keyboardHeight: Int) {
-        super.onHideKeyboard(keyboardHeight)
-        userSettingsDialogUIToPortrait()
-    }
-
-    override fun onShowKeyboard(keyboardHeight: Int) {
-        super.onShowKeyboard(keyboardHeight)
-        if (etDisplayName.isFocused && orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-            userSettingsDialogUIToLandscape()
-        }
-    }
-
-    private fun userSettingsDialogUIToLandscape() {
-        userSettingsDialog.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-        userSettingsDialog.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-        clUserSettings.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-        activity?.applicationContext?.apply {
-            btnCancel.layoutParams.width = dp2px(this, 120f).roundToInt()
-            btnConfirm.layoutParams.width = dp2px(this, 140f).roundToInt()
-        }
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(clUserSettings)
-        constraintSet.connect(
-            R.id.ivSetUserPhoto,
-            ConstraintSet.BOTTOM,
-            R.id.etDisplayName,
-            ConstraintSet.BOTTOM,
-            0
-        )
-        constraintSet.connect(
-            R.id.etDisplayName,
-            ConstraintSet.BOTTOM,
-            R.id.clUserSettings,
-            ConstraintSet.BOTTOM,
-            0
-        )
-        constraintSet.connect(
-            R.id.etDisplayName,
-            ConstraintSet.RIGHT,
-            R.id.btnCancel,
-            ConstraintSet.LEFT,
-            0
-        )
-        constraintSet.connect(
-            R.id.btnCancel,
-            ConstraintSet.BOTTOM,
-            R.id.etDisplayName,
-            ConstraintSet.BOTTOM,
-            0
-        )
-        constraintSet.connect(
-            R.id.btnCancel,
-            ConstraintSet.LEFT,
-            R.id.etDisplayName,
-            ConstraintSet.RIGHT,
-            0
-        )
-        constraintSet.connect(
-            R.id.btnCancel,
-            ConstraintSet.TOP,
-            R.id.etDisplayName,
-            ConstraintSet.TOP,
-            0
-        )
-        constraintSet.connect(
-            R.id.btnConfirm,
-            ConstraintSet.BOTTOM,
-            R.id.btnCancel,
-            ConstraintSet.BOTTOM,
-            0
-        )
-        constraintSet.connect(
-            R.id.btnConfirm,
-            ConstraintSet.TOP,
-            R.id.btnCancel,
-            ConstraintSet.TOP,
-            0
-        )
-
-        etDisplayName.margin(top = 20f)
-        btnCancel.margin(bottom = 0f)
-
-        constraintSet.applyTo(clUserSettings)
     }
 }

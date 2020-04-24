@@ -8,6 +8,15 @@
         android:animateLayoutChanges="true"
         android:background="@color/ant_bg_color">
 
+    <include android:id="@+id/live_header_layout"
+            layout="@layout/player_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="visible"/>
+
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
@@ -16,7 +25,7 @@
             android:animateLayoutChanges="true"
             app:auto_show="false"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/live_header_layout"
             app:resize_mode="fit"
             app:show_buffering="never"
             app:use_controller="false" />
@@ -47,16 +56,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-            android:id="@+id/ivIndividualCloseImage"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/antourage_image_btn_bg"
-            android:src="@drawable/antourage_ic_close"
-            android:visibility="gone"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
     <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/controls"
             android:layout_width="0dp"
@@ -73,14 +72,46 @@
 
     <TextView
             android:id="@+id/txtLabelLive"
-            style="@style/PlayerControlsTxt"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/antourage_bg_rounded_corners_pink"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_pink"
+            android:elevation="10dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
             android:text="@string/ant_live"
             android:textAllCaps="true"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/playerView" />
+
+    <TextView
+            android:id="@+id/txtNumberOfViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_dark_gray_3_a80"
+            android:drawableStart="@drawable/antourage_ic_watcher_16dp"
+            android:drawablePadding="4dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@+id/txtLabelLive"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:text="6,385" />
 
     <ImageView
             android:id="@+id/ivLoader"
@@ -93,53 +124,7 @@
             app:layout_constraintTop_toTopOf="@+id/playerView"
             tools:ignore="ContentDescription" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/ivUserPhoto"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/antourage_ic_default_user"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/playerView" />
 
-    <TextView
-            android:id="@+id/tvStreamName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/roboto_condensed_regular"
-            android:includeFontPadding="false"
-            android:maxLines="2"
-            android:textColor="@android:color/white"
-            android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/tvBroadcastedBy"
-            app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-            app:layout_constraintRight_toLeftOf="@id/llPollStatus"
-            app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:text="Stream name" />
-
-    <TextView
-            android:id="@+id/tvBroadcastedBy"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/roboto_condensed_light"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
-            app:layout_constraintLeft_toRightOf="@id/ivUserPhoto"
-            app:layout_constraintRight_toLeftOf="@id/llPollStatus"
-            app:layout_constraintTop_toBottomOf="@id/tvStreamName"
-            tools:text="my nicname sometimes gets messed up" />
 
     <ImageButton
             android:id="@+id/btnShare_vod"
@@ -207,17 +192,8 @@
             android:importantForAccessibility="yes"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvBroadcastedBy" />
+            app:layout_constraintTop_toBottomOf="@+id/playerView" />
 
-    <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/pollPopupLayout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
@@ -344,15 +320,4 @@
                 android:src="@drawable/antourage_ic_user_settings"
                 tools:ignore="ContentDescription" />
     </LinearLayout>
-
-    <include
-            layout="@layout/dialog_user_authorization_portrait"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/dividerChat"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:visibility="visible" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
