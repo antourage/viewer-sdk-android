@@ -167,11 +167,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
+        //blocks player controls appearance
         controls.visibility = View.GONE
-        playerView.visibility = View.INVISIBLE
+        playerView.setOnTouchListener(null)
+        //blocks from orientation change
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         disableOrientationChange()
+
         txtNumberOfViewers.margin(6f, 6f)
+        tv_live_end_time.text = live_control_chronometer.text
+        tv_live_end_time.visibility = View.VISIBLE
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
