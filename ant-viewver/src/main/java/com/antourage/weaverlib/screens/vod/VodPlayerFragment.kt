@@ -106,24 +106,29 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = videoName
             player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text = creatorFullName
             txtNumberOfViewers.text = viewsCount.toString()
-            /**delete this code if image loading has no serious impact on
-             * video loading (as it's too long in low bandwidth conditions)
-             */
-//            if (!broadcasterPicUrl.isNullOrEmpty()) {
-//                Picasso.get().load(broadcasterPicUrl)
-//                    .placeholder(R.drawable.antourage_ic_default_user)
-//                    .error(R.drawable.antourage_ic_default_user)
-//                    .into(ivUserPhoto)
-//                Picasso.get().load(broadcasterPicUrl)
-//                    .placeholder(R.drawable.antourage_ic_default_user)
-//                    .error(R.drawable.antourage_ic_default_user)
-//                    .into(ivControllerUserPhoto)
-//            }
             context?.let { context ->
                 updateWasLiveValueOnUI(startTime, duration)
                 streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             viewModel.seekToLastWatchingTime()
+        }
+    }
+
+    private val endVideoObserver: Observer<Boolean> = Observer { isEnded ->
+        if (isEnded){
+            //todo:start animation
+            //todo:on animation end viewModel.playNextTrack()
+            exo_play.visibility = View.INVISIBLE
+            exo_next.visibility = View.INVISIBLE //todo: not works
+            exo_prev.visibility = View.INVISIBLE //todo: not works
+            vod_controls_auto_next.visibility = View.VISIBLE
+            vod_controls_auto_next.setOnClickListener {
+                viewModel.playNextTrack()
+                //todo: endVideoObserver isEnded to false
+                exo_next.visibility = View.VISIBLE
+                exo_prev.visibility = View.VISIBLE
+                vod_controls_auto_next.visibility = View.INVISIBLE
+            }
         }
     }
 
@@ -166,6 +171,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
+        viewModel.getVideoEndedLD().observe(this.viewLifecycleOwner, endVideoObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,

@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import java.sql.Timestamp
 
+
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     companion object {
         private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
@@ -95,6 +96,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     abstract fun onStreamStateChanged(playbackState: Int)
 
     abstract fun getMediaSource(streamUrl: String?): MediaSource?
+
+    open fun onTrackEnd() {}
 
     open fun onVideoChanged() {}
 
@@ -183,6 +186,15 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private fun getBatteryLevel(): Int {
         return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: 0
+    }
+
+
+    fun playNextTrack() {
+        val nextWindowIndex = player?.nextWindowIndex
+        if (nextWindowIndex != C.INDEX_UNSET && nextWindowIndex != null) {
+            player?.seekTo(nextWindowIndex, C.TIME_UNSET)
+            player?.playWhenReady = true
+        }
     }
 
     private fun sendStatisticData(
@@ -288,6 +300,21 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             stopUpdatingCurrentStreamInfo()
             onVideoChanged()
             currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+        }
+
+        override fun onTracksChanged(trackGroups: TrackGroupArray?,
+                                     trackSelections: TrackSelectionArray?) {
+            if (player != null){
+                if (player!!.duration != C.TIME_UNSET){
+                    player!!.createMessage { _: Int, _: Any? ->
+                        onTrackEnd()
+                    }
+                        .setHandler(Handler())
+                        .setPosition(currentWindow, player!!.duration - 100)
+                        .setDeleteAfterDelivery(false)
+                        .send()
+                }
+            }
         }
     }
     //endregion

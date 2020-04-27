@@ -102,6 +102,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
+    private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
 
     fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()
@@ -147,6 +148,12 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 
+    override fun onTrackEnd() {
+        player?.playWhenReady = false
+        videoEndedLD.postValue(true)
+    }
+
+
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
@@ -186,6 +193,8 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
+
+    fun getVideoEndedLD(): LiveData<Boolean> = videoEndedLD
 
     fun setCurrentPlayerPosition(videoId: Int) {
         currentWindow = findVideoPositionById(videoId)
