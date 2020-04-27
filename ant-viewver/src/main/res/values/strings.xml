@@ -43,6 +43,8 @@
     <string name="ant_set">set</string>
     <string name="ant_main_title">Latest videos</string>
 
+    <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string>
+
     <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>
     <string name="ant_confirm">Confirm</string>

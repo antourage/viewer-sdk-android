@@ -43,12 +43,12 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@id/playerView" />
 
-    <ImageView
+    <TextView
             android:id="@+id/ivThanksForWatching"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/ant_dark_transparent"
-            android:text="THANKS FOR WATCHING"
+            android:text="@string/ant_thanks_for_watching"
             android:textAllCaps="true"
             android:gravity="center"
             android:textColor="@color/ant_white"
