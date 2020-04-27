@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/live_controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/ant_dark_transparent"
@@ -19,8 +20,8 @@
 
     <ImageView
             android:id="@+id/exo_play"
-            android:layout_height="56dp"
-            android:layout_width="56dp"
+            android:layout_height="@dimen/small_play_pause_size"
+            android:layout_width="@dimen/small_play_pause_size"
             android:src="@drawable/antourage_ic_play_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -30,8 +31,8 @@
 
     <ImageView
             android:id="@+id/exo_pause"
-            android:layout_height="56dp"
-            android:layout_width="56dp"
+            android:layout_height="@dimen/small_play_pause_size"
+            android:layout_width="@dimen/small_play_pause_size"
             android:src="@drawable/antourage_ic_pause"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"

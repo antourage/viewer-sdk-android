@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
@@ -323,11 +324,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 showChatTurnedOffPlaceholder(false)
+                changeButtonsSize(isEnlarge = true)
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (viewModel.getChatStateLiveData().value == true) {
                     showChatTurnedOffPlaceholder(true)
                 }
+                changeButtonsSize(isEnlarge = false)
             }
         }
 
@@ -352,6 +355,32 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             dividerChat.visibility = View.VISIBLE
         }
         changeControlsView(landscape)
+    }
+
+
+    /**
+     * Used to change control buttons size on landscape/portrait.
+     * I couldn't use simple dimensions change due to specific orientation handling in project.
+     */
+    private fun changeButtonsSize(isEnlarge: Boolean) {
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(vod_controls)
+        updateIconSize(R.id.exo_play, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        updateIconSize(R.id.exo_pause, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        updateIconSize(R.id.exo_next, constraintSet,
+            if (isEnlarge) R.dimen.large_next_prev_size else R.dimen.small_next_prev_size)
+        updateIconSize(R.id.exo_prev, constraintSet,
+            if (isEnlarge) R.dimen.large_next_prev_size else R.dimen.small_next_prev_size)
+
+        constraintSet.applyTo(vod_controls)
+    }
+
+    private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int){
+        val iconSize = resources.getDimension(dimenId).toInt()
+        constraintSet.constrainWidth(iconId, iconSize)
+        constraintSet.constrainHeight(iconId, iconSize)
     }
 
     private fun handleChat() {

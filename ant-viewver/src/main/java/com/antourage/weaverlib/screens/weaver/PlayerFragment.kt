@@ -22,7 +22,7 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
@@ -50,8 +50,6 @@ import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
 import kotlinx.android.synthetic.main.player_header.*
 
 /**
@@ -486,6 +484,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         etMessage.requestFocus()
                     }
                 }
+                changeButtonsSize(isEnlarge = true)
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (userDialog != null) {
@@ -507,7 +506,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 if (viewModel.getCurrentLiveStreamInfo().value == false) {
                     showEndStreamUI()
                 }
-
+                changeButtonsSize(isEnlarge = false)
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
@@ -517,19 +516,28 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         showFullScreenIcon()
     }
 
-    //@imurashova TODO: think have to fix button size on landscape;
+    /**
+     * Used to change control buttons size on landscape/portrait.
+     * I couldn't use simple dimensions change due to specific orientation handling in project.
+     */
     private fun changeButtonsSize(isEnlarge: Boolean) {
-        if (isEnlarge){
-            exo_play.layoutParams = ConstraintLayout.LayoutParams(110, 110)
-            //exo_next.layoutParams = ConstraintLayout.LayoutParams(72, 72)
-        } else {
-            exo_play.layoutParams = ConstraintLayout.LayoutParams(56, 56)
-            //exo_next.layoutParams = ConstraintLayout.LayoutParams(36, 36
-        }
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(live_controls)
+        updateIconSize(R.id.exo_play, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        updateIconSize(R.id.exo_pause, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+
+        constraintSet.applyTo(live_controls)
+    }
+
+    private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int){
+        val iconSize = resources.getDimension(dimenId).toInt()
+        constraintSet.constrainWidth(iconId, iconSize)
+        constraintSet.constrainHeight(iconId, iconSize)
     }
 
     //region chatUI helper func
-
     private fun enableMessageInput(enable: Boolean) {
         etMessage.isEnabled = enable
     }
