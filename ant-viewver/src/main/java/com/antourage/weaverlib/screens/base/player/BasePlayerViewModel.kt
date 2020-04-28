@@ -310,7 +310,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         onTrackEnd()
                     }
                         .setHandler(Handler())
-                        .setPosition(currentWindow, player!!.duration - 100)
+                        .setPosition(currentWindow, player!!.duration - 200)
                         .setDeleteAfterDelivery(false)
                         .send()
                 }

@@ -6,7 +6,6 @@ import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.formatDuration
 import com.antourage.weaverlib.other.models.*
@@ -151,6 +150,11 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     override fun onTrackEnd() {
         player?.playWhenReady = false
         videoEndedLD.postValue(true)
+    }
+
+    fun nextVideoPlay() {
+        playNextTrack()
+        videoEndedLD.postValue(false)
     }
 
 
