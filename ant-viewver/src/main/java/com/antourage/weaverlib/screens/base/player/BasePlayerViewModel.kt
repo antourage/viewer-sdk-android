@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import java.sql.Timestamp
 
-
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     companion object {
         private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
@@ -198,10 +197,22 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
+    fun playPrevTrack() {
+        val previousWindowIndex = player?.previousWindowIndex
+        if (previousWindowIndex != C.INDEX_UNSET && previousWindowIndex != null) {
+            player?.seekTo(previousWindowIndex, C.TIME_UNSET)
+            player?.playWhenReady = true
+        }
+    }
+
     fun rewindAndPlayTrack() {
         player?.seekTo(currentWindow, C.TIME_UNSET)
         player?.playWhenReady = true
     }
+
+    fun hasPrevTrack(): Boolean = !(player == null || player?.previousWindowIndex == C.INDEX_UNSET)
+
+    fun hasNextTrack(): Boolean = !(player == null || player?.nextWindowIndex == C.INDEX_UNSET)
 
     private fun sendStatisticData(
         statisticAction: StatisticActions,

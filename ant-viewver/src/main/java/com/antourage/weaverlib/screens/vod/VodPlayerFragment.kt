@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.screens.vod
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -81,6 +82,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         }
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
+                    updatePrevNextVisibility()
                     if (viewModel.isPlaybackPaused()) {
                         playerControls.show()
                         viewModel.onVideoPausedOrStopped()
@@ -126,6 +128,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
     }
 
+    private fun updatePrevNextVisibility() {
+        vod_control_prev.visibility = if (viewModel.hasPrevTrack()) View.VISIBLE else View.INVISIBLE
+        vod_control_next.visibility = if (viewModel.hasNextTrack()) View.VISIBLE else View.INVISIBLE
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     private val endVideoObserver: Observer<Boolean> = Observer { isEnded ->
         if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE){
             val mCountDownTimer = object : CountDownTimer(5000, 20) {
@@ -134,7 +142,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 }
 
                 override fun onFinish() {
-                    if(vod_next_auto_layout.visibility == View.VISIBLE){
+                    if(vod_next_auto_layout?.visibility == View.VISIBLE){
                         viewModel.nextVideoPlay()
                     }
                 }
@@ -143,25 +151,31 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             mCountDownTimer.start()
             vod_buttons_layout.visibility = View.INVISIBLE
             vod_next_auto_layout.visibility = View.VISIBLE
-            //todo: cancel/rewind logic;
-            /*vod_auto_next_cancel.setOnClickListener {
+            vod_auto_next_cancel.setOnClickListener {
                 mCountDownTimer.cancel()
-                exo_play.visibility = View.INVISIBLE
+                vod_play_pause_layout.visibility = View.INVISIBLE
                 vod_buttons_layout.visibility = View.VISIBLE
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 vod_rewind.visibility = View.VISIBLE
             }
-            vod_rewind.setOnClickListener {
-                viewModel.rewindVideoPlay()
-            }*/
+            vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
+            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
+                mCountDownTimer.cancel()
+                vod_buttons_layout.visibility = View.VISIBLE
+                vod_next_auto_layout.visibility = View.INVISIBLE
+                v.setOnTouchListener { _, _ -> false }
+                return@setOnTouchListener false
+            }
 
             vod_controls_auto_next.setOnClickListener {
                 mCountDownTimer.cancel()
                 viewModel.nextVideoPlay()
             }
         } else if(!isEnded){
+            vod_play_pause_layout.visibility = View.VISIBLE
             vod_buttons_layout.visibility = View.VISIBLE
             vod_next_auto_layout.visibility = View.INVISIBLE
+            vod_rewind.visibility = View.INVISIBLE
         }
     }
 
@@ -243,6 +257,18 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             onCloseClicked()
         }
         initControlsVisibilityListener()
+        initPlayerClickListeners()
+    }
+
+    private fun initPlayerClickListeners() {
+        vod_control_prev.setOnClickListener {
+            viewModel.playPrevTrack()
+        }
+
+        vod_control_next.setOnClickListener {
+            viewModel.playNextTrack()
+        }
+        updatePrevNextVisibility()
     }
 
     private fun initControlsVisibilityListener() {
@@ -301,13 +327,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun dimNextPrevButtons() {
-        exo_next.alpha = 0.3f
-        exo_prev.alpha = 0.3f
+        vod_control_next.alpha = 0.3f
+        vod_control_prev.alpha = 0.3f
     }
 
     private fun brightenNextPrevButtons() {
-        exo_next?.visibility = View.VISIBLE
-        exo_prev?.visibility = View.VISIBLE
+        vod_control_next?.visibility = View.VISIBLE
+        vod_control_prev?.visibility = View.VISIBLE
         controls?.hide()
     }
 
@@ -401,23 +427,27 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun changeButtonsSize(isEnlarge: Boolean) {
         val constraintSet = ConstraintSet()
         constraintSet.clone(vod_buttons_layout)
-        updateIconSize(R.id.exo_play, constraintSet,
-            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
-        updateIconSize(R.id.exo_pause, constraintSet,
-            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
         updateIconSize(R.id.vod_rewind, constraintSet,
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
-        updateIconSize(R.id.exo_next, constraintSet,
+        updateIconSize(R.id.vod_control_next, constraintSet,
             if (isEnlarge) R.dimen.large_next_prev_size else R.dimen.small_next_prev_size)
-        updateIconSize(R.id.exo_prev, constraintSet,
+        updateIconSize(R.id.vod_control_prev, constraintSet,
             if (isEnlarge) R.dimen.large_next_prev_size else R.dimen.small_next_prev_size)
         constraintSet.applyTo(vod_buttons_layout)
 
         val constraintSet2 = ConstraintSet()
-        constraintSet2.clone(vod_next_auto_layout)
-        updateIconSize(R.id.vod_controls_auto_next, constraintSet2,
+        constraintSet2.clone(vod_play_pause_layout)
+        updateIconSize(R.id.exo_play, constraintSet2,
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
-        constraintSet2.applyTo(vod_next_auto_layout)
+        updateIconSize(R.id.exo_pause, constraintSet2,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        constraintSet2.applyTo(vod_play_pause_layout)
+
+        val constraintSet3 = ConstraintSet()
+        constraintSet3.clone(vod_next_auto_layout)
+        updateIconSize(R.id.vod_controls_auto_next, constraintSet3,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        constraintSet3.applyTo(vod_next_auto_layout)
     }
 
     private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int){

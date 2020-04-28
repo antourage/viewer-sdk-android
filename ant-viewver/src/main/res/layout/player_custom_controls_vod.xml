@@ -28,27 +28,32 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-                android:id="@+id/exo_play"
-                android:layout_width="@dimen/small_play_pause_size"
-                android:layout_height="@dimen/small_play_pause_size"
-                android:src="@drawable/antourage_ic_play_arrow"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/vod_play_pause_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <ImageView
+                    android:id="@+id/exo_play"
+                    android:layout_width="@dimen/small_play_pause_size"
+                    android:layout_height="@dimen/small_play_pause_size"
+                    android:src="@drawable/antourage_ic_play_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
 
-        <ImageView
-                android:id="@+id/exo_pause"
-                android:layout_width="@dimen/small_play_pause_size"
-                android:layout_height="@dimen/small_play_pause_size"
-                android:src="@drawable/antourage_ic_pause"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+            <ImageView
+                    android:id="@+id/exo_pause"
+                    android:layout_width="@dimen/small_play_pause_size"
+                    android:layout_height="@dimen/small_play_pause_size"
+                    android:src="@drawable/antourage_ic_pause"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
                 android:id="@+id/vod_rewind"
@@ -63,7 +68,7 @@
                 tools:ignore="ContentDescription" />
 
         <ImageView
-                android:id="@+id/exo_next"
+                android:id="@+id/vod_control_next"
                 android:layout_width="@dimen/small_next_prev_size"
                 android:layout_height="@dimen/small_next_prev_size"
                 android:layout_marginStart="30dp"
@@ -74,14 +79,13 @@
                 tools:ignore="ContentDescription" />
 
         <ImageView
-                android:id="@+id/exo_prev"
+                android:id="@+id/vod_control_prev"
                 android:layout_width="@dimen/small_next_prev_size"
                 android:layout_height="@dimen/small_next_prev_size"
                 android:layout_marginEnd="30dp"
                 android:src="@drawable/antourage_ic_skip_previous"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/playBtnPlaceholder"
-                app:layout_constraintRight_toLeftOf="@+id/exo_pause"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>

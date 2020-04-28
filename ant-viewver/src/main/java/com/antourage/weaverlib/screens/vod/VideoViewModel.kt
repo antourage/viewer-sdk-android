@@ -162,7 +162,6 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         rewindAndPlayTrack()
     }
 
-
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
@@ -179,6 +178,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
+        videoEndedLD.postValue(false)
         if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
             player?.playWhenReady = true
         }
@@ -288,5 +288,3 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 }
-
-
