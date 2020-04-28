@@ -109,14 +109,12 @@
                 android:gravity="center"
                 android:text="@string/ant_save"
                 android:textAllCaps="true"
-                android:textColor="@color/ant_white"
+                android:textColor="@color/state_enabled_white_d_grey"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/btnCancel"
                 app:layout_constraintTop_toBottomOf="@+id/etDisplayName" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

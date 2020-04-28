@@ -143,6 +143,17 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             mCountDownTimer.start()
             vod_buttons_layout.visibility = View.INVISIBLE
             vod_next_auto_layout.visibility = View.VISIBLE
+            //todo: cancel/rewind logic;
+            /*vod_auto_next_cancel.setOnClickListener {
+                mCountDownTimer.cancel()
+                exo_play.visibility = View.INVISIBLE
+                vod_buttons_layout.visibility = View.VISIBLE
+                vod_next_auto_layout.visibility = View.INVISIBLE
+                vod_rewind.visibility = View.VISIBLE
+            }
+            vod_rewind.setOnClickListener {
+                viewModel.rewindVideoPlay()
+            }*/
 
             vod_controls_auto_next.setOnClickListener {
                 mCountDownTimer.cancel()
@@ -352,13 +363,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 showChatTurnedOffPlaceholder(false)
-                changeButtonsSize(isEnlarge = true)
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (viewModel.getChatStateLiveData().value == true) {
                     showChatTurnedOffPlaceholder(true)
                 }
-                changeButtonsSize(isEnlarge = false)
             }
         }
 
@@ -395,6 +404,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         updateIconSize(R.id.exo_play, constraintSet,
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
         updateIconSize(R.id.exo_pause, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        updateIconSize(R.id.vod_rewind, constraintSet,
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
         updateIconSize(R.id.exo_next, constraintSet,
             if (isEnlarge) R.dimen.large_next_prev_size else R.dimen.small_next_prev_size)
@@ -464,6 +475,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             if (isLandscape)
                 resources.getDimension(R.dimen.ant_margin_seekbar_landscape).toInt() else 0, 0
         )
+        changeButtonsSize(isEnlarge = isLandscape)
     }
 
     private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?) {

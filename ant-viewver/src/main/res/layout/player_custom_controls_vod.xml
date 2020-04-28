@@ -51,6 +51,18 @@
                 tools:ignore="ContentDescription" />
 
         <ImageView
+                android:id="@+id/vod_rewind"
+                android:layout_width="@dimen/small_play_pause_size"
+                android:layout_height="@dimen/small_play_pause_size"
+                android:src="@drawable/antourage_ic_play_again"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+        <ImageView
                 android:id="@+id/exo_next"
                 android:layout_width="@dimen/small_next_prev_size"
                 android:layout_height="@dimen/small_next_prev_size"
@@ -117,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="CANCEL"
+                android:text="@string/ant_cancel"
                 android:fontFamily="@font/roboto_medium"
                 android:gravity="center"
                 android:includeFontPadding="false"

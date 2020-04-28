@@ -42,6 +42,7 @@ import java.sql.Timestamp
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     companion object {
         private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
+        private const val END_VIDEO_CALLBACK_OFFSET_MS = 200
     }
 
     private var playWhenReady = true
@@ -197,6 +198,11 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
+    fun rewindAndPlayTrack() {
+        player?.seekTo(currentWindow, C.TIME_UNSET)
+        player?.playWhenReady = true
+    }
+
     private fun sendStatisticData(
         statisticAction: StatisticActions,
         span: String = "00:00:00",
@@ -306,11 +312,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                      trackSelections: TrackSelectionArray?) {
             if (player != null){
                 if (player!!.duration != C.TIME_UNSET){
-                    player!!.createMessage { _: Int, _: Any? ->
-                        onTrackEnd()
-                    }
+                    player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
                         .setHandler(Handler())
-                        .setPosition(currentWindow, player!!.duration - 200)
+                        .setPosition(currentWindow, player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS)
                         .setDeleteAfterDelivery(false)
                         .send()
                 }

@@ -157,6 +157,11 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         videoEndedLD.postValue(false)
     }
 
+    fun rewindVideoPlay() {
+        videoEndedLD.postValue(false)
+        rewindAndPlayTrack()
+    }
+
 
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()

@@ -109,7 +109,7 @@
                 android:gravity="center"
                 android:text="@string/ant_save"
                 android:textAllCaps="true"
-                android:textColor="@color/ant_white"
+                android:textColor="@color/state_enabled_white_d_grey"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toTopOf="@+id/btnCancel"
                 app:layout_constraintEnd_toEndOf="parent"
