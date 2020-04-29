@@ -45,7 +45,7 @@ internal fun convertUtcToLocal(utcTime: String): Date? {
     }
 }
 
-internal fun getDateDiff(date1: Date, date2: Date): Long {
+internal fun getSecondsDateDiff(date1: Date, date2: Date): Long {
     val diffInMillies = date2.time - date1.time
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS)
 }

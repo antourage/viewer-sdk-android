@@ -26,9 +26,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.ApplicationComponent
 import com.antourage.weaverlib.di.DaggerApplicationComponent
+import com.antourage.weaverlib.other.Constants.secInDay
+import com.antourage.weaverlib.other.Constants.secInHour
+import com.antourage.weaverlib.other.Constants.secInMin
+import com.antourage.weaverlib.other.Constants.secInMonth
+import com.antourage.weaverlib.other.Constants.secInWeek
+import com.antourage.weaverlib.other.Constants.secInYear
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
-import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -101,11 +106,16 @@ internal fun String.parseDate(context: Context): String {
     return localUTC?.parseToDisplayAgoTime(context) ?: ""
 }
 
+internal fun String.parseDateLong(context: Context): String {
+    val localUTC = convertUtcToLocal(this)
+    return localUTC?.parseToDisplayAgoTimeLong(context) ?: ""
+}
+
 internal fun Date.parseToDisplayAgoTime(context: Context): String {
     val secondsInMinute = 60
     val minutesInHour = 60 * secondsInMinute
     val hoursInDay = minutesInHour * 24
-    val diff = getDateDiff(this, Date())
+    val diff = getSecondsDateDiff(this, Date())
     when {
         diff > 7 * hoursInDay -> {
             val df = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
@@ -137,6 +147,39 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
             return context.getString(R.string.ant_started_ago, amount)
         }
     }
+}
+
+internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
+    val diff = getSecondsDateDiff(this, Date())
+    val timeAgo: String
+    when {
+        diff > secInYear -> {
+            val days = (diff / secInYear).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_years_long, days, days)
+        }
+        diff > secInMonth -> {
+            val days = (diff / secInMonth).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_months_long, days, days)
+        }
+        diff > secInWeek -> {
+            val days = (diff / secInWeek).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_weeks_long, days, days)
+        }
+        diff > secInDay -> {
+            val days = (diff / secInDay).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_days_long, days, days)
+        }
+        diff > secInHour -> {
+            val hours = (diff / secInHour).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
+        }
+        diff > secInMin -> {
+            val minute = (diff / secInMin).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+        }
+        else -> { return context.getString(R.string.ant_started_now)}
+    }
+    return context.getString(R.string.ant_started_ago, timeAgo)
 }
 
 internal fun <T : View> T.trueWidth(function: (Int) -> Unit) {

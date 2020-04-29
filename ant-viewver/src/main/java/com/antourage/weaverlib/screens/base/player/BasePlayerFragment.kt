@@ -1,5 +1,9 @@
 package com.antourage.weaverlib.screens.base.player
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo.*
 import android.content.res.Configuration
 import android.database.ContentObserver
@@ -58,6 +62,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     protected lateinit var playerControls: PlayerControlView
     protected lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
+    private var minuteUpdateReceiver: BroadcastReceiver? = null
 
     /**
      * we need to know if user turns on screen auto rotation or locks
@@ -73,6 +78,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         Observer<String> { errorMessage -> errorMessage?.let { showWarningAlerter(it) } }
 
     abstract fun onControlsVisible()
+    abstract fun onMinuteChanged()
 
     abstract fun subscribeToObservers()
 
@@ -90,12 +96,24 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     override fun onResume() {
         super.onResume()
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        startMinuteUpdater()
     }
 
     override fun onPause() {
         super.onPause()
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        requireActivity().unregisterReceiver(minuteUpdateReceiver)
     }
+
+    private fun startMinuteUpdater() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_TIME_TICK)
+        minuteUpdateReceiver = object: BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) { onMinuteChanged() }
+        }
+        requireActivity().registerReceiver(minuteUpdateReceiver, intentFilter)
+    }
+
 
     override fun initUi(view: View?) {
         view?.run {

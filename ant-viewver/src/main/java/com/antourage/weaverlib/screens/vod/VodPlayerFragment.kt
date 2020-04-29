@@ -371,15 +371,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         viewModel.releasePlayer()
     }
 
-    override fun onControlsVisible() {
-        context?.let { _ ->
-            val streamResponse =
-                arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
-            streamResponse?.apply {
-                updateWasLiveValueOnUI(startTime, duration)
-            }
-        }
-    }
+    override fun onControlsVisible() {}
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -524,11 +516,19 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
     }
 
+    override fun onMinuteChanged() {
+        viewModel.currentVideo.value.let {
+            if (it?.startTime != null && it?.duration != null){
+                updateWasLiveValueOnUI(it.startTime, it.duration)
+            }
+        }
+    }
+
     private fun updateWasLiveValueOnUI(startTime: String?, duration: String?) {
         context?.apply {
             val formattedStartTime =
                 duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                    Date(it).parseToDisplayAgoTime(this)
+                    Date(it).parseToDisplayAgoTimeLong(this)
                 }
             play_header_tv_ago.text = formattedStartTime
             play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())

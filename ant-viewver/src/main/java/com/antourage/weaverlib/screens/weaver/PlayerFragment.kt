@@ -423,12 +423,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    override fun onControlsVisible() {
-        setWasLiveText(context?.let {
-            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                ?.startTime?.parseDate(it)
-        })
-    }
+    override fun onControlsVisible() {}
 
     private fun onPollDetailsClicked() {
         viewModel.seePollDetails()
@@ -637,7 +632,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
             txtNumberOfViewers.text = viewersCount.toString()
-            setWasLiveText(context?.let { startTime?.parseDate(it) })
+            setWasLiveText(context?.let { startTime?.parseDateLong(it) })
             if (startTime !=null){
                 initChronometer(startTime)
             } else  {
@@ -681,6 +676,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun hideFullScreenIcon() {
         ivScreenSize.visibility = View.GONE
+    }
+
+    override fun onMinuteChanged() {
+        setWasLiveText(context?.let {
+            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+                ?.startTime?.parseDateLong(it)
+        })
     }
 
     private fun setWasLiveText(text: String?) {
