@@ -29,6 +29,28 @@
             app:resize_mode="fit"
             app:use_controller="false" />
 
+    <ProgressBar
+            android:id="@+id/vod_player_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:progressDrawable="@drawable/antourage_progress_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
+            android:visibility="visible"
+            tools:max="100"
+            tools:progress="70" />
+
+    <View
+            android:id="@+id/viewHelper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/control_bottom_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playerView" />
+
     <ImageView
             android:id="@+id/ivFirstFrame"
             android:layout_width="0dp"
@@ -51,7 +73,7 @@
             app:auto_show="true"
             app:controller_layout_id="@layout/player_custom_controls_vod"
             app:hide_on_touch="true"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:layout_constraintBottom_toTopOf="@+id/viewHelper"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@id/playerView"

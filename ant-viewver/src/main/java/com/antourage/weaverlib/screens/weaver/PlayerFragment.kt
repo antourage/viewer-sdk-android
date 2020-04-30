@@ -102,13 +102,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hideLoading()
                 }
             }
-        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()){
-            if (!isChronometerRunning){
+        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()) {
+            if (!isChronometerRunning) {
                 isChronometerRunning = true
                 live_control_chronometer.start()
             }
         } else {
-            if (isChronometerRunning){
+            if (isChronometerRunning) {
                 isChronometerRunning = false
                 live_control_chronometer.stop()
             }
@@ -172,7 +172,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         disableOrientationChange()
 
-        txtNumberOfViewers.margin(6f, 6f)
+        txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = live_control_chronometer.text
         tv_live_end_time.visibility = View.VISIBLE
     }
@@ -347,6 +347,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         }
                     })
 
+            @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 gestureDetector.onTouchEvent(p1)
                 return true
@@ -371,17 +372,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initControlsVisibilityListener() {
         playerControls.setVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                if (visibility == View.VISIBLE){
-                    txtNumberOfViewers.margin(4f, 62f)
-                    txtLabelLive.margin(12f, 62f)
+                if (visibility == View.VISIBLE) {
+                    txtNumberOfViewers.marginDp(4f, 62f)
+                    txtLabelLive.marginDp(12f, 62f)
                 } else {
-                    txtLabelLive.margin(12f, 12f)
-                    txtNumberOfViewers.margin(4f, 12f)
+                    txtLabelLive.marginDp(12f, 12f)
+                    txtNumberOfViewers.marginDp(4f, 12f)
                 }
             }
         }
     }
-
 
     private fun initKeyboardListener() {
         KeyboardEventListener(activity as AppCompatActivity) {
@@ -518,15 +518,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun changeButtonsSize(isEnlarge: Boolean) {
         val constraintSet = ConstraintSet()
         constraintSet.clone(live_controls)
-        updateIconSize(R.id.exo_play, constraintSet,
-            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
-        updateIconSize(R.id.exo_pause, constraintSet,
-            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size)
+        updateIconSize(
+            R.id.exo_play, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
+        )
+        updateIconSize(
+            R.id.exo_pause, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
+        )
 
         constraintSet.applyTo(live_controls)
     }
 
-    private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int){
+    private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int) {
         val iconSize = resources.getDimension(dimenId).toInt()
         constraintSet.constrainWidth(iconId, iconSize)
         constraintSet.constrainHeight(iconId, iconSize)
@@ -633,9 +637,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDateLong(it) })
-            if (startTime !=null){
+            if (startTime != null) {
                 initChronometer(startTime)
-            } else  {
+            } else {
                 live_control_chronometer.visibility = View.GONE
             }
         }
@@ -643,9 +647,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //starts updates of current time of live video watching
     private fun initChronometer(startTime: String) {
-        if  (!isChronometerRunning){
+        if (!isChronometerRunning) {
             live_control_chronometer.visibility = View.VISIBLE
-            live_control_chronometer.base = SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(startTime)?.time ?: 0))
+            live_control_chronometer.base =
+                SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(
+                    startTime
+                )?.time ?: 0))
             isChronometerRunning = true
             live_control_chronometer.start()
         }

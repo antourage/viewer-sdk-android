@@ -189,7 +189,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
 
-    fun playNextTrack() {
+    protected fun playNextTrack() {
         val nextWindowIndex = player?.nextWindowIndex
         if (nextWindowIndex != C.INDEX_UNSET && nextWindowIndex != null) {
             player?.seekTo(nextWindowIndex, C.TIME_UNSET)
@@ -197,7 +197,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
-    fun playPrevTrack() {
+    protected fun playPrevTrack() {
         val previousWindowIndex = player?.previousWindowIndex
         if (previousWindowIndex != C.INDEX_UNSET && previousWindowIndex != null) {
             player?.seekTo(previousWindowIndex, C.TIME_UNSET)
@@ -205,10 +205,13 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
-    fun rewindAndPlayTrack() {
+    protected fun rewindAndPlayTrack() {
         player?.seekTo(currentWindow, C.TIME_UNSET)
         player?.playWhenReady = true
     }
+
+    protected fun getCurrentDuration() = player?.duration
+    protected fun getCurrentPosition() = player?.currentPosition
 
     fun hasPrevTrack(): Boolean = !(player == null || player?.previousWindowIndex == C.INDEX_UNSET)
 

@@ -266,11 +266,11 @@ internal fun Bitmap.toMultipart(): MultipartBody.Part {
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
 }
 
-internal fun View.margin(
-    left: Float? = null,
-    top: Float? = null,
-    right: Float? = null,
-    bottom: Float? = null
+internal fun View.marginDp(
+    left: Float? = 0f,
+    top: Float? = 0f,
+    right: Float? = 0f,
+    bottom: Float? = 0f
 ) {
     layoutParams<ViewGroup.MarginLayoutParams> {
         left?.run { leftMargin = dpToPx(this) }
