@@ -38,10 +38,39 @@
         <item quantity="other">%d d</item>
     </plurals>
 
+    <plurals name="ant_minutes_long">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="ant_hours_long">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="ant_days_long">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="ant_weeks_long">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="ant_months_long">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="ant_years_long">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+
     <string name="ant_started_ago">%1$s ago</string>
+    <string name="ant_started_now">Just now</string>
 
     <string name="ant_set">set</string>
     <string name="ant_main_title">Latest videos</string>
+
+    <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string>
 
     <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>

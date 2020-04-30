@@ -2,64 +2,158 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/exo_controller"
+        android:id="@+id/vod_controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:background="@color/ant_dark_transparent">
-
+        android:animateLayoutChanges="true">
     <View
-            android:id="@+id/playBtnPlaceholder"
-            android:layout_width="70dp"
-            android:layout_height="60dp"
-            android:elevation="100dp"
+            android:id="@+id/vod_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/control_bottom_margin"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/ant_dark_transparent"/>
 
-    <ImageView
-            android:id="@+id/exo_play"
-            android:layout_height="56dp"
-            android:layout_width="56dp"
-            android:src="@drawable/antourage_ic_play_arrow"
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/vod_buttons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="invisible">
 
+        <View
+                android:id="@+id/playBtnPlaceholder"
+                android:layout_width="70dp"
+                android:layout_height="60dp"
+                android:elevation="100dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-            android:id="@+id/exo_pause"
-            android:layout_height="56dp"
-            android:layout_width="56dp"
-            android:src="@drawable/antourage_ic_pause"
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/vod_play_pause_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <ImageView
+                    android:id="@+id/exo_play"
+                    android:layout_width="@dimen/small_play_pause_size"
+                    android:layout_height="@dimen/small_play_pause_size"
+                    android:src="@drawable/antourage_ic_play_arrow"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+
+            <ImageView
+                    android:id="@+id/exo_pause"
+                    android:layout_width="@dimen/small_play_pause_size"
+                    android:layout_height="@dimen/small_play_pause_size"
+                    android:src="@drawable/antourage_ic_pause"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+                android:id="@+id/vod_rewind"
+                android:layout_width="@dimen/small_play_pause_size"
+                android:layout_height="@dimen/small_play_pause_size"
+                android:src="@drawable/antourage_ic_play_again"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+        <ImageView
+                android:id="@+id/vod_control_next"
+                android:layout_width="@dimen/small_next_prev_size"
+                android:layout_height="@dimen/small_next_prev_size"
+                android:layout_marginStart="30dp"
+                android:src="@drawable/antourage_ic_skip_next"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/playBtnPlaceholder"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+        <ImageView
+                android:id="@+id/vod_control_prev"
+                android:layout_width="@dimen/small_next_prev_size"
+                android:layout_height="@dimen/small_next_prev_size"
+                android:layout_marginEnd="30dp"
+                android:src="@drawable/antourage_ic_skip_previous"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/playBtnPlaceholder"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/vod_next_auto_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
-    <ImageView
-            android:id="@+id/exo_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/antourage_ic_skip_next"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/playBtnPlaceholder"
-            app:layout_constraintTop_toTopOf="parent" />
+        <ProgressBar
+                android:id="@+id/vod_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:indeterminate="false"
+                android:max="5000"
+                android:secondaryProgress="5000"
+                android:progressDrawable="@drawable/antourage_progress_circle"
+                app:layout_constraintBottom_toBottomOf="@+id/vod_controls_auto_next"
+                app:layout_constraintEnd_toEndOf="@+id/vod_controls_auto_next"
+                app:layout_constraintStart_toStartOf="@+id/vod_controls_auto_next"
+                app:layout_constraintTop_toTopOf="@+id/vod_controls_auto_next"
+                tools:progress="1000" />
 
-    <ImageView
-            android:id="@+id/exo_prev"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/antourage_ic_skip_previous"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/playBtnPlaceholder"
-            app:layout_constraintRight_toLeftOf="@+id/exo_pause"
-            app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+                android:id="@+id/vod_controls_auto_next"
+                android:layout_width="@dimen/small_play_pause_size"
+                android:layout_height="@dimen/small_play_pause_size"
+                android:padding="4dp"
+                android:src="@drawable/antourage_ic_skip_next"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
 
+        <TextView
+                android:id="@+id/vod_auto_next_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/ant_cancel"
+                android:fontFamily="@font/roboto_medium"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textAllCaps="true"
+                android:padding="8dp"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@+id/vod_progress_bar"
+                app:layout_constraintStart_toStartOf="@+id/vod_progress_bar"
+                app:layout_constraintTop_toBottomOf="@+id/vod_controls_auto_next"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <ImageView
             android:id="@+id/ivScreenSize"
             android:layout_width="32dp"
@@ -67,7 +161,8 @@
             android:layout_marginEnd="12dp"
             android:background="@drawable/antourage_ic_full_screen"
             app:layout_constraintBottom_toTopOf="@+id/exo_progress"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            tools:ignore="ContentDescription" />
 
     <TextView
             android:id="@+id/exo_position"
@@ -111,18 +206,21 @@
             app:layout_constraintStart_toEndOf="@+id/controls_delimiter"
             app:layout_constraintTop_toTopOf="@+id/exo_position"
             tools:text="12:45" />
-
+    <!--if you'll going to change it, also update progressBar in fragment-->
     <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@+id/exo_progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:buffered_color="@android:color/white"
+            android:layout_marginEnd="@dimen/ant_margin_seekbar_portrait"
+            android:layout_marginStart="@dimen/ant_margin_seekbar_portrait"
+            app:bar_height="4.5dp"
+            app:buffered_color="@color/ant_streamer_name_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:played_color="@color/ant_pink"
             app:scrubber_color="@color/ant_pink"
-            app:unplayed_color="@color/ant_white_a60" />
+            app:unplayed_color="@color/ant_streamer_name_color" />
 
     <!--should be shown only in landscape-->
     <include

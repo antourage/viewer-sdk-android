@@ -4,4 +4,12 @@
     <dimen name="design_fab_image_size" tools:override="true">600dp</dimen>
     <integer name="ant_max_length_message_input">250</integer>
     <dimen name="ant_margin_seekbar_landscape">6dp</dimen>
+    <dimen name="ant_margin_seekbar_portrait">-6dp</dimen>
+
+    <dimen name="small_play_pause_size">56dp</dimen>
+    <dimen name="large_play_pause_size">84dp</dimen>
+    <dimen name="small_next_prev_size">36dp</dimen>
+    <dimen name="large_next_prev_size">54dp</dimen>
+
+    <dimen name="control_bottom_margin">15dp</dimen>
 </resources>

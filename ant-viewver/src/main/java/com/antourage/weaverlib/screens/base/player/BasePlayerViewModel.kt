@@ -41,6 +41,7 @@ import java.sql.Timestamp
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     companion object {
         private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
+        private const val END_VIDEO_CALLBACK_OFFSET_MS = 200
     }
 
     private var playWhenReady = true
@@ -95,6 +96,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     abstract fun onStreamStateChanged(playbackState: Int)
 
     abstract fun getMediaSource(streamUrl: String?): MediaSource?
+
+    open fun onTrackEnd() {}
 
     open fun onVideoChanged() {}
 
@@ -184,6 +187,35 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private fun getBatteryLevel(): Int {
         return batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: 0
     }
+
+
+    protected fun playNextTrack() {
+        val nextWindowIndex = player?.nextWindowIndex
+        if (nextWindowIndex != C.INDEX_UNSET && nextWindowIndex != null) {
+            player?.seekTo(nextWindowIndex, C.TIME_UNSET)
+            player?.playWhenReady = true
+        }
+    }
+
+    protected fun playPrevTrack() {
+        val previousWindowIndex = player?.previousWindowIndex
+        if (previousWindowIndex != C.INDEX_UNSET && previousWindowIndex != null) {
+            player?.seekTo(previousWindowIndex, C.TIME_UNSET)
+            player?.playWhenReady = true
+        }
+    }
+
+    protected fun rewindAndPlayTrack() {
+        player?.seekTo(currentWindow, C.TIME_UNSET)
+        player?.playWhenReady = true
+    }
+
+    protected fun getCurrentDuration() = player?.duration
+    protected fun getCurrentPosition() = player?.currentPosition
+
+    fun hasPrevTrack(): Boolean = !(player == null || player?.previousWindowIndex == C.INDEX_UNSET)
+
+    fun hasNextTrack(): Boolean = !(player == null || player?.nextWindowIndex == C.INDEX_UNSET)
 
     private fun sendStatisticData(
         statisticAction: StatisticActions,
@@ -288,6 +320,19 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             stopUpdatingCurrentStreamInfo()
             onVideoChanged()
             currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+        }
+
+        override fun onTracksChanged(trackGroups: TrackGroupArray?,
+                                     trackSelections: TrackSelectionArray?) {
+            if (player != null){
+                if (player!!.duration != C.TIME_UNSET){
+                    player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
+                        .setHandler(Handler())
+                        .setPosition(currentWindow, player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS)
+                        .setDeleteAfterDelivery(false)
+                        .send()
+                }
+            }
         }
     }
     //endregion

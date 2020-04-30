@@ -22,7 +22,7 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
@@ -50,8 +50,6 @@ import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
 import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
 import kotlinx.android.synthetic.main.player_header.*
 
 /**
@@ -104,13 +102,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hideLoading()
                 }
             }
-        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()){
-            if (!isChronometerRunning){
+        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()) {
+            if (!isChronometerRunning) {
                 isChronometerRunning = true
                 live_control_chronometer.start()
             }
         } else {
-            if (isChronometerRunning){
+            if (isChronometerRunning) {
                 isChronometerRunning = false
                 live_control_chronometer.stop()
             }
@@ -167,11 +165,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
+        //blocks player controls appearance
         controls.visibility = View.GONE
-        playerView.visibility = View.INVISIBLE
+        playerView.setOnTouchListener(null)
+        //blocks from orientation change
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         disableOrientationChange()
-        txtNumberOfViewers.margin(6f, 6f)
+
+        txtNumberOfViewers.marginDp(6f, 6f)
+        tv_live_end_time.text = live_control_chronometer.text
+        tv_live_end_time.visibility = View.VISIBLE
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -344,6 +347,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         }
                     })
 
+            @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 gestureDetector.onTouchEvent(p1)
                 return true
@@ -368,17 +372,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initControlsVisibilityListener() {
         playerControls.setVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                if (visibility == View.VISIBLE){
-                    txtNumberOfViewers.margin(4f, 62f)
-                    txtLabelLive.margin(12f, 62f)
+                if (visibility == View.VISIBLE) {
+                    txtNumberOfViewers.marginDp(4f, 62f)
+                    txtLabelLive.marginDp(12f, 62f)
                 } else {
-                    txtLabelLive.margin(12f, 12f)
-                    txtNumberOfViewers.margin(4f, 12f)
+                    txtLabelLive.marginDp(12f, 12f)
+                    txtNumberOfViewers.marginDp(4f, 12f)
                 }
             }
         }
     }
-
 
     private fun initKeyboardListener() {
         KeyboardEventListener(activity as AppCompatActivity) {
@@ -420,12 +423,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    override fun onControlsVisible() {
-        setWasLiveText(context?.let {
-            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                ?.startTime?.parseDate(it)
-        })
-    }
+    override fun onControlsVisible() {}
 
     private fun onPollDetailsClicked() {
         viewModel.seePollDetails()
@@ -481,6 +479,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         etMessage.requestFocus()
                     }
                 }
+                changeButtonsSize(isEnlarge = true)
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (userDialog != null) {
@@ -502,7 +501,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 if (viewModel.getCurrentLiveStreamInfo().value == false) {
                     showEndStreamUI()
                 }
-
+                changeButtonsSize(isEnlarge = false)
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
@@ -512,19 +511,32 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         showFullScreenIcon()
     }
 
-    //@imurashova TODO: think have to fix button size on landscape;
+    /**
+     * Used to change control buttons size on landscape/portrait.
+     * I couldn't use simple dimensions change due to specific orientation handling in project.
+     */
     private fun changeButtonsSize(isEnlarge: Boolean) {
-        if (isEnlarge){
-            exo_play.layoutParams = ConstraintLayout.LayoutParams(110, 110)
-            //exo_next.layoutParams = ConstraintLayout.LayoutParams(72, 72)
-        } else {
-            exo_play.layoutParams = ConstraintLayout.LayoutParams(56, 56)
-            //exo_next.layoutParams = ConstraintLayout.LayoutParams(36, 36
-        }
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(live_controls)
+        updateIconSize(
+            R.id.exo_play, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
+        )
+        updateIconSize(
+            R.id.exo_pause, constraintSet,
+            if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
+        )
+
+        constraintSet.applyTo(live_controls)
+    }
+
+    private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int) {
+        val iconSize = resources.getDimension(dimenId).toInt()
+        constraintSet.constrainWidth(iconId, iconSize)
+        constraintSet.constrainHeight(iconId, iconSize)
     }
 
     //region chatUI helper func
-
     private fun enableMessageInput(enable: Boolean) {
         etMessage.isEnabled = enable
     }
@@ -624,10 +636,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
             txtNumberOfViewers.text = viewersCount.toString()
-            setWasLiveText(context?.let { startTime?.parseDate(it) })
-            if (startTime !=null){
+            setWasLiveText(context?.let { startTime?.parseDateLong(it) })
+            if (startTime != null) {
                 initChronometer(startTime)
-            } else  {
+            } else {
                 live_control_chronometer.visibility = View.GONE
             }
         }
@@ -635,9 +647,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //starts updates of current time of live video watching
     private fun initChronometer(startTime: String) {
-        if  (!isChronometerRunning){
+        if (!isChronometerRunning) {
             live_control_chronometer.visibility = View.VISIBLE
-            live_control_chronometer.base = SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(startTime)?.time ?: 0))
+            live_control_chronometer.base =
+                SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(
+                    startTime
+                )?.time ?: 0))
             isChronometerRunning = true
             live_control_chronometer.start()
         }
@@ -668,6 +683,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun hideFullScreenIcon() {
         ivScreenSize.visibility = View.GONE
+    }
+
+    override fun onMinuteChanged() {
+        setWasLiveText(context?.let {
+            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
+                ?.startTime?.parseDateLong(it)
+        })
     }
 
     private fun setWasLiveText(text: String?) {

@@ -6,7 +6,6 @@ import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.formatDuration
 import com.antourage.weaverlib.other.models.*
@@ -102,6 +101,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
+    private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
 
     fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()
@@ -147,6 +147,29 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 
+    override fun onTrackEnd() {
+        player?.playWhenReady = false
+        videoEndedLD.postValue(true)
+    }
+
+    fun nextVideoPlay() {
+        playNextTrack()
+        videoEndedLD.postValue(false)
+    }
+
+    fun prevVideoPlay() {
+        playPrevTrack()
+        videoEndedLD.postValue(false)
+    }
+
+    fun rewindVideoPlay() {
+        videoEndedLD.postValue(false)
+        rewindAndPlayTrack()
+    }
+
+    fun getVideoDuration() = getCurrentDuration()
+    fun getVideoPosition() = getCurrentPosition()
+
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
@@ -163,6 +186,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.streamId?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
+        videoEndedLD.postValue(false)
         if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
             player?.playWhenReady = true
         }
@@ -186,6 +210,8 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     }
 
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
+
+    fun getVideoEndedLD(): LiveData<Boolean> = videoEndedLD
 
     fun setCurrentPlayerPosition(videoId: Int) {
         currentWindow = findVideoPositionById(videoId)
@@ -270,5 +296,3 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         }
     }
 }
-
-
