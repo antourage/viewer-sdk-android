@@ -86,6 +86,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     }
 
     fun onPause() {
+
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()

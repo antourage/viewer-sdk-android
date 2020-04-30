@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import androidx.constraintlayout.widget.Placeholder
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
@@ -18,15 +17,19 @@ import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_jump_to_top.view.*
-import kotlinx.android.synthetic.main.item_live_video2.view.*
+import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_progress.view.*
-import kotlinx.android.synthetic.main.item_vod2.view.*
+import kotlinx.android.synthetic.main.item_vod.view.*
 import java.util.*
 
-internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> Unit, private val recyclerView: VideoPlayerRecyclerView) :
+internal class VideosAdapter2(
+    private val onClick: (stream: StreamResponse) -> Unit,
+    private val recyclerView: VideoPlayerRecyclerView
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var listOfStreams: MutableList<StreamResponse> = mutableListOf()
     lateinit var context: Context
+    private var isListInitial = true
 
     companion object {
         const val VIEW_LIVE: Int = 0
@@ -41,12 +44,19 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
         this.listOfStreams.clear()
         this.listOfStreams.addAll(newListOfStreams)
         recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
+        if (isListInitial && listOfStreams.isNotEmpty()) {
+            recyclerView.afterMeasured {
+                this.playVideo(isEndOfList = false)
+            }
+            isListInitial = false
+        }
         diffResult.dispatchUpdatesTo(this)
     }
 
     fun setStreamListForceUpdate(newListOfStreams: List<StreamResponse>) {
         this.listOfStreams.clear()
         this.listOfStreams.addAll(newListOfStreams)
+        recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
         notifyDataSetChanged()
     }
 
@@ -57,14 +67,14 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
         when (viewType) {
             VIEW_VOD -> return VODViewHolder(
                 LayoutInflater.from(parent.context).inflate(
-                    R.layout.item_vod2,
+                    R.layout.item_vod,
                     parent,
                     false
                 )
             )
             VIEW_LIVE -> return LiveVideoViewHolder(
                 LayoutInflater.from(parent.context).inflate(
-                    R.layout.item_live_video2,
+                    R.layout.item_live_video,
                     parent,
                     false
                 )
@@ -168,15 +178,6 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
 
             override fun onError(e: Exception?) {}
         })
-
-
-//        picasso
-//            .fit()
-//            .centerCrop()
-////            .noFade()
-//            .placeholder(R.drawable.antourage_ic_placeholder_video)
-//            .error(R.drawable.antourage_ic_placeholder_video)
-//            .into(ivThumbnail)
     }
 
     private fun loadStreamerImageOrShowPlaceholder(imageUrl: String?, imageView: ImageView?) {
@@ -246,6 +247,11 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
                         )
                             listOfStreams[adapterPosition].let { onClick.invoke(it) }
                     }
+
+                    if (recyclerView.fullyViewedVods.contains(listOfStreams[adapterPosition])) {
+                        replayContainer.visibility = View.VISIBLE
+                    }
+
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_vod.text = videoName
 
@@ -263,7 +269,7 @@ internal class VideosAdapter2(private val onClick: (stream: StreamResponse) -> U
                     val streamerNameAndTime = "$creatorFullName  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
                     txtStreamerInfo_vod.gone(formattedStartTime.isNullOrEmpty())
-                    txtDuration_vod.text = duration?.take(8)
+                    txtDuration_vod.text = duration?.parseToMills()?.millisToTime()
                     txtDuration_vod.gone(duration == null || duration.isEmpty())
                     txtViewsCount_vod.text = viewsCount.toString()
                     txtViewsCount_vod.gone(viewsCount == null)

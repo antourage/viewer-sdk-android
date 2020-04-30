@@ -25,7 +25,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="9sp"
-                android:text="@string/ant_new_live"
+                android:textAllCaps="true"
+                android:text="@string/ant_new"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
                 android:textColor="@color/ant_white"/>

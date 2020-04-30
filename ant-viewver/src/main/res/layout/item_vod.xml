@@ -4,79 +4,281 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/ant_feed_bg_color"
         app:cardCornerRadius="4dp"
         app:cardElevation="0dp">
 
+<!-- not sure if needed-->
+<!--    android:foreground="?android:attr/selectableItemBackgroundBorderless"-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless">
+            android:layout_height="wrap_content">
+
+        <ImageView
+                android:id="@+id/ivCircleOutline_vod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/antourage_ic_color_wheel"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivStreamerPicture_vod"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:padding="4dp"
+                android:src="@drawable/antourage_ic_default_user"
+                app:layout_constraintBottom_toBottomOf="@+id/ivCircleOutline_vod"
+                app:layout_constraintEnd_toEndOf="@+id/ivCircleOutline_vod"
+                app:layout_constraintStart_toStartOf="@+id/ivCircleOutline_vod"
+                app:layout_constraintTop_toTopOf="@+id/ivCircleOutline_vod" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/viewStreamerInfoContainer_vod"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/ivCircleOutline_vod"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ivCircleOutline_vod"
+                app:layout_constraintTop_toTopOf="@+id/ivCircleOutline_vod">
+
+            <TextView
+                    android:id="@+id/txtStreamerInfo_vod"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:textColor="@color/ant_streamer_name_color"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toTopOf="@+id/txtTitle_vod"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_chainStyle="spread"
+                    tools:text="DR Handball • 5 min ago" />
+
+            <TextView
+                    android:id="@+id/txtTitle_vod"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/txtStreamerInfo_vod"
+                    app:layout_constraintVertical_chainStyle="spread"
+                    tools:text="Naked players on the field" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+                android:id="@+id/mediaContainer_vod"
+                android:layout_width="0dp"
+                android:layout_height="240dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfoContainer_vod" />
+
+
+        <ImageView
+                android:id="@+id/ivThumbnail_vod_placeholder"
+                android:layout_width="0dp"
+                android:layout_height="240dp"
+                android:layout_marginTop="12dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/antourage_ic_placeholder_video"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/viewStreamerInfoContainer_vod" />
 
         <ImageView
                 android:id="@+id/ivThumbnail_vod"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="240dp"
+                android:layout_marginTop="12dp"
                 android:adjustViewBounds="true"
-                android:foreground="@drawable/antourage_bg_gradient_bottom"
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/viewStreamerInfoContainer_vod" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/replayContainer"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/ant_semitransparent"
+                android:visibility="invisible"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfoContainer_vod">
+
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/antourage_ic_playagain"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
                 android:id="@+id/txtNew"
-                style="@style/PlayerControlsTxt"
-                android:layout_margin="8dp"
+                style="@style/PlayerControlsTxt2"
+                android:layout_margin="6dp"
                 android:background="@drawable/antourage_bg_rounded_blue"
                 android:text="@string/ant_new"
                 android:textAllCaps="true"
-                android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="@+id/ivThumbnail_vod"
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod" />
 
-        <TextView
-                android:id="@+id/txtWasLive_vod"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintLeft_toRightOf="@+id/txtNew"
-                app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
-                tools:text="20s ago" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/autoPlayContainer_vod"
+                android:layout_width="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:background="@drawable/antourage_rounded_semitransparent_bg"
+                app:layout_constraintBottom_toBottomOf="@id/ivThumbnail_vod"
+                app:layout_constraintRight_toRightOf="parent">
+
+            <ImageView
+                    android:id="@+id/ivAutoPlay_vod"
+                    android:adjustViewBounds="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:src="@drawable/antourage_autoplay_animation"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                    android:id="@+id/txtAutoPlayDuration_vod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/ant_white"
+                    android:includeFontPadding="false"
+                    android:text="00:01:02"
+                    android:textSize="11sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ivAutoPlay_vod"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <TextView
                 android:id="@+id/txtDuration_vod"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintLeft_toRightOf="@+id/txtWasLive_vod"
-                app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
+                style="@style/PlayerControlsTxt2"
+                android:layout_margin="8dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@id/ivThumbnail_vod"
+                app:layout_constraintRight_toRightOf="parent"
                 tools:text="00:01:02" />
+
+        <ImageButton
+                android:id="@+id/btnChat_vod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/antourage_ic_chat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivThumbnail_vod"
+                tools:ignore="ContentDescription" />
+
+        <ImageButton
+                android:id="@+id/btnShare_vod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/antourage_ic_share"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@id/btnChat_vod"
+                app:layout_constraintTop_toBottomOf="@id/ivThumbnail_vod"
+                tools:ignore="ContentDescription" />
+
+        <TextView
+                android:id="@+id/txtComment_vod"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="20dp"
+                android:fontFamily="sans-serif"
+                android:text="Love this sport"
+                android:textColor="@color/ant_white"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnChat_vod" />
+
+        <TextView
+                android:id="@+id/txtCommentAuthor_vod"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="Johan Junker  •  most recent"
+                android:textColor="@color/ant_streamer_name_color"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@id/txtComment_vod"
+                app:layout_constraintTop_toBottomOf="@id/txtComment_vod" />
 
         <TextView
                 android:id="@+id/txtViewsCount_vod"
-                style="@style/PlayerControlsTxt"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:drawableStart="@drawable/antourage_ic_watcher_12dp"
+                style="@style/PlayerControlsTxt2"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="6dp"
+                android:drawableStart="@drawable/antourage_ic_views"
                 android:drawablePadding="4dp"
-                app:layout_constraintLeft_toRightOf="@+id/txtDuration_vod"
+                app:layout_constraintLeft_toRightOf="@+id/txtNew"
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
                 tools:text="6,385" />
 
-        <TextView
-                android:id="@+id/txtTitle_vod"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:maxLines="2"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                tools:text="Naked players on the field" />
+<!--        <com.google.android.exoplayer2.ui.PlayerControlView-->
+<!--                android:id="@+id/controls"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="0dp"-->
+<!--                android:animateLayoutChanges="true"-->
+<!--                android:elevation="10dp"-->
+<!--                app:auto_show="true"-->
+<!--                app:controller_layout_id="@layout/autoplay_test"-->
+<!--                app:hide_on_touch="false"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:show_buffering="never"-->
+<!--                app:show_timeout="0" />-->
 
         <ProgressBar
                 android:id="@+id/watchingProgress"
@@ -88,7 +290,7 @@
                 android:progressBackgroundTint="@null"
                 android:progressTint="@color/ant_pink"
                 android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/ivThumbnail_vod"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
 
