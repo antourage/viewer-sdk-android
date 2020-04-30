@@ -34,6 +34,7 @@ import com.antourage.weaverlib.other.Constants.secInWeek
 import com.antourage.weaverlib.other.Constants.secInYear
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -250,6 +251,18 @@ internal fun Long.formatDuration(): String {
     return outputFmt.format(this)
 }
 
+internal fun Long.millisToTime(): String {
+
+    val h = (this / 1000 / 3600)
+    val m = (this / 1000 / 60 % 60)
+    val s = (this / 1000 % 60)
+
+    val formattedH = if(h>0) "$h:" else ""
+    val formattedS = if(s in 0..9) "0$s" else s.toString()
+
+    return "$formattedH$m:$formattedS"
+}
+
 internal fun String.parseToMills(): Long {
     val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     inputFmt.timeZone = TimeZone.getTimeZone("UTC")
@@ -330,6 +343,27 @@ internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
             else -> smoothScrollToPosition(targetItem)
         }
     }
+}
+
+internal fun View.revealWithAnimation() {
+    alpha = 0f
+    visibility = View.VISIBLE
+    animate().alpha(1f).setDuration(300).start()
+}
+
+internal fun View.hideWithAnimation() {
+    animate().alpha(0f).setDuration(300).withEndAction { this.visibility = View.INVISIBLE }.start()
+}
+
+inline fun  VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            if (measuredWidth > 0 && measuredHeight > 0) {
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+                f()
+            }
+        }
+    })
 }
 
 internal fun View.removeConstraints(parent: ConstraintLayout) {

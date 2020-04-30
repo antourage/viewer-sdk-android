@@ -40,4 +40,6 @@
     <color name="ant_feed_bg_color">#191919</color>
     <color name="ant_feed_header_separator_color">#454545</color>
     <color name="ant_placeholder_items_color">#303030</color>
+    <color name="ant_error_resolved_bg_color">#0cae4b</color>
+    <color name="ant_error_bg_color">#323639</color>
 </resources>

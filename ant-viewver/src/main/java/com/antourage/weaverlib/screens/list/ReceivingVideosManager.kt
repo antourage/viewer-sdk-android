@@ -149,29 +149,6 @@ internal class ReceivingVideosManager {
             callback = null
             isFirstRequest = true
         }
-
-        fun getNewVODsCount() {
-            val response = Repository.getNewVODsCount()
-            response.observeForever(object :
-                Observer<Resource<Int>> {
-                override fun onChanged(resource: Resource<Int>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d(AntourageFab.TAG, "Failed to get VODs count")
-                                callback?.onNewVideosCount(resource)
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                Log.d(AntourageFab.TAG, "Successfully received VODs count: ${resource.status.data.toString()}")
-                                callback?.onNewVideosCount(resource)
-                                response.removeObserver(this)
-                            }
-                        }
-                    }
-                }
-            })
-        }
     }
 
     @Keep

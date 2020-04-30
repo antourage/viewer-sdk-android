@@ -28,7 +28,7 @@ internal class VideoPlaceholdersAdapter :
         return PlaceholderViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.item_video_placeholder,
-//                R.layout.item_live_video2,
+//                R.layout.item_live_video,
                 parent,
                 false
             )

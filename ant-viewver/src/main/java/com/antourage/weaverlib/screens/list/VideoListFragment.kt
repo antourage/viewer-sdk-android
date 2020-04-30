@@ -1,11 +1,14 @@
 package com.antourage.weaverlib.screens.list
 
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,22 +29,23 @@ import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter2
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
-import kotlinx.android.synthetic.main.fragment_videos_list3.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.android.synthetic.main.fragment_videos_list2.*
+import org.jetbrains.anko.backgroundColor
+
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
-    override fun getLayoutId() = R.layout.fragment_videos_list3
+        override fun getLayoutId() = R.layout.fragment_videos_list2
 
+    private lateinit var snackBarBehaviour: BottomSheetBehavior<View>
     private lateinit var videoAdapter: VideosAdapter2
 
-//    private lateinit var rvLayoutManager: PreCachingLayoutManager
     private lateinit var rvLayoutManager: LinearLayoutManager
-    private val placeHolderHandler = Handler()
     private var refreshVODs = true
-    private var isLoading = false
+    private var isLoadingMoreVideos = false
     private var isNewLiveButtonShown = false
     private var isInitialListSet = true
-    private var firstTime = true
     private var newLivesList = mutableListOf<StreamResponse>()
 
     companion object {
@@ -56,14 +60,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             if (newStreams.isNullOrEmpty()) {
                 showEmptyListPlaceholder()
             } else {
-                isLoading = false
+                isLoadingMoreVideos = false
                 checkIsNewLiveAdded(newStreams)
                 checkIsLiveWasRemoved(newStreams)
                 if (videoRefreshLayout.isRefreshing) {
-//                    videosRV.setStreams(newStreams)
                     videoAdapter.setStreamListForceUpdate(newStreams)
                 } else {
-//                    videosRV.setStreams(newStreams)
                     videoAdapter.setStreamList(newStreams)
                 }
                 isInitialListSet = false
@@ -97,19 +99,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         initOnScrollListener()
-//        videosRV.viewTreeObserver
-//            .addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-//                override fun onGlobalLayout() {
-//                    if (firstTime) {
-//                        Handler().postDelayed({
-//                            videosRV.playVideo(false)
-//                            firstTime = false
-//                        }, 1200)
-//
-//                    }
-//                    videosRV.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                }
-//            })
     }
 
     private fun subscribeToObservers() {
@@ -127,16 +116,18 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         context?.let {
-            //                        viewModel.subscribeToLiveStreams()
-
             viewModel.handleUserAuthorization()
-
             viewModel.refreshVODsLocally()
             if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
                 showEmptyListPlaceholder()
             }
+
+            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                resolveErrorSnackbar(R.string.ant_you_are_online)
+            }
+            videosRV.onResume()
         }
     }
 
@@ -144,6 +135,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onPause()
         viewModel.onPause()
         videosRV.releasePlayer()
+        videosRV.onPause()
     }
 
     override fun onDestroyView() {
@@ -152,6 +144,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     override fun initUi(view: View?) {
+        initSnackbar()
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             when {
                 streamResponse.isLive -> {
@@ -187,9 +180,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         initRecyclerView(videoAdapter, videosRV)
 
         rvLayoutManager = LinearLayoutManager(context)
-//        rvLayoutManager = PreCachingLayoutManager(context)
         rvLayoutManager.orientation = LinearLayoutManager.VERTICAL
-//        rvLayoutManager.setExtraLayoutSpace()
+        rvLayoutManager.initialPrefetchItemCount = 4
+        rvLayoutManager.isItemPrefetchEnabled = true
 
         videosRV.layoutManager = rvLayoutManager
 
@@ -206,7 +199,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     }
                 } else {
                     videoRefreshLayout.isRefreshing = false
-                    showWarningAlerter(resources.getString(R.string.ant_no_internet))
+                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
         }
@@ -220,6 +213,78 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         if (refreshVODs && viewModel.userAuthorized()) {
             viewModel.refreshVODs()
             refreshVODs = false
+        }
+    }
+
+    private fun initSnackbar() {
+        snackBarBehaviour = BottomSheetBehavior.from(snackBar)
+        var canScroll = true
+        var lastOffset = 1f
+        snackBarBehaviour.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, offset: Float) {
+                videosRV.setPadding(0, 0, 0, (bottomSheet.height * offset).toInt())
+                if (canScroll) {
+                    canScroll = if (lastOffset > offset) {
+                        videosRV.smoothScrollBy(0, (bottomSheet.height))
+                        false
+                    } else {
+                        videosRV.smoothScrollBy(0, -(bottomSheet.height))
+                        false
+                    }
+                    lastOffset = offset
+                }
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    //to disable user swipe
+                    snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED;
+                } else if (newState == BottomSheetBehavior.STATE_EXPANDED || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    canScroll = true
+                }
+            }
+        })
+    }
+
+    private fun showErrorSnackbar(messageId: Int) {
+        if (snackBarBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+            context?.resources?.getString(messageId)
+                ?.let { messageToDisplay ->
+                    snackBar.text = messageToDisplay
+                    context?.let {
+                        snackBar.backgroundColor =
+                            ContextCompat.getColor(it, R.color.ant_error_bg_color)
+                    }
+                }
+            snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
+    private fun resolveErrorSnackbar(messageId: Int) {
+        if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED) {
+            context?.resources?.getString(messageId)
+                ?.let { messageToDisplay ->
+                    snackBar.text = messageToDisplay
+                    context?.let {
+                        val colorFrom: Int = ContextCompat.getColor(it, R.color.ant_error_bg_color)
+                        val colorTo: Int =
+                            ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
+                        val duration = 1000L
+                        ObjectAnimator.ofObject(
+                            snackBar,
+                            "backgroundColor",
+                            ArgbEvaluator(),
+                            colorFrom,
+                            colorTo
+                        )
+                            .setDuration(duration)
+                            .start()
+                    }
+                }
+            Handler().postDelayed({
+                snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            }, 2000)
         }
     }
 
@@ -250,9 +315,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val total = rvLayoutManager.itemCount
                     val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
-                    if (!isLoading && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
+                    if (!isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
                         viewModel.refreshVODs(noLoadingPlaceholder = true)
-                        isLoading = true
+                        isLoadingMoreVideos = true
                         Log.d("REFRESH_VODS", "onBottomReached")
                     }
                 }
@@ -276,9 +341,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun hidePlaceholder() {
-        viewNoContentContainer.animate().alpha(0f)
-            .withEndAction { viewNoContentContainer.visibility = View.INVISIBLE }.setDuration(300)
-            .start()
+        viewNoContentContainer?.animate()?.alpha(0f)
+            ?.withEndAction { viewNoContentContainer?.visibility = View.INVISIBLE }
+            ?.setDuration(300)
+            ?.start()
 //        tvNoContent.visibility = View.INVISIBLE
 //        placeHolderRV.clearAnimation()
 //        placeHolderRV.animate().alpha(0f).setDuration(300)
@@ -290,9 +356,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 //        placeHolderRV.clearAnimation()
 //        placeHolderRV.animate().alpha(0f).setDuration(300)
 //            .withEndAction { placeHolderRV.visibility = View.INVISIBLE }.start()
-        viewNoContentContainer.alpha = 0f
-        viewNoContentContainer.visibility = View.VISIBLE
-        viewNoContentContainer.animate().alpha(1f).setDuration(300).start()
+        viewNoContentContainer?.alpha = 0f
+        viewNoContentContainer?.visibility = View.VISIBLE
+        viewNoContentContainer?.animate()?.alpha(1f)?.setDuration(300)?.start()
     }
 
     private fun triggerNewLiveButton(isVisible: Boolean) {
@@ -333,19 +399,13 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         when (networkState?.ordinal) {
             NetworkConnectionState.LOST.ordinal -> {
                 if (!Global.networkAvailable) {
-                    context?.resources?.getString(R.string.ant_no_internet)
-                        ?.let { messageToDisplay ->
-                            Handler().postDelayed({
-                                showWarningAlerter(messageToDisplay)
-                            }, 500)
-                        }
+                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
+                resolveErrorSnackbar(R.string.ant_you_are_online)
                 viewModel.onNetworkGained()
             }
         }
     }
-
-
 }
