@@ -6,12 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
-import com.squareup.picasso.Picasso
 
 internal class MessagesAdapter(var list: MutableList<Message>, val orientation: Int) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
@@ -34,12 +33,7 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
             with(holder) {
                 txtMessage.text = text
                 txtUser.text = nickname
-                if (!avatarUrl.isNullOrEmpty()) {
-                    Picasso.get().load(avatarUrl)
-                        .placeholder(R.drawable.antourage_ic_default_user)
-                        .error(R.drawable.antourage_ic_default_user)
-                        .into(ivAvatar)
-                }
+                txtTimeAdded.text = pushTimeMills?.millisToTime() ?: txtTimeAdded.context.getString(R.string.ant_init_time)
             }
         }
     }
@@ -58,8 +52,8 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
     }
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val ivAvatar: ImageView = itemView.findViewById(R.id.ivAvatar)
         val txtUser: TextView = itemView.findViewById(R.id.txtUser)
         val txtMessage: TextView = itemView.findViewById(R.id.txtMessage)
+        val txtTimeAdded: TextView = itemView.findViewById(R.id.txtTimeAt)
     }
 }

@@ -99,8 +99,12 @@
     <string name="ant_no_connection">no connection</string>
     <string name="ant_you_are_online">you are online</string>
 
+    <!--player-->
+    <string name="ant_at">at</string>
 
     <string name="ant_delimiter" translatable="false">•</string>
     <string name="ant_slash" translatable="false">/</string>
-    <string name="ant_init_time" translatable="false">00:00</string>
+    <string name="ant_init_time_doubled" translatable="false">00:00</string>
+    <string name="ant_init_time" translatable="false">0:00</string>
+
 </resources>

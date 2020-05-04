@@ -123,11 +123,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                                     llMessageWrapper?.alpha = slideOffset
                                     if (slideOffset == 0.0f) {
-                                        etMessage.isEnabled = false
+                                        etMessage?.isEnabled = false
                                         isChatDismissed = true
                                     }
                                     if (slideOffset == 1.0f) {
-                                        etMessage.isEnabled = true
+                                        etMessage?.isEnabled = true
                                         isChatDismissed = false
                                     }
                                 } else {
@@ -168,11 +168,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
 
     private fun initMessagesDivider(context: Context, landscape: Boolean) {
         val dividerDecorator = if (landscape) ChatItemDecoratorLandscape(
-            dp2px(context, 5f).toInt(),
+            dp2px(context, 12f).toInt(),
             dp2px(context, 12f).toInt(),
             dp2px(context, 0f).toInt(),
             dp2px(context, 12f).toInt(),
-            dp2px(context, 5f).toInt()
+            dp2px(context, 12f).toInt()
         ) else MarginItemDecoration(
             dp2px(context, 20f).toInt()
         )

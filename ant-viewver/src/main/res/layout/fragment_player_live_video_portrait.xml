@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/ant_bg_color">
+        android:background="@color/ant_feed_bg_color">
 
     <include android:id="@+id/live_header_layout"
             layout="@layout/player_header"
@@ -128,7 +128,7 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/playerView"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="@string/ant_init_time" />
+            android:text="@string/ant_init_time_doubled" />
 
     <ImageView
             android:id="@+id/ivLoader"

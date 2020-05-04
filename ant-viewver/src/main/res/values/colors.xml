@@ -19,6 +19,8 @@
     <color name="ant_dark_transparent">#AB000000</color>
     <color name="ant_dark_gray_a40">#66000000</color>
     <color name="ant_dark_gray_2">#1F1F1F</color>
+    <color name="ant_dark_gray_3_a50">#800F0F0F</color>
+    <color name="ant_dark_gray_3_a60">#990F0F0F</color>
     <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>
     <color name="ant_green">#04A854</color>
     <color name="ant_green_2">#00A854</color>
