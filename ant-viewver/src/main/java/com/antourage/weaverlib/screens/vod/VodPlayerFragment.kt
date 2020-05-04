@@ -64,6 +64,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private var skipBackwardVDrawable: AnimatedVectorDrawableCompat? = null
     private val progressHandler = Handler()
     private val updateProgressAction = Runnable { updateProgressBar() }
+    private var playerOnTouchListener : View.OnTouchListener? = null
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -168,6 +169,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 }
             }
             vod_progress_bar.progress = 5000
+            playerView.setOnTouchListener(null)
+            controls.showTimeoutMs = 5000
+
             mCountDownTimer.start()
             vod_buttons_layout.visibility = View.INVISIBLE
             vod_next_auto_layout.visibility = View.VISIBLE
@@ -177,6 +181,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_buttons_layout.visibility = View.VISIBLE
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 vod_rewind.visibility = View.VISIBLE
+                playerView.setOnTouchListener(playerOnTouchListener)
+                controls.showTimeoutMs = 1200
             }
             vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
@@ -184,6 +190,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_buttons_layout.visibility = View.VISIBLE
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 v.setOnTouchListener { _, _ -> false }
+                playerView.setOnTouchListener(playerOnTouchListener)
+                controls.showTimeoutMs = 1200
                 return@setOnTouchListener false
             }
 
@@ -196,6 +204,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_buttons_layout.visibility = View.VISIBLE
             vod_next_auto_layout.visibility = View.INVISIBLE
             vod_rewind.visibility = View.INVISIBLE
+            playerView.setOnTouchListener(playerOnTouchListener)
+            controls.showTimeoutMs = 1200
         }
     }
 
@@ -326,7 +336,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initSkipControls() {
-        playerView.setOnTouchListener(object : View.OnTouchListener {
+        playerOnTouchListener = object : View.OnTouchListener {
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
@@ -351,8 +361,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 gestureDetector.onTouchEvent(p1)
                 return true
             }
-        })
+        }
 
+        playerView.setOnTouchListener(playerOnTouchListener)
         drawerLayout.doubleTapListener = this
     }
 
