@@ -86,7 +86,7 @@
                 android:layout_marginTop="12dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfoContainer_live"/>
+                app:layout_constraintTop_toBottomOf="@+id/ivCircleOutline_live"/>
 
         <ImageView
                 android:id="@+id/ivThumbnail_live_placeholder"
@@ -98,7 +98,7 @@
                 android:src="@drawable/antourage_ic_placeholder_video"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewStreamerInfoContainer_live" />
+                app:layout_constraintTop_toBottomOf="@id/ivCircleOutline_live" />
 
         <ImageView
                 android:id="@+id/ivThumbnail_live"
@@ -109,7 +109,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfoContainer_live" />
+                app:layout_constraintTop_toBottomOf="@+id/ivCircleOutline_live" />
 
         <TextView
                 android:id="@+id/txtLive"

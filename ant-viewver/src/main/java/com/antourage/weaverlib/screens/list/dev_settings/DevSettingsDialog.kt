@@ -18,8 +18,8 @@ internal class DevSettingsDialog(
     Dialog(context) {
 
     companion object {
-        const val BASE_URL_DEV = "http://35.156.199.125/"
-//        const val BASE_URL_DEV = "https://docker.staging-myra.com/"
+//        const val BASE_URL_DEV = "http://35.156.199.125/"
+        const val BASE_URL_DEV = "https://docker.staging-myra.com/"
         const val BASE_URL_STAGING = "http://harv-staging.eu-central-1.elasticbeanstalk.com/"
         const val BASE_URL_PROD = "https://harv.antourage.com/"
         const val DEFAULT_URL = BASE_URL_PROD

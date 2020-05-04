@@ -17,8 +17,10 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.betterSmoothScrollToPosition
 import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.other.hideWithAnimation
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
@@ -35,8 +37,7 @@ import org.jetbrains.anko.backgroundColor
 
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
-
-        override fun getLayoutId() = R.layout.fragment_videos_list2
+    override fun getLayoutId() = R.layout.fragment_videos_list2
 
     private lateinit var snackBarBehaviour: BottomSheetBehavior<View>
     private lateinit var videoAdapter: VideosAdapter2
@@ -118,7 +119,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         context?.let {
             viewModel.handleUserAuthorization()
             viewModel.refreshVODsLocally()
-            if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
+            if (!ConnectionStateMonitor.isNetworkAvailable(it)) {
+                showNoConnectionPlaceHolder()
+            } else if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
                 showEmptyListPlaceholder()
@@ -203,8 +206,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
         }
-
-//        placeHolderRV.layoutManager = LinearLayoutManager(context)
 
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
@@ -326,40 +327,24 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
-        showEmptyListPlaceholder()
-//        placeHolderHandler.postDelayed({
-//            videosRV.visibility = View.INVISIBLE
-//            placeHolderAdapter.setItems(
-//                arrayListOf(
-//                    R.color.ant_no_content_placeholder_color_3
-//                )
-//            )
-//            placeHolderRV.alpha = 0f
-//            placeHolderRV.visibility = View.VISIBLE
-//            placeHolderRV.animate().alpha(1f).setDuration(300).start()
-//        }, 300)
+        skeletonView.revealWithAnimation()
     }
 
     private fun hidePlaceholder() {
-        viewNoContentContainer?.animate()?.alpha(0f)
-            ?.withEndAction { viewNoContentContainer?.visibility = View.INVISIBLE }
-            ?.setDuration(300)
-            ?.start()
-//        tvNoContent.visibility = View.INVISIBLE
-//        placeHolderRV.clearAnimation()
-//        placeHolderRV.animate().alpha(0f).setDuration(300)
-//            .withEndAction { placeHolderRV.visibility = View.INVISIBLE }.start()
+        viewNoContentContainer.hideWithAnimation()
+        skeletonView.hideWithAnimation()
         videosRV.visibility = View.VISIBLE
     }
 
     private fun showEmptyListPlaceholder() {
-//        placeHolderRV.clearAnimation()
-//        placeHolderRV.animate().alpha(0f).setDuration(300)
-//            .withEndAction { placeHolderRV.visibility = View.INVISIBLE }.start()
-        viewNoContentContainer?.alpha = 0f
-        viewNoContentContainer?.visibility = View.VISIBLE
-        viewNoContentContainer?.animate()?.alpha(1f)?.setDuration(300)?.start()
+        skeletonView.hideWithAnimation()
+        viewNoContentContainer.revealWithAnimation()
     }
+
+    private fun showNoConnectionPlaceHolder() {
+        TODO("Not yet implemented")
+    }
+
 
     private fun triggerNewLiveButton(isVisible: Boolean) {
         if (isVisible && !isNewLiveButtonShown) {

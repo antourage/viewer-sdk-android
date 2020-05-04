@@ -217,7 +217,7 @@ internal class VideosAdapter2(
                     val formattedStartTime = startTime?.parseDate(context)
                     val streamerNameAndTime = "$creatorFullName  •  $formattedStartTime"
                     txtStreamerInfo_live.text = streamerNameAndTime
-                    txtStreamerInfo_live.gone(formattedStartTime.isNullOrEmpty())
+                    txtStreamerInfo_live.visible(!formattedStartTime.isNullOrEmpty())
                 }
             }
         }
@@ -268,7 +268,7 @@ internal class VideosAdapter2(
                         }
                     val streamerNameAndTime = "$creatorFullName  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
-                    txtStreamerInfo_vod.gone(formattedStartTime.isNullOrEmpty())
+                    txtStreamerInfo_vod.visible(!formattedStartTime.isNullOrEmpty())
                     txtDuration_vod.text = duration?.parseToMills()?.millisToTime()
                     txtDuration_vod.gone(duration == null || duration.isEmpty())
                     txtViewsCount_vod.text = viewsCount.toString()

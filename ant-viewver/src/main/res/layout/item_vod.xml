@@ -89,7 +89,7 @@
                 android:layout_marginTop="12dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfoContainer_vod" />
+                app:layout_constraintTop_toBottomOf="@+id/ivCircleOutline_vod" />
 
 
         <ImageView
@@ -102,7 +102,7 @@
                 android:src="@drawable/antourage_ic_placeholder_video"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewStreamerInfoContainer_vod" />
+                app:layout_constraintTop_toBottomOf="@id/ivCircleOutline_vod" />
 
         <ImageView
                 android:id="@+id/ivThumbnail_vod"
@@ -113,7 +113,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewStreamerInfoContainer_vod" />
+                app:layout_constraintTop_toBottomOf="@id/ivCircleOutline_vod" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/replayContainer"
@@ -264,29 +264,12 @@
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
                 tools:text="6,385" />
 
-<!--        <com.google.android.exoplayer2.ui.PlayerControlView-->
-<!--                android:id="@+id/controls"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:animateLayoutChanges="true"-->
-<!--                android:elevation="10dp"-->
-<!--                app:auto_show="true"-->
-<!--                app:controller_layout_id="@layout/autoplay_test"-->
-<!--                app:hide_on_touch="false"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:show_buffering="never"-->
-<!--                app:show_timeout="0" />-->
-
         <ProgressBar
                 android:id="@+id/watchingProgress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:max="100"
-                android:paddingBottom="4dp"
                 android:progressBackgroundTint="@null"
                 android:progressTint="@color/ant_pink"
                 android:visibility="invisible"
