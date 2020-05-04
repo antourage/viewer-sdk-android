@@ -139,7 +139,7 @@
             android:background="@android:color/transparent"
             android:clickable="false"
             android:focusable="false"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -168,55 +168,6 @@
         </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
-
-    <View
-            android:id="@+id/dividerChat"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:background="@color/ant_light_gray_transparent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
-            android:id="@+id/ll_wrapper"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/antourage_rounded_semitransparent_bg"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="@id/playerView"
-            app:layout_constraintStart_toStartOf="@id/playerView">
-
-        <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="10"
-                android:background="@android:color/transparent"
-                android:hint="@string/ant_say_something"
-                android:imeOptions="flagNoExtractUi"
-                android:inputType="text"
-                android:maxLength="@integer/ant_max_length_message_input"
-                android:paddingStart="8dp"
-                android:textColor="@android:color/white"
-                android:textColorHint="@color/ant_light_gray_transparent"
-                tools:ignore="RtlSymmetry" />
-
-        <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.2"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_send"
-                tools:ignore="ContentDescription" />
-    </LinearLayout>
 
     <LinearLayout
             android:id="@+id/llPollStatus"

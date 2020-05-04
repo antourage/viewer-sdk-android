@@ -170,6 +170,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
             vod_progress_bar.progress = 5000
             playerView.setOnTouchListener(null)
+            //todo: onDrawerSingleClick block
             controls.showTimeoutMs = 5000
 
             mCountDownTimer.start()
@@ -206,6 +207,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_rewind.visibility = View.INVISIBLE
             playerView.setOnTouchListener(playerOnTouchListener)
             controls.showTimeoutMs = 1200
+            //todo: onDrawerSingleClick unblock
         }
     }
 
@@ -264,7 +266,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         drawerLayout.touchListener = this
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_vod)
         startPlayingStream()
-        handleChat()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
@@ -456,15 +457,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     //region chatUI helper func
 
     private fun chatUiToLandscape(landscape: Boolean) {
-        if (landscape) {
-            etMessage.visibility = View.GONE
-            btnSend.visibility = View.GONE
-            dividerChat.visibility = View.GONE
-        } else {
-            etMessage.visibility = View.VISIBLE
-            btnSend.visibility = View.VISIBLE
-            dividerChat.visibility = View.VISIBLE
-        }
         changeControlsView(landscape)
     }
 
@@ -514,12 +506,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val iconSize = resources.getDimension(dimenId).toInt()
         constraintSet.constrainWidth(iconId, iconSize)
         constraintSet.constrainHeight(iconId, iconSize)
-    }
-
-    private fun handleChat() {
-        etMessage.isEnabled = false
-        btnSend.isEnabled = false
-        etMessage.hint = getString(R.string.ant_chat_not_available)
     }
 
     private fun orientation() = resources.configuration.orientation

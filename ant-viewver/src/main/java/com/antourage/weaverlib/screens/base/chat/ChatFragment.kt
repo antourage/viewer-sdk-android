@@ -32,7 +32,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var llMessageWrapper: LinearLayout
+    //llMessageWrapper not in use in VOD
+    private var llMessageWrapper: LinearLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
@@ -120,7 +121,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                 super.onDrawerSlide(drawerView, slideOffset)
                                 val orientation = resources.configuration.orientation
                                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                    llMessageWrapper.alpha = slideOffset
+                                    llMessageWrapper?.alpha = slideOffset
                                     if (slideOffset == 0.0f) {
                                         etMessage.isEnabled = false
                                         isChatDismissed = true

@@ -150,12 +150,12 @@
             android:background="@android:color/transparent"
             android:clickable="false"
             android:focusable="false"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/playerView">
+            app:layout_constraintTop_toBottomOf="@+id/vod_player_progress">
 
         <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
@@ -199,52 +199,5 @@
                         tools:listitem="@layout/item_message_portrait" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
-
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
-
-    <View
-            android:id="@+id/dividerChat"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
-            android:id="@+id/ll_wrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/ant_bg_color"
-            android:orientation="horizontal"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-        <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_weight="10"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:hint="@string/ant_say_something"
-                android:imeOptions="flagNoExtractUi"
-                android:paddingLeft="20dp"
-                android:textColor="@android:color/white"
-                android:textColorHint="@color/ant_light_gray_transparent"
-                android:textSize="16sp"
-                tools:ignore="RtlSymmetry" />
-
-        <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_send"
-                tools:ignore="ContentDescription" />
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
