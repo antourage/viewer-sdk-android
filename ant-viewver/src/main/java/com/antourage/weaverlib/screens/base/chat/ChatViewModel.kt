@@ -9,10 +9,14 @@ import com.antourage.weaverlib.screens.base.player.BasePlayerViewModel
 
 internal abstract class ChatViewModel(application: Application) : BasePlayerViewModel(application) {
     internal var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData()
+    private var startTime: Long? = null
 
     init {
         messagesLiveData.postValue(listOf())
     }
+
+    internal fun setStartTime(startTime: Long) { this.startTime = startTime }
+    internal fun getStartTime() =  this.startTime
 
     internal fun getMessagesLiveData(): LiveData<List<Message>> = messagesLiveData
 

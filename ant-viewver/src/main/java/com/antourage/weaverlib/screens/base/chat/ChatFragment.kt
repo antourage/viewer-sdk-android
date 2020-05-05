@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,7 +34,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
     //llMessageWrapper not in use in VOD
-    private var llMessageWrapper: LinearLayout? = null
+    private var llMessageWrapper: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         if (list != null) {
@@ -97,11 +98,17 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
             rvMessages.adapter =
-                MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
+                MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT, viewModel.getStartTime())
             updateMessagesList(viewModel.getMessagesLiveData().value!!)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
         }
+    }
+
+    fun setStartTime(startTime: Long) {
+        viewModel.setStartTime(startTime)
+        rvMessages.adapter = MessagesAdapter(mutableListOf(), orientation(), viewModel.getStartTime())
+        viewModel.getMessagesLiveData().value?.let {updateMessagesList(it)}
     }
 
     private fun initAndOpenNavigationDrawer() {
@@ -149,7 +156,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             overScrollMode = View.OVER_SCROLL_NEVER
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
-            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
+            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT, viewModel.getStartTime())
             initMessagesDivider(context, orientation() == Configuration.ORIENTATION_LANDSCAPE)
         }
     }
@@ -157,7 +164,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private fun setLandscapeUI(context: Context) {
         rvMessages.apply {
             isVerticalFadingEdgeEnabled = true
-            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_LANDSCAPE)
+            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_LANDSCAPE, viewModel.getStartTime())
 
             val messages = viewModel.getMessagesLiveData().value
             updateMessagesList(messages?.let { it } ?: listOf())

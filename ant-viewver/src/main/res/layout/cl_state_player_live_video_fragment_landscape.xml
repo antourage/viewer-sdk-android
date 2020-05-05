@@ -124,10 +124,11 @@
             android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="50dp"
             android:background="@android:color/transparent"
             android:clickable="false"
             android:focusable="false"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -158,56 +159,86 @@
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
-    <View
-            android:id="@+id/dividerChat"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:background="@color/ant_light_gray_transparent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ll_wrapper"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/antourage_rounded_semitransparent_bg"
-            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_rect_gradient_semidark"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@id/playerView"
-            app:layout_constraintStart_toStartOf="@id/playerView">
-
+            tools:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
         <EditText
                 android:id="@+id/etMessage"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="8dp"
                 android:layout_weight="10"
-                android:background="@android:color/transparent"
+                android:background="@drawable/bg_rect_round_stroke_100"
+                android:focusable="false"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="@string/ant_say_something"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/ant_max_length_message_input"
-                android:paddingStart="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="60dp"
                 android:textColor="@android:color/white"
-                android:textColorHint="@color/ant_light_gray_transparent"
+                android:textColorHint="@color/ant_streamer_name_color"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/btnUserSettings"
                 tools:ignore="RtlSymmetry" />
 
-        <ImageButton
+        <TextView
                 android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.2"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_send"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="14dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/roboto_bold"
+                android:gravity="center"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:text="@string/ant_send"
+                android:textColor="@color/ant_green_2"
+                android:textSize="12sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/etMessage"
+                tools:ignore="ContentDescription"
+                tools:visibility="visible" />
+
+        <ImageButton
+                android:id="@+id/btnUserSettings"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_button_circle_1"
+                android:src="@drawable/antourage_ic_user_settings"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnShare"
                 tools:ignore="ContentDescription" />
-    </LinearLayout>
+
+        <ImageButton
+                android:id="@+id/btnShare"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_button_circle_1"
+                android:src="@drawable/antourage_ic_share"
+                android:tint="@color/ant_white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="ContentDescription" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/llPollStatus"

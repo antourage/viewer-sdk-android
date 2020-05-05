@@ -12,7 +12,8 @@ import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 
-internal class MessagesAdapter(var list: MutableList<Message>, val orientation: Int) :
+internal class MessagesAdapter(var list: MutableList<Message>, val orientation: Int,
+                               private val startTimeLong : Long?) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MessageViewHolder(
@@ -33,7 +34,13 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
             with(holder) {
                 txtMessage.text = text
                 txtUser.text = nickname
-                txtTimeAdded.text = pushTimeMills?.millisToTime() ?: txtTimeAdded.context.getString(R.string.ant_init_time)
+                txtTimeAdded.text = when {
+                    pushTimeMills != null -> pushTimeMills?.millisToTime()
+                    startTimeLong != null -> {
+                        ( ((timestamp?.seconds ?: 0) * 1000) - startTimeLong).millisToTime()
+                    }
+                    else -> txtTimeAdded.context.getString(R.string.ant_init_time)
+                }
             }
         }
     }

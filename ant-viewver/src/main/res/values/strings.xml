@@ -101,6 +101,7 @@
 
     <!--player-->
     <string name="ant_at">at</string>
+    <string name="ant_send">SEND</string>
 
     <string name="ant_delimiter" translatable="false">•</string>
     <string name="ant_slash" translatable="false">/</string>
