@@ -301,6 +301,8 @@
                 android:layout_weight="10"
                 android:background="@drawable/bg_rect_round_stroke_100"
                 android:focusable="false"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:fontFamily="@font/roboto_regular"
                 android:hint="@string/ant_say_something"
                 android:imeOptions="flagNoExtractUi"

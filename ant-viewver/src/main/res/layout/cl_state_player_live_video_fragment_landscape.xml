@@ -159,6 +159,8 @@
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
+    <!--For constraint Sets changes made in child ConstraintLayout isn't applicable
+    If you'd like to change children of this element - change them in Portrait-->
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ll_wrapper"
             android:layout_width="0dp"
@@ -176,6 +178,8 @@
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:layout_weight="10"
                 android:background="@drawable/bg_rect_round_stroke_100"
                 android:focusable="false"
