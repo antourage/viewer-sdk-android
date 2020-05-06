@@ -9,6 +9,12 @@
     <string name="ant_new_stream">New stream</string>
     <string name="ant_chat_not_available">Chat is unavailable</string>
 
+
+    <plurals name="ant_number_new_comments">
+        <item quantity="one">%d NEW COMMENT</item>
+        <item quantity="other">%d NEW COMMENTS</item>
+    </plurals>
+
     <plurals name="ant_number_answers">
         <item quantity="one">%d poll answer</item>
         <item quantity="other">%d poll answers</item>

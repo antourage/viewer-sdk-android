@@ -165,6 +165,17 @@
                     android:focusable="false"
                     android:requiresFadingEdge="vertical" />
 
+            <include
+                    android:id="@+id/bttn_new_comments"
+                    layout="@layout/item_new_comments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="40dp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
         </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>

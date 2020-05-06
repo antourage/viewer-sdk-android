@@ -54,9 +54,7 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun newMessagesWereAdded(list: List<Message>?): Boolean {
-        return (list?.size ?: 0 > this.list.size)
-    }
+    fun amountOfNewMessagesWillBeAdd(list: List<Message>): Int = list.size - this.list.size
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtUser: TextView = itemView.findViewById(R.id.txtUser)
