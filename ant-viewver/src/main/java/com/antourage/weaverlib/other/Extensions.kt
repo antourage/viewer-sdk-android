@@ -346,15 +346,25 @@ internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
     }
 }
 
-fun View.animateShowHide(isShow: Boolean){
+fun View.animateShowHideDown(isShow: Boolean) {
     if (isShow && visibility != View.VISIBLE){
-        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_w_fade))
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_in))
         visibility = View.VISIBLE
     } else if (!isShow && visibility == View.VISIBLE){
-        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_w_fade))
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_out))
         visibility = View.INVISIBLE
     }
 }
+
+/*fun View.animateShowHideUp(isShow: Boolean){
+    if (isShow && visibility != View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_in))
+        visibility = View.VISIBLE
+    } else if (!isShow && visibility == View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_out))
+        visibility = View.GONE
+    }
+}*/
 
 internal fun View.revealWithAnimation() {
     alpha = 0f

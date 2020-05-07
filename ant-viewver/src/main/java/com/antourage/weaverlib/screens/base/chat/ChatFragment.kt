@@ -14,7 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.animateShowHide
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.marginDp
 import com.antourage.weaverlib.other.models.Message
@@ -114,6 +114,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             drawerLayout = findViewById(R.id.drawerLayout)
             drawerLayout.touchListener = this@ChatFragment
             drawerLayout.drawerElevation = 0f
+            drawerLayout.increaseDrawerEdges()
 
             navigationView = findViewById(R.id.navView)
             rvMessages = findViewById(R.id.rvMessages)
@@ -249,7 +250,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     }
 
     private fun switchNewCommentsVisibility(shouldShow: Boolean){
-        newCommentsButton?.animateShowHide(shouldShow)
+        newCommentsButton?.animateShowHideDown(shouldShow)
     }
 
     private fun setLandscapeUI(context: Context) {

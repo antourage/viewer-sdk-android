@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -406,6 +407,26 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
         if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
         changeInputBarConstraints(shouldActivate)
+        if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+            animatePlayerHeader(!shouldActivate)
+        }
+    }
+
+    private fun animatePlayerHeader(shouldShow: Boolean) {
+        val set = ConstraintSet()
+        set.clone(constraintLayoutParent)
+        if (shouldShow) {
+            set.connect(
+                R.id.playerView, ConstraintSet.TOP, R.id.live_header_layout,
+                ConstraintSet.BOTTOM, 0
+            )
+        } else {
+            set.connect(
+                R.id.playerView, ConstraintSet.TOP, R.id.constraintLayoutParent,
+                ConstraintSet.TOP, 0
+            )
+        }
+        set.applyTo(constraintLayoutParent)
     }
 
     private fun changeInputBarConstraints(isKeyboardOpened: Boolean){
