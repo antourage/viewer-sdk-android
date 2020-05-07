@@ -8,6 +8,7 @@ import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.animateShowHide
 import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.other.marginDp
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.orientation
@@ -38,10 +40,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var newCommentsButton: ConstraintLayout? = null
     //llMessageWrapper not in use in VOD
     private var llMessageWrapper: ConstraintLayout? = null
+    private var commentsLayout: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         val filteredList = list?.filter { it.type == MessageType.USER }
-        if (filteredList != null && filteredList.isNotEmpty()) {
+        if (filteredList != null) {
             (rvMessages.adapter as MessagesAdapter?)?.let { adapter ->
                 val numOfNew = adapter.amountOfNewMessagesWillBeAdd(filteredList)
                 val shouldScrollToBottom = (numOfNew > 0)  && userIsAtTheBottomOfTheChat()
@@ -51,10 +54,12 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                     adapter.itemCount.let { rvMessages.scrollToPosition(it - 1) }
                     viewModel.setSeenComments(isAll = true)
                 }
-                if (viewModel.checkIfMessageByUser(filteredList.last().userID)){
-                    viewModel.setSeenComments(isAll = true)
-                } else if (!shouldScrollToBottom && numOfNew > 0){
-                    viewModel.addUnseenComments(numOfNew)
+                if (filteredList.isNotEmpty()){
+                    if (viewModel.checkIfMessageByUser(filteredList.last().userID)){
+                        viewModel.setSeenComments(isAll = true)
+                    } else if (!shouldScrollToBottom && numOfNew > 0){
+                        viewModel.addUnseenComments(numOfNew)
+                    }
                 }
             }
         }
@@ -114,6 +119,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             rvMessages = findViewById(R.id.rvMessages)
             llMessageWrapper = findViewById(R.id.ll_wrapper)
             newCommentsButton = findViewById(R.id.bttn_new_comments)
+            commentsLayout = findViewById(R.id.clNavView)
         }
         initMessagesRV()
         initOnScrollRVListener()
@@ -131,19 +137,41 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
+        (rvMessages.adapter as MessagesAdapter?)?.changeOrientation(newOrientation)
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (isChatDismissed) {
                 (activity as AntourageActivity).hideSoftKeyboard()
                 drawerLayout.closeDrawer(navView)
             }
             context?.let { setLandscapeUI(it) }
+
+            changeNewCommentsBadgePosition(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
-            /*rvMessages.adapter =
-                MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT, viewModel.getStartTime())
-            updateMessagesList(viewModel.getMessagesLiveData().value!!)*/
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
+            changeNewCommentsBadgePosition(false)
+        }
+    }
+
+    private fun changeNewCommentsBadgePosition(isLandscape: Boolean) {
+        commentsLayout?.let { parentLayout ->
+            val set = ConstraintSet()
+            set.clone(parentLayout)
+            //todo:done for VOD
+            if (isLandscape){
+                set.clear(R.id.bttn_new_comments, ConstraintSet.END)
+            } else {
+                set.connect(R.id.bttn_new_comments, ConstraintSet.END, R.id.clNavView,
+                    ConstraintSet.END, 0
+                )
+            }
+            set.applyTo(parentLayout)
+            if (isLandscape){
+                newCommentsButton?.marginDp(left = 12f, bottom = 14f)
+            } else {
+                newCommentsButton?.marginDp(left = 0f, bottom = 40f)
+            }
         }
     }
 
@@ -228,10 +256,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private fun setLandscapeUI(context: Context) {
         rvMessages.apply {
             isVerticalFadingEdgeEnabled = true
-            /*adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_LANDSCAPE, viewModel.getStartTime())
-
-            val messages = viewModel.getMessagesLiveData().value
-            updateMessagesList(messages?.let { it } ?: listOf())*/
         }
         initMessagesDivider(context, true)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)

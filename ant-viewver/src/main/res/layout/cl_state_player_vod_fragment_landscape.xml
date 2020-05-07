@@ -152,11 +152,15 @@
                 android:layout_marginRight="-64dp"
                 android:background="@android:color/transparent">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clNavView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
             <com.antourage.weaverlib.other.ui.FadingRecyclerView
                     android:id="@+id/rvMessages"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="20dp"
                     android:clickable="false"
                     android:clipToPadding="false"
                     android:fadingEdge="horizontal"
@@ -170,12 +174,12 @@
                     layout="@layout/item_new_comments"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="40dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="14dp"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>

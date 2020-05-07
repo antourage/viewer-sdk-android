@@ -542,7 +542,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 dp2px(this, 0f).roundToInt(),
                 dp2px(this, 0f).roundToInt(),
                 dp2px(this, 0f).roundToInt(),
-                dp2px(this, if (isLandscape) 15f else 0f).roundToInt()
+                dp2px(this, if (isLandscape) 12f else 0f).roundToInt()
             )
         }
         val progressMarginPx = if (isLandscape) {
