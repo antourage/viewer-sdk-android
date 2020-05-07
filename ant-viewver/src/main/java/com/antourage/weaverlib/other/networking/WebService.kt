@@ -12,6 +12,9 @@ internal interface WebService {
     @GET("live/{id}")
     fun getLiveStreamById(@Path("id") id: Int): LiveData<ApiResponse<StreamResponse>>
 
+    @GET("live/{id}/viewers")
+    fun getLiveViewers(@Path("id") id: Int): LiveData<ApiResponse<Viewers>>
+
     @GET("vod")
     fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
 

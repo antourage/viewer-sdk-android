@@ -88,3 +88,8 @@ data class UpdateImageResponse(
     @field:SerializedName("success") val success: Boolean?
 )
 
+data class Viewers(
+    @field:SerializedName("liveStreamId") val liveStreamId : Int,
+    @field:SerializedName("viewers") val viewers : Int
+)
+

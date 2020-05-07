@@ -158,7 +158,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         commentsLayout?.let { parentLayout ->
             val set = ConstraintSet()
             set.clone(parentLayout)
-            //todo:done for VOD
             if (isLandscape){
                 set.clear(R.id.bttn_new_comments, ConstraintSet.END)
             } else {
