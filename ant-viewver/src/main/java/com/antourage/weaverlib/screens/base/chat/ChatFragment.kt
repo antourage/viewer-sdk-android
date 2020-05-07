@@ -16,6 +16,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.animateShowHide
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.orientation
 import com.antourage.weaverlib.other.ui.ChatItemDecoratorLandscape
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
@@ -39,17 +40,20 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var llMessageWrapper: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
-        if (list != null) {
+        val filteredList = list?.filter { it.type == MessageType.USER }
+        if (filteredList != null && filteredList.isNotEmpty()) {
             (rvMessages.adapter as MessagesAdapter?)?.let { adapter ->
-                val numOfNew = adapter.amountOfNewMessagesWillBeAdd(list)
+                val numOfNew = adapter.amountOfNewMessagesWillBeAdd(filteredList)
                 val shouldScrollToBottom = (numOfNew > 0)  && userIsAtTheBottomOfTheChat()
 
-                adapter.setMessageList(list)
+                adapter.setMessageList(filteredList, true)
                 if (shouldScrollToBottom) {
                     adapter.itemCount.let { rvMessages.scrollToPosition(it - 1) }
                     viewModel.setSeenComments(isAll = true)
                 }
-                if (!shouldScrollToBottom && numOfNew > 0){
+                if (viewModel.checkIfMessageByUser(filteredList.last().userID)){
+                    viewModel.setSeenComments(isAll = true)
+                } else if (!shouldScrollToBottom && numOfNew > 0){
                     viewModel.addUnseenComments(numOfNew)
                 }
             }
@@ -79,6 +83,18 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         return false
     }
 
+
+    /**
+     * Should be used when there are new comments.
+     * @return number of new just seen comments or 0 if there are no new comments seen.
+     */
+    private fun checkNumOfSeenComments(): Int {
+        val layoutManager = rvMessages.layoutManager as LinearLayoutManager
+        val numOfWatched = (layoutManager.findLastVisibleItemPosition() + 1) -
+                (layoutManager.itemCount - viewModel.getUnseenQuantity())
+        return if (numOfWatched > 0) numOfWatched else 0
+    }
+
     /**
      * as drawer intercepts touch events, event when it's closed,  we need to provide
      * the possibility to toggle player controls on single tap
@@ -104,7 +120,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         initAndOpenNavigationDrawer()
         newCommentsButton?.setOnClickListener {
             rvMessages.adapter?.let {rvMessages.smoothScrollToPosition(it.itemCount - 1) }
-            //switchNewCommentsVisibility(false)
         }
     }
 
@@ -195,9 +210,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                 if (newCommentsButton?.visibility == View.VISIBLE) {
                     if (userIsAtTheBottomOfTheChat()) {
                         viewModel.setSeenComments(isAll = true)
+                    } else {
+                        val newSeenComments = checkNumOfSeenComments()
+                        if (newSeenComments > 0){
+                            viewModel.setSeenComments(numOfSeen = newSeenComments)
+                        }
                     }
                 }
-                //todo: add logic to update quantity of unseen one by one
             }
         })
     }

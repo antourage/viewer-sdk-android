@@ -281,17 +281,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         etMessage.setText("")
         rvMessages?.apply {
-            adapter?.itemCount?.minus(0)
-                ?.let { adapterPosition ->
-                    post {
-                        Handler().postDelayed(
-                            {
-                                layoutManager?.scrollToPosition(adapterPosition)
-                            },
-                            300
-                        )
-                    }
-                }
+            adapter?.itemCount?.minus(0)?.let { adapterPosition ->
+                post { Handler().postDelayed({
+                    layoutManager?.scrollToPosition(adapterPosition)
+                }, 300) }
+            }
         }
     }
 

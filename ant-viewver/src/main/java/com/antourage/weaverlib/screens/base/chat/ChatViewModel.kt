@@ -16,6 +16,7 @@ internal abstract class ChatViewModel(application: Application) : BasePlayerView
 
     private var startTime: Long? = null
 
+    abstract fun checkIfMessageByUser(userID: String?): Boolean
 
     fun addUnseenComments(numOfNew: Int){
         newUnseenCommentsLD.postValue(getUnseenQuantity() + numOfNew)

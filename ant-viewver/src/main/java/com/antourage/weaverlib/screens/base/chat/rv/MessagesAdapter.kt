@@ -45,8 +45,12 @@ internal class MessagesAdapter(var list: MutableList<Message>, val orientation: 
         }
     }
 
-    fun setMessageList(newList: List<Message>) {
-        val userMessagesList = newList.filter { it.type == MessageType.USER }
+    fun setMessageList(newList: List<Message>, isFiltered: Boolean = false) {
+        val userMessagesList = if (isFiltered) {
+            newList
+        } else {
+            newList.filter { it.type == MessageType.USER }
+        }
         val diffResult = DiffUtil.calculateDiff(MessageListDiffUtilCallback(list, userMessagesList))
 
         this.list.clear()

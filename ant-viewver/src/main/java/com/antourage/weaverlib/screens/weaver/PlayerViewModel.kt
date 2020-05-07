@@ -227,10 +227,16 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     internal fun addMessage(message: Message, streamId: Int) {
         if (message.text != null && message.text!!.isNotEmpty() && !message.text!!.isBlank()) {
             val temp: MutableList<Message> = (messagesLiveData.value)!!.toMutableList()
-            temp.add(
-                message
-            )
+            temp.add(message)
             Repository.addMessage(message, streamId)
+        }
+    }
+
+    override fun checkIfMessageByUser(userID: String?): Boolean {
+        return if (userID == null){
+            false
+        } else {
+            getUser()?.id?.toString() == userID
         }
     }
 
