@@ -37,11 +37,11 @@
             android:layout_gravity="top"
             android:animateLayoutChanges="true"
             android:scaleType="centerCrop"
-            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
-            app:layout_constraintTop_toTopOf="@id/playerView" />
+            app:layout_constraintTop_toTopOf="@id/playerView"
+            tools:ignore="ContentDescription" />
 
     <TextView
             android:id="@+id/ivThanksForWatching"

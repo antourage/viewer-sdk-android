@@ -3,7 +3,6 @@ package com.antourage.weaverlib.screens.weaver
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -114,7 +113,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (state != null)
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
-                    enableMessageInput(false)
+                    enableMessageInput(false, ivThanksForWatching?.visibility == View.VISIBLE)
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -160,18 +159,24 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
+        ivFirstFrame?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //blocks player controls appearance
         controls.visibility = View.GONE
+        playerView.visibility = View.INVISIBLE
         playerView.setOnTouchListener(null)
-        //blocks from orientation change
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        disableOrientationChange()
 
         txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = live_control_chronometer.text
         tv_live_end_time.visibility = View.VISIBLE
         enableMessageInput(false, disableButtons = true)
+        if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            drawerLayout.closeDrawer(navView)
+            drawerLayout.visibility = View.INVISIBLE
+        } else {
+            drawerLayout.openDrawer(navView)
+            drawerLayout.visibility = View.VISIBLE
+        }
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -486,50 +491,50 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        when (newConfig.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> {
-               /* ll_wrapper.background =
-                    context?.let {
-                        ContextCompat.getDrawable(
-                            it,
-                            R.drawable.antourage_rounded_semitransparent_bg
-                        )
+        if (viewModel.getCurrentLiveStreamInfo().value == false) {
+            showEndStreamUI()
+        } else {
+            when (newConfig.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    /* ll_wrapper.background =
+                         context?.let {
+                             ContextCompat.getDrawable(
+                                 it,
+                                 R.drawable.antourage_rounded_semitransparent_bg
+                             )
+                         }*/
+                    txtPollStatus.visibility = View.VISIBLE
+                    if (userDialog != null) {
+                        val input =
+                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                        val isKeyboardVisible = keyboardIsVisible
+                        userDialog?.dismiss()
+                        showUserNameDialog(input, isKeyboardVisible)
+                    } else {
+                        if (keyboardIsVisible) {
+                            etMessage.requestFocus()
+                        }
+                    }
+                    changeButtonsSize(isEnlarge = true)
+                }
+                Configuration.ORIENTATION_PORTRAIT -> {
+                    if (userDialog != null) {
+                        val input =
+                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                        val isKeyboardVisible = keyboardIsVisible
+                        userDialog?.dismiss()
+                        showUserNameDialog(input, isKeyboardVisible)
+                    } else {
+                        if (keyboardIsVisible) {
+                            etMessage.requestFocus()
+                        }
+                    }
+                    /*context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
+                        ll_wrapper.setBackgroundColor(it)
                     }*/
-                txtPollStatus.visibility = View.VISIBLE
-                if (userDialog != null) {
-                    val input =
-                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                    val isKeyboardVisible = keyboardIsVisible
-                    userDialog?.dismiss()
-                    showUserNameDialog(input, isKeyboardVisible)
-                } else {
-                    if (keyboardIsVisible) {
-                        etMessage.requestFocus()
-                    }
+                    txtPollStatus.visibility = View.GONE
+                    changeButtonsSize(isEnlarge = false)
                 }
-                changeButtonsSize(isEnlarge = true)
-            }
-            Configuration.ORIENTATION_PORTRAIT -> {
-                if (userDialog != null) {
-                    val input =
-                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                    val isKeyboardVisible = keyboardIsVisible
-                    userDialog?.dismiss()
-                    showUserNameDialog(input, isKeyboardVisible)
-                } else {
-                    if (keyboardIsVisible) {
-                        etMessage.requestFocus()
-                    }
-                }
-                /*context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
-                    ll_wrapper.setBackgroundColor(it)
-                }*/
-                txtPollStatus.visibility = View.GONE
-
-                if (viewModel.getCurrentLiveStreamInfo().value == false) {
-                    showEndStreamUI()
-                }
-                changeButtonsSize(isEnlarge = false)
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
