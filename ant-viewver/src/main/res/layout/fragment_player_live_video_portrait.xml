@@ -251,22 +251,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/llNoChat"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent">
-
-                    <include
-                            layout="@layout/layout_empty_chat_placeholder"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
                 <com.antourage.weaverlib.other.ui.FadingRecyclerView
                         android:id="@+id/rvMessages"
                         android:layout_width="match_parent"
@@ -298,10 +282,9 @@
             android:layout_height="52dp"
             android:background="@drawable/bg_rect_gradient_semidark"
             android:elevation="6dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible">
+            app:layout_constraintStart_toStartOf="parent">
 
         <EditText
                 android:id="@+id/etMessage"
@@ -311,12 +294,12 @@
                 android:layout_marginEnd="12dp"
                 android:layout_marginBottom="8dp"
                 android:layout_weight="10"
-                android:background="@drawable/bg_rect_round_stroke_100"
+                android:background="@drawable/state_enabled_bg_edit_text"
                 android:focusable="false"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:fontFamily="@font/roboto_regular"
-                android:hint="@string/ant_say_something"
+                android:hint="@string/ant_hint_say_something"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/ant_max_length_message_input"
@@ -347,7 +330,6 @@
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/etMessage"
-
                 tools:ignore="ContentDescription"
                 tools:visibility="visible" />
 
@@ -357,8 +339,9 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="12dp"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_button_circle_1"
+                android:background="@drawable/state_enabled_bg_circle_button"
                 android:src="@drawable/antourage_ic_user_settings"
+                android:tint="@color/state_enabled_white_grey"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnShare"
                 tools:ignore="ContentDescription" />
@@ -369,9 +352,9 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="12dp"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_button_circle_1"
+                android:background="@drawable/state_enabled_bg_circle_button"
                 android:src="@drawable/antourage_ic_share"
-                android:tint="@color/ant_white"
+                android:tint="@color/state_enabled_white_grey"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:ignore="ContentDescription" />

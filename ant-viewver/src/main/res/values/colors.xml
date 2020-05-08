@@ -3,6 +3,7 @@
     <color name="ant_white">#FFFFFF</color>
     <color name="ant_white_a60">#99FFFFFF</color>
     <color name="ant_white_a30">#4DFFFFFF</color>
+    <color name="ant_white_a20">#33FFFFFF</color>
     <color name="ant_black">#000000</color>
     <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget">#FF464646</color>

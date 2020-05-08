@@ -200,12 +200,10 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                                     llMessageWrapper?.alpha = slideOffset
                                     if (slideOffset == 0.0f) {
-                                        etMessage?.isEnabled = false
-                                        isChatDismissed = true
+                                        enableChat(false)
                                     }
                                     if (slideOffset == 1.0f) {
-                                        etMessage?.isEnabled = true
-                                        isChatDismissed = false
+                                        enableChat(true)
                                     }
                                 } else {
                                     drawerLayout.openDrawer(navigationView, false)
@@ -217,6 +215,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                 }
             }
         })
+    }
+
+    private fun enableChat(enable: Boolean) {
+        etMessage?.isEnabled = enable
+        btnUserSettings?.isEnabled = enable
+        btnShare?.isEnabled = enable //temporary
+        isChatDismissed = !enable
     }
 
     private fun initMessagesRV() {

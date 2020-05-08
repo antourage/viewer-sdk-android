@@ -2,7 +2,8 @@
     <public />
     <string name="ant_live">LIVE</string>
     <string name="ant_new_vod">NEW</string>
-    <string name="ant_say_something">Say something</string>
+    <string name="ant_hint_say_something">Say something</string>
+    <string name="ant_hint_disabled">Chat disabled</string>
 
     <string name="ant_new_poll">New poll!</string>
     <string name="ant_total_answers">Total answers</string>

@@ -11,10 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +33,6 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
-import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -211,13 +207,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
     }
 
-    private val chatStateObserver: Observer<Boolean> = Observer { showNoMessagesPlaceholder ->
-        if (showNoMessagesPlaceholder == true) {
+    //should be used for showing/hiding joined users view
+    private val chatStateObserver: Observer<Boolean> = Observer { isEmpty ->
+        if (isEmpty == true) {
             if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
-                showChatTurnedOffPlaceholder(true)
+                //improvements todo: start showing new users joined view
             }
         } else {
-            showChatTurnedOffPlaceholder(false)
+            //improvements todo: stop showing new users joined view
         }
     }
 
@@ -279,10 +276,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     .into(ivFirstFrame)
             }
         }
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_no_comments_yet,
-            R.string.ant_no_comments_yet
-        )
         initSkipControls()
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
             .setOnClickListener {
@@ -437,11 +430,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                showChatTurnedOffPlaceholder(false)
+                //improvements todo: stop showing new users joined view
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (viewModel.getChatStateLiveData().value == true) {
-                    showChatTurnedOffPlaceholder(true)
+                    //improvements todo: start showing new users joined view
                 }
             }
         }
@@ -518,22 +511,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
         playerControls.player = playerView.player
     }
-
-    private fun showChatTurnedOffPlaceholder(show: Boolean) {
-        llNoChat.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    private fun setUpNoChatPlaceholder(@DrawableRes drawable: Int, @StringRes text: Int) {
-        ivNoChat.background =
-            context?.let {
-                ContextCompat.getDrawable(
-                    it,
-                    drawable
-                )
-            }
-        txtNoChat.text = getString(text)
-    }
-
     //endregion
 
     private fun changeControlsView(isLandscape: Boolean) {

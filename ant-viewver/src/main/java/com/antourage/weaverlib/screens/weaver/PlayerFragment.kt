@@ -7,7 +7,6 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -19,11 +18,8 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -47,7 +43,6 @@ import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
-import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_header.*
@@ -119,19 +114,20 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (state != null)
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
-                    disableChatUI()
-                    hideRvMessages()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                    enableMessageInput(false)
+                    //improvements todo: start showing new users joined view
+                    // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
                 is ChatStatus.ChatMessages -> {
                     enableChatUI()
                     showRvMessages()
-                    showChatTurnedOffPlaceholder(false)
+                    //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
                     enableChatUI()
                     hideRvMessages()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                    //improvements todo: start showing new users joined view
+                    // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
             }
     }
@@ -175,6 +171,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = live_control_chronometer.text
         tv_live_end_time.visibility = View.VISIBLE
+        enableMessageInput(false, disableButtons = true)
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -568,12 +565,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     //region chatUI helper func
-    private fun enableMessageInput(enable: Boolean) {
+    private fun enableMessageInput(enable: Boolean, disableButtons: Boolean = false) {
         etMessage.isEnabled = enable
-    }
+        if (enable) {
+            //used to fix disabling buttons in landscape and not enabling in portrait
+            btnShare?.isEnabled = enable //temporary
+            btnUserSettings?.isEnabled = enable
+        }
+        btnShare?.isEnabled = !disableButtons
+        btnUserSettings?.isEnabled = !disableButtons
 
-    private fun hideMessageInput() {
-        ll_wrapper.visibility = View.INVISIBLE
+        if (!enable) etMessage.setText("")
+        etMessage.hint =
+            getString(if (enable) R.string.ant_hint_say_something else R.string.ant_hint_disabled)
     }
 
     private fun showMessageInput() {
@@ -586,21 +590,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun orientation() = resources.configuration.orientation
 
-    private fun showChatTurnedOffPlaceholder(show: Boolean) {
-        llNoChat.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    private fun setUpNoChatPlaceholder(@DrawableRes drawable: Int, @StringRes text: Int) {
-        ivNoChat.background =
-            context?.let {
-                ContextCompat.getDrawable(
-                    it,
-                    drawable
-                )
-            }
-        txtNoChat.text = getString(text)
-    }
-
     private fun showRvMessages() {
         rvMessages.visibility = View.VISIBLE
     }
@@ -610,23 +599,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun enableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_no_comments_yet,
-            R.string.ant_no_comments_yet
-        )
         enableMessageInput(true)
         showMessageInput()
     }
-
-    private fun disableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_off_layered,
-            R.string.ant_commenting_off
-        )
-        enableMessageInput(false)
-        hideMessageInput()
-    }
-
     //endregion
 
     //region polUI helper func
