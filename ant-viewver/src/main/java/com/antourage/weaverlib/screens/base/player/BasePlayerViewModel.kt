@@ -13,7 +13,7 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
-import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.Viewers
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -112,7 +112,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         sendStatisticData(StatisticActions.JOINED)
         startUpdatingStopWatchingTime()
 
-        this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+        if (this@BasePlayerViewModel is PlayerViewModel) {
+            this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+        }
     }
 
     open fun onPause() {
@@ -319,7 +321,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             resetChronometer = true
             stopUpdatingCurrentStreamInfo()
             onVideoChanged()
-            currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+            if (this@BasePlayerViewModel is PlayerViewModel) {
+                currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+            }
         }
 
         override fun onTracksChanged(trackGroups: TrackGroupArray?,
@@ -337,20 +341,15 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
     //endregion
 
-    /**
-    For mow this method is used to update live viewers count in real time
-    on player screen
+    /** method used to update live viewers count in real time on player screen ONLY for LIVE
      */
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
         requestingStreamInfoHandler.postDelayed(object : Runnable {
             override fun run() {
                 if (Global.networkAvailable) {
-                    val currentStreamInfo = when (this@BasePlayerViewModel) {
-                        is VideoViewModel -> Repository.getVODById(currentlyWatchedVideoId)
-                        else -> Repository.getLiveVideoById(currentlyWatchedVideoId)
-                    }
-                    val streamInfoObserver = object : Observer<Resource<StreamResponse>> {
-                        override fun onChanged(resource: Resource<StreamResponse>?) {
+                    val currentStreamInfo = Repository.getLiveViewers(currentlyWatchedVideoId)
+                    val streamInfoObserver = object : Observer<Resource<Viewers>> {
+                        override fun onChanged(resource: Resource<Viewers>?) {
                             if (resource != null) {
                                 when (val result = resource.status) {
                                     is Status.Failure -> {
@@ -358,14 +357,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                     }
                                     is Status.Success -> {
                                         val streamInfo = result.data
-                                        when (this@BasePlayerViewModel) {
-                                            is VideoViewModel -> currentStreamViewsLiveData.postValue(
-                                                streamInfo?.viewsCount
-                                            )
-                                            is PlayerViewModel -> currentStreamViewsLiveData.postValue(
-                                                streamInfo?.viewersCount
-                                            )
-                                        }
+                                        currentStreamViewsLiveData.postValue(streamInfo?.viewers)
                                         currentStreamInfo.removeObserver(this)
                                     }
                                 }

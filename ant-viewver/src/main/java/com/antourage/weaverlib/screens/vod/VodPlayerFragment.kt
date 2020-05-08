@@ -253,8 +253,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             this.viewLifecycleOwner,
             networkStateObserver
         )
-        viewModel.currentStreamViewsLiveData
-            .observe(this.viewLifecycleOwner, currentStreamViewsObserver)
     }
 
     override fun initUi(view: View?) {
@@ -571,10 +569,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             tvAgoLandscape.text = formattedStartTime
             tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
         }
-    }
-
-    private val currentStreamViewsObserver: Observer<Int> = Observer { currentViewsCount ->
-        updateViewsCountUI(currentViewsCount)
     }
 
     private fun updateViewsCountUI(currentViewsCount: Int?) {
