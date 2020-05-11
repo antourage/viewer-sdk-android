@@ -3,6 +3,7 @@
     <color name="ant_white">#FFFFFF</color>
     <color name="ant_white_a60">#99FFFFFF</color>
     <color name="ant_white_a30">#4DFFFFFF</color>
+    <color name="ant_white_a20">#33FFFFFF</color>
     <color name="ant_black">#000000</color>
     <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget">#FF464646</color>
@@ -19,6 +20,9 @@
     <color name="ant_dark_transparent">#AB000000</color>
     <color name="ant_dark_gray_a40">#66000000</color>
     <color name="ant_dark_gray_2">#1F1F1F</color>
+    <color name="ant_dark_gray_3_a0">#000F0F0F</color>
+    <color name="ant_dark_gray_3_a50">#800F0F0F</color>
+    <color name="ant_dark_gray_3_a60">#990F0F0F</color>
     <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>
     <color name="ant_green">#04A854</color>
     <color name="ant_green_2">#00A854</color>

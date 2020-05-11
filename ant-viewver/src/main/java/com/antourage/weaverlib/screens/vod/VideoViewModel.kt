@@ -38,11 +38,15 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
+
     private var userProcessedMessages = mutableListOf<Message>()
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var repository = Repository()
     private var vodId: Int? = null
+
+    //method used to check if last added message added by User, but in VOD we don't use this check
+    override fun checkIfMessageByUser(userID: String?): Boolean = false
 
     private val messagesRunnable = object : Runnable {
         override fun run() {

@@ -88,10 +88,9 @@ internal class Repository {
             return mockedStreams
         }
 
-        fun getLiveVideoById(id: Int): LiveData<Resource<StreamResponse>> =
-            object : NetworkBoundResource<StreamResponse>() {
-                override fun createCall() =
-                    ApiClient.getWebClient().webService.getLiveStreamById(id)
+        fun getLiveViewers(id: Int): LiveData<Resource<Viewers>> =
+            object : NetworkBoundResource<Viewers>() {
+                override fun createCall() = ApiClient.getWebClient().webService.getLiveViewers(id)
             }.asLiveData()
 
         fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
@@ -102,11 +101,6 @@ internal class Repository {
         fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
                 override fun createCall() = ApiClient.getWebClient(v2 = true).webService.getVODsForFab()
-            }.asLiveData()
-
-        fun getVODById(id: Int): LiveData<Resource<StreamResponse>> =
-            object : NetworkBoundResource<StreamResponse>() {
-                override fun createCall() = ApiClient.getWebClient().webService.getVODById(id)
             }.asLiveData()
 
         fun getNewVODsCount(): LiveData<Resource<Int>> =

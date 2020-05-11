@@ -5,15 +5,20 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.view.View
 import android.view.ViewTreeObserver
-import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.other.marginDp
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.orientation
 import com.antourage.weaverlib.other.ui.ChatItemDecoratorLandscape
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
@@ -32,20 +37,46 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var llMessageWrapper: LinearLayout
+    private var newCommentsButton: ConstraintLayout? = null
+    //llMessageWrapper not in use in VOD
+    private var llMessageWrapper: ConstraintLayout? = null
+    private var commentsLayout: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
-        if (list != null) {
-            rvMessages.apply {
-                val shouldScrollToBottom =
-                    ((adapter as MessagesAdapter).newMessagesWereAdded(list) &&
-                            userIsAtTheBottomOfTheChat())
-                (adapter as MessagesAdapter).setMessageList(list)
+        val filteredList = list?.filter { it.type == MessageType.USER }
+        if (filteredList != null) {
+            (rvMessages.adapter as MessagesAdapter?)?.let { adapter ->
+                val numOfNew = adapter.amountOfNewMessagesWillBeAdd(filteredList)
+                val shouldScrollToBottom = (numOfNew > 0)  && userIsAtTheBottomOfTheChat()
+
+                adapter.setMessageList(filteredList, true)
                 if (shouldScrollToBottom) {
-                    adapter?.itemCount?.let { scrollToPosition(it - 1) }
+                    adapter.itemCount.let { rvMessages.scrollToPosition(it - 1) }
+                    viewModel.setSeenComments(isAll = true)
+                }
+                if (filteredList.isNotEmpty()){
+                    if (viewModel.checkIfMessageByUser(filteredList.last().userID)){
+                        viewModel.setSeenComments(isAll = true)
+                    } else if (!shouldScrollToBottom && numOfNew > 0){
+                        viewModel.addUnseenComments(numOfNew)
+                    }
                 }
             }
         }
+    }
+
+    private val unseenCommentsObserver: Observer<Int> = Observer { quantity ->
+        if ((quantity ?:0) == 0){
+            switchNewCommentsVisibility(false)
+        } else {
+            updateNewCommentsQuantity(quantity)
+            switchNewCommentsVisibility(true)
+        }
+    }
+
+    private fun updateNewCommentsQuantity(quantity: Int) {
+        newCommentsButton?.findViewById<TextView>(R.id.new_comment_text)?.text = resources
+            .getQuantityString(R.plurals.ant_number_new_comments, quantity, quantity)
     }
 
     private fun userIsAtTheBottomOfTheChat(): Boolean {
@@ -55,6 +86,18 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                 return true
         }
         return false
+    }
+
+
+    /**
+     * Should be used when there are new comments.
+     * @return number of new just seen comments or 0 if there are no new comments seen.
+     */
+    private fun checkNumOfSeenComments(): Int {
+        val layoutManager = rvMessages.layoutManager as LinearLayoutManager
+        val numOfWatched = (layoutManager.findLastVisibleItemPosition() + 1) -
+                (layoutManager.itemCount - viewModel.getUnseenQuantity())
+        return if (numOfWatched > 0) numOfWatched else 0
     }
 
     /**
@@ -71,36 +114,71 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             drawerLayout = findViewById(R.id.drawerLayout)
             drawerLayout.touchListener = this@ChatFragment
             drawerLayout.drawerElevation = 0f
+            drawerLayout.increaseDrawerEdges()
 
             navigationView = findViewById(R.id.navView)
             rvMessages = findViewById(R.id.rvMessages)
             llMessageWrapper = findViewById(R.id.ll_wrapper)
+            newCommentsButton = findViewById(R.id.bttn_new_comments)
+            commentsLayout = findViewById(R.id.clNavView)
         }
         initMessagesRV()
+        initOnScrollRVListener()
         initAndOpenNavigationDrawer()
+        newCommentsButton?.setOnClickListener {
+            rvMessages.adapter?.let {rvMessages.smoothScrollToPosition(it.itemCount - 1) }
+        }
     }
 
     override fun subscribeToObservers() {
         viewModel.getMessagesLiveData().observe(this.viewLifecycleOwner, messagesObserver)
+        viewModel.getNewUnseenComments().observe(this.viewLifecycleOwner, unseenCommentsObserver)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val newOrientation = newConfig.orientation
+        (rvMessages.adapter as MessagesAdapter?)?.changeOrientation(newOrientation)
         if (newOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (isChatDismissed) {
                 (activity as AntourageActivity).hideSoftKeyboard()
                 drawerLayout.closeDrawer(navView)
             }
             context?.let { setLandscapeUI(it) }
+
+            changeNewCommentsBadgePosition(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             rvMessages.isVerticalFadingEdgeEnabled = false
-            rvMessages.adapter =
-                MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
-            updateMessagesList(viewModel.getMessagesLiveData().value!!)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
+            changeNewCommentsBadgePosition(false)
         }
+    }
+
+    private fun changeNewCommentsBadgePosition(isLandscape: Boolean) {
+        commentsLayout?.let { parentLayout ->
+            val set = ConstraintSet()
+            set.clone(parentLayout)
+            if (isLandscape){
+                set.clear(R.id.bttn_new_comments, ConstraintSet.END)
+            } else {
+                set.connect(R.id.bttn_new_comments, ConstraintSet.END, R.id.clNavView,
+                    ConstraintSet.END, 0
+                )
+            }
+            set.applyTo(parentLayout)
+            if (isLandscape){
+                newCommentsButton?.marginDp(left = 12f, bottom = 14f)
+            } else {
+                newCommentsButton?.marginDp(left = 0f, bottom = 40f)
+            }
+        }
+    }
+
+    fun setStartTime(startTime: Long) {
+        viewModel.setStartTime(startTime)
+        rvMessages.adapter = MessagesAdapter(mutableListOf(), orientation(), viewModel.getStartTime())
+        viewModel.getMessagesLiveData().value?.let {updateMessagesList(it)}
     }
 
     private fun initAndOpenNavigationDrawer() {
@@ -120,14 +198,12 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                 super.onDrawerSlide(drawerView, slideOffset)
                                 val orientation = resources.configuration.orientation
                                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                    llMessageWrapper.alpha = slideOffset
+                                    llMessageWrapper?.alpha = slideOffset
                                     if (slideOffset == 0.0f) {
-                                        etMessage.isEnabled = false
-                                        isChatDismissed = true
+                                        enableChat(false)
                                     }
                                     if (slideOffset == 1.0f) {
-                                        etMessage.isEnabled = true
-                                        isChatDismissed = false
+                                        enableChat(true)
                                     }
                                 } else {
                                     drawerLayout.openDrawer(navigationView, false)
@@ -141,6 +217,13 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         })
     }
 
+    private fun enableChat(enable: Boolean) {
+        etMessage?.isEnabled = enable
+        btnUserSettings?.isEnabled = enable
+        btnShare?.isEnabled = enable //temporary
+        isChatDismissed = !enable
+    }
+
     private fun initMessagesRV() {
         val linearLayoutManager = LinearLayoutManager(context)
         linearLayoutManager.stackFromEnd = true
@@ -148,18 +231,36 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             overScrollMode = View.OVER_SCROLL_NEVER
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
-            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT)
+            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT, viewModel.getStartTime())
             initMessagesDivider(context, orientation() == Configuration.ORIENTATION_LANDSCAPE)
         }
+    }
+
+    private fun initOnScrollRVListener() {
+        rvMessages.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (newCommentsButton?.visibility == View.VISIBLE) {
+                    if (userIsAtTheBottomOfTheChat()) {
+                        viewModel.setSeenComments(isAll = true)
+                    } else {
+                        val newSeenComments = checkNumOfSeenComments()
+                        if (newSeenComments > 0){
+                            viewModel.setSeenComments(numOfSeen = newSeenComments)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    private fun switchNewCommentsVisibility(shouldShow: Boolean){
+        newCommentsButton?.animateShowHideDown(shouldShow)
     }
 
     private fun setLandscapeUI(context: Context) {
         rvMessages.apply {
             isVerticalFadingEdgeEnabled = true
-            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_LANDSCAPE)
-
-            val messages = viewModel.getMessagesLiveData().value
-            updateMessagesList(messages?.let { it } ?: listOf())
         }
         initMessagesDivider(context, true)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -167,11 +268,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
 
     private fun initMessagesDivider(context: Context, landscape: Boolean) {
         val dividerDecorator = if (landscape) ChatItemDecoratorLandscape(
-            dp2px(context, 5f).toInt(),
+            dp2px(context, 12f).toInt(),
             dp2px(context, 12f).toInt(),
             dp2px(context, 0f).toInt(),
             dp2px(context, 12f).toInt(),
-            dp2px(context, 5f).toInt()
+            dp2px(context, 12f).toInt()
         ) else MarginItemDecoration(
             dp2px(context, 20f).toInt()
         )

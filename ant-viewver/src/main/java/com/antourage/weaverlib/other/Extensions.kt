@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.NonNull
@@ -344,6 +345,26 @@ internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
         }
     }
 }
+
+fun View.animateShowHideDown(isShow: Boolean) {
+    if (isShow && visibility != View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_in))
+        visibility = View.VISIBLE
+    } else if (!isShow && visibility == View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_out))
+        visibility = View.INVISIBLE
+    }
+}
+
+/*fun View.animateShowHideUp(isShow: Boolean){
+    if (isShow && visibility != View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_in))
+        visibility = View.VISIBLE
+    } else if (!isShow && visibility == View.VISIBLE){
+        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_out))
+        visibility = View.GONE
+    }
+}*/
 
 internal fun View.revealWithAnimation() {
     alpha = 0f

@@ -175,7 +175,7 @@
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/exo_progress"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="@string/ant_init_time" />
+            android:text="@string/ant_init_time_doubled" />
 
     <TextView
             android:id="@+id/controls_delimiter"

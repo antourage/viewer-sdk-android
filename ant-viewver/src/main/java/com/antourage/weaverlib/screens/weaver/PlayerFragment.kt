@@ -1,10 +1,8 @@
 package com.antourage.weaverlib.screens.weaver
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -19,11 +17,8 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -37,17 +32,16 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.User
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.ui.ResizeWidthAnimation
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
 import com.google.android.exoplayer2.Player
+import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
-import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_header.*
@@ -119,19 +113,20 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (state != null)
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
-                    disableChatUI()
-                    hideRvMessages()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                    enableMessageInput(false, ivThanksForWatching?.visibility == View.VISIBLE)
+                    //improvements todo: start showing new users joined view
+                    // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
                 is ChatStatus.ChatMessages -> {
                     enableChatUI()
                     showRvMessages()
-                    showChatTurnedOffPlaceholder(false)
+                    //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
                     enableChatUI()
                     hideRvMessages()
-                    showChatTurnedOffPlaceholder(orientation() != Configuration.ORIENTATION_LANDSCAPE)
+                    //improvements todo: start showing new users joined view
+                    // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
             }
     }
@@ -164,17 +159,24 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
         ivThanksForWatching?.visibility = View.VISIBLE
+        ivFirstFrame?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //blocks player controls appearance
         controls.visibility = View.GONE
+        playerView.visibility = View.INVISIBLE
         playerView.setOnTouchListener(null)
-        //blocks from orientation change
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        disableOrientationChange()
 
         txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = live_control_chronometer.text
         tv_live_end_time.visibility = View.VISIBLE
+        enableMessageInput(false, disableButtons = true)
+        if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            drawerLayout.closeDrawer(navView)
+            drawerLayout.visibility = View.INVISIBLE
+        } else {
+            drawerLayout.openDrawer(navView)
+            drawerLayout.visibility = View.VISIBLE
+        }
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -267,7 +269,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             null,
             viewModel.getUser()?.displayName,
             etMessage.text.toString(),
-            MessageType.USER
+            MessageType.USER,
+            Timestamp.now()
         )
         /**
         User id fot firebase synchronized with back end user id with messages;
@@ -281,17 +284,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
         etMessage.setText("")
         rvMessages?.apply {
-            adapter?.itemCount?.minus(0)
-                ?.let { adapterPosition ->
-                    post {
-                        Handler().postDelayed(
-                            {
-                                layoutManager?.scrollToPosition(adapterPosition)
-                            },
-                            300
-                        )
-                    }
-                }
+            adapter?.itemCount?.minus(0)?.let { adapterPosition ->
+                post { Handler().postDelayed({
+                    layoutManager?.scrollToPosition(adapterPosition)
+                }, 300) }
+            }
         }
     }
 
@@ -383,44 +380,70 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    //works only in landscape
     private fun initKeyboardListener() {
-        KeyboardEventListener(activity as AppCompatActivity) {
+        KeyboardEventListener(activity as AppCompatActivity) {isOpen ->
             try {
                 if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                    context?.let { context ->
-                        if (it) {
-                            etMessage.requestFocus()
-                            if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
-                                hidePollStatusLayout()
-                            }
-                            hideFullScreenIcon()
-                            if (ll_wrapper.visibility == View.VISIBLE) {
-                                val anim = ResizeWidthAnimation(
-                                    ll_wrapper, getScreenWidth(activity as Activity)
-                                            - dp2px(context, 8f).toInt()
-                                )
-                                anim.duration = 500
-                                ll_wrapper.startAnimation(anim)
-                            }
-                        } else {
-                            if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
-                                showPollStatusLayout()
-                            }
-                            showFullScreenIcon()
-                            if (ll_wrapper.visibility == View.VISIBLE) {
-                                val anim = ResizeWidthAnimation(
-                                    ll_wrapper, dp2px(context, 300f).toInt()
-                                )
-                                anim.duration = 500
-                                ll_wrapper.startAnimation(anim)
-                            }
+                    if (isOpen) {
+                        if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
+                            hidePollStatusLayout()
                         }
+                        hideFullScreenIcon()
+                    } else {
+                        if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePollDismissed) {
+                            showPollStatusLayout()
+                        }
+                        showFullScreenIcon()
                     }
                 }
             } catch (ex: IllegalStateException) {
                 Log.d("Keyboard", "Fragment not attached to a context.")
             }
         }
+    }
+
+    private fun activateCommentInputBar(shouldActivate: Boolean) {
+        btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
+        btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
+        btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
+        if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
+        changeInputBarConstraints(shouldActivate)
+        if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+            animatePlayerHeader(!shouldActivate)
+        }
+    }
+
+    private fun animatePlayerHeader(shouldShow: Boolean) {
+        val set = ConstraintSet()
+        set.clone(constraintLayoutParent)
+        if (shouldShow) {
+            set.connect(
+                R.id.playerView, ConstraintSet.TOP, R.id.live_header_layout,
+                ConstraintSet.BOTTOM, 0
+            )
+        } else {
+            set.connect(
+                R.id.playerView, ConstraintSet.TOP, R.id.constraintLayoutParent,
+                ConstraintSet.TOP, 0
+            )
+        }
+        set.applyTo(constraintLayoutParent)
+    }
+
+    private fun changeInputBarConstraints(isKeyboardOpened: Boolean){
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(ll_wrapper)
+        if (isKeyboardOpened){
+            constraintSet.connect(R.id.etMessage, ConstraintSet.START, R.id.ll_wrapper,
+                ConstraintSet.START, dp2px(requireContext(),12f).toInt()
+            )
+        } else {
+            constraintSet.connect(R.id.etMessage, ConstraintSet.START, R.id.btnUserSettings,
+                ConstraintSet.END, dp2px(requireContext(),12f).toInt()
+            )
+        }
+        constraintSet.applyTo(ll_wrapper)
     }
 
     override fun onControlsVisible() {}
@@ -456,52 +479,62 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.releasePlayer()
     }
 
+    override fun onShowKeyboard(keyboardHeight: Int) {
+        super.onShowKeyboard(keyboardHeight)
+        if (userDialog == null) { activateCommentInputBar(true)}
+    }
+
+    override fun onHideKeyboard(keyboardHeight: Int) {
+        super.onHideKeyboard(keyboardHeight)
+        activateCommentInputBar(false)
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        when (newConfig.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                ll_wrapper.background =
-                    context?.let {
-                        ContextCompat.getDrawable(
-                            it,
-                            R.drawable.antourage_rounded_semitransparent_bg
-                        )
+        if (viewModel.getCurrentLiveStreamInfo().value == false) {
+            showEndStreamUI()
+        } else {
+            when (newConfig.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    /* ll_wrapper.background =
+                         context?.let {
+                             ContextCompat.getDrawable(
+                                 it,
+                                 R.drawable.antourage_rounded_semitransparent_bg
+                             )
+                         }*/
+                    txtPollStatus.visibility = View.VISIBLE
+                    if (userDialog != null) {
+                        val input =
+                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                        val isKeyboardVisible = keyboardIsVisible
+                        userDialog?.dismiss()
+                        showUserNameDialog(input, isKeyboardVisible)
+                    } else {
+                        if (keyboardIsVisible) {
+                            etMessage.requestFocus()
+                        }
                     }
-                txtPollStatus.visibility = View.VISIBLE
-                if (userDialog != null) {
-                    val input =
-                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                    val isKeyboardVisible = keyboardIsVisible
-                    userDialog?.dismiss()
-                    showUserNameDialog(input, isKeyboardVisible)
-                } else {
-                    if (keyboardIsVisible) {
-                        etMessage.requestFocus()
+                    changeButtonsSize(isEnlarge = true)
+                }
+                Configuration.ORIENTATION_PORTRAIT -> {
+                    if (userDialog != null) {
+                        val input =
+                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
+                        val isKeyboardVisible = keyboardIsVisible
+                        userDialog?.dismiss()
+                        showUserNameDialog(input, isKeyboardVisible)
+                    } else {
+                        if (keyboardIsVisible) {
+                            etMessage.requestFocus()
+                        }
                     }
+                    /*context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
+                        ll_wrapper.setBackgroundColor(it)
+                    }*/
+                    txtPollStatus.visibility = View.GONE
+                    changeButtonsSize(isEnlarge = false)
                 }
-                changeButtonsSize(isEnlarge = true)
-            }
-            Configuration.ORIENTATION_PORTRAIT -> {
-                if (userDialog != null) {
-                    val input =
-                        userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                    val isKeyboardVisible = keyboardIsVisible
-                    userDialog?.dismiss()
-                    showUserNameDialog(input, isKeyboardVisible)
-                } else {
-                    if (keyboardIsVisible) {
-                        etMessage.requestFocus()
-                    }
-                }
-                context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
-                    ll_wrapper.setBackgroundColor(it)
-                }
-                txtPollStatus.visibility = View.GONE
-
-                if (viewModel.getCurrentLiveStreamInfo().value == false) {
-                    showEndStreamUI()
-                }
-                changeButtonsSize(isEnlarge = false)
             }
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
@@ -537,12 +570,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     //region chatUI helper func
-    private fun enableMessageInput(enable: Boolean) {
+    private fun enableMessageInput(enable: Boolean, disableButtons: Boolean = false) {
         etMessage.isEnabled = enable
-    }
+        if (enable) {
+            //used to fix disabling buttons in landscape and not enabling in portrait
+            btnShare?.isEnabled = enable //temporary
+            btnUserSettings?.isEnabled = enable
+        }
+        btnShare?.isEnabled = !disableButtons
+        btnUserSettings?.isEnabled = !disableButtons
 
-    private fun hideMessageInput() {
-        ll_wrapper.visibility = View.INVISIBLE
+        if (!enable) etMessage.setText("")
+        etMessage.hint =
+            getString(if (enable) R.string.ant_hint_say_something else R.string.ant_hint_disabled)
     }
 
     private fun showMessageInput() {
@@ -555,21 +595,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun orientation() = resources.configuration.orientation
 
-    private fun showChatTurnedOffPlaceholder(show: Boolean) {
-        llNoChat.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    private fun setUpNoChatPlaceholder(@DrawableRes drawable: Int, @StringRes text: Int) {
-        ivNoChat.background =
-            context?.let {
-                ContextCompat.getDrawable(
-                    it,
-                    drawable
-                )
-            }
-        txtNoChat.text = getString(text)
-    }
-
     private fun showRvMessages() {
         rvMessages.visibility = View.VISIBLE
     }
@@ -579,23 +604,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun enableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_no_comments_yet,
-            R.string.ant_no_comments_yet
-        )
         enableMessageInput(true)
         showMessageInput()
     }
-
-    private fun disableChatUI() {
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_off_layered,
-            R.string.ant_commenting_off
-        )
-        enableMessageInput(false)
-        hideMessageInput()
-    }
-
     //endregion
 
     //region polUI helper func
@@ -639,9 +650,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             setWasLiveText(context?.let { startTime?.parseDateLong(it) })
             if (startTime != null) {
                 initChronometer(startTime)
+                startTime.parseToDate()?.time?.let {setStartTime(it)}
+
             } else {
                 live_control_chronometer.visibility = View.GONE
             }
+
         }
     }
 
@@ -804,14 +818,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
-
         // Set up touch listener for non-text box views to hide keyboard.
-        if (view !is EditText &&
-            view.id != btnSend.id &&
-            view.id != btnUserSettings.id
-        ) {
+        if (view !is EditText && view.id != btnSend.id) {
             view.setOnTouchListener { _, _ ->
                 hideKeyboard()
+                view.requestFocus()
                 false
             }
         }

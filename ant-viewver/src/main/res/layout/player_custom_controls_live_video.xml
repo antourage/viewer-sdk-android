@@ -62,7 +62,7 @@
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="@string/ant_init_time" />
+            android:text="@string/ant_init_time_doubled" />
 
     <!--should be shown only in landscape-->
     <include

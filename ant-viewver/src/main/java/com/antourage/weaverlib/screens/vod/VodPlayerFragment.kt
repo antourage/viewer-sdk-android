@@ -11,10 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +33,6 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
-import kotlinx.android.synthetic.main.layout_empty_chat_placeholder.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -170,6 +166,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
             vod_progress_bar.progress = 5000
             playerView.setOnTouchListener(null)
+            //todo: onDrawerSingleClick block
             controls.showTimeoutMs = 5000
 
             mCountDownTimer.start()
@@ -206,16 +203,18 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_rewind.visibility = View.INVISIBLE
             playerView.setOnTouchListener(playerOnTouchListener)
             controls.showTimeoutMs = 1200
+            //todo: onDrawerSingleClick unblock
         }
     }
 
-    private val chatStateObserver: Observer<Boolean> = Observer { showNoMessagesPlaceholder ->
-        if (showNoMessagesPlaceholder == true) {
+    //should be used for showing/hiding joined users view
+    private val chatStateObserver: Observer<Boolean> = Observer { isEmpty ->
+        if (isEmpty == true) {
             if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
-                showChatTurnedOffPlaceholder(true)
+                //improvements todo: start showing new users joined view
             }
         } else {
-            showChatTurnedOffPlaceholder(false)
+            //improvements todo: stop showing new users joined view
         }
     }
 
@@ -254,8 +253,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             this.viewLifecycleOwner,
             networkStateObserver
         )
-        viewModel.currentStreamViewsLiveData
-            .observe(this.viewLifecycleOwner, currentStreamViewsObserver)
     }
 
     override fun initUi(view: View?) {
@@ -264,7 +261,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         drawerLayout.touchListener = this
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_vod)
         startPlayingStream()
-        handleChat()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
@@ -278,10 +274,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     .into(ivFirstFrame)
             }
         }
-        setUpNoChatPlaceholder(
-            R.drawable.antourage_ic_chat_no_comments_yet,
-            R.string.ant_no_comments_yet
-        )
         initSkipControls()
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
             .setOnClickListener {
@@ -436,11 +428,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
         when (newOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                showChatTurnedOffPlaceholder(false)
+                //improvements todo: stop showing new users joined view
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 if (viewModel.getChatStateLiveData().value == true) {
-                    showChatTurnedOffPlaceholder(true)
+                    //improvements todo: start showing new users joined view
                 }
             }
         }
@@ -456,15 +448,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     //region chatUI helper func
 
     private fun chatUiToLandscape(landscape: Boolean) {
-        if (landscape) {
-            etMessage.visibility = View.GONE
-            btnSend.visibility = View.GONE
-            dividerChat.visibility = View.GONE
-        } else {
-            etMessage.visibility = View.VISIBLE
-            btnSend.visibility = View.VISIBLE
-            dividerChat.visibility = View.VISIBLE
-        }
         changeControlsView(landscape)
     }
 
@@ -516,12 +499,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         constraintSet.constrainHeight(iconId, iconSize)
     }
 
-    private fun handleChat() {
-        etMessage.isEnabled = false
-        btnSend.isEnabled = false
-        etMessage.hint = getString(R.string.ant_chat_not_available)
-    }
-
     private fun orientation() = resources.configuration.orientation
 
     private fun startPlayingStream() {
@@ -532,22 +509,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
         playerControls.player = playerView.player
     }
-
-    private fun showChatTurnedOffPlaceholder(show: Boolean) {
-        llNoChat.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    private fun setUpNoChatPlaceholder(@DrawableRes drawable: Int, @StringRes text: Int) {
-        ivNoChat.background =
-            context?.let {
-                ContextCompat.getDrawable(
-                    it,
-                    drawable
-                )
-            }
-        txtNoChat.text = getString(text)
-    }
-
     //endregion
 
     private fun changeControlsView(isLandscape: Boolean) {
@@ -556,7 +517,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 dp2px(this, 0f).roundToInt(),
                 dp2px(this, 0f).roundToInt(),
                 dp2px(this, 0f).roundToInt(),
-                dp2px(this, if (isLandscape) 15f else 0f).roundToInt()
+                dp2px(this, if (isLandscape) 12f else 0f).roundToInt()
             )
         }
         val progressMarginPx = if (isLandscape) {
@@ -608,10 +569,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             tvAgoLandscape.text = formattedStartTime
             tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
         }
-    }
-
-    private val currentStreamViewsObserver: Observer<Int> = Observer { currentViewsCount ->
-        updateViewsCountUI(currentViewsCount)
     }
 
     private fun updateViewsCountUI(currentViewsCount: Int?) {
