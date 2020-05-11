@@ -325,7 +325,7 @@ internal fun TextView.showBadge(){
 
 internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
     layoutManager?.apply {
-        val maxScroll = 10
+        val maxScroll = 5
         when (this) {
             is LinearLayoutManager -> {
                 val topItem = findFirstVisibleItemPosition()

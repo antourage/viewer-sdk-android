@@ -13,6 +13,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.screens.list.VideoListFragment
+//import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.tapadoo.alerter.Alerter
 
 internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
@@ -28,7 +30,9 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
+            if(this@BaseFragment !is VideoListFragment){
+                showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
+            }
         }
     }
 

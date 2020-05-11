@@ -1,5 +1,4 @@
 package com.antourage.weaverlib.screens.list
-
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -8,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -27,22 +27,25 @@ import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
-import com.antourage.weaverlib.screens.list.rv.VideosAdapter2
+import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.android.synthetic.main.fragment_videos_list2.*
+import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
 
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
-    override fun getLayoutId() = R.layout.fragment_videos_list2
+    override fun getLayoutId() = R.layout.fragment_videos_list
 
     private lateinit var snackBarBehaviour: BottomSheetBehavior<View>
-    private lateinit var videoAdapter: VideosAdapter2
+    private lateinit var videoAdapter: VideosAdapter
+    private lateinit var placeholdersAdapter: VideoPlaceholdersAdapter
 
     private lateinit var rvLayoutManager: LinearLayoutManager
+    private lateinit var placeholderLayoutManager: LinearLayoutManager
     private var refreshVODs = true
     private var isLoadingMoreVideos = false
     private var isNewLiveButtonShown = false
@@ -64,16 +67,18 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 isLoadingMoreVideos = false
                 checkIsNewLiveAdded(newStreams)
                 checkIsLiveWasRemoved(newStreams)
-                if (videoRefreshLayout.isRefreshing) {
+                if (videoRefreshLayout.mIsRefreshing) {
                     videoAdapter.setStreamListForceUpdate(newStreams)
+                    videosRV.onRefresh()
                 } else {
                     videoAdapter.setStreamList(newStreams)
                 }
+                videoAdapter.setStreamList(newStreams)
                 isInitialListSet = false
                 hidePlaceholder()
             }
         }
-        videoRefreshLayout.isRefreshing = false
+        videoRefreshLayout.setRefreshing(false)
     }
 
     private val loaderObserver: Observer<Boolean> = Observer { show ->
@@ -176,11 +181,22 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         }
 
+        val onJoinedClick: (stream: StreamResponse) -> Unit = { streamResponse ->
+            Toast.makeText(context, "JOIN", Toast.LENGTH_SHORT).show()
+        }
+
         btnNewLive.setOnClickListener { videosRV.betterSmoothScrollToPosition(0) }
 
-        videoAdapter = VideosAdapter2(onClick, videosRV)
+        videoAdapter = VideosAdapter(onClick, onJoinedClick, videosRV)
+        placeholdersAdapter = VideoPlaceholdersAdapter()
 
         initRecyclerView(videoAdapter, videosRV)
+        initRecyclerView(placeholdersAdapter, placeHolderRV)
+
+        placeholderLayoutManager = LinearLayoutManager(context)
+        placeholderLayoutManager.orientation = LinearLayoutManager.VERTICAL
+
+        placeHolderRV.layoutManager = placeholderLayoutManager
 
         rvLayoutManager = LinearLayoutManager(context)
         rvLayoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -191,21 +207,24 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         initOnScrollListener()
 
-        videoRefreshLayout.setOnRefreshListener {
-            context?.let {
-                if (ConnectionStateMonitor.isNetworkAvailable(it)) {
-                    if (viewModel.userAuthorized()) {
-                        viewModel.refreshVODs(0, true)
+
+        videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener{
+            override fun onRefresh() {
+                context?.let {
+                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                        if (viewModel.userAuthorized()) {
+                            viewModel.refreshVODs(0, true)
+                        } else {
+                            videoRefreshLayout.setRefreshing(false)
+                            showErrorSnackbar(R.string.invalid_toke_error_message)
+                        }
                     } else {
-                        videoRefreshLayout.isRefreshing = false
-                        showWarningAlerter(resources.getString(R.string.invalid_toke_error_message))
+                        videoRefreshLayout.setRefreshing(false)
+                        showErrorSnackbar(R.string.ant_no_connection)
                     }
-                } else {
-                    videoRefreshLayout.isRefreshing = false
-                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
-        }
+        })
 
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
@@ -240,7 +259,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_DRAGGING) {
                     //to disable user swipe
-                    snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED;
+                    snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
                 } else if (newState == BottomSheetBehavior.STATE_EXPANDED || newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     canScroll = true
                 }
@@ -304,6 +323,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+                videoRefreshLayout.isEnabled = true
+
                 if (isNewLiveButtonShown) {
                     if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
                         triggerNewLiveButton(false)
@@ -316,7 +337,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val total = rvLayoutManager.itemCount
                     val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
-                    if (!isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2) {
+                    if (videoAdapter.getStreams()
+                            .isNotEmpty() && !isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2
+                    ) {
                         viewModel.refreshVODs(noLoadingPlaceholder = true)
                         isLoadingMoreVideos = true
                         Log.d("REFRESH_VODS", "onBottomReached")
@@ -327,22 +350,31 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
-        skeletonView.revealWithAnimation()
+        placeholdersAdapter.setItems(arrayListOf(1))
+        placeHolderRV.revealWithAnimation()
     }
 
     private fun hidePlaceholder() {
-        viewNoContentContainer.hideWithAnimation()
-        skeletonView.hideWithAnimation()
-        videosRV.visibility = View.VISIBLE
+        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
+        if (placeHolderRV.visibility == View.VISIBLE) placeHolderRV.hideWithAnimation()
+        if (videosRV.visibility != View.VISIBLE) videosRV.revealWithAnimation()
     }
 
     private fun showEmptyListPlaceholder() {
-        skeletonView.hideWithAnimation()
-        viewNoContentContainer.revealWithAnimation()
+        if (viewNoContentContainer.visibility != View.VISIBLE) {
+            placeHolderRV.hideWithAnimation()
+            videosRV.hideWithAnimation()
+            videosRV.releasePlayer()
+            videosRV.onPause()
+            viewNoContentContainer.revealWithAnimation()
+        }
     }
 
     private fun showNoConnectionPlaceHolder() {
-        TODO("Not yet implemented")
+        placeholdersAdapter.setItems(arrayListOf(1))
+        placeHolderRV.revealWithAnimation()
+        showErrorSnackbar(R.string.ant_no_connection)
+//        TODO("Not yet implemented")
     }
 
 

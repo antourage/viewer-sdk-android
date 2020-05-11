@@ -32,6 +32,7 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
+//import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 import org.jetbrains.anko.sdk27.coroutines.onClick

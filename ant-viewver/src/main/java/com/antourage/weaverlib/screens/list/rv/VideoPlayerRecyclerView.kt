@@ -90,6 +90,12 @@ class VideoPlayerRecyclerView : RecyclerView {
         }
     }
 
+    fun onRefresh(){
+        releasePlayer()
+        onPause()
+        onResume()
+    }
+
     private fun initPlayer() {
         videoSurfaceView = PlayerView(this.context.applicationContext)
         videoSurfaceView?.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
@@ -99,6 +105,7 @@ class VideoPlayerRecyclerView : RecyclerView {
         videoPlayer = ExoPlayerFactory.newSimpleInstance(context.applicationContext, trackSelector)
         videoSurfaceView?.useController = false
         videoSurfaceView?.player = videoPlayer
+        videoPlayer?.volume = 0f
         videoPlayer?.addListener(object : Player.EventListener {
             override fun onTimelineChanged(
                 timeline: Timeline,
@@ -283,8 +290,8 @@ class VideoPlayerRecyclerView : RecyclerView {
         var mediaUrl: String? = null
         var holder: ViewHolder? = null
 
-        if (child.tag is VideosAdapter2.LiveVideoViewHolder) {
-            holder = child.tag as VideosAdapter2.LiveVideoViewHolder
+        if (child.tag is VideosAdapter.LiveVideoViewHolder) {
+            holder = child.tag as VideosAdapter.LiveVideoViewHolder
             frameLayout = holder.itemView.mediaContainer_live
             thumbnail = holder.itemView.ivThumbnail_live
             mediaUrl = streams[targetPosition].hlsUrl?.get(0)
@@ -292,8 +299,8 @@ class VideoPlayerRecyclerView : RecyclerView {
             autoPlayContainer = holder.itemView.autoPlayContainer_live
             autoPlayImageView = holder.itemView.ivAutoPlay_live
             autoPlayTextView = holder.itemView.txtAutoPlayDuration_live
-        } else if (child.tag is VideosAdapter2.VODViewHolder) {
-            holder = child.tag as VideosAdapter2.VODViewHolder
+        } else if (child.tag is VideosAdapter.VODViewHolder) {
+            holder = child.tag as VideosAdapter.VODViewHolder
             frameLayout = holder.itemView.mediaContainer_vod
             thumbnail = holder.itemView.ivThumbnail_vod
             mediaUrl = streams[targetPosition].videoURL
