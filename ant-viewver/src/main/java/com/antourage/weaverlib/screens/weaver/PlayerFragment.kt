@@ -60,12 +60,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     companion object {
         const val ARGS_STREAM = "args_stream"
         const val ARGS_USER_ID = "args_user_id"
+        const val ARGS_START_CHAT = "args_required_to_start_chat"
 
-        fun newInstance(stream: StreamResponse, userId: Int): PlayerFragment {
+        fun newInstance(stream: StreamResponse,
+                        userId: Int,
+                        isRequiredToStartChat: Boolean = false): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
             bundle.putInt(ARGS_USER_ID, userId)
+            bundle.putBoolean(ARGS_START_CHAT, isRequiredToStartChat)
             fragment.arguments = bundle
             return fragment
         }
@@ -138,6 +142,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 etMessage.isFocusableInTouchMode = true
             }
         }
+        startUserInputIfRequesting()
     }
 
     private val currentStreamInfoObserver: Observer<Boolean> = Observer { isStreamStillLive ->
@@ -364,6 +369,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initClickListeners()
         initKeyboardListener()
         initControlsVisibilityListener()
+    }
+
+    private fun startUserInputIfRequesting() {
+        val isStartChat = arguments?.getBoolean(ARGS_START_CHAT)?: false
+        if (!isStartChat){
+            return
+        } else if (viewModel.noDisplayNameSet()) {
+            showUserNameDialog()
+        } else {
+            etMessage.isFocusable = true
+            etMessage.isFocusableInTouchMode = true
+            showKeyboard(etMessage)
+        }
     }
 
     private fun initControlsVisibilityListener() {
