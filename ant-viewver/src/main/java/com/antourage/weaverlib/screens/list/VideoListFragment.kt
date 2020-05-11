@@ -155,14 +155,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         initSnackbar()
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             when {
-                streamResponse.isLive -> {
-                    val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
-                    replaceFragment(
-                        PlayerFragment.newInstance(streamResponse, userId),
-                        R.id.mainContent,
-                        true
-                    )
-                }
+                streamResponse.isLive -> { openLiveFragment(streamResponse) }
                 streamResponse.id == -1 -> {
                     videosRV.betterSmoothScrollToPosition(0)
                 }
@@ -182,7 +175,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
 
         val onJoinedClick: (stream: StreamResponse) -> Unit = { streamResponse ->
-            Toast.makeText(context, "JOIN", Toast.LENGTH_SHORT).show()
+            openLiveFragment(streamResponse, true)
         }
 
         btnNewLive.setOnClickListener { videosRV.betterSmoothScrollToPosition(0) }
@@ -424,5 +417,14 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 viewModel.onNetworkGained()
             }
         }
+    }
+
+    private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false){
+        val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
+        replaceFragment(
+            PlayerFragment.newInstance(stream, userId, isFromJoinChat),
+            R.id.mainContent,
+            true
+        )
     }
 }
