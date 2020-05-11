@@ -5,10 +5,10 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
+import android.os.SystemClock
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -33,7 +33,7 @@ import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.util.*
+
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
@@ -50,6 +50,8 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
+        internal var mLastClickTime: Long = 0
+
 
         fun registerNotifications(
             fcmToken: String,
@@ -89,6 +91,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private var goingLiveToLive: Boolean = false
     private var currentlyDisplayedLiveStream: StreamResponse? = null
+    private var currentAnimationDrawableId: Int = -1
     private val liveStreams = arrayListOf<StreamResponse>()
     private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private val vods = arrayListOf<StreamResponse>()
@@ -122,6 +125,7 @@ class AntourageFab @JvmOverloads constructor(
         clearStreams()
         initPlayAnimation()
     }
+
 
     override fun onResume() {
         Handler().postDelayed({
@@ -281,6 +285,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun startAnimation(animation: FabState) {
         setAnimatedDrawable(animation.animationDrawableId)
+        circleAnimatedDrawable?.clearAnimationCallbacks()
         circleAnimatedDrawable?.apply {
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationStart(drawable: Drawable?) {
@@ -307,6 +312,7 @@ class AntourageFab @JvmOverloads constructor(
                         }
                         FabState.LIVE -> {
                             currentPlayerState.let {
+//                                Log.e("starting new circle", "wtf $it and  ${playerView.player.isPlaying}")
                                 if (it == Player.STATE_READY && playerView.player.isPlaying)
                                     startAnimation(
                                         FabState.LIVE
@@ -369,6 +375,8 @@ class AntourageFab @JvmOverloads constructor(
         playIconView.visibility = View.VISIBLE
         playIconView.animate().alpha(1f).setDuration(100).start()
         playIconAnimatedDrawable?.apply {
+            //TODO here delete maybe, seems like bugs are coming from play button
+            clearAnimationCallbacks()
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     if (isShowingLive) {
@@ -394,14 +402,19 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun setAnimatedDrawable(drawableId: Int) {
-        circleAnimatedDrawable = context?.let {
-            AnimatedVectorDrawableCompat.create(
-                it,
-                drawableId
-            )
+//            Log.e("info", "calling new animation")
+        if (currentAnimationDrawableId != drawableId) {
+//            Log.e("info", "creating shit")
+            currentAnimationDrawableId = drawableId
+            circleAnimatedDrawable = context?.let {
+                AnimatedVectorDrawableCompat.create(
+                    it,
+                    drawableId
+                )
+            }
+            circleView.setImageDrawable(circleAnimatedDrawable)
+            circleView.background = null
         }
-        circleView.setImageDrawable(circleAnimatedDrawable)
-        circleView.background = null
     }
 
     override fun onPause() {
@@ -426,6 +439,7 @@ class AntourageFab @JvmOverloads constructor(
 
 
     private fun startPlayingStream(stream: StreamResponse) {
+//        Log.e("info", "called start stream")
         playerView.player = stream.hlsUrl?.get(0)?.let {
             StreamPreviewManager.getExoPlayer(
                 it, context
@@ -474,7 +488,7 @@ class AntourageFab @JvmOverloads constructor(
         else false
     }
 
-    public fun authWith(
+    fun authWith(
         apiKey: String,
         refUserId: String? = null,
         nickname: String? = null,
@@ -531,6 +545,12 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun checkWhatToOpen() {
+        //to prevent quick multiple taps
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return
+        }
+        mLastClickTime = SystemClock.elapsedRealtime()
+
         when (currentFabState) {
             FabState.INACTIVE -> {
                 openAntActivity()

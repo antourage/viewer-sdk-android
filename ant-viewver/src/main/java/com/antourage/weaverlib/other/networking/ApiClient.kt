@@ -14,8 +14,8 @@ internal object ApiClient {
     private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/widget/"
- //   private const val VERSION_SUFFIX = "api/v1/"
-   private const val VERSION_2_SUFFIX = "api/v2/widget/"
+//    private const val VERSION_SUFFIX = "api/v1/"
+    private const val VERSION_2_SUFFIX = "api/v2/widget/"
 //    private const val VERSION_2_SUFFIX = "api/v2/"
 
     lateinit var webService: WebService
