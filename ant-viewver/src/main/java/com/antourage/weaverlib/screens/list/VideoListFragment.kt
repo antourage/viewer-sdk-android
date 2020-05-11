@@ -283,7 +283,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         val colorFrom: Int = ContextCompat.getColor(it, R.color.ant_error_bg_color)
                         val colorTo: Int =
                             ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
-                        val duration = 1000L
+                        val duration = 500L
                         ObjectAnimator.ofObject(
                             snackBar,
                             "backgroundColor",
@@ -297,7 +297,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             Handler().postDelayed({
                 snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            }, 2000)
+            }, 1000)
         }
     }
 
