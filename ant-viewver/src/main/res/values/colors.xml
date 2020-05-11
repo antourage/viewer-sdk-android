@@ -24,6 +24,7 @@
     <color name="ant_dark_gray_3_a50">#800F0F0F</color>
     <color name="ant_dark_gray_3_a60">#990F0F0F</color>
     <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>
+    <color name="ant_dark_gray_4">#3C4043</color>
     <color name="ant_green">#04A854</color>
     <color name="ant_green_2">#00A854</color>
     <color name="ant_bleak_pink">#F8BFAD</color>
@@ -31,6 +32,7 @@
     <color name="ant_blue">#3596C5</color>
     <color name="ant_grayed_text">#464646</color>
     <color name="ant_light_gray">#D8D8D8</color>
+    <color name="ant_light_gray_2">#FCFCFC</color>
     <color name="ant_color_dark_gray_text">#3D3D3D</color>
     <color name="ant_color_dark_gray_text_a60">#993D3D3D</color>
     <color name="ant_color_dark_gray_text_a10">#1A3D3D3D</color>

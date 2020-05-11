@@ -41,9 +41,9 @@ import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_poll_details.ivDismissPoll
-import kotlinx.android.synthetic.main.layout_poll_suggestion.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
+import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
 import kotlinx.android.synthetic.main.player_header.*
 
 /**
@@ -188,28 +188,21 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (state != null) {
             when (state) {
                 is PollStatus.NoPoll -> {
-                    hidePollPopup()
                     hidePollStatusLayout()
                     bottomLayout.visibility = View.GONE
                 }
                 is PollStatus.ActivePoll -> {
-                    tvPollTitle.text = state.poll.question
-                    showPollPopup()
-                    hidePollStatusLayout()
+                    poll_name?.text = state.poll.question
+                    showPollStatusLayout(orientation() == Configuration.ORIENTATION_PORTRAIT)
                 }
                 is PollStatus.ActivePollDismissed -> {
-                    hidePollPopup()
-                    if (bottomLayout.visibility == View.GONE)
-                        showPollStatusLayout()
-                    txtPollStatus.text = state.pollStatus?.let { it }
+                    if (bottomLayout.visibility == View.GONE) showPollStatusLayout()
                 }
                 is PollStatus.PollDetails -> {
                     wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
-                    hidePollPopup()
                     hidePollStatusLayout()
                     removeMessageInput()
-                    /*showUserSettingsDialog(false)*/
                     bottomLayout.visibility = View.VISIBLE
                     if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                         if (drawerLayout.isDrawerOpen(navView)) {
@@ -521,7 +514,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                  R.drawable.antourage_rounded_semitransparent_bg
                              )
                          }*/
-                    txtPollStatus.visibility = View.VISIBLE
                     if (userDialog != null) {
                         val input =
                             userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
@@ -550,15 +542,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     /*context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
                         ll_wrapper.setBackgroundColor(it)
                     }*/
-                    txtPollStatus.visibility = View.GONE
                     changeButtonsSize(isEnlarge = false)
                 }
             }
         }
-        viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
-        viewModel.getPollStatusLiveData().reObserve(this.viewLifecycleOwner, pollStateObserver)
-        viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
 
+        if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
+            viewModel.markActivePollDismissed()
+        }
+        viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
+        viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
+        viewModel.getPollStatusLiveData().reObserve(this.viewLifecycleOwner, pollStateObserver)
         showFullScreenIcon()
     }
 
@@ -625,25 +619,30 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         enableMessageInput(true)
         showMessageInput()
     }
-    //endregion
+    //end of region
 
-    //region polUI helper func
-    private fun showPollStatusLayout() {
-        llPollStatus.visibility = View.VISIBLE
+    //region poll UI helper func
+    private fun showPollStatusLayout(isWithAnimation: Boolean = false) {
+        polls_motion_layout.visibility = View.VISIBLE
+        if (isWithAnimation){
+            polls_motion_layout.transitionToEnd()
+            //callback to collapse extended poll layout in 6 sec
+            Handler().postDelayed({
+                    if (orientation() == Configuration.ORIENTATION_PORTRAIT &&
+                        viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
+                        polls_motion_layout.transitionToStart()
+                        viewModel.markActivePollDismissed()
+                    }
+                }, PlayerViewModel.CLOSE_EXPANDED_POLL_DELAY_MS
+            )
+        }
     }
 
     private fun hidePollStatusLayout() {
-        llPollStatus.visibility = View.GONE
+        polls_motion_layout.visibility = View.INVISIBLE
+        polls_motion_layout.transitionToStart() //to be sure, that it's in proper state
     }
-
-    private fun showPollPopup() {
-        pollPopupLayout.visibility = View.VISIBLE
-    }
-
-    private fun hidePollPopup() {
-        pollPopupLayout.visibility = View.GONE
-    }
-    //endregion
+    //end of region
 
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
@@ -695,18 +694,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         etMessage.setOnClickListener(onMessageETClicked)
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
-        ivDismissPoll.setOnClickListener { viewModel.startNewPollCountdown() }
-        llPollStatus.setOnClickListener { onPollDetailsClicked() }
-
-        pollPopupLayout.setOnClickListener {
-            playerControls.hide()
+        poll_bg.setOnClickListener {
+            playerControls.hide() //idk why
             onPollDetailsClicked()
         }
 
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
-            .setOnClickListener {
-                onCloseClicked()
-            }
+            .setOnClickListener { onCloseClicked() }
     }
 
     private fun showFullScreenIcon() {
