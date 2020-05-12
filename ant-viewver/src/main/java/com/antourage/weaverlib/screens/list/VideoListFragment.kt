@@ -73,7 +73,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 } else {
                     videoAdapter.setStreamList(newStreams)
                 }
-                videoAdapter.setStreamList(newStreams)
                 isInitialListSet = false
                 hidePlaceholder()
             }
@@ -161,7 +160,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
                 else -> {
                     context?.let { context ->
-                        streamResponse.streamId?.let {
+                        streamResponse.id?.let {
                             UserCache.getInstance(context)?.saveVideoToSeen(it)
                         }
                     }
@@ -297,7 +296,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             Handler().postDelayed({
                 snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
-            }, 1000)
+            }, 2000)
         }
     }
 
@@ -343,7 +342,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
-        placeholdersAdapter.setItems(arrayListOf(1))
+        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
         placeHolderRV.revealWithAnimation()
     }
 
@@ -364,7 +363,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showNoConnectionPlaceHolder() {
-        placeholdersAdapter.setItems(arrayListOf(1))
+//        placeholdersAdapter.setItems(arrayListOf(1))
+        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
         placeHolderRV.revealWithAnimation()
         showErrorSnackbar(R.string.ant_no_connection)
 //        TODO("Not yet implemented")

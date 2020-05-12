@@ -23,8 +23,7 @@ internal class StreamItemDiffCallback(
     override fun getNewListSize() = newList.size
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].streamId == newList[newItemPosition].streamId &&
-                oldList[oldItemPosition].viewersCount == newList[newItemPosition].viewersCount &&
+        return oldList[oldItemPosition].viewersCount == newList[newItemPosition].viewersCount &&
                 oldList[oldItemPosition].viewsCount == newList[newItemPosition].viewsCount &&
                 oldList[oldItemPosition].isNew == newList[newItemPosition].isNew &&
                 oldList[oldItemPosition].startTime.equals(newList[newItemPosition].startTime)
@@ -35,7 +34,7 @@ internal class StreamItemDiffCallback(
         val newStream = newList[newItemPosition]
         val diffBundle = Bundle()
 
-        if(newStream.viewsCount != oldStream.viewsCount){
+        if (newStream.viewsCount != oldStream.viewsCount) {
             newStream.viewsCount?.let { diffBundle.putInt(ARGS_REFRESH_VIEWS, it) }
         }
         if (diffBundle.isEmpty) return null;

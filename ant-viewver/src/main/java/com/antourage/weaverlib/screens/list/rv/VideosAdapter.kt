@@ -171,10 +171,10 @@ internal class VideosAdapter(
 
     override fun getItemViewType(position: Int): Int {
         if (position < itemCount) {
-            if (listOfStreams[position].streamId == -1) {
+            if (listOfStreams[position].id == -1) {
                 return VIEW_JUMP_TO_TOP
             }
-            if (listOfStreams[position].streamId == -2) {
+            if (listOfStreams[position].id == -2) {
                 return VIEW_PROGRESS
             }
             return if (listOfStreams[position].isLive) {
@@ -198,11 +198,11 @@ internal class VideosAdapter(
             Picasso.get()
                 .load(R.drawable.antourage_ic_placeholder_video)
 
+        //needed, because in other way placeholder gets distorted when switching to thumbnail
         picasso.into(ivThumbnail, object : Callback {
             override fun onSuccess() {
-                ivPlaceholder.animate()?.setDuration(300)?.alpha(0f)?.start()
-                ivThumbnail?.alpha = 0f
-                ivThumbnail?.animate()?.setDuration(300)?.alpha(1f)?.start()
+                ivThumbnail?.alpha = 1f
+                ivPlaceholder.alpha = 0f
             }
 
             override fun onError(e: Exception?) {}
@@ -261,8 +261,8 @@ internal class VideosAdapter(
                     txtTitle_live.text = streamTitle
                     txtViewersCount_live.text = viewersCount.toString()
                     txtViewersCount_live.gone(viewersCount == null)
-                    val formattedStartTime = startTime?.parseDate(context)
-                    val streamerNameAndTime = "$creatorFullName  •  $formattedStartTime"
+                    val formattedStartTime = startTime?.parseDateLong(context)
+                    val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_live.text = streamerNameAndTime
                     txtStreamerInfo_live.visible(!formattedStartTime.isNullOrEmpty())
                 }
@@ -277,6 +277,8 @@ internal class VideosAdapter(
     }
 
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        //TODO refactor styles for vod/live item.xml
+
         var parent: View = itemView
         fun bindView(vod: StreamResponse) {
             parent.tag = this
@@ -319,9 +321,10 @@ internal class VideosAdapter(
 
                     val formattedStartTime =
                         duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                            Date(it).parseToDisplayAgoTime(context)
+                            Date(it).parseToDisplayAgoTimeLong(context)
                         }
-                    val streamerNameAndTime = "$creatorFullName  •  $formattedStartTime"
+                    val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
+//                    val streamerNameAndTime = "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
                     txtStreamerInfo_vod.visible(!formattedStartTime.isNullOrEmpty())
                     txtDuration_vod.text = duration?.parseToMills()?.millisToTime()

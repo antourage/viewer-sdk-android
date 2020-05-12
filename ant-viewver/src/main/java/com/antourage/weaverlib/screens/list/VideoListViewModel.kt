@@ -69,13 +69,22 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
             var addBottomLoader = false
-            if (vods?.find { it.streamId == -2 } != null) {
+            var addJumpToTop = false
+
+            if (vods?.find { it.id == -2 } != null) {
                 addBottomLoader = true
+            }
+
+            if (vods?.find { it.id == -1 } != null) {
+                addJumpToTop = true
             }
 
             vods = mutableListOf()
             Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
-            if (addBottomLoader) {
+
+            if(addJumpToTop){
+                (vods as MutableList<StreamResponse>).add(getListEndPlaceHolder())
+            }else if (addBottomLoader) {
                 (vods as MutableList<StreamResponse>).add(getStreamLoaderPlaceholder())
             }
 
@@ -134,7 +143,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                     list.add(
                         list.size, getStreamLoaderPlaceholder()
                     )
-                } else if (newList?.size!! < VODS_COUNT && newList.size != 0) {
+                } else if (newList?.size!! < VODS_COUNT) {
                     list.add(list.size, getListEndPlaceHolder())
                 }
                 vods = list
