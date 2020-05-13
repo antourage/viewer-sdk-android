@@ -118,6 +118,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
                     enableMessageInput(false, ivThanksForWatching?.visibility == View.VISIBLE)
+                    if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                        polls_motion_layout.marginDp(bottom = if (ll_wrapper.visibility == View.VISIBLE && !isChatDismissed) 56f else 0f)
+                    }
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -227,6 +230,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                 wasDrawerClosed -> View.INVISIBLE
                                 viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff && orientation() == Configuration.ORIENTATION_LANDSCAPE -> View.INVISIBLE
                                 else -> View.VISIBLE
+                            }
+                            if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                                polls_motion_layout.marginDp(bottom = if (ll_wrapper.visibility == View.VISIBLE) 56f else 0f)
                             }
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
@@ -595,10 +601,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun showMessageInput() {
         ll_wrapper.visibility = View.VISIBLE
+        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+            polls_motion_layout.marginDp(bottom = if (isChatDismissed) 0f else 56f)
+        }
     }
 
     private fun removeMessageInput() {
         ll_wrapper.visibility = View.GONE
+        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+            polls_motion_layout.marginDp(bottom = 0f)
+        }
     }
 
     private fun orientation() = this?.resources?.configuration.orientation
