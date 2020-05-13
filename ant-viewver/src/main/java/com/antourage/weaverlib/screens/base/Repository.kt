@@ -26,7 +26,6 @@ internal class Repository {
             val mockedLiveVideos = List(10) { index ->
                 StreamResponse(
                     index,
-                    index,
                     "Stream $index",
                     "Stream $index",
                     null,
@@ -55,7 +54,7 @@ internal class Repository {
             val mockedStreams = mutableListOf<StreamResponse>()
             mockedStreams.add(
                 StreamResponse(
-                    1001, 1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
+                    1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
                     adaptiveBitrateUrl, null, null, null, null,
                     null, null, 1, null, null, null,
                     null, 0, true, 0, false, null
@@ -63,7 +62,7 @@ internal class Repository {
             )
             mockedStreams.add(
                 StreamResponse(
-                    1002, 1002, "bitrate_720p_1800", "bitrate_720p_1800",
+                    1002, "bitrate_720p_1800", "bitrate_720p_1800",
                     bitrate_720p_1800, null, null, null, null,
                     null, null, 1, null, null, null,
                     null, 0, false, 0, false, null
@@ -71,7 +70,7 @@ internal class Repository {
             )
             mockedStreams.add(
                 StreamResponse(
-                    1003, 1003, "bitrate_480p_800", "bitrate_480p_800",
+                    1003, "bitrate_480p_800", "bitrate_480p_800",
                     bitrate_480p_800, null, null, null, null,
                     null, null, 1, null, null, null,
                     null, 0, false, 0, false, null
@@ -79,7 +78,7 @@ internal class Repository {
             )
             mockedStreams.add(
                 StreamResponse(
-                    1004, 1004, "bitrate_360p_500", "bitrate_360p_500",
+                    1004, "bitrate_360p_500", "bitrate_360p_500",
                     bitrate_360p_500, null, null, null, null,
                     null, null, 1, null, null, null,
                     null, 0, false, 0, false, null

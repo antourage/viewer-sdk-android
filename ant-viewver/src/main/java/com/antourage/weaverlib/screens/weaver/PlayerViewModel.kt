@@ -138,14 +138,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun initUi(streamId: Int?, currentlyWatchedVideoId: Int?) {
-        streamId?.let {
+    fun initUi(id: Int?) {
+        id?.let {
             this.streamId = it
-            Repository.getPoll(streamId).observeForever(activePollObserver)
-            Repository.getStream(streamId).observeForever(streamObserver)
-        }
-
-        currentlyWatchedVideoId?.let {
+            Repository.getPoll(it).observeForever(activePollObserver)
+            Repository.getStream(it).observeForever(streamObserver)
             this.currentlyWatchedVideoId = it
         }
     }

@@ -99,9 +99,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         viewModel.onVideoPausedOrStopped()
                     } else {
                         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                            ?.streamId?.let { streamId ->
-                                viewModel.onVideoStarted(streamId)
-                            }
+                            ?.id?.let { id -> viewModel.onVideoStarted(id) }
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
@@ -126,7 +124,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             txtNumberOfViewers.text = viewsCount.toString()
             context?.let { context ->
                 updateWasLiveValueOnUI(startTime, duration)
-                streamId?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
+                id?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
@@ -264,8 +262,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
-            viewModel.initUi(streamId, startTime, id, stopTime)
-            streamId?.let { viewModel.setStreamId(it) }
+            viewModel.initUi(id, startTime,  stopTime)
+            id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {
                 Picasso.get()
@@ -504,7 +502,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun startPlayingStream() {
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
-            streamId?.let { viewModel.setCurrentPlayerPosition(it) }
+            id?.let { viewModel.setCurrentPlayerPosition(it) }
             playerView.player = videoURL?.let { viewModel.getExoPlayer(it) }
         }
         playerControls.player = playerView.player

@@ -209,12 +209,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             drawerLayout.closeDrawer(navView)
                         }
                     }
-                    val streamId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId
+                    val videoId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id
                     val userId = arguments?.getInt(ARGS_USER_ID)
-                    if (streamId != null && userId != null) {
+                    if (videoId != null && userId != null) {
                         replaceChildFragment(
                             PollDetailsFragment.newInstance(
-                                streamId,
+                                videoId,
                                 state.pollId,
                                 userId
                             ), R.id.bottomLayout, true
@@ -274,11 +274,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         User id fot firebase synchronized with back end user id with messages;
          */
         message.userID = viewModel.getUser()?.id.toString()
-        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.streamId?.let { streamId ->
-            viewModel.addMessage(
-                message,
-                streamId
-            )
+        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id?.let { id ->
+            viewModel.addMessage(message, id)
         }
         etMessage.setText("")
         rvMessages?.apply {
@@ -647,8 +644,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initStreamInfo(streamResponse: StreamResponse?) {
         streamResponse?.apply {
-            viewModel.initUi(streamId, id)
-            streamId?.let { viewModel.setStreamId(it) }
+            viewModel.initUi(id)
+            id?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
             tvBroadcastedBy.text = creatorNickname
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
