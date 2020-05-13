@@ -37,8 +37,10 @@ import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -93,7 +95,10 @@ internal fun Fragment.replaceChildFragment(
         childFragmentManager.inTransaction { replace(frameId, fragment) }
 }
 
-internal fun <T> LiveData<T>.reObserve(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<T>) {
+internal fun <T> LiveData<T>.reObserve(
+    @NonNull owner: LifecycleOwner,
+    @NonNull observer: Observer<T>
+) {
     this.removeObserver(observer)
     this.observe(owner, observer)
 }
@@ -177,9 +182,14 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
         }
         diff > secInMin -> {
             val minute = (diff / secInMin).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
-        else -> { return context.getString(R.string.ant_started_now)}
+        else -> {
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_seconds_long, diff.toInt(), diff)
+        }
+//        else -> { return context.getString(R.string.ant_started_now)}
     }
     return context.getString(R.string.ant_started_ago, timeAgo)
 }
@@ -258,8 +268,8 @@ internal fun Long.millisToTime(): String {
     val m = (this / 1000 / 60 % 60)
     val s = (this / 1000 % 60)
 
-    val formattedH = if(h>0) "$h:" else ""
-    val formattedS = if(s in 0..9) "0$s" else s.toString()
+    val formattedH = if (h > 0) "$h:" else ""
+    val formattedS = if (s in 0..9) "0$s" else s.toString()
 
     return "$formattedH$m:$formattedS"
 }
@@ -276,7 +286,7 @@ internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val imageByteArray = bos.toByteArray()
 
     val imageRequestBody =
-        RequestBody.create(MediaType.parse("multipart/form-data"), imageByteArray)
+        imageByteArray.toRequestBody("multipart/form-data".toMediaTypeOrNull(), 0, imageByteArray.size)
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
 }
 
@@ -302,17 +312,17 @@ internal fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
 internal fun Context.dpToPx(dp: Float): Int =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
 
-internal fun TextView.hideBadge(){
+internal fun TextView.hideBadge() {
     this.animate()
         .scaleY(0.0f)
         .scaleX(0.0f)
         .alpha(0.0f)
         .setDuration(300)
-        .withEndAction { this.text="" }
+        .withEndAction { this.text = "" }
         .start()
 }
 
-internal fun TextView.showBadge(){
+internal fun TextView.showBadge() {
     this.scaleX = 0.5f
     this.scaleY = 0.5f
     this.alpha = 0.0f
@@ -347,10 +357,10 @@ internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
 }
 
 fun View.animateShowHideDown(isShow: Boolean) {
-    if (isShow && visibility != View.VISIBLE){
+    if (isShow && visibility != View.VISIBLE) {
         startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_in))
         visibility = View.VISIBLE
-    } else if (!isShow && visibility == View.VISIBLE){
+    } else if (!isShow && visibility == View.VISIBLE) {
         startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_out))
         visibility = View.INVISIBLE
     }
@@ -376,7 +386,7 @@ internal fun View.hideWithAnimation() {
     animate().alpha(0f).setDuration(300).withEndAction { this.visibility = View.INVISIBLE }.start()
 }
 
-inline fun  VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {
+inline fun VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             if (measuredWidth > 0 && measuredHeight > 0) {

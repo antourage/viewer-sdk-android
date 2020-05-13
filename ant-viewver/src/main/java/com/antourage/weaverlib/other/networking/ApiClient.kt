@@ -1,12 +1,13 @@
 package com.antourage.weaverlib.other.networking
 
-import android.util.Log
 import com.antourage.weaverlib.UserCache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+
 
 internal object ApiClient {
 
@@ -57,6 +58,9 @@ internal object ApiClient {
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+
         usingAuth = useAuth
         val builder = OkHttpClient.Builder()
         if (useAuth) {
@@ -65,7 +69,8 @@ internal object ApiClient {
             addDefaultInterceptor(builder)
         }
         builder
-            .connectTimeout(1, TimeUnit.MINUTES)
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
         return builder.build()

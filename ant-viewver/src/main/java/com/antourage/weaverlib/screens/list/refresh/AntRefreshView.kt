@@ -1,9 +1,13 @@
 package com.antourage.weaverlib.screens.list.refresh
 
 import android.content.Context
+import android.graphics.drawable.Animatable2
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.ImageView
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 
 class AntRefreshView @JvmOverloads constructor(
@@ -120,14 +124,23 @@ class AntRefreshView @JvmOverloads constructor(
     }
 
     override fun start() {
-        animatedBackground.setImageDrawable(animatedDrawable)
-        animatedDrawable?.start()
+        if(Global.networkAvailable){
+            animatedBackground.setImageDrawable(animatedDrawable)
+            animatedDrawable?.start()
+            animatedDrawable?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback(){
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    super.onAnimationEnd(drawable)
+                    animatedDrawable.start()
+                }
+            })
+        }
         stripes.animate().translationYBy(-300f).setDuration(300).start()
 
     }
 
     override fun stop() {
         animatedDrawable?.stop()
+        animatedDrawable?.clearAnimationCallbacks()
         stripes.animate().translationY(0f).setDuration(300).start()
     }
 }
