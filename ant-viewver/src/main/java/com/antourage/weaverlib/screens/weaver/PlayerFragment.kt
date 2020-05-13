@@ -224,8 +224,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
                             ll_wrapper.visibility = when {
-                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff -> View.INVISIBLE
                                 wasDrawerClosed -> View.INVISIBLE
+                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff && orientation() == Configuration.ORIENTATION_LANDSCAPE -> View.INVISIBLE
                                 else -> View.VISIBLE
                             }
                             if (viewModel.currentPoll != null) {
@@ -235,7 +235,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             if (!wasDrawerClosed)
                                 drawerLayout.openDrawer(navView)
                         }
-                        enableMessageInput(childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)
                     }
                 }
             }
