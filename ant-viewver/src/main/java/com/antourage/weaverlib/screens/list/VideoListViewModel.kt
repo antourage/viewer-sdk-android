@@ -31,6 +31,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     private var canRefresh: Boolean = false
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    var errorLiveData: MutableLiveData<String> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
@@ -121,6 +122,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
             is Status.Failure -> {
                 liveVideosUpdated = true
                 error.postValue(resource.status.errorMessage)
+                errorLiveData.postValue(resource.status.errorMessage)
             }
         }
     }
@@ -159,6 +161,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 vodsUpdated = true
                 loaderLiveData.postValue(false)
                 error.postValue(resource.status.errorMessage)
+                errorLiveData.postValue(resource.status.errorMessage)
             }
         }
     }
@@ -197,6 +200,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 vodsUpdated = true
                 loaderLiveData.postValue(false)
                 error.postValue(resource.status.errorMessage)
+                errorLiveData.postValue(resource.status.errorMessage)
             }
         }
     }

@@ -1,4 +1,5 @@
 package com.antourage.weaverlib.screens.list
+
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -36,7 +37,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
 
-
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun getLayoutId() = R.layout.fragment_videos_list
 
@@ -61,8 +61,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     //region Observers
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
         list?.let { newStreams ->
-            if (newStreams.isNullOrEmpty()) {
-                showEmptyListPlaceholder()
+            if (newStreams.isEmpty()) {
+                if(Global.networkAvailable) showEmptyListPlaceholder()
+                else showNoConnectionPlaceHolder()
             } else {
                 isLoadingMoreVideos = false
                 checkIsNewLiveAdded(newStreams)
@@ -78,6 +79,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         }
         videoRefreshLayout.setRefreshing(false)
+    }
+
+    private val errorObserver: Observer<String> = Observer { error ->
+        error?.let { it ->
+            if(Global.networkAvailable) showErrorLayout(it)
+        }
     }
 
     private val loaderObserver: Observer<Boolean> = Observer { show ->
@@ -108,6 +115,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun subscribeToObservers() {
         viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
+        viewModel.errorLiveData.observe(this.viewLifecycleOwner, errorObserver)
         viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
@@ -125,7 +133,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             viewModel.refreshVODsLocally()
             if (!ConnectionStateMonitor.isNetworkAvailable(it)) {
                 showNoConnectionPlaceHolder()
-            } else if (!ConnectionStateMonitor.isNetworkAvailable(it) &&
+            } else if (ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
                 showEmptyListPlaceholder()
@@ -154,7 +162,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         initSnackbar()
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             when {
-                streamResponse.isLive -> { openLiveFragment(streamResponse) }
+                streamResponse.isLive -> {
+                    openLiveFragment(streamResponse)
+                }
                 streamResponse.id == -1 -> {
                     videosRV.betterSmoothScrollToPosition(0)
                 }
@@ -199,8 +209,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         initOnScrollListener()
 
-
-        videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener{
+        videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable(it)) {
@@ -269,6 +278,19 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                             ContextCompat.getColor(it, R.color.ant_error_bg_color)
                     }
                 }
+            snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+    }
+
+    private fun showErrorSnackbar(error: String) {
+        if (snackBarBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
+
+            snackBar.text = error
+            context?.let {
+                snackBar.backgroundColor =
+                    ContextCompat.getColor(it, R.color.ant_error_bg_color)
+            }
+
             snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
@@ -342,7 +364,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
+        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
+        placeHolderRV.revealWithAnimation()
+    }
+
+    private fun showErrorLayout(error: String) {
+        showErrorSnackbar(error)
+        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
+        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
         placeHolderRV.revealWithAnimation()
     }
 
@@ -419,7 +449,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false){
+    private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false) {
         val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
         replaceFragment(
             PlayerFragment.newInstance(stream, userId, isFromJoinChat),

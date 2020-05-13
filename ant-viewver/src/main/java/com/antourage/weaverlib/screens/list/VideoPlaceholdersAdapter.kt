@@ -2,7 +2,6 @@ package com.antourage.weaverlib.screens.list
 
 import android.content.Context
 import android.util.DisplayMetrics
-import androidx.annotation.ColorRes
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -26,8 +25,11 @@ internal class VideoPlaceholdersAdapter :
         ERROR(3)
     }
 
-    fun setState(state: LoadingState){
-        setItems(arrayListOf(state.value))
+    fun setState(newState: LoadingState) {
+        if (state.isEmpty() || state[0] != newState.value) setItems(arrayListOf(newState.value))
+//        else if (state[0] != newState.value) {
+//            setItems(arrayListOf(newState.value))
+//        }
     }
 
     private fun setItems(newItems: ArrayList<Int>) {
@@ -40,8 +42,8 @@ internal class VideoPlaceholdersAdapter :
         if (calculatedHeight == 0) calculatedHeight = getHeightNeeded()
         val constraintSet = ConstraintSet()
         constraintSet.clone(view.parent as ConstraintLayout)
-        constraintSet.constrainWidth(view.id,screenWidth)
-        constraintSet.constrainHeight(view.id,calculatedHeight)
+        constraintSet.constrainWidth(view.id, screenWidth)
+        constraintSet.constrainHeight(view.id, calculatedHeight)
         constraintSet.applyTo(view.parent as ConstraintLayout)
     }
 
@@ -73,20 +75,20 @@ internal class VideoPlaceholdersAdapter :
 
     inner class PlaceholderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindView() {
-            with(itemView){
+            with(itemView) {
                 setThumbnailSize(ivThumbnail_holder)
-                if(state.isNotEmpty())
-                when(state[0]){
-                    LoadingState.LOADING.value ->{
-                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_video)
+                if (state.isNotEmpty())
+                    when (state[0]) {
+                        LoadingState.LOADING.value -> {
+                            ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_video)
+                        }
+                        LoadingState.NO_INTERNET.value -> {
+                            ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_no_connection)
+                        }
+                        LoadingState.ERROR.value -> {
+                            ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_error)
+                        }
                     }
-                    LoadingState.NO_INTERNET.value ->{
-                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_no_connection)
-                    }
-                    LoadingState.ERROR.value ->{
-
-                    }
-                }
             }
         }
     }
