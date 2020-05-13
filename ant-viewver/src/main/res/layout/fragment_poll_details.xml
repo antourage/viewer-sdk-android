@@ -80,7 +80,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             tools:itemCount="40"
-            tools:listitem="@layout/item_poll_unanswered" />
+            tools:listitem="@layout/item_poll" />
 
     <TextView
             android:id="@+id/tvVoteEncouragement"
