@@ -402,9 +402,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun setAnimatedDrawable(drawableId: Int) {
-//            Log.e("info", "calling new animation")
-        if (currentAnimationDrawableId != drawableId) {
-//            Log.e("info", "creating shit")
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M || currentAnimationDrawableId != drawableId) {
             currentAnimationDrawableId = drawableId
             circleAnimatedDrawable = context?.let {
                 AnimatedVectorDrawableCompat.create(

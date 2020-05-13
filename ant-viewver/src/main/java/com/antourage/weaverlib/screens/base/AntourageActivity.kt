@@ -2,7 +2,6 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -113,16 +112,19 @@ class AntourageActivity : AppCompatActivity() {
 
     // used in case video was open from FAB
     // to open initial list of streams
-    private fun reopenActivity(){
-        val intent = Intent(this, AntourageActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        this.startActivity(intent)
-        finish()
+    private fun replaceListFragment(){
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.mainContent,
+                VideoListFragment.newInstance()
+            )
+            .commit()
+        shouldGoBackToList = false
     }
 
     override fun onBackPressed() {
         if(shouldGoBackToList){
-            reopenActivity()
+            replaceListFragment()
         }else{
             super.onBackPressed()
         }

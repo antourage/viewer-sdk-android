@@ -15,14 +15,24 @@ import org.jetbrains.anko.windowManager
 
 internal class VideoPlaceholdersAdapter :
     RecyclerView.Adapter<VideoPlaceholdersAdapter.PlaceholderViewHolder>() {
-    private var listOfItems = ArrayList<@ColorRes Int>(3)
+    private var state = ArrayList<Int>(1)
     lateinit var context: Context
     private var calculatedHeight = 0
     private var screenWidth = 0
 
-    fun setItems(newItems: ArrayList<Int>) {
-        this.listOfItems.clear()
-        this.listOfItems.addAll(newItems)
+    enum class LoadingState(val value: Int) {
+        LOADING(1),
+        NO_INTERNET(2),
+        ERROR(3)
+    }
+
+    fun setState(state: LoadingState){
+        setItems(arrayListOf(state.value))
+    }
+
+    private fun setItems(newItems: ArrayList<Int>) {
+        this.state.clear()
+        this.state.addAll(newItems)
         notifyDataSetChanged()
     }
 
@@ -55,7 +65,7 @@ internal class VideoPlaceholdersAdapter :
     }
 
 
-    override fun getItemCount() = listOfItems.size
+    override fun getItemCount() = state.size
 
     override fun onBindViewHolder(holder: PlaceholderViewHolder, p1: Int) {
         holder.bindView()
@@ -65,6 +75,18 @@ internal class VideoPlaceholdersAdapter :
         fun bindView() {
             with(itemView){
                 setThumbnailSize(ivThumbnail_holder)
+                if(state.isNotEmpty())
+                when(state[0]){
+                    LoadingState.LOADING.value ->{
+                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_video)
+                    }
+                    LoadingState.NO_INTERNET.value ->{
+                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_no_connection)
+                    }
+                    LoadingState.ERROR.value ->{
+
+                    }
+                }
             }
         }
     }

@@ -108,7 +108,7 @@
                 android:background="@color/ant_error_bg_color"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
-                android:padding="10dp"
+                android:padding="5dp"
                 android:text="@string/ant_no_connection"
                 android:textAlignment="center"
                 android:textAllCaps="true"

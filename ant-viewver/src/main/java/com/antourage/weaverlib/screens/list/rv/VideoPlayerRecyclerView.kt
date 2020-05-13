@@ -86,7 +86,7 @@ class VideoPlayerRecyclerView : RecyclerView {
             playHandler.removeCallbacksAndMessages(null)
             playHandler.postDelayed({
                 playVideo(false)
-            }, 500)
+            }, 1200)
         }
     }
 
@@ -188,7 +188,7 @@ class VideoPlayerRecyclerView : RecyclerView {
                         } else {
                             playVideo(false)
                         }
-                    }, 500)
+                    }, 1200)
                 }
             }
 
