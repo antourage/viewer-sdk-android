@@ -42,7 +42,6 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     private var userProcessedMessages = mutableListOf<Message>()
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
-    private var repository = Repository()
     private var vodId: Int? = null
 
     //method used to check if last added message added by User, but in VOD we don't use this check
@@ -107,14 +106,14 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
     private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun initUi(streamId: Int?, startTime: String?, vodId: Int?, stopTime: String?) {
+    fun initUi(id: Int?, startTime: String?, stopTime: String?) {
         this.startTime = startTime?.parseToDate()
-        streamId?.let {
+        id?.let {
             this.streamId = it
-            Repository.getStream(streamId).observeOnce(streamObserver)
+            Repository.getStream(it).observeOnce(streamObserver)
         }
-        this.vodId = vodId
-        this.currentlyWatchedVideoId = vodId
+        this.vodId = id
+        this.currentlyWatchedVideoId = id
         chatStateLiveData.postValue(true)
         markVODAsWatched()
         this.predefinedStopWatchingTime = stopTime?.parseToMills()
@@ -184,11 +183,11 @@ internal class VideoViewModel @Inject constructor(application: Application) :
                 setVodStopWatchingTime()
             }
         }
-        this.streamId = currentVod.streamId
+        this.streamId = currentVod.id
         this.vodId = currentVod.id
         this.currentlyWatchedVideoId = currentVod.id
         this.startTime = currentVod.startTime?.parseToDate()
-        currentVod.streamId?.let { Repository.getStream(it).observeOnce(streamObserver) }
+        currentVod.id?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
         videoEndedLD.postValue(false)
         if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
@@ -226,7 +225,7 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     private fun findVideoPositionById(videoId: Int): Int {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         for (i in list.indices) {
-            if (list[i].streamId == videoId) {
+            if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
                 return i
             }

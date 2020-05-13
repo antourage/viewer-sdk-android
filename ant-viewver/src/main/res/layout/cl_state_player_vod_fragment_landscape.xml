@@ -105,18 +105,6 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
-    <include
-            layout="@layout/layout_poll_suggestion"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:importantForAccessibility="yes"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="300dp"
@@ -183,34 +171,5 @@
         </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
-
-    <LinearLayout
-            android:id="@+id/llPollStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/antourage_rounded_green_bg"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:padding="4dp"
-                android:src="@drawable/antourage_ic_poll_white_transparent"
-                tools:ignore="ContentDescription" />
-
-        <TextView
-                android:id="@+id/txtPollStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:textColor="@android:color/white"
-                android:textSize="18sp" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

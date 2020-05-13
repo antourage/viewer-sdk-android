@@ -121,31 +121,25 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
-    <include
-            layout="@layout/layout_poll_suggestion"
-            android:layout_width="280dp"
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_half"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:importantForAccessibility="yes"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/antourage_rounded_gray_bg"
+            android:background="@color/ant_feed_bg_color"
             android:elevation="5dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline_half"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
     <com.antourage.weaverlib.other.ui.CustomDrawerLayout
             android:id="@+id/drawerLayout"
@@ -288,45 +282,76 @@
                 tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/llPollStatus"
+    <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/polls_motion_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="12dp"
-            android:animateLayoutChanges="true"
-            android:background="@drawable/antourage_rounded_green_bg"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
             app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-                android:id="@+id/ivPollIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:src="@drawable/antourage_ic_poll_white_transparent"
+        <androidx.cardview.widget.CardView
+                android:id="@+id/poll_bg"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:elevation="0dp"
+                app:cardBackgroundColor="@color/ant_light_gray_2"
+                app:cardCornerRadius="100dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" >
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="11dp"
+                    android:orientation="horizontal">
+
+                <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:src="@drawable/antourage_ic_poll"
+                        android:scaleType="centerCrop"
+                        tools:ignore="ContentDescription" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <TextView
-                android:id="@+id/txtPollStatus"
+                android:id="@+id/poll_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:elevation="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="start"
+                android:textColor="@color/ant_dark_gray_4"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/poll_vote"
+                app:layout_constraintStart_toStartOf="@+id/poll_bg"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Who is the best?" />
+
+        <TextView
+                android:id="@+id/poll_vote"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:gravity="center_vertical"
-                android:paddingLeft="4dp"
-                android:paddingRight="8dp"
-                android:text="@string/ant_confirm"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivPollIcon"
-                app:layout_constraintLeft_toRightOf="@+id/ivPollIcon"
-                app:layout_constraintTop_toTopOf="@+id/ivPollIcon" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="28dp"
+                android:elevation="5dp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/ant_pink"
+                android:textSize="12sp"
+                android:text="@string/ant_poll_vote"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,16 +10,16 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
 import com.antourage.weaverlib.other.reObserve
-import com.antourage.weaverlib.other.ui.MarginItemDecoration
+import com.antourage.weaverlib.other.ui.TopBottomItemDecoration
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.poll.rv.PollAnswersAdapter
+import kotlinx.android.synthetic.main.fragment_poll_details.*
 
 internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     PollAnswersAdapter.AnswerClickedCallback {
@@ -40,10 +40,8 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         }
     }
 
-    private var rvPollAnswers: RecyclerView? = null
     private var tvPollTitle: TextView? = null
     private var ivDismissPoll: ImageView? = null
-    private var tvTotalAnswers: TextView? = null
 
     private val pollObserver: Observer<Poll> = Observer { poll ->
         if (poll != null) {
@@ -52,12 +50,9 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     }
     private val answersObserver: Observer<List<AnswersCombined>> = Observer { answers ->
         if (answers != null) {
-            rvPollAnswers?.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter =
-                    PollAnswersAdapter(answers, viewModel.isAnswered, this@PollDetailsFragment)
-            }
-            tvTotalAnswers?.text = viewModel.calculateAllAnswers().toString()
+            (rvAnswers.adapter as PollAnswersAdapter).setNewList(answers as ArrayList, viewModel.isAnswered)
+            tvVoteEncouragement.text = getString(
+                if (viewModel.isAnswered) R.string.ant_poll_thanks else R.string.ant_poll_vote_to_see)
         }
     }
 
@@ -89,17 +84,14 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
             )
         }
         view?.let {
-            rvPollAnswers = view.findViewById(R.id.rvAnswers)
-            context?.let { context ->
-                rvPollAnswers?.addItemDecoration(
-                    MarginItemDecoration(
-                        dp2px(context, 20f).toInt()
-                    )
-                )
+            rvAnswers.apply {
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(TopBottomItemDecoration(dp2px(context, 20f).toInt()))
+                adapter =
+                    PollAnswersAdapter(ArrayList(), viewModel.isAnswered, this@PollDetailsFragment)
             }
             tvPollTitle = view.findViewById(R.id.pollTitle)
             ivDismissPoll = view.findViewById(R.id.ivDismissPoll)
-            tvTotalAnswers = view.findViewById(R.id.tvTotalAnswers)
         }
         ivDismissPoll?.setOnClickListener {
             if (parentFragment != null)

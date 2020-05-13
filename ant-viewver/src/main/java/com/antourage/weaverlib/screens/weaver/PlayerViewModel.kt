@@ -31,6 +31,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     companion object {
         const val NEW_POLL_DELAY_MS = 15000L
+        const val CLOSE_EXPANDED_POLL_DELAY_MS = 6000L
     }
 
     var wasStreamInitialized = false
@@ -95,6 +96,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                     if (it.data != null && it.data.isNotEmpty()) {
                         postAnsweredUsers = false
                         if (UserCache.getInstance(getApplication())?.getCollapsedPollId().equals(it.data[0].id)) {
+                            //todo: wtf?
                             val pollStatusText =
                                 if (postAnsweredUsers) "2 answers" else getApplication<Application>().getString(
                                     R.string.ant_new_poll
@@ -136,14 +138,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    fun initUi(streamId: Int?, currentlyWatchedVideoId: Int?) {
-        streamId?.let {
+    fun initUi(id: Int?) {
+        id?.let {
             this.streamId = it
-            Repository.getPoll(streamId).observeForever(activePollObserver)
-            Repository.getStream(streamId).observeForever(streamObserver)
-        }
-
-        currentlyWatchedVideoId?.let {
+            Repository.getPoll(it).observeForever(activePollObserver)
+            Repository.getStream(it).observeForever(streamObserver)
             this.currentlyWatchedVideoId = it
         }
     }
@@ -222,6 +221,16 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                 }
             }
         }
+    }
+
+    fun markActivePollDismissed(){
+        pollStatusLiveData.postValue(
+            PollStatus.ActivePollDismissed(
+                getApplication<Application>().getString(
+                    R.string.ant_new_poll
+                )
+            )
+        )
     }
 
     internal fun addMessage(message: Message, streamId: Int) {

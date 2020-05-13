@@ -5,8 +5,12 @@
     <string name="ant_hint_say_something">Say something</string>
     <string name="ant_hint_disabled">Chat disabled</string>
 
+    <!--polls-->
     <string name="ant_new_poll">New poll!</string>
-    <string name="ant_total_answers">Total answers</string>
+    <string name="ant_poll_vote_to_see">Vote to see results!</string>
+    <string name="ant_poll_thanks">Thanks for voting!</string>
+    <string name="ant_poll_vote">VOTE</string>
+
     <string name="ant_new_stream">New stream</string>
     <string name="ant_chat_not_available">Chat is unavailable</string>
 

@@ -80,7 +80,11 @@ internal data class AnsweredUser(
 ) : FirestoreModel()
 
 @Keep
-internal data class AnswersCombined(val answerText: String, var numberAnswered: Int)
+internal data class AnswersCombined(
+    val answerText: String,
+    var numberAnswered: Int = 0,
+    var isAnsweredByUser: Boolean = false
+)
 
 @Keep
 @IgnoreExtraProperties

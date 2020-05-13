@@ -40,7 +40,6 @@ class NotificationSubscriptionResponse : SimpleResponse() {
 @Parcelize
 data class StreamResponse(
     @field:SerializedName("id") val id: Int?,
-    @field:SerializedName("streamId") val streamId: Int?,
     @field:SerializedName("name") val streamTitle: String?,
     @field:SerializedName("videoName") val videoName: String?,
     @field:SerializedName("videoURL") val videoURL: String?,

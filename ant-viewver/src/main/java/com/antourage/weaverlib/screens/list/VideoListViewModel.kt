@@ -214,7 +214,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     private fun getListEndPlaceHolder(): StreamResponse {
         return StreamResponse(
-            -1, -1, null, null,
+            -1, null, null,
             null, null, null, null,
             null, null, null, null, null,
             null, null, null, null, false, null, false, null
@@ -223,7 +223,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     private fun getStreamLoaderPlaceholder(): StreamResponse {
         return StreamResponse(
-            -2, -2, null, null,
+            -2,  null, null,
             null, null, null, null,
             null, null, null, null, null,
             null, null, null, null, false, null, false, null

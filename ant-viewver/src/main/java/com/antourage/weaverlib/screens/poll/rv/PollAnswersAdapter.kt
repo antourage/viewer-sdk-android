@@ -1,77 +1,68 @@
 package com.antourage.weaverlib.screens.poll.rv
 
-import android.content.Context
-import androidx.core.content.res.ResourcesCompat
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
-import com.antourage.weaverlib.other.trueWidth
+import kotlinx.android.synthetic.main.item_poll_unanswered.view.*
 import kotlin.math.roundToInt
 
 internal class PollAnswersAdapter(
-    private val listOfAnswers: List<AnswersCombined>,
-    private val isAnswered: Boolean,
-    private val callback: AnswerClickedCallback
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var context: Context? = null
+    private var listOfAnswers: ArrayList<AnswersCombined>,
+    private var isAnswered: Boolean,
+    private val callback: AnswerClickedCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val listOfBackgrounds = object : ArrayList<Int>() {
-        init {
-            add(R.drawable.antourage_rounded_orange_bg)
-            add(R.drawable.antourage_rounded_bleak_pink_bg)
-            add(R.drawable.antourage_rounded_blue_bg)
-            add(R.drawable.antourage_rounded_green_bg)
+    companion object {
+        private const val VIEW_UNANSWERED_POLL = 0
+        private const val VIEW_ANSWERED_POLL = 1
+    }
+
+    //the marker to show animation transition in elements.
+    // Should be used only if user has just voted.
+    private var shouldShowAnimation: Boolean = false
+
+    interface AnswerClickedCallback {
+        fun onAnswerChosen(position: Int)
+    }
+
+    fun setNewList(newAnswers: ArrayList<AnswersCombined>, isAnswered: Boolean) {
+        if (newAnswers != listOfAnswers || this.isAnswered != isAnswered){
+            listOfAnswers.clear()
+            listOfAnswers.addAll(newAnswers)
+            shouldShowAnimation = !this.isAnswered && isAnswered
+            this.isAnswered = isAnswered
+            notifyDataSetChanged()
         }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (isAnswered) { VIEW_ANSWERED_POLL } else VIEW_UNANSWERED_POLL
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        context = viewGroup.context
-        return if (viewType == VIEW_ANSWERED_POLL) {
-            AnsweredViewHolder(
-                LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.item_answered_poll, viewGroup, false)
-            )
+        return UnansweredViewHolder(LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.item_poll_unanswered, viewGroup, false))
+        /*return if (viewType == VIEW_ANSWERED_POLL) {
+            AnsweredViewHolder(LayoutInflater.from(viewGroup.context)
+                .inflate(R.layout.item_poll_answered, viewGroup, false))
         } else {
-            UnansweredViewHolder(
-                LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.item_unanswered_poll, viewGroup, false)
-            )
-        }
+            UnansweredViewHolder(LayoutInflater.from(viewGroup.context)
+                .inflate(R.layout.item_poll_unanswered, viewGroup, false))
+        }*/
     }
 
-    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, i: Int) {
-        if (viewHolder is UnansweredViewHolder) {
-            viewHolder.btnAnswer.background = ResourcesCompat.getDrawable(
-                context!!.resources,
-                listOfBackgrounds[i], null
-            )
-            viewHolder.btnAnswer.text = listOfAnswers[i].answerText
-            viewHolder.btnAnswer.setOnClickListener { callback.onAnswerChosen(viewHolder.getAdapterPosition()) }
-        } else {
-            (viewHolder as AnsweredViewHolder).tvAnswer.text = listOfAnswers[i].answerText
-            viewHolder.tvAnswerPercentage.text = ((getPercentage(i) * 100).roundToInt().toString()
-                    + "%")
-            viewHolder.tvPollLength.background = ResourcesCompat.getDrawable(
-                context!!.resources,
-                listOfBackgrounds[i], null
-            )
-            viewHolder.itemView.trueWidth {
-                val maxWidth = it - dp2px(context!!, 40f)
-                val params = viewHolder.tvPollLength.layoutParams
-                params.width = (maxWidth * getPercentage(i)).toInt()
-                if (params.width == 0) {
-                    params.width = 10
-                }
-                viewHolder.tvPollLength.layoutParams = params
-            }
-        }
+    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, pos: Int) {
+        (viewHolder as UnansweredViewHolder).bind(listOfAnswers[pos], pos)
+        /*if (viewHolder is UnansweredViewHolder) {
+            viewHolder.bind(listOfAnswers[pos], pos)
+        } else if (viewHolder is AnsweredViewHolder) {
+            viewHolder.bind(listOfAnswers[pos], pos)
+        }*/
     }
+
+    override fun getItemCount(): Int = listOfAnswers.size
 
     private fun getPercentage(pos: Int): Double {
         return listOfAnswers[pos].numberAnswered / calculateAllAnswers()
@@ -85,37 +76,60 @@ internal class PollAnswersAdapter(
         return sum.toDouble()
     }
 
-    override fun getItemCount(): Int {
-        return listOfAnswers.size
+    inner class UnansweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind(result: AnswersCombined, pos: Int) {
+            itemView.apply {
+                item_poll_bg.isActivated = if (!isAnswered) true else result.isAnsweredByUser
+                item_poll_percentage.isActivated = result.isAnsweredByUser
+                item_poll_fill_color.isActivated = result.isAnsweredByUser
+                item_poll_answer.text = result.answerText
+                item_poll_percentage.text = (
+                        if (isAnswered)(getPercentage(pos) * 100).roundToInt().toString() + "%" else "")
+                item_poll_guideline.setGuidelinePercent(
+                    if (isAnswered) getPercentage(pos).toFloat() else 0f)
+                item_poll_bg.setOnClickListener { if(!isAnswered) callback.onAnswerChosen(pos) }
+                if (isAnswered){
+                    item_poll_motion.getConstraintSet(R.id.start_poll_frag)?.let { set ->
+                        set.setGuidelinePercent(R.id.item_poll_guideline, 0f)
+                    }
+
+                    item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.let { set ->
+                        set.setGuidelinePercent(
+                            R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
+                    }
+                    if (shouldShowAnimation){
+                        stopAnimationItemsIfRequired(pos)
+                        item_poll_motion.transitionToEnd()
+                    } else {
+                        //todo: test this
+                        item_poll_motion.progress = 1.0f
+                        //item_poll_motion.setTransitionDuration(0)
+                    }
+
+                }
+            }
+        }
+
+        private fun stopAnimationItemsIfRequired(pos: Int){
+            if (pos == itemCount - 1) shouldShowAnimation = false
+        }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (isAnswered) {
-            VIEW_ANSWERED_POLL
-        } else
-            VIEW_UNANSWERED_POLL
-    }
-
-    internal inner class UnansweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        var btnAnswer: Button = itemView.findViewById(R.id.btnAnswer)
-
-    }
-
-    internal inner class AnsweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        var tvAnswer: TextView = itemView.findViewById(R.id.tvAnswer)
-        var tvPollLength: TextView = itemView.findViewById(R.id.tvPollLength)
-        var tvAnswerPercentage: TextView = itemView.findViewById(R.id.tvAnswerPercentage)
-
-    }
-
-    interface AnswerClickedCallback {
-        fun onAnswerChosen(position: Int)
-    }
-
-    companion object {
-        private const val VIEW_UNANSWERED_POLL = 0
-        private const val VIEW_ANSWERED_POLL = 1
+    inner class AnsweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind(result: AnswersCombined, pos: Int) {
+            itemView.apply {
+                /*tvAnswer.text = result.answerText
+                tvAnswerPercentage.text = ((getPercentage(pos) * 100).roundToInt().toString() + "%")
+                trueWidth {
+                    val maxWidth = it - dp2px(context, 40f)
+                    val params = tvPollLength.layoutParams
+                    params.width = (maxWidth * getPercentage(pos)).toInt()
+                    if (params.width == 0) {
+                        params.width = 10
+                    }
+                    tvPollLength.layoutParams = params
+                }*/
+            }
+        }
     }
 }
