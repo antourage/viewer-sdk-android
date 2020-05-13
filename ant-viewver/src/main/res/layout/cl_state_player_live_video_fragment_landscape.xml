@@ -138,8 +138,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/guideline_half"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     <com.antourage.weaverlib.other.ui.CustomDrawerLayout
             android:id="@+id/drawerLayout"
@@ -286,8 +285,9 @@
             android:id="@+id/polls_motion_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.cardview.widget.CardView

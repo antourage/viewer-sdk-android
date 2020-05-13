@@ -6,18 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.AnswersCombined
-import kotlinx.android.synthetic.main.item_poll_unanswered.view.*
+import kotlinx.android.synthetic.main.item_poll.view.*
 import kotlin.math.roundToInt
 
 internal class PollAnswersAdapter(
     private var listOfAnswers: ArrayList<AnswersCombined>,
     private var isAnswered: Boolean,
-    private val callback: AnswerClickedCallback) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    companion object {
-        private const val VIEW_UNANSWERED_POLL = 0
-        private const val VIEW_ANSWERED_POLL = 1
-    }
+    private val callback: AnswerClickedCallback
+) : RecyclerView.Adapter<PollAnswersAdapter.PollViewHolder>() {
 
     //the marker to show animation transition in elements.
     // Should be used only if user has just voted.
@@ -29,37 +25,34 @@ internal class PollAnswersAdapter(
 
     fun setNewList(newAnswers: ArrayList<AnswersCombined>, isAnswered: Boolean) {
         if (newAnswers != listOfAnswers || this.isAnswered != isAnswered){
+            setAnimationIfRequired(isAnswered)
             listOfAnswers.clear()
             listOfAnswers.addAll(newAnswers)
-            shouldShowAnimation = !this.isAnswered && isAnswered
             this.isAnswered = isAnswered
             notifyDataSetChanged()
         }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (isAnswered) { VIEW_ANSWERED_POLL } else VIEW_UNANSWERED_POLL
-    }
-
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return UnansweredViewHolder(LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.item_poll_unanswered, viewGroup, false))
-        /*return if (viewType == VIEW_ANSWERED_POLL) {
-            AnsweredViewHolder(LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.item_poll_answered, viewGroup, false))
+    /**
+     * Checks whether animation should be applicable for itemViews;
+     * Animation should be shown only when user has just voted;
+     * So, the check on empty list means that user wasn't voting as it's just adapter list creation;
+     */
+    private fun setAnimationIfRequired(newIisAnswered: Boolean) {
+        shouldShowAnimation  = if(listOfAnswers.isEmpty()){
+            false
         } else {
-            UnansweredViewHolder(LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.item_poll_unanswered, viewGroup, false))
-        }*/
+            !this.isAnswered && newIisAnswered
+        }
     }
 
-    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, pos: Int) {
-        (viewHolder as UnansweredViewHolder).bind(listOfAnswers[pos], pos)
-        /*if (viewHolder is UnansweredViewHolder) {
-            viewHolder.bind(listOfAnswers[pos], pos)
-        } else if (viewHolder is AnsweredViewHolder) {
-            viewHolder.bind(listOfAnswers[pos], pos)
-        }*/
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): PollViewHolder {
+        return PollViewHolder(LayoutInflater.from(viewGroup.context)
+            .inflate(R.layout.item_poll, viewGroup, false))
+    }
+
+    override fun onBindViewHolder(viewHolder: PollViewHolder, pos: Int) {
+        viewHolder.bind(listOfAnswers[pos], pos)
     }
 
     override fun getItemCount(): Int = listOfAnswers.size
@@ -76,7 +69,7 @@ internal class PollAnswersAdapter(
         return sum.toDouble()
     }
 
-    inner class UnansweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class PollViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(result: AnswersCombined, pos: Int) {
             itemView.apply {
                 item_poll_bg.isActivated = if (!isAnswered) true else result.isAnsweredByUser
@@ -89,46 +82,29 @@ internal class PollAnswersAdapter(
                     if (isAnswered) getPercentage(pos).toFloat() else 0f)
                 item_poll_bg.setOnClickListener { if(!isAnswered) callback.onAnswerChosen(pos) }
                 if (isAnswered){
-                    item_poll_motion.getConstraintSet(R.id.start_poll_frag)?.let { set ->
-                        set.setGuidelinePercent(R.id.item_poll_guideline, 0f)
-                    }
+                    item_poll_motion.getConstraintSet(R.id.start_poll_frag)
+                        ?.setGuidelinePercent(R.id.item_poll_guideline, 0f)
 
-                    item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.let { set ->
-                        set.setGuidelinePercent(
-                            R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
-                    }
+                    item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.setGuidelinePercent(
+                        R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
                     if (shouldShowAnimation){
-                        stopAnimationItemsIfRequired(pos)
+                        stopAnimatingItemsIfRequired(pos)
                         item_poll_motion.transitionToEnd()
                     } else {
-                        //todo: test this
+                        //directly sets motionLayout to end set without animation
                         item_poll_motion.progress = 1.0f
-                        //item_poll_motion.setTransitionDuration(0)
                     }
-
                 }
             }
         }
 
-        private fun stopAnimationItemsIfRequired(pos: Int){
-            if (pos == itemCount - 1) shouldShowAnimation = false
-        }
-    }
-
-    inner class AnsweredViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(result: AnswersCombined, pos: Int) {
-            itemView.apply {
-                /*tvAnswer.text = result.answerText
-                tvAnswerPercentage.text = ((getPercentage(pos) * 100).roundToInt().toString() + "%")
-                trueWidth {
-                    val maxWidth = it - dp2px(context, 40f)
-                    val params = tvPollLength.layoutParams
-                    params.width = (maxWidth * getPercentage(pos)).toInt()
-                    if (params.width == 0) {
-                        params.width = 10
-                    }
-                    tvPollLength.layoutParams = params
-                }*/
+        /**
+         * If the item is the last one in list, so the animation for voting was already shown and
+         * shouldn't be shown again in this adapter;
+         */
+        private fun stopAnimatingItemsIfRequired(pos: Int){
+            if (pos == itemCount - 1) {
+                shouldShowAnimation = false
             }
         }
     }

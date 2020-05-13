@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -32,7 +35,7 @@ import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
-    private var isChatDismissed: Boolean = false
+    protected var isChatDismissed: Boolean = false
 
     private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
@@ -40,6 +43,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var newCommentsButton: ConstraintLayout? = null
     //llMessageWrapper not in use in VOD
     private var llMessageWrapper: ConstraintLayout? = null
+    private var pollsBadge: ConstraintLayout? = null
     private var commentsLayout: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
@@ -120,6 +124,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             rvMessages = findViewById(R.id.rvMessages)
             llMessageWrapper = findViewById(R.id.ll_wrapper)
             newCommentsButton = findViewById(R.id.bttn_new_comments)
+            pollsBadge = findViewById(R.id.polls_motion_layout)
             commentsLayout = findViewById(R.id.clNavView)
         }
         initMessagesRV()
@@ -201,9 +206,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                     llMessageWrapper?.alpha = slideOffset
                                     if (slideOffset == 0.0f) {
                                         enableChat(false)
+                                        animatePollBadgeIfRequired(0f)
                                     }
                                     if (slideOffset == 1.0f) {
                                         enableChat(true)
+                                        animatePollBadgeIfRequired(56f)
                                     }
                                 } else {
                                     drawerLayout.openDrawer(navigationView, false)
@@ -215,6 +222,25 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                 }
             }
         })
+    }
+
+    private fun animatePollBadgeIfRequired(marginBottomDp: Float){
+        if (llMessageWrapper?.visibility == View.VISIBLE){
+            val params: ViewGroup.MarginLayoutParams? = pollsBadge?.layoutParams as ViewGroup.MarginLayoutParams
+            val initBottomMargin = params?.bottomMargin ?:0
+            val endBottomMargin =  pollsBadge?.dpToPx(marginBottomDp) ?: 0
+            val a = object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+                    val marginParams: ViewGroup.MarginLayoutParams?
+                            = pollsBadge?.layoutParams as ViewGroup.MarginLayoutParams
+                    marginParams?.bottomMargin = initBottomMargin +
+                            ((endBottomMargin - initBottomMargin) * interpolatedTime).toInt()
+                    pollsBadge?.layoutParams = params
+                }
+            }
+            a.duration = 400
+            pollsBadge?.startAnimation(a)
+        }
     }
 
     private fun enableChat(enable: Boolean) {
