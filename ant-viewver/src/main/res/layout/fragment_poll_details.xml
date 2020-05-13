@@ -4,113 +4,98 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ant_bg_color">
-
-    <ImageView
-            android:id="@+id/ic_poll_hor"
-            android:layout_width="40dp"
-            android:layout_height="24dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_weight="1"
-            android:src="@drawable/antourage_ic_poll_horizontal"
-            app:layout_constraintBottom_toBottomOf="@+id/pollTitle"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/pollTitle"
-            tools:ignore="ContentDescription" />
+        android:background="@color/ant_light_gray_2">
+    
+    <LinearLayout
+            android:id="@+id/poll_fancy_layout"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+        <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/ant_pink_2" />
+        <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@color/ant_orange_2" />
+        <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:background="@color/ant_blue" />
+        <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/ant_pink_2" />
+    </LinearLayout>
 
     <TextView
             android:id="@+id/pollTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="56dp"
             android:layout_marginTop="20dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
-            android:fontFamily="@font/roboto_condensed_regular"
+            android:fontFamily="@font/roboto_regular"
+            android:gravity="center"
             android:includeFontPadding="false"
             android:maxLines="4"
-            android:textColor="@android:color/white"
-            android:textSize="22sp"
-            app:layout_constraintLeft_toRightOf="@+id/ic_poll_hor"
-            app:layout_constraintRight_toLeftOf="@+id/ivDismissPoll"
+            android:singleLine="false"
+            android:textColor="@color/ant_dark_gray_4"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/ivDismissPoll"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="New interesting poll" />
 
     <ImageButton
             android:id="@+id/ivDismissPoll"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginRight="20dp"
-            android:background="@android:color/transparent"
-            android:padding="20dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:scaleType="centerInside"
             android:src="@drawable/antourage_ic_close"
-            app:layout_constraintBottom_toBottomOf="@+id/ic_poll_hor"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/ic_poll_hor"
+            android:theme="@style/ThemeOverlay.MaterialComponents.Light"
+            app:layout_constraintBottom_toTopOf="@+id/rvAnswers"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:ignore="ContentDescription" />
-
-    <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pollTitle" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAnswers"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/dividerBottom"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintTop_toBottomOf="@+id/pollTitle"
+            app:layout_constraintBottom_toTopOf="@+id/tvVoteEncouragement"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider"
             tools:itemCount="40"
-            tools:listitem="@layout/item_unanswered_poll" />
-
-    <View
-            android:id="@+id/dividerBottom"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="20dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintBottom_toTopOf="@+id/labelTotalAnswers"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            tools:listitem="@layout/item_poll_unanswered" />
 
     <TextView
-            android:id="@+id/labelTotalAnswers"
+            android:id="@+id/tvVoteEncouragement"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
             android:layout_marginBottom="20dp"
-            android:fontFamily="@font/roboto_condensed_regular"
-            android:text="@string/ant_total_answers"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/ant_poll_vote_to_see"
+            android:textColor="@color/ant_streamer_name_color"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            tools:ignore="RtlSymmetry" />
-
-    <TextView
-            android:id="@+id/tvTotalAnswers"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:fontFamily="@font/roboto_condensed_regular"
-            android:paddingEnd="20dp"
-            android:paddingRight="20dp"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@+id/labelTotalAnswers"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/labelTotalAnswers"
-            tools:ignore="RtlSymmetry"
-            tools:text="25" />
-
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

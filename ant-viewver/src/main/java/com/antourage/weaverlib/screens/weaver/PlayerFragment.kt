@@ -605,7 +605,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         ll_wrapper.visibility = View.GONE
     }
 
-    private fun orientation() = resources.configuration.orientation
+    private fun orientation() = this?.resources?.configuration.orientation
 
     private fun showRvMessages() {
         rvMessages.visibility = View.VISIBLE
@@ -628,9 +628,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             polls_motion_layout.transitionToEnd()
             //callback to collapse extended poll layout in 6 sec
             Handler().postDelayed({
-                    if (orientation() == Configuration.ORIENTATION_PORTRAIT &&
+                    if (polls_motion_layout != null &&
+                        orientation() == Configuration.ORIENTATION_PORTRAIT &&
                         viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
-                        polls_motion_layout.transitionToStart()
+                        polls_motion_layout?.transitionToStart()
                         viewModel.markActivePollDismissed()
                     }
                 }, PlayerViewModel.CLOSE_EXPANDED_POLL_DELAY_MS
@@ -649,10 +650,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.initUi(streamId, id)
             streamId?.let { viewModel.setStreamId(it) }
             tvStreamName.text = streamTitle
-            tvBroadcastedBy.text = creatorFullName
+            tvBroadcastedBy.text = creatorNickname
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
             player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
-                creatorFullName
+                creatorNickname
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
                     .placeholder(R.drawable.antourage_ic_default_user)

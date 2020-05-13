@@ -155,13 +155,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playerView"
             tools:ignore="ContentDescription" />
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_half"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/antourage_rounded_gray_bg"
-            android:backgroundTint="@color/ant_feed_bg_color"
+            android:background="@color/ant_feed_bg_color"
             android:elevation="5dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -289,7 +294,7 @@
                 android:fontFamily="@font/roboto_bold"
                 android:textColor="@color/ant_pink"
                 android:textSize="12sp"
-                android:text="VOTE"
+                android:text="@string/ant_poll_vote"
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

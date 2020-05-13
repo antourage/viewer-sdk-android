@@ -119,10 +119,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_player_progress.max = viewModel.getVideoDuration()?.toInt() ?: 1
             }
             tvStreamName.text = videoName
-            tvBroadcastedBy.text = creatorFullName
+            tvBroadcastedBy.text = creatorNickname
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = videoName
             player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
-                creatorFullName
+                creatorNickname
             txtNumberOfViewers.text = viewsCount.toString()
             context?.let { context ->
                 updateWasLiveValueOnUI(startTime, duration)

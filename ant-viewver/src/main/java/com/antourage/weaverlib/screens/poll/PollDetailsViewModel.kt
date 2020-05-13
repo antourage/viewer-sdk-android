@@ -12,9 +12,7 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.google.firebase.FirebaseApp
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import java.util.*
 import javax.inject.Inject
 
 internal class PollDetailsViewModel @Inject constructor(
@@ -76,15 +74,18 @@ internal class PollDetailsViewModel @Inject constructor(
             if (poll?.answers != null && answeredUsers != null)
                 for (i in 0 until (poll.answers?.size ?: 0)) {
                     var counter = 0
+                    var isAnsweredByUser = false
                     for (j in answeredUsers.indices) {
-                        if (answeredUsers[j].id == userId.toString()
-                        ) {
+                        if (answeredUsers[j].id == userId.toString()) {
                             isAnswered = true
                         }
-                        if (answeredUsers[j].chosenAnswer == i)
+                        if (answeredUsers[j].chosenAnswer == i) {
                             counter++
+                            isAnsweredByUser = answeredUsers[j].id == userId.toString()
+                        }
                     }
-                    val combinedAns = AnswersCombined(poll.answers?.get(i) ?: "", counter)
+                    val combinedAns = AnswersCombined(
+                        poll.answers?.get(i) ?: "", counter, isAnsweredByUser)
                     answers.add(combinedAns)
                 }
             answersLiveData.postValue(answers)

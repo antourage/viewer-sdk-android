@@ -11,6 +11,8 @@
     <color name="ant_bg_color_widget_expantion">#131313</color>
     <color name="ant_bg_color">#222</color>
     <color name="ant_pink">#E4699B</color>
+    <color name="ant_pink_a30">#4DE4699B</color>
+    <color name="ant_pink_2">#EB8CA1</color>
     <color name="ant_light_gray_transparent">#59bababa</color>
     <color name="ant_card_gray_background">#2F2F2F</color>
     <color name="ant_gray_lighter">#FF848484</color>
@@ -29,10 +31,13 @@
     <color name="ant_green_2">#00A854</color>
     <color name="ant_bleak_pink">#F8BFAD</color>
     <color name="ant_orange">#F8BC6D</color>
+    <color name="ant_orange_2">#F6BA5F</color>
     <color name="ant_blue">#3596C5</color>
     <color name="ant_grayed_text">#464646</color>
     <color name="ant_light_gray">#D8D8D8</color>
     <color name="ant_light_gray_2">#FCFCFC</color>
+    <color name="ant_gray">#9BA3A9</color>
+    <color name="ant_gray_a30">#4D9BA3A9</color>
     <color name="ant_color_dark_gray_text">#3D3D3D</color>
     <color name="ant_color_dark_gray_text_a60">#993D3D3D</color>
     <color name="ant_color_dark_gray_text_a10">#1A3D3D3D</color>
