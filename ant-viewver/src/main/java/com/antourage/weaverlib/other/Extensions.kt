@@ -182,14 +182,9 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
         }
         diff > secInMin -> {
             val minute = (diff / secInMin).toInt()
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
-        else -> {
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_seconds_long, diff.toInt(), diff)
-        }
-//        else -> { return context.getString(R.string.ant_started_now)}
+        else -> { return context.getString(R.string.ant_started_now)}
     }
     return context.getString(R.string.ant_started_ago, timeAgo)
 }
