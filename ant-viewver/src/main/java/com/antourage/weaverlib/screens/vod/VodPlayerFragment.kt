@@ -150,7 +150,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     @SuppressLint("ClickableViewAccessibility")
     private val endVideoObserver: Observer<Boolean> = Observer { isEnded ->
-        if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE) {
+        if (isEnded && !viewModel.hasNextTrack()){
+            //STATE END OF LAST VIDEO IN PLAYLIST
+            vod_play_pause_layout.visibility = View.INVISIBLE
+            vod_buttons_layout.visibility = View.VISIBLE
+            vod_next_auto_layout.visibility = View.INVISIBLE
+            vod_rewind.visibility = View.VISIBLE
+        } else if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE) {
+            //STATE END OF NOT LAST VIDEO IN PLAYLIST
             val mCountDownTimer = object : CountDownTimer(5000, 20) {
                 override fun onTick(millisUntilFinished: Long) {
                     vod_progress_bar?.progress = millisUntilFinished.toInt()
@@ -179,7 +186,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 playerView.setOnTouchListener(playerOnTouchListener)
                 controls.showTimeoutMs = 1200
             }
-            vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
                 mCountDownTimer.cancel()
                 vod_buttons_layout.visibility = View.VISIBLE
@@ -195,6 +201,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 viewModel.nextVideoPlay()
             }
         } else if (!isEnded) {
+            //NOT END VIDEO STATE
             vod_play_pause_layout.visibility = View.VISIBLE
             vod_buttons_layout.visibility = View.VISIBLE
             vod_next_auto_layout.visibility = View.INVISIBLE
@@ -305,6 +312,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun initPlayerClickListeners() {
         vod_control_prev.setOnClickListener { viewModel.prevVideoPlay() }
         vod_control_next.setOnClickListener { viewModel.nextVideoPlay() }
+        vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
         updatePrevNextVisibility()
     }
 
