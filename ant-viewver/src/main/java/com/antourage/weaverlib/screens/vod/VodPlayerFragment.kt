@@ -113,8 +113,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
-            if (viewModel.getVideoDuration() != null) {
-                vod_player_progress.max = viewModel.getVideoDuration()?.toInt() ?: 1
+            viewModel.getVideoDuration()?.let{duration ->
+                if (duration > 0 ) { vod_player_progress.max = duration.toInt() }
             }
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorNickname
@@ -283,13 +283,15 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initPortraitProgressListener() {
-        controls.setProgressUpdateListener { pos, _ -> vod_player_progress.progress = pos.toInt() }
+        controls.setProgressUpdateListener {
+                pos, _ -> vod_player_progress.progress = pos.toInt()
+        }
     }
 
     private fun updateProgressBar() {
-        val duration = viewModel.getVideoDuration()?.toInt()
-        val position = viewModel.getVideoPosition()?.toInt()
-        if (duration != null && position != null) {
+        val duration = viewModel.getVideoDuration()?.toInt() ?: -1
+        val position = viewModel.getVideoPosition()?.toInt() ?: -1
+        if (duration > 0  && position > 0 && position <= duration) {
             vod_player_progress?.max = duration
             vod_player_progress?.progress = position
         }
