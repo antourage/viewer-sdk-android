@@ -27,12 +27,22 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
+import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -584,4 +594,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             txtNumberOfViewers.text = it.toString()
         }
     }
+
+    //not in use for this fragment
+    override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {}
 }

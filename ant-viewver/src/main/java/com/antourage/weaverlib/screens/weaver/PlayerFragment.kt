@@ -12,6 +12,8 @@ import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
@@ -118,9 +120,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
                     enableMessageInput(false, ivThanksForWatching?.visibility == View.VISIBLE)
-                    if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-                        polls_motion_layout.marginDp(bottom = if (ll_wrapper.visibility == View.VISIBLE && !isChatDismissed) 56f else 0f)
-                    }
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -227,12 +226,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.GONE
                             ll_wrapper.visibility = when {
-                                wasDrawerClosed -> View.INVISIBLE
-                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff && orientation() == Configuration.ORIENTATION_LANDSCAPE -> View.INVISIBLE
+                                wasDrawerClosed -> View.GONE
+                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff && orientation() == Configuration.ORIENTATION_LANDSCAPE -> View.GONE
                                 else -> View.VISIBLE
-                            }
-                            if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-                                polls_motion_layout.marginDp(bottom = if (ll_wrapper.visibility == View.VISIBLE) 56f else 0f)
                             }
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
@@ -601,16 +597,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun showMessageInput() {
         ll_wrapper.visibility = View.VISIBLE
-        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-            polls_motion_layout.marginDp(bottom = if (isChatDismissed) 0f else 56f)
-        }
     }
 
     private fun removeMessageInput() {
         ll_wrapper.visibility = View.GONE
-        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-            polls_motion_layout.marginDp(bottom = 0f)
-        }
     }
 
     private fun orientation() = this?.resources?.configuration.orientation
@@ -855,5 +845,33 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 setupUIForHidingKeyboardOnOutsideTouch(innerView)
             }
         }
+    }
+
+    //callback from drawer in landscape
+    override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
+        if (!shouldShow && ll_wrapper.visibility == View.VISIBLE){
+            ll_wrapper.visibility = View.GONE
+        } else if (shouldShow && viewModel.getChatStatusLiveData().value !is ChatStatus.ChatTurnedOff){
+            if (ll_wrapper.visibility != View.VISIBLE){
+                ll_wrapper.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun animatePollBadgeIfRequired(marginBottomDp: Float){
+        val params: ViewGroup.MarginLayoutParams? = polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
+        val initBottomMargin = params?.bottomMargin ?:0
+        val endBottomMargin =  polls_motion_layout?.dpToPx(marginBottomDp) ?: 0
+        val a = object : Animation() {
+            override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+                val marginParams: ViewGroup.MarginLayoutParams?
+                        = polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
+                marginParams?.bottomMargin = initBottomMargin +
+                        ((endBottomMargin - initBottomMargin) * interpolatedTime).toInt()
+                polls_motion_layout?.layoutParams = params
+            }
+        }
+        a.duration = 400
+        polls_motion_layout?.startAnimation(a)
     }
 }
