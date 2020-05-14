@@ -80,7 +80,11 @@ internal class PollAnswersAdapter(
                         if (isAnswered)(getPercentage(pos) * 100).roundToInt().toString() + "%" else "")
                 item_poll_guideline.setGuidelinePercent(
                     if (isAnswered) getPercentage(pos).toFloat() else 0f)
-                item_poll_bg.setOnClickListener { if(!isAnswered) callback.onAnswerChosen(pos) }
+                if(!isAnswered) {
+                    item_poll_bg.setOnClickListener { if(!isAnswered) callback.onAnswerChosen(pos) }
+                } else {
+                    item_poll_bg.isClickable = false
+                }
                 if (isAnswered){
                     item_poll_motion.getConstraintSet(R.id.start_poll_frag)
                         ?.setGuidelinePercent(R.id.item_poll_guideline, 0f)
