@@ -51,8 +51,6 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     private val answersObserver: Observer<List<AnswersCombined>> = Observer { answers ->
         if (answers != null) {
             (rvAnswers.adapter as PollAnswersAdapter).setNewList(answers as ArrayList, viewModel.isAnswered)
-            tvVoteEncouragement.text = getString(
-                if (viewModel.isAnswered) R.string.ant_poll_thanks else R.string.ant_poll_vote_to_see)
         }
     }
 
