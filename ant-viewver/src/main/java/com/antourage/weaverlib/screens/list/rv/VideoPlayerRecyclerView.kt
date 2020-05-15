@@ -85,12 +85,12 @@ class VideoPlayerRecyclerView : RecyclerView {
         if (streams.isNotEmpty()) {
             playHandler.removeCallbacksAndMessages(null)
             playHandler.postDelayed({
-                playVideo(false)
+                playVideo()
             }, 1200)
         }
     }
 
-    fun onRefresh(){
+    fun onRefresh() {
         releasePlayer()
         onPause()
         onResume()
@@ -183,11 +183,7 @@ class VideoPlayerRecyclerView : RecyclerView {
                         hideAutoPlayLayout()
                     }
                     playHandler.postDelayed({
-                        if (!recyclerView.canScrollVertically(1)) {
-                            playVideo(true)
-                        } else {
-                            playVideo(false)
-                        }
+                            playVideo()
                     }, 1200)
                 }
             }
@@ -209,8 +205,8 @@ class VideoPlayerRecyclerView : RecyclerView {
         })
     }
 
-    private fun hideAutoPlayLayout() {
-        if (isVideoViewAdded) {
+    fun hideAutoPlayLayout() {
+        if (isVideoViewAdded && thumbnail?.alpha!= 1f) {
             thumbnail?.revealWithAnimation()
             autoPlayContainer?.hideWithAnimation()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
@@ -269,12 +265,8 @@ class VideoPlayerRecyclerView : RecyclerView {
         return targetPosition
     }
 
-    fun playVideo(isEndOfList: Boolean) {
-        val targetPosition: Int = if (!isEndOfList) {
-            getTargetPosition()
-        } else {
-            streams.size - 1
-        }
+    fun playVideo() {
+        val targetPosition: Int = getTargetPosition()
         // video is already playing so return
         if (targetPosition == playPosition || targetPosition == -1) return
 

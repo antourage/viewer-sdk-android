@@ -23,7 +23,8 @@ internal class DevSettingsDialog(
         const val BASE_URL_LOAD = "https://docker.staging.antourage.com/"
         const val BASE_URL_STAGING = "https://staging-myra.com/"
         const val BASE_URL_PROD = "https://app.antourage.com/"
-        const val DEFAULT_URL = BASE_URL_PROD
+//        const val DEFAULT_URL = BASE_URL_PROD
+        const val DEFAULT_URL = BASE_URL_DEV
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

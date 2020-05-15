@@ -27,7 +27,6 @@ import kotlinx.android.synthetic.main.item_vod.view.*
 import org.jetbrains.anko.windowManager
 import java.util.*
 
-
 internal class VideosAdapter(
     private val onClick: (stream: StreamResponse) -> Unit,
     private val onJoinClicked: (stream: StreamResponse) -> Unit,
@@ -55,7 +54,7 @@ internal class VideosAdapter(
         recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
         if (isListInitial && listOfStreams.isNotEmpty()) {
             recyclerView.afterMeasured {
-                this.playVideo(isEndOfList = false)
+                this.playVideo()
             }
             isListInitial = false
         }
@@ -240,6 +239,19 @@ internal class VideosAdapter(
                         ivThumbnail_live_placeholder
                     )
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_live)
+
+                    isChatEnabled?.let { btnChat_live.gone(!it) }
+                    isChatEnabled?.let { btnJoinConversation.gone(!it) }
+                    arePollsEnabled?.let { btnPoll_live.gone(!it) }
+
+                    viewButtonsContainer.gone(isChatEnabled != null && isChatEnabled == false && arePollsEnabled != null && arePollsEnabled == false)
+
+                    txtComment_live.gone(lastMessage.isNullOrEmpty())
+                    txtCommentAuthor_live.gone(lastMessage.isNullOrEmpty())
+                    txtComment_live.text = lastMessage
+                    val author = resources.getString(R.string.ant_most_recent, lastMessageAuthor)
+                    txtCommentAuthor_live.text = author
+
                     btnJoinConversation.setOnClickListener {
                         if (adapterPosition >= 0
                             && adapterPosition < listOfStreams.size
@@ -312,19 +324,19 @@ internal class VideosAdapter(
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_vod.text = videoName
 
-                    if (adapterPosition % 2 == 0) {
-                        txtComment_vod.text = "Love this sport"
-                    } else {
-                        txtComment_vod.text =
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque lectus risus, commodo ac convallis eu, lacinia quis neque. Aliquam malesuada, eros eget consequat tincidunt, lorem magna molestie nulla, ac gravida lectus nibh vitae metus. Nam mi urna, rutrum in consectetur in, volutpat in felis. Etiam dictum odio id erat gravida, a posuere augue condimentum. Nullam consectetur interdum dictum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ultricies lectus odio, eu lacinia massa condimentum at. Quisque sed massa quam. Nullam vel lobortis nisi."
-                    }
+                    txtComment_vod.gone(lastMessage.isNullOrEmpty())
+                    txtCommentAuthor_vod.gone(lastMessage.isNullOrEmpty())
+                    btnChat_vod.gone(lastMessage.isNullOrEmpty())
+                    txtComment_vod.text = lastMessage
+                    val author = resources.getString(R.string.ant_most_recent, lastMessageAuthor)
+                    txtCommentAuthor_vod.text = author
+
 
                     val formattedStartTime =
                         duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
                             Date(it).parseToDisplayAgoTimeLong(context)
                         }
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
-//                    val streamerNameAndTime = "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
                     txtStreamerInfo_vod.visible(!formattedStartTime.isNullOrEmpty())
                     txtDuration_vod.text = duration?.parseToMills()?.millisToTime()

@@ -253,7 +253,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
             mAntBaseProgressBar.start()
             if (mNotify) {
                 if (mListener != null) {
-                    mListener!!.onRefresh()
+                    mListener?.onRefresh()
                 }
             }
         } else {

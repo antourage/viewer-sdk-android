@@ -254,9 +254,10 @@
                 app:layout_constraintLeft_toLeftOf="@+id/ivThumbnail_vod"
                 app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="6dp"
+                app:layout_goneMarginTop="6dp"
                 android:background="@drawable/bg_rect_round_3"
                 android:backgroundTint="@color/ant_blue"
                 android:elevation="10dp"
@@ -273,9 +274,11 @@
         <TextView
                 android:id="@+id/txtViewsCount_vod"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
                 android:layout_marginStart="8dp"
+                app:layout_goneMarginStart="6dp"
                 android:elevation="10dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="6dp"
                 android:background="@drawable/bg_rect_round_3"
                 android:backgroundTint="@color/ant_dark_gray_3_a80"
                 android:drawableStart="@drawable/antourage_ic_watcher_16dp"
@@ -288,8 +291,7 @@
                 android:textColor="@color/ant_white"
                 android:textSize="11sp"
                 app:layout_constraintLeft_toRightOf="@+id/txtNew"
-                app:layout_constraintTop_toTopOf="@+id/txtNew"
-                app:layout_constraintBottom_toBottomOf="@id/txtNew"
+                app:layout_constraintTop_toTopOf="@+id/ivThumbnail_vod"
                 tools:text="6,385" />
 
         <ProgressBar

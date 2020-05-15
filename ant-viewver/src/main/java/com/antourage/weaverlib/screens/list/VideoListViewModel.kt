@@ -2,14 +2,13 @@ package com.antourage.weaverlib.screens.list
 
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.User
+import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
@@ -19,10 +18,10 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.UserAuthResult
-import java.util.*
-import java.util.logging.Handler
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
-import kotlin.concurrent.schedule
 
 internal class VideoListViewModel @Inject constructor(application: Application) :
     BaseViewModel(application), OnDevSettingsChangedListener,
@@ -35,6 +34,9 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
+    private var vodsToFetchComments: MutableList<StreamResponse> = mutableListOf()
+    private var livesToFetchInfo: MutableList<StreamResponse> = mutableListOf()
+
     private var showCallResult = false
 
     private var liveVideosUpdated = false
@@ -42,7 +44,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     companion object {
         private const val VODS_COUNT = 15
-        private const val MIN_ANIM_SHOWING_TIME_MILLS = 1500L
 
         private const val BE_CHOICE_TIMEOUT = 4000L
         private const val BE_CHOICE_CLICKS = 4
@@ -83,9 +84,9 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
             vods = mutableListOf()
             Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
 
-            if(addJumpToTop){
+            if (addJumpToTop) {
                 (vods as MutableList<StreamResponse>).add(getListEndPlaceHolder())
-            }else if (addBottomLoader) {
+            } else if (addBottomLoader) {
                 (vods as MutableList<StreamResponse>).add(getStreamLoaderPlaceholder())
             }
 
@@ -96,7 +97,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
     }
 
     fun onPause() {
-
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
@@ -106,13 +106,10 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         when (resource.status) {
             is Status.Success -> {
                 liveVideos = (resource.status.data)?.toMutableList()
+                liveVideos?.let { getChatPollInfoForLives(it) }
                 liveVideos?.let {
                     for (i in 0 until (liveVideos?.size ?: 0)) {
                         liveVideos?.get(i)?.isLive = true
-                    }
-                    liveVideosUpdated = true
-                    if (vodsUpdated) {
-                        updateVideosList(true)
                     }
                 }
             }
@@ -138,6 +135,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
                 if (newList != null) {
                     list.addAll(list.size, newList)
+                    getMessagesForNewVideos(newList)
                 }
                 Repository.vods = list.toMutableList()
 
@@ -149,10 +147,6 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                     list.add(list.size, getListEndPlaceHolder())
                 }
                 vods = list
-                vodsUpdated = true
-                if (liveVideosUpdated) {
-                    updateVideosList()
-                }
             }
             is Status.Loading -> {
                 vodsUpdated = false
@@ -170,17 +164,18 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         when (resource.status) {
             is Status.Success -> {
                 val newList = (resource.status.data)?.toMutableList()
-                //TODO: delete (used for testing)
-//                newList?.addAll(Repository.getMockedStreamsForTheTest())
                 Repository.vods = newList?.toMutableList()
                 if (newList?.size == VODS_COUNT) {
                     newList.add(
                         newList.size, getStreamLoaderPlaceholder()
                     )
                 }
+
                 vods = newList
-                vodsUpdated = true
-                if (liveVideosUpdated) {
+                if (newList != null) {
+                    getMessagesForNewVideos(newList)
+                } else if (liveVideosUpdated) {
+                    vodsUpdated = true
                     updateVideosList()
                 }
             }
@@ -189,11 +184,9 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 if (!pulledToRefresh) {
                     loaderLiveData.postValue(true)
                 }
-                Timer().schedule(MIN_ANIM_SHOWING_TIME_MILLS) {
-                    showCallResult = true
-                    if (liveVideosUpdated && vodsUpdated) {
-                        updateVideosList()
-                    }
+                showCallResult = true
+                if (liveVideosUpdated && vodsUpdated) {
+                    updateVideosList()
                 }
             }
             is Status.Failure -> {
@@ -203,6 +196,156 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 errorLiveData.postValue(resource.status.errorMessage)
             }
         }
+    }
+
+    private fun getMessagesForNewVideos(list: List<StreamResponse>) {
+        vodsToFetchComments.clear()
+        vodsToFetchComments.addAll(list)
+        if (list.isEmpty()) {
+            vodsUpdated = true
+            if (liveVideosUpdated) {
+                updateVideosList()
+            }
+        } else {
+            list.forEach {
+                getLastMessage(it)
+            }
+        }
+
+    }
+
+    private fun getChatPollInfoForLives(list: List<StreamResponse>) {
+        livesToFetchInfo.clear()
+        livesToFetchInfo.addAll(list)
+        if (list.isEmpty()) {
+            liveVideosUpdated = true
+            if (vodsUpdated) {
+                updateVideosList(true)
+            }
+        } else {
+            list.forEach {
+                getChatPollLiveInfo(it)
+            }
+        }
+    }
+
+    private fun getChatPollLiveInfo(stream: StreamResponse) {
+        var isChatEnabled = false
+        var isPollEnabled = true
+        var comment: Message?
+        Repository.getChatPollInfoFromLiveStream(
+            stream.id!!,
+            object : Repository.LiveChatPollInfoCallback {
+                override fun onSuccess(chatEnabled: Boolean, pollEnabled: Boolean, message: Message) {
+                    comment = message
+                    isChatEnabled = chatEnabled
+                    isPollEnabled = pollEnabled
+                    val streamToUpdate = liveVideos?.filter { it.id == stream.id }
+                    if (!streamToUpdate
+                            .isNullOrEmpty()) {
+                        streamToUpdate[0].isChatEnabled = isChatEnabled
+                        streamToUpdate[0].arePollsEnabled = isPollEnabled
+                        streamToUpdate[0].lastMessage = comment?.text ?: ""
+                        streamToUpdate[0].lastMessageAuthor = comment?.nickname ?: ""
+                    }
+
+                    livesToFetchInfo.forEach {
+                        if (it.id == stream.id) {
+                            it.isChatEnabled = isChatEnabled
+                            it.arePollsEnabled = isPollEnabled
+                            it.lastMessage = comment?.text ?: ""
+                            it.lastMessageAuthor = comment?.nickname ?: ""
+                        }
+                    }
+                    if (areAllChatPollDataLoaded()) {
+                        if (vodsUpdated) {
+                            updateVideosList(true)
+                        }
+                    }
+                }
+
+                override fun onFailure() {
+                    comment = Message()
+                    livesToFetchInfo.forEach {
+                        if (it.id == stream.id) {
+                            it.isChatEnabled = isChatEnabled
+                            it.arePollsEnabled = isPollEnabled
+                            it.lastMessage = comment?.text ?: ""
+                            it.lastMessageAuthor = comment?.nickname ?: ""
+                        }
+                    }
+
+                    if (areAllChatPollDataLoaded()) {
+                        if (vodsUpdated) {
+                            updateVideosList(true)
+                        }
+                    }
+                }
+
+            })
+    }
+
+    private fun getLastMessage(stream: StreamResponse) {
+        var message: Message? = null
+        val success = OnSuccessListener<QuerySnapshot> { data ->
+            val messageList = data?.toObjects(Message::class.java)
+            if (!messageList.isNullOrEmpty()) {
+                val userMessages = messageList.filter { it.type == 1 }
+                if (userMessages.isNotEmpty()) {
+                    message = userMessages[0]
+                }
+            }
+
+            val streamToUpdate = vods?.filter { it.id == stream.id }
+            if (!streamToUpdate.isNullOrEmpty()) {
+                streamToUpdate[0].lastMessage = message?.text ?: ""
+                streamToUpdate[0].lastMessageAuthor = message?.nickname ?: ""
+            }
+            vodsToFetchComments.forEach {
+                if (it.id == stream.id) {
+                    it.lastMessage = message?.text ?: ""
+                    it.lastMessageAuthor = message?.nickname ?: ""
+                }
+            }
+            if (liveVideosUpdated && areAllCommentsLoaded()) {
+                updateVideosList()
+            }
+        }
+
+        val failure = OnFailureListener {
+            val streamToUpdate = vods?.filter { it.id == stream.id }
+            if (!streamToUpdate.isNullOrEmpty()) streamToUpdate[0].lastMessage = ""
+            vodsToFetchComments.forEach {
+                if (it.id == stream.id) {
+                    it.lastMessage = ""
+                }
+            }
+
+            if (liveVideosUpdated && areAllCommentsLoaded()) {
+                updateVideosList()
+            }
+        }
+        Repository.getLastMessage(stream.id!!, success, failure)
+    }
+
+    private fun areAllChatPollDataLoaded(): Boolean {
+        livesToFetchInfo.forEach {
+            if (it.isChatEnabled == null) {
+                return false
+            }
+        }
+        liveVideosUpdated = true
+        return true
+    }
+
+    private fun areAllCommentsLoaded(): Boolean {
+        vodsToFetchComments.forEach {
+            if (it.lastMessage == null) {
+                return false
+            }
+        }
+        vodsUpdated = true
+        return true
     }
 
     private fun updateVideosList(updateLiveStreams: Boolean = false) {
@@ -227,7 +370,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
 
     private fun getStreamLoaderPlaceholder(): StreamResponse {
         return StreamResponse(
-            -2,  null, null,
+            -2, null, null,
             null, null, null, null,
             null, null, null, null, null,
             null, null, null, null, false, null, false, null

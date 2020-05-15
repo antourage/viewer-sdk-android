@@ -9,8 +9,12 @@ import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import okhttp3.MultipartBody
+import com.antourage.weaverlib.other.models.Stream
 
 internal class Repository {
 
@@ -99,7 +103,8 @@ internal class Repository {
 
         fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
-                override fun createCall() = ApiClient.getWebClient(v2 = true).webService.getVODsForFab()
+                override fun createCall() =
+                    ApiClient.getWebClient(v2 = true).webService.getVODsForFab()
             }.asLiveData()
 
         fun getNewVODsCount(): LiveData<Resource<Int>> =
@@ -168,6 +173,75 @@ internal class Repository {
             )
         }
 
+        internal fun getLastMessage(
+            streamId: Int,
+            successListener: OnSuccessListener<QuerySnapshot>,
+            failureListener: OnFailureListener
+        ) {
+            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1).orderBy(
+                "timestamp",
+                Query.Direction.DESCENDING
+            ).get().addOnSuccessListener(successListener).addOnFailureListener(failureListener)
+
+        }
+
+        internal fun getChatPollInfoFromLiveStream(
+            streamId: Int,
+            callback: LiveChatPollInfoCallback
+        ) {
+            var chatEnabled: Boolean? = null
+            var pollEnabled: Boolean? = null
+            var message: Message? = null
+
+            FirestoreDatabase().getStreamsCollection().document(streamId.toString()).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    documentSnapshot.toObject(Stream::class.java).let {
+                        chatEnabled = it?.isChatActive!!
+                        if (pollEnabled != null && message != null) {
+                            callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
+                        }
+                    }
+                }.addOnFailureListener { callback.onFailure() }
+
+            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1).orderBy(
+                "timestamp",
+                Query.Direction.DESCENDING
+            ).get().addOnSuccessListener { snapshot ->
+                val messageList = snapshot?.toObjects(Message::class.java)
+                message = if (!messageList.isNullOrEmpty()) {
+                    val userMessages = messageList.filter { it.type == 1 }
+                    if (userMessages.isNotEmpty()) {
+                        userMessages[0]
+                    }else{
+                        Message()
+                    }
+                }else{
+                    Message()
+                }
+
+                if (chatEnabled != null && pollEnabled != null) {
+                    callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
+                }
+
+            }.addOnFailureListener {
+                callback.onFailure()
+            }
+
+            FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive", true).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    documentSnapshot.toObjects(Poll::class.java).let {
+                        pollEnabled = !it.isNullOrEmpty()
+                        if (chatEnabled != null && message != null) {
+                            callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
+                        }
+                    }
+                }.addOnFailureListener {
+                    callback.onFailure()
+                }
+
+        }
+
+
         internal fun getStream(streamId: Int): QuerySnapshotValueLiveData<Stream> {
             val docRef = FirestoreDatabase().getStreamsCollection().document(streamId.toString())
             return QuerySnapshotValueLiveData(docRef, Stream::class.java)
@@ -209,4 +283,10 @@ internal class Repository {
         }
         //endregion
     }
+
+    interface LiveChatPollInfoCallback {
+        fun onSuccess(chatEnabled: Boolean, pollEnabled: Boolean, message: Message)
+        fun onFailure()
+    }
+
 }

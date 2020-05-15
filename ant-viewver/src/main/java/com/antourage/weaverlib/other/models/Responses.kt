@@ -58,7 +58,11 @@ data class StreamResponse(
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") val viewersCount: Int?,
     @field:SerializedName("isNew") var isNew: Boolean?,
-    @field:SerializedName("stopTime") var stopTime: String?
+    @field:SerializedName("stopTime") var stopTime: String?,
+    var lastMessage: String? = null,
+    var lastMessageAuthor: String? = null,
+    var isChatEnabled: Boolean? = null,
+    var arePollsEnabled: Boolean? = null
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
