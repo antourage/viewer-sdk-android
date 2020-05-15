@@ -279,7 +279,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
-            viewModel.initUi(id, startTime,  stopTime)
+            viewModel.initUi(id, startTime)
             id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {

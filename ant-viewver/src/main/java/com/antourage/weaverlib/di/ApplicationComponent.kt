@@ -14,7 +14,7 @@ import javax.inject.Singleton
  * simple (even though it doesn't look that bad either) and it doesn't get much better than that.
  */
 @Singleton
-@Component(modules = [RetrofitModule::class])
+@Component(modules = [RetrofitModule::class, RoomModule::class])
 internal interface ApplicationComponent {
 
     @Component.Builder

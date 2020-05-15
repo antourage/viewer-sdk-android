@@ -36,9 +36,6 @@ internal interface WebService {
     @POST("statistic/vod")
     fun statisticWatchVOD(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
 
-    @POST("vod/stopTime")
-    fun stopWatchingVOD(@Body body: StopWatchVodRequest): LiveData<ApiResponse<SimpleResponse>>
-
     @Multipart
     @POST("users/uploadimage")
     fun uploadImage(@Part file: MultipartBody.Part): LiveData<ApiResponse<UpdateImageResponse>>

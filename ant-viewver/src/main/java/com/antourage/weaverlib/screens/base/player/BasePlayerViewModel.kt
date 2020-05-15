@@ -60,8 +60,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private var batteryStatus: Intent? = null
 
-    internal var stopWatchingTime: Long? = null
-
     val requestingStreamInfoHandler = Handler()
     val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
 
@@ -69,6 +67,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var timerTickRunnable = object : Runnable {
         override fun run() {
             streamId?.let { streamId ->
+                //todo: possibly should better save here stoptime and statistic less often
                 updateWatchingTimeSpan(
                     StatisticWatchVideoRequest(
                         streamId,

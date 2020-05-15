@@ -141,12 +141,6 @@ internal class Repository {
                     ApiClient.getWebClient().webService.statisticWatchLiveStream(body)
             }.asLiveData()
 
-        fun stopWatchingVOD(body: StopWatchVodRequest): LiveData<Resource<SimpleResponse>> =
-            object : NetworkBoundResource<SimpleResponse>() {
-                override fun createCall() =
-                    ApiClient.getWebClient().webService.stopWatchingVOD(body)
-            }.asLiveData()
-
         fun uploadImage(image: MultipartBody.Part): LiveData<Resource<UpdateImageResponse>> =
             object : NetworkBoundResource<UpdateImageResponse>() {
                 override fun createCall() =

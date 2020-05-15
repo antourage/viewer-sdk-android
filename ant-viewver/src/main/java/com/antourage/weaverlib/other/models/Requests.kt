@@ -23,10 +23,6 @@ internal data class StatisticWatchVideoRequest(
     @field:SerializedName("span") val span: String
 ) : Parcelable
 
-internal data class StopWatchVodRequest(
-    @field:SerializedName("vodId") val vodId: Int,
-    @field:SerializedName("stopTime") val stopTime: String
-)
 
 internal data class SubscribeToPushesRequest(
     @field:SerializedName("fcmKey") val fcmKey: String,
