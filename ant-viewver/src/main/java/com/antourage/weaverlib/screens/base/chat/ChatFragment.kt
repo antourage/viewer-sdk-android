@@ -199,11 +199,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                                 val orientation = resources.configuration.orientation
                                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                                     if (slideOffset == 0.0f) {
-                                        enableChat(false)
+                                        isChatDismissed = true
                                     }
                                     showMessageInputVisibleIfRequired(slideOffset > 0.3f)
                                     if (slideOffset == 1.0f) {
-                                        enableChat(true)
+                                        isChatDismissed = false
                                     }
                                 } else {
                                     drawerLayout.openDrawer(navigationView, false)
@@ -218,15 +218,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     }
 
     abstract fun showMessageInputVisibleIfRequired(shouldShow: Boolean)
-
-
-    //seems like should be cleared; leave only isChatDismissed
-    private fun enableChat(enable: Boolean) {
-        etMessage?.isEnabled = enable
-        btnUserSettings?.isEnabled = enable
-        btnShare?.isEnabled = enable //temporary
-        isChatDismissed = !enable
-    }
 
     private fun initMessagesRV() {
         val linearLayoutManager = LinearLayoutManager(context)

@@ -191,26 +191,28 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is PollStatus.NoPoll -> {
                     hidePollStatusLayout()
-                    bottomLayout.visibility = View.GONE
+                    bottomLayout.visibility = View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
                     poll_name?.text = state.poll.question
                     showPollStatusLayout(orientation() == Configuration.ORIENTATION_PORTRAIT)
                 }
                 is PollStatus.ActivePollDismissed -> {
-                    if (bottomLayout.visibility == View.GONE) showPollStatusLayout()
+                    if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
                 }
                 is PollStatus.PollDetails -> {
                     wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollStatusLayout()
-                    removeMessageInput()
                     bottomLayout.visibility = View.VISIBLE
-                    if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                    if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+                        removeMessageInput()
+                    } else {
                         if (drawerLayout.isDrawerOpen(navView)) {
                             drawerLayout.closeDrawer(navView)
                         }
                     }
+
                     val videoId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id
                     val userId = arguments?.getInt(ARGS_USER_ID)
                     if (videoId != null && userId != null) {
@@ -224,11 +226,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     }
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
-                            bottomLayout.visibility = View.GONE
-                            ll_wrapper.visibility = when {
-                                wasDrawerClosed -> View.GONE
-                                viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff && orientation() == Configuration.ORIENTATION_LANDSCAPE -> View.GONE
-                                else -> View.VISIBLE
+                            bottomLayout.visibility = View.INVISIBLE
+                            if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                                ll_wrapper.visibility = when {
+                                    wasDrawerClosed -> View.GONE
+                                    viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff -> View.GONE
+                                    else -> View.VISIBLE
+                                }
+                            } else {
+                                ll_wrapper.visibility = View.VISIBLE
                             }
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
