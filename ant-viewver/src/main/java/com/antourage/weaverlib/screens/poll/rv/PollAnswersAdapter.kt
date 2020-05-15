@@ -1,8 +1,11 @@
 package com.antourage.weaverlib.screens.poll.rv
 
+import android.transition.Transition
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.motion.widget.MotionScene
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.AnswersCombined
@@ -42,7 +45,8 @@ internal class PollAnswersAdapter(
         shouldShowAnimation  = if(listOfAnswers.isEmpty()){
             false
         } else {
-            !this.isAnswered && newIisAnswered
+            /*!this.isAnswered && newIisAnswered*/
+            newIisAnswered
         }
     }
 
@@ -72,6 +76,8 @@ internal class PollAnswersAdapter(
     inner class PollViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(result: AnswersCombined, pos: Int) {
             itemView.apply {
+                val prevPercentage = (item_poll_guideline.layoutParams as ConstraintLayout.LayoutParams).guidePercent
+                val newPercentage = getPercentage(pos).toFloat()
                 item_poll_bg.isActivated = if (!isAnswered) true else result.isAnsweredByUser
                 item_poll_percentage.isActivated = result.isAnsweredByUser
                 item_poll_fill_color.isActivated = result.isAnsweredByUser
@@ -89,12 +95,30 @@ internal class PollAnswersAdapter(
                     item_poll_motion.getConstraintSet(R.id.start_poll_frag)
                         ?.setGuidelinePercent(R.id.item_poll_guideline, 0f)
 
-                    item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.setGuidelinePercent(
-                        R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
                     if (shouldShowAnimation){
+
+                        if (item_poll_motion.progress == 1.0f){
+                            //todo:still not animating
+                            //https://medium.com/androiddevelopers/working-with-dynamic-data-in-motionlayout-9dbbcfe5ff75
+                            val startSet = item_poll_motion.getConstraintSet(R.id.end_poll_frag)
+                            val endSet = item_poll_motion.getConstraintSet(R.id.end_poll_frag_2)
+                            startSet.setGuidelinePercent(R.id.item_poll_guideline, prevPercentage)
+                            endSet.setGuidelinePercent(R.id.item_poll_guideline, newPercentage)
+                            item_poll_motion.setTransition(R.id.end_poll_frag, R.id.end_poll_frag_2)
+                            item_poll_motion.setTransitionDuration(1000)
+                            //item_poll_motion.progress = 0.0f
+                            item_poll_motion.transitionToEnd()
+
+                            startSet.clone(endSet)
+                        } else {
+                            item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.setGuidelinePercent(
+                                R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
+                            item_poll_motion.transitionToEnd()
+                        }
                         stopAnimatingItemsIfRequired(pos)
-                        item_poll_motion.transitionToEnd()
                     } else {
+                        item_poll_motion.getConstraintSet(R.id.end_poll_frag)?.setGuidelinePercent(
+                            R.id.item_poll_guideline, if (isAnswered) getPercentage(pos).toFloat() else 0f)
                         //directly sets motionLayout to end set without animation
                         item_poll_motion.progress = 1.0f
                     }
