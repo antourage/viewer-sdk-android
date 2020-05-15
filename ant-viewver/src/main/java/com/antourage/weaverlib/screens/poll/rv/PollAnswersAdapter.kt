@@ -1,10 +1,8 @@
 package com.antourage.weaverlib.screens.poll.rv
 
-import android.transition.Transition
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.motion.widget.MotionScene
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
