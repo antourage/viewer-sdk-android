@@ -45,6 +45,7 @@
                         android:layout_height="match_parent"
                         android:scrollIndicators="none"
                         android:visibility="invisible"
+                        android:background="@color/ant_feed_bg_color"
                         app:layout_behavior="@string/appbar_scrolling_view_behavior"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"

@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,6 +36,7 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.fragment_videos_list.*
+import kotlinx.android.synthetic.main.item_vod.*
 import org.jetbrains.anko.backgroundColor
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
@@ -62,7 +64,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
         list?.let { newStreams ->
             if (newStreams.isEmpty()) {
-                if(Global.networkAvailable) showEmptyListPlaceholder()
+                if (Global.networkAvailable) showEmptyListPlaceholder()
                 else showNoConnectionPlaceHolder()
             } else {
                 isLoadingMoreVideos = false
@@ -83,7 +85,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private val errorObserver: Observer<String> = Observer { error ->
         error?.let { it ->
-            if(Global.networkAvailable) showErrorLayout(it)
+            if (Global.networkAvailable && it.isNotEmpty()) showErrorLayout(it)
         }
     }
 
@@ -148,9 +150,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.onPause()
-        videosRV.releasePlayer()
         videosRV.onPause()
+        videosRV.releasePlayer()
+        viewModel.onPause()
+        viewModel.errorLiveData.postValue(null)
     }
 
     override fun onDestroyView() {
@@ -211,6 +214,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
+                videosRV.hideAutoPlayLayout()
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                         if (viewModel.userAuthorized()) {
@@ -373,7 +377,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         showErrorSnackbar(error)
         if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
-        placeHolderRV.revealWithAnimation()
+        if (placeHolderRV.alpha != 1f) {
+            placeHolderRV.revealWithAnimation()
+        }
     }
 
     private fun hidePlaceholder() {

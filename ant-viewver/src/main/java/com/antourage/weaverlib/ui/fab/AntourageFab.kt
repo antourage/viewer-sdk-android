@@ -128,7 +128,6 @@ class AntourageFab @JvmOverloads constructor(
 
 
     override fun onResume() {
-        Handler().postDelayed({
             ReceivingVideosManager.setReceivingVideoCallback(object :
                 ReceivingVideosManager.ReceivingVideoCallback {
                 override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
@@ -189,6 +188,7 @@ class AntourageFab @JvmOverloads constructor(
                 }
             })
 
+        Handler().postDelayed({
             if (userAuthorized()) {
                 startAntRequests()
             }

@@ -15,7 +15,8 @@ internal object ApiClient {
     private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/widget/"
-//    private const val VERSION_SUFFIX = "api/v1/"
+
+    //    private const val VERSION_SUFFIX = "api/v1/"
     private const val VERSION_2_SUFFIX = "api/v2/widget/"
 //    private const val VERSION_2_SUFFIX = "api/v2/"
 
@@ -48,16 +49,21 @@ internal object ApiClient {
     private fun rebuildRetrofit(useAuth: Boolean, v2: Boolean = false) {
         val client = buildOkHttpClient(useAuth)
         retrofit = Retrofit.Builder()
-            .baseUrl(if (v2){ (BASE_URL + VERSION_2_SUFFIX)} else (BASE_URL + VERSION_SUFFIX) )
+            .baseUrl(
+                if (v2) {
+                    (BASE_URL + VERSION_2_SUFFIX)
+                } else (BASE_URL + VERSION_SUFFIX)
+            )
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
         webService = retrofit?.create(WebService::class.java)!!
-        if(v2) shouldRebuild = true
+        if (v2) shouldRebuild = true
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
+        //TODO delete before release
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
