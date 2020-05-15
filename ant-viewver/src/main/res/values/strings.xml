@@ -7,8 +7,6 @@
 
     <!--polls-->
     <string name="ant_new_poll">New poll!</string>
-    <string name="ant_poll_vote_to_see">Vote to see results!</string>
-    <string name="ant_poll_thanks">Thanks for voting!</string>
     <string name="ant_poll_vote">VOTE</string>
 
     <string name="ant_new_stream">New stream</string>

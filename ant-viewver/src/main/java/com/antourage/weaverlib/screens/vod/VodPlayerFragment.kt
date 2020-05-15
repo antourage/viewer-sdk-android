@@ -27,12 +27,22 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
+import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -113,8 +123,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
-            if (viewModel.getVideoDuration() != null) {
-                vod_player_progress.max = viewModel.getVideoDuration()?.toInt() ?: 1
+            viewModel.getVideoDuration()?.let{duration ->
+                if (duration > 0 ) { vod_player_progress.max = duration.toInt() }
             }
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorNickname
@@ -150,7 +160,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     @SuppressLint("ClickableViewAccessibility")
     private val endVideoObserver: Observer<Boolean> = Observer { isEnded ->
-        if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE) {
+        if (isEnded && !viewModel.hasNextTrack()){
+            //STATE END OF LAST VIDEO IN PLAYLIST
+            vod_play_pause_layout.visibility = View.INVISIBLE
+            vod_buttons_layout.visibility = View.VISIBLE
+            vod_next_auto_layout.visibility = View.INVISIBLE
+            vod_rewind.visibility = View.VISIBLE
+        } else if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE) {
+            //STATE END OF NOT LAST VIDEO IN PLAYLIST
             val mCountDownTimer = object : CountDownTimer(5000, 20) {
                 override fun onTick(millisUntilFinished: Long) {
                     vod_progress_bar?.progress = millisUntilFinished.toInt()
@@ -179,7 +196,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 playerView.setOnTouchListener(playerOnTouchListener)
                 controls.showTimeoutMs = 1200
             }
-            vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
                 mCountDownTimer.cancel()
                 vod_buttons_layout.visibility = View.VISIBLE
@@ -195,6 +211,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 viewModel.nextVideoPlay()
             }
         } else if (!isEnded) {
+            //NOT END VIDEO STATE
             vod_play_pause_layout.visibility = View.VISIBLE
             vod_buttons_layout.visibility = View.VISIBLE
             vod_next_auto_layout.visibility = View.INVISIBLE
@@ -283,13 +300,15 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initPortraitProgressListener() {
-        controls.setProgressUpdateListener { pos, _ -> vod_player_progress.progress = pos.toInt() }
+        controls.setProgressUpdateListener {
+                pos, _ -> vod_player_progress.progress = pos.toInt()
+        }
     }
 
     private fun updateProgressBar() {
-        val duration = viewModel.getVideoDuration()?.toInt()
-        val position = viewModel.getVideoPosition()?.toInt()
-        if (duration != null && position != null) {
+        val duration = viewModel.getVideoDuration()?.toInt() ?: -1
+        val position = viewModel.getVideoPosition()?.toInt() ?: -1
+        if (duration > 0  && position > 0 && position <= duration) {
             vod_player_progress?.max = duration
             vod_player_progress?.progress = position
         }
@@ -303,6 +322,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun initPlayerClickListeners() {
         vod_control_prev.setOnClickListener { viewModel.prevVideoPlay() }
         vod_control_next.setOnClickListener { viewModel.nextVideoPlay() }
+        vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
         updatePrevNextVisibility()
     }
 
@@ -574,4 +594,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             txtNumberOfViewers.text = it.toString()
         }
     }
+
+    //not in use for this fragment
+    override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {}
 }
