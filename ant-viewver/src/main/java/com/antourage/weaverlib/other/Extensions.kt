@@ -36,10 +36,8 @@ import com.antourage.weaverlib.other.Constants.secInYear
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat

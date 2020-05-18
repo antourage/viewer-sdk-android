@@ -24,7 +24,7 @@ interface VideoStopTimeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertStopTime(videoStopTime: VideoStopTime): Long
 
-    //todo: think about logic of old records delete
-    @Query("DELETE FROM VideoStopTimes WHERE expirationDate < :currentDate")
-    fun deleteByExpirationTime(currentDate: Long)
+
+    @Query("DELETE FROM VideoStopTimes WHERE startDate < :expirationDate")
+    fun deleteByExpirationTime(expirationDate: Long) : Int
 }

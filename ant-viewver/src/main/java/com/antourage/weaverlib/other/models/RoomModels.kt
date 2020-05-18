@@ -10,6 +10,6 @@ data class VideoStopTime(
     var vodId: Int,
     @ColumnInfo(name = "stopTimeMillis")
     var stopTimeMillis: Long,
-    @ColumnInfo(name = "expirationDate")
+    @ColumnInfo(name = "startDate")
     var expirationDate: Long
 )

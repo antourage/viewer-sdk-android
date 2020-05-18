@@ -28,7 +28,6 @@ internal class Stopwatch {
         }
     }
 
-
     private fun getElapsedTime(): Long {
         return if (running) {
             System.currentTimeMillis() - startTime

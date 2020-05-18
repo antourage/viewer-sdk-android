@@ -11,11 +11,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.LiveOpenedRequest
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.models.VideoOpenedRequest
-import com.antourage.weaverlib.other.models.Viewers
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -42,8 +41,12 @@ import java.sql.Timestamp
 
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
     companion object {
-        private const val STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS = 2000L
         private const val END_VIDEO_CALLBACK_OFFSET_MS = 200
+    }
+
+    override fun onCleared() {
+        postVideoIsClosed(streamId)
+        super.onCleared()
     }
 
     private var playWhenReady = true
@@ -55,7 +58,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
 
     private var stopwatch = Stopwatch()
-    private var resetChronometer = true
+    protected var resetChronometer = true
 
     protected var player: SimpleExoPlayer? = null
     private lateinit var trackSelector: DefaultTrackSelector
@@ -64,25 +67,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     val requestingStreamInfoHandler = Handler()
     val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
-
-    private var timerTickHandler = Handler()
-    private var timerTickRunnable = object : Runnable {
-        override fun run() {
-            streamId?.let { streamId ->
-                //todo: possibly should better save here stoptime and statistic less often
-                updateWatchingTimeSpan(
-                    StatisticWatchVideoRequest(
-                        streamId,
-                        StatisticActions.LEFT.ordinal,
-                        getBatteryLevel(),
-                        stopwatch.toString(),
-                        Timestamp(System.currentTimeMillis()).toString()
-                    )
-                )
-            }
-            timerTickHandler.postDelayed(this, STATISTIC_WATCHING_TIME_UPDATE_INTERVAL_MS)
-        }
-    }
 
     init {
         currentWindow = 0
@@ -110,8 +94,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { filter ->
             getApplication<Application>().registerReceiver(null, filter)
         }
-        sendStatisticData(StatisticActions.JOINED)
-        startUpdatingStopWatchingTime()
 
         if (this@BasePlayerViewModel is PlayerViewModel) {
             this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
@@ -122,8 +104,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         removeStatisticsListeners()
         player?.playWhenReady = false
         stopwatch.stopIfRunning()
-        timerTickHandler.removeCallbacksAndMessages(null)
-        sendStatisticData(StatisticActions.LEFT, stopwatch.toString())
         stopUpdatingCurrentStreamInfo()
     }
 
@@ -181,10 +161,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             trackSelector,
             loadControl
         )
-    }
-
-    private fun updateWatchingTimeSpan(watchingTime: StatisticWatchVideoRequest) {
-        UserCache.getInstance(getApplication())?.updateStatisticWatchingTime(watchingTime)
     }
 
     private fun getBatteryLevel(): Int {
@@ -247,25 +223,57 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         timestamp: String = Timestamp(System.currentTimeMillis()).toString()
     ) {
         streamId?.let { id ->
+            val response : LiveData<Resource<SimpleResponse>> = when (this) {
+                is VideoViewModel -> {
+                    Repository.postVideoOpened(
+                        VideoOpenedRequest(id, getBatteryLevel(), timestamp)
+                    )
+
+                }
+                is PlayerViewModel -> {
+                    Repository.postLiveOpened(
+                        LiveOpenedRequest(id, getBatteryLevel(), timestamp)
+                    )
+                }
+                else -> {return}
+            }
+            response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                override fun onChanged(resource: Resource<SimpleResponse>?) {
+                    if (resource != null) {
+                        when (resource.status) {
+                            is Status.Failure -> {
+                                Log.d("STAT_OPEN", "Failed to send /open: ${resource.status.errorMessage}")
+                                response.removeObserver(this)
+                            }
+                            is Status.Success -> {
+                                Log.d("STAT_OPEN", "Successfully sent /open")
+                                response.removeObserver(this)
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    protected fun postVideoIsClosed(
+        videoId : Int? = null,
+        timestamp: String = Timestamp(System.currentTimeMillis()).toString()) {
+        val currentId = videoId ?: streamId
+        currentId?.let { id ->
             when (this) {
-                is VideoViewModel -> Repository.postVideoOpened(
-                    VideoOpenedRequest(id, getBatteryLevel(), timestamp)
+                is VideoViewModel -> Repository.postVideoClosedInternalObserve(
+                    VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
                 )
-                is PlayerViewModel -> Repository.postLiveOpened(
-                    LiveOpenedRequest(id, getBatteryLevel(), timestamp)
+                is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
+                    LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
                 )
                 else -> { }
             }
         }
     }
 
-    private fun startUpdatingStopWatchingTime() {
-        if (timerTickHandler.hasMessages(0)) {
-            timerTickHandler.removeCallbacksAndMessages(null)
-        } else {
-            timerTickHandler.post(timerTickRunnable)
-        }
-    }
+
 
     //region Listeners
 
@@ -288,6 +296,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         stopwatch.stopIfRunning()
                     } else {
                         if (resetChronometer) {
+                            postVideoIsOpen()
                             stopwatch.start()
                             resetChronometer = false
                         } else {
@@ -333,9 +342,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
         override fun onPositionDiscontinuity(reason: Int) {
             currentWindow = player?.currentWindowIndex ?: 0
-            //TODO: change this, so reset chronometer only in case user switches to next or previous
-            // video;
-            resetChronometer = true
             stopUpdatingCurrentStreamInfo()
             onVideoChanged()
             if (this@BasePlayerViewModel is PlayerViewModel) {
@@ -358,7 +364,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
     //endregion
 
-    /** method used to update live viewers count in real time on player screen ONLY for LIVE
+    /**
+     * method used to update live viewers count in real time on player screen ONLY for LIVE
      */
     private fun subscribeToCurrentStreamInfo(currentlyWatchedVideoId: Int) {
         requestingStreamInfoHandler.postDelayed(object : Runnable {

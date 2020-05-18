@@ -27,13 +27,11 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
