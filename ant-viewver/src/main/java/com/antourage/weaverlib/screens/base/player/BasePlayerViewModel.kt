@@ -12,7 +12,9 @@ import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.LiveOpenedRequest
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
+import com.antourage.weaverlib.other.models.VideoOpenedRequest
 import com.antourage.weaverlib.other.models.Viewers
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
@@ -237,6 +239,22 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 is PlayerViewModel -> Repository.statisticWatchLiveStream(statsItem)
                 else -> {
                 }
+            }
+        }
+    }
+
+    private fun postVideoIsOpen(
+        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+    ) {
+        streamId?.let { id ->
+            when (this) {
+                is VideoViewModel -> Repository.postVideoOpened(
+                    VideoOpenedRequest(id, getBatteryLevel(), timestamp)
+                )
+                is PlayerViewModel -> Repository.postLiveOpened(
+                    LiveOpenedRequest(id, getBatteryLevel(), timestamp)
+                )
+                else -> { }
             }
         }
     }

@@ -96,6 +96,26 @@ internal class Repository {
                 override fun createCall() = ApiClient.getWebClient().webService.getLiveViewers(id)
             }.asLiveData()
 
+        fun postVideoOpened(body: VideoOpenedRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() = ApiClient.getWebClient().webService.postVODOpen(body)
+            }.asLiveData()
+
+        fun postVideoClosed(body: VideoClosedRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() = ApiClient.getWebClient().webService.postVODClose(body)
+            }.asLiveData()
+
+        fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() = ApiClient.getWebClient().webService.postLiveOpen(body)
+            }.asLiveData()
+
+        fun postLiveClosed(body: LiveClosedRequest): LiveData<Resource<SimpleResponse>> =
+            object : NetworkBoundResource<SimpleResponse>() {
+                override fun createCall() = ApiClient.getWebClient().webService.postLiveClose(body)
+            }.asLiveData()
+
         fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
                 override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)

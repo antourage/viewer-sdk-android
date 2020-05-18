@@ -242,7 +242,6 @@ internal class VideoViewModel @Inject constructor(
         val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
         for (i in 0 until (list?.size ?: 0)) {
             mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
-//            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource("") }
         }
         return ConcatenatingMediaSource(*mediaSources)
     }

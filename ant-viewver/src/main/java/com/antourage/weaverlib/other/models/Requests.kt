@@ -28,3 +28,33 @@ internal data class SubscribeToPushesRequest(
     @field:SerializedName("fcmKey") val fcmKey: String,
     @field:SerializedName("os") val os: String = "a"
 )
+
+internal data class VideoOpenedRequest(
+    @field:SerializedName("vodId") val vodId: Int,
+    @field:SerializedName("batteryLevel") val batteryLevel: Int,
+    @field:SerializedName("timeStamp") val timeStamp: String
+)
+
+internal data class LiveOpenedRequest(
+    @field:SerializedName("streamId") val streamId: Int,
+    @field:SerializedName("batteryLevel") val batteryLevel: Int,
+    @field:SerializedName("timeStamp") val timeStamp: String,
+
+    //todo: should not be used according to back end, delete once corrected from BE side
+    @field:SerializedName("span") val span: String = ""
+)
+
+internal data class VideoClosedRequest(
+    @field:SerializedName("vodId") val vodId: Int,
+    @field:SerializedName("stopTime") val stopTime: String,
+    @field:SerializedName("batteryLevel") val batteryLevel: Int,
+    @field:SerializedName("timeStamp") val timeStamp: String,
+    @field:SerializedName("span") val span: String = ""
+)
+
+internal data class LiveClosedRequest(
+    @field:SerializedName("streamId") val streamId: Int,
+    @field:SerializedName("batteryLevel") val batteryLevel: Int,
+    @field:SerializedName("timeStamp") val timeStamp: String,
+    @field:SerializedName("span") val span: String = ""
+)
