@@ -180,7 +180,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_progress_bar.progress = 5000
             playerView.setOnTouchListener(null)
             //todo: onDrawerSingleClick block
-            controls.showTimeoutMs = 5000
+            controls.showTimeoutMs = 0 //blocks from hiding
 
             mCountDownTimer.start()
             vod_buttons_layout.visibility = View.INVISIBLE
@@ -192,7 +192,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 vod_rewind.visibility = View.VISIBLE
                 playerView.setOnTouchListener(playerOnTouchListener)
-                controls.showTimeoutMs = 1200
             }
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
                 mCountDownTimer.cancel()
@@ -200,7 +199,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 v.setOnTouchListener { _, _ -> false }
                 playerView.setOnTouchListener(playerOnTouchListener)
-                controls.showTimeoutMs = 1200
+                controls.showTimeoutMs = 2000
                 return@setOnTouchListener false
             }
 
