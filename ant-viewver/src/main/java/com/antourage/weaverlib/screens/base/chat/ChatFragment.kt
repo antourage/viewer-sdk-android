@@ -268,8 +268,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             dp2px(context, 0f).toInt(),
             dp2px(context, 12f).toInt(),
             dp2px(context, 12f).toInt()
-        ) else MarginItemDecoration(
-            dp2px(context, 20f).toInt()
+        ) else MarginItemDecoration (
+            dp2px(context, 16f).toInt()
         )
         rvMessages.apply {
             if (itemDecorationCount > 0)
