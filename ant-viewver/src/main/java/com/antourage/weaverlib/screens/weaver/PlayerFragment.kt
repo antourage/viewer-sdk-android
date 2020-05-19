@@ -691,10 +691,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
+        etMessage.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) controls.hide() }
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
         poll_bg.setOnClickListener {
-            playerControls.hide() //idk why
+            playerControls.hide()
             onPollDetailsClicked()
         }
 

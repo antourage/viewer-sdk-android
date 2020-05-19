@@ -149,7 +149,7 @@ internal class VideoViewModel @Inject constructor(
         val duration =  player?.duration ?: 0L
         vodId?.let { vodId ->
             if (stopWatchingTime > 0) {
-                if (duration != 0L  && duration*FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0){
+                if (duration != 0L  && duration * FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0){
                     roomRepository.addStopTime(VideoStopTime(vodId, 0, getExpirationDate(vodId)))
                 } else {
                     roomRepository.addStopTime(
