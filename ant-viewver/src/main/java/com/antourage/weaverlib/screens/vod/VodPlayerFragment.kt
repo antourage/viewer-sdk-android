@@ -205,6 +205,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
 
             vod_controls_auto_next.setOnClickListener {
+                controls.hide()
                 mCountDownTimer.cancel()
                 viewModel.nextVideoPlay()
             }
