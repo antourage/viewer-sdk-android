@@ -598,7 +598,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         if (!enable) etMessage.setText("")
         etMessage.hint =
-            getString(if (enable) R.string.ant_hint_say_something else R.string.ant_hint_disabled)
+            getString(if (enable) R.string.ant_hint_chat else R.string.ant_hint_disabled)
     }
 
     private fun showMessageInput() {

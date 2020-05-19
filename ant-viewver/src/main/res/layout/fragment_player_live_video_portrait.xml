@@ -327,7 +327,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:fontFamily="@font/roboto_regular"
-                android:hint="@string/ant_hint_say_something"
+                android:hint="@string/ant_hint_chat"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/ant_max_length_message_input"
