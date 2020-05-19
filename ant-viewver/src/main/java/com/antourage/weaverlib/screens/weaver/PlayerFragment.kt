@@ -419,7 +419,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun activateCommentInputBar(shouldActivate: Boolean) {
-        btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
+        //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
         if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
@@ -590,10 +590,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         etMessage.isEnabled = enable
         if (enable) {
             //used to fix disabling buttons in landscape and not enabling in portrait
-            btnShare?.isEnabled = enable //temporary
+            //btnShare?.isEnabled = enable //temporary
             btnUserSettings?.isEnabled = enable
         }
-        btnShare?.isEnabled = !disableButtons
+        //btnShare?.isEnabled = !disableButtons
         btnUserSettings?.isEnabled = !disableButtons
 
         if (!enable) etMessage.setText("")
