@@ -692,6 +692,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
         etMessage.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) controls.hide() }
+        etMessage.setOnLongClickListener {
+            //added to make impossible to paste text without opening keyboard
+            showKeyboard(etMessage)
+            return@setOnLongClickListener false
+        }
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
         poll_bg.setOnClickListener {
