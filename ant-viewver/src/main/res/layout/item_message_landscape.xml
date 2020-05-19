@@ -34,7 +34,7 @@
                 android:id="@+id/i_name_time_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginBottom="2dp"
                 android:maxWidth="200dp"
                 android:shrinkColumns="0"
