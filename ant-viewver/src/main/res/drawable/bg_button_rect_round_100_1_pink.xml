@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-        android:color="?attr/colorPrimary">
+        android:color="@color/ant_pink">
     <!-- Use this to define the shape of the ripple effect. The color specified here isn't used -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
