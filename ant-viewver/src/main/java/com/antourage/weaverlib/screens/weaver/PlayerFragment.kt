@@ -227,13 +227,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
-                            if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-                                ll_wrapper.visibility = when {
-                                    wasDrawerClosed -> View.GONE
-                                    viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff -> View.GONE
-                                    else -> View.VISIBLE
-                                }
-                            } else {
+                            if (orientation() == Configuration.ORIENTATION_PORTRAIT){
                                 ll_wrapper.visibility = View.VISIBLE
                             }
                             if (viewModel.currentPoll != null) {
