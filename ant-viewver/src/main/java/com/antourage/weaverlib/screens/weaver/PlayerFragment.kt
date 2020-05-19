@@ -191,7 +191,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is PollStatus.NoPoll -> {
                     hidePollStatusLayout()
-                    bottomLayout.visibility = View.INVISIBLE
+                    if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility = View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
                     poll_name?.text = state.poll.question
