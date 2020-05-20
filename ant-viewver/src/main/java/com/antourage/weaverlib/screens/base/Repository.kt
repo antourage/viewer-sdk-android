@@ -19,6 +19,7 @@ import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.google.firebase.firestore.Source
 
 internal class Repository {
 
@@ -231,6 +232,14 @@ internal class Repository {
                     Query.Direction.ASCENDING
                 ), Message::class.java
             )
+        }
+
+        internal fun getMessagesVOD(streamId: Int,
+                                    successListener: OnSuccessListener<QuerySnapshot>) {
+            FirestoreDatabase().getMessagesReferences(streamId).orderBy(
+                "timestamp",
+                Query.Direction.ASCENDING
+            ).get(Source.SERVER).addOnSuccessListener(successListener)
         }
 
         internal fun getLastMessage(

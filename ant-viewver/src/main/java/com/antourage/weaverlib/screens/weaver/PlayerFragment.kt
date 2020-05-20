@@ -603,14 +603,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun orientation() = this?.resources?.configuration.orientation
 
-    private fun showRvMessages() {
-        rvMessages.visibility = View.VISIBLE
-    }
-
-    private fun hideRvMessages() {
-        rvMessages.visibility = View.INVISIBLE
-    }
-
     private fun enableChatUI() {
         enableMessageInput(true)
         if (bottomLayout.visibility != View.VISIBLE){ showMessageInput() }

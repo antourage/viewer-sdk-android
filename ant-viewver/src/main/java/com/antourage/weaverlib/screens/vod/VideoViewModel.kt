@@ -7,8 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.other.convertUtcToLocal
-import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
-import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -23,6 +21,8 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.QuerySnapshot
 import okhttp3.OkHttpClient
 import java.util.*
 import javax.inject.Inject
@@ -40,7 +40,6 @@ internal class VideoViewModel @Inject constructor(
 
     private var videoChanged: Boolean = false
     private var stopWatchingTime: Long = 0
-    private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
 
@@ -60,9 +59,6 @@ internal class VideoViewModel @Inject constructor(
 
     //method used to check if last added message added by User, but in VOD we don't use this check
     override fun checkIfMessageByUser(userID: String?): Boolean = false
-
-    fun noDisplayNameSet() =
-        user == null || user?.displayName == null || user?.displayName?.isEmptyTrimmed() == true
 
     private val messagesRunnable = object : Runnable {
         override fun run() {
@@ -102,23 +98,25 @@ internal class VideoViewModel @Inject constructor(
         when (val status = resource?.status) {
             is Status.Success -> {
                 status.data?.apply {
-                    chatDataLiveData =
-                        this@VideoViewModel.streamId?.let { Repository.getMessages(it) }
-                    chatDataLiveData?.observeOnce(chatDataObserver)
-                }
-            }
-        }
-    }
+                    val success = OnSuccessListener<QuerySnapshot> { snapshots ->
+                        val data: MutableList<Message> = mutableListOf()
+                        for (i in 0 until (snapshots?.documents?.size ?: 0)) {
+                            val document = snapshots?.documents?.get(i)
+                            document?.apply {
+                                    this.toObject(Message::class.java)?.let {
+                                        data.add(it)
+                                    }
+                                    data[i].id = id
+                                }
+                            }
+                        processVODsChat(data)
+                        }
 
-    private val chatDataObserver: Observer<Resource<List<Message>>> = Observer { resource ->
-        when (val status = resource?.status) {
-            is Status.Success -> {
-                status.data?.let { messages ->
-                    processVODsChat(messages)
+                    this@VideoViewModel.streamId?.let { Repository.getMessagesVOD(it, success)}
+                    }
                 }
             }
         }
-    }
 
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
     private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
@@ -264,7 +262,7 @@ internal class VideoViewModel @Inject constructor(
         player?.seekTo((player?.currentPosition ?: 0) - SKIP_VIDEO_TIME_MILLS)
     }
 
-    fun onVideoStarted(streamId: Int) {
+    fun onVideoStarted() {
         messagesHandler.post(messagesRunnable)
     }
 
