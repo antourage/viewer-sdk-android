@@ -70,9 +70,9 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
         resource?.status?.let {
-            if (it is Status.Success && it.data != null && isChatTurnedOn) {
+            if (it is Status.Success && it.data != null) {
                 if (chatContainsNonStatusMsg(it.data)) {
-                    chatStatusLiveData.postValue(ChatStatus.ChatMessages)
+                    if (isChatTurnedOn)chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                     val name = user?.displayName
                     if (name != null){
                         changeAndPostDisplayNameForAllMessages(name, it.data)
@@ -80,7 +80,7 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
                         messagesLiveData.value = it.data
                     }
                 } else {
-                    chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
+                    if (isChatTurnedOn) chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                 }
             }
         }
@@ -123,13 +123,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null) {
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
-                    messagesResponse?.removeObserver(messagesObserver)
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
-                } else {
-                    streamId?.let { it1 ->
-                        messagesResponse = Repository.getMessages(it1)
-                        messagesResponse?.observeForever(messagesObserver)
-                    }
+                }
+                streamId?.let { it1 ->
+                    messagesResponse = Repository.getMessages(it1)
+                    messagesResponse?.observeForever(messagesObserver)
                 }
             }
         }

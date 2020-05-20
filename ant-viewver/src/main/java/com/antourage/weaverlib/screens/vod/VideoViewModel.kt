@@ -332,7 +332,7 @@ internal class VideoViewModel @Inject constructor(
             message.pushTimeMills = ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
             if (message.userID != null && currentUserName != null
                 && message.userID == currentUserId.toString()){
-                //changes displayName on user's current
+                //changes displayName of current user's
                 message.nickname = currentUserName
             }
         }

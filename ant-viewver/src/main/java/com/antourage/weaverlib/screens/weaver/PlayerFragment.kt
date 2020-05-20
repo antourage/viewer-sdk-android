@@ -125,12 +125,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 is ChatStatus.ChatMessages -> {
                     enableChatUI()
-                    showRvMessages()
                     //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
                     enableChatUI()
-                    hideRvMessages()
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
