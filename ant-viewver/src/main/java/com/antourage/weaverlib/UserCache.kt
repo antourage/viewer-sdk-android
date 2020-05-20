@@ -4,12 +4,9 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
-import com.google.gson.Gson
 import java.lang.ref.WeakReference
 import java.util.*
-
 
 internal class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
@@ -26,7 +23,6 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
         private const val SP_USER_ID = "sp_user_id"
-        private const val SP_STATISTIC_WATCHING_TIME = "sp_statistic_watching_time"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
         private const val SP_USER_REF_ID = "sp_user_ref_id"
@@ -142,21 +138,6 @@ internal class UserCache private constructor(context: Context) {
 
     fun getUserNickName(): String? {
         return prefs?.getString(SP_USER_NICKNAME, null)
-    }
-
-    internal fun updateStatisticWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
-        val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
-        prefs?.edit()
-            ?.putString(SP_STATISTIC_WATCHING_TIME, json)
-            ?.apply()
-    }
-
-    internal fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
-        val json = prefs?.getString(SP_STATISTIC_WATCHING_TIME, null)
-        return if (json == null) null else Gson().fromJson(
-            json,
-            StatisticWatchVideoRequest::class.java
-        )
     }
 
     private fun clearUserData() {

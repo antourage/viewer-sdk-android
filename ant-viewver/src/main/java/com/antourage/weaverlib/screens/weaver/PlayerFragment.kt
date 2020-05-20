@@ -191,7 +191,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             when (state) {
                 is PollStatus.NoPoll -> {
                     hidePollStatusLayout()
-                    bottomLayout.visibility = View.INVISIBLE
+                    if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility = View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
                     poll_name?.text = state.poll.question
@@ -227,13 +227,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
-                            if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
-                                ll_wrapper.visibility = when {
-                                    wasDrawerClosed -> View.GONE
-                                    viewModel.getChatStatusLiveData().value is ChatStatus.ChatTurnedOff -> View.GONE
-                                    else -> View.VISIBLE
-                                }
-                            } else {
+                            if (orientation() == Configuration.ORIENTATION_PORTRAIT){
                                 ll_wrapper.visibility = View.VISIBLE
                             }
                             if (viewModel.currentPoll != null) {
@@ -419,7 +413,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun activateCommentInputBar(shouldActivate: Boolean) {
-        btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
+        //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
         if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
@@ -590,15 +584,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         etMessage.isEnabled = enable
         if (enable) {
             //used to fix disabling buttons in landscape and not enabling in portrait
-            btnShare?.isEnabled = enable //temporary
+            //btnShare?.isEnabled = enable //temporary
             btnUserSettings?.isEnabled = enable
         }
-        btnShare?.isEnabled = !disableButtons
+        //btnShare?.isEnabled = !disableButtons
         btnUserSettings?.isEnabled = !disableButtons
 
         if (!enable) etMessage.setText("")
         etMessage.hint =
-            getString(if (enable) R.string.ant_hint_say_something else R.string.ant_hint_disabled)
+            getString(if (enable) R.string.ant_hint_chat else R.string.ant_hint_disabled)
     }
 
     private fun showMessageInput() {
@@ -697,10 +691,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
+        etMessage.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) controls.hide() }
+        etMessage.setOnLongClickListener {
+            //added to make impossible to paste text without opening keyboard
+            showKeyboard(etMessage)
+            return@setOnLongClickListener false
+        }
         btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
         poll_bg.setOnClickListener {
-            playerControls.hide() //idk why
+            playerControls.hide()
             onPollDetailsClicked()
         }
 

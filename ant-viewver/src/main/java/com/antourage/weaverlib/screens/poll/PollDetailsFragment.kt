@@ -46,6 +46,7 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     private val pollObserver: Observer<Poll> = Observer { poll ->
         if (poll != null) {
             tvPollTitle!!.text = poll.question
+            if (!poll.isActive) closePoll()
         }
     }
     private val answersObserver: Observer<List<AnswersCombined>> = Observer { answers ->
@@ -91,13 +92,15 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
             tvPollTitle = view.findViewById(R.id.pollTitle)
             ivDismissPoll = view.findViewById(R.id.ivDismissPoll)
         }
-        ivDismissPoll?.setOnClickListener {
-            if (parentFragment != null)
-                parentFragment?.childFragmentManager?.popBackStack(
-                    null,
-                    POP_BACK_STACK_INCLUSIVE
-                )
-        }
+        ivDismissPoll?.setOnClickListener {closePoll() }
+    }
+
+    private fun closePoll(){
+        if (parentFragment != null)
+            parentFragment?.childFragmentManager?.popBackStack(
+                null,
+                POP_BACK_STACK_INCLUSIVE
+            )
     }
 
     override fun onAnswerChosen(position: Int) {
@@ -110,6 +113,10 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         super.onConfigurationChanged(newConfig)
         viewModel.getPollLiveData().reObserve(this.viewLifecycleOwner, pollObserver)
         viewModel.getAnswersLiveData().reObserve(this.viewLifecycleOwner, answersObserver)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
 }

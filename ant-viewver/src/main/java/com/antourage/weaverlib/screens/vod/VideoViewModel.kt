@@ -6,14 +6,14 @@ import android.os.Handler
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
-import com.antourage.weaverlib.other.formatDuration
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.observeOnce
 import com.antourage.weaverlib.other.parseToDate
-import com.antourage.weaverlib.other.parseToMills
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -26,15 +26,19 @@ import okhttp3.OkHttpClient
 import java.util.*
 import javax.inject.Inject
 
-internal class VideoViewModel @Inject constructor(application: Application) :
-    ChatViewModel(application) {
+internal class VideoViewModel @Inject constructor(
+    application: Application,
+    private val roomRepository: RoomRepository
+) : ChatViewModel(application) {
 
     companion object {
+        private const val STOP_TIME_UPDATE_INTERVAL_MS = 5000L
+        private const val FULLY_VIEWED_VIDEO_SEGMENT = 0.9
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
 
     private var videoChanged: Boolean = false
-    private var predefinedStopWatchingTime: Long? = null
+    private var stopWatchingTime: Long = 0
     private var chatDataLiveData: QuerySnapshotLiveData<Message>? = null
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -43,6 +47,14 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var vodId: Int? = null
+
+    private var timerTickHandler = Handler()
+    private var timerTickRunnable = object : Runnable {
+        override fun run() {
+            setVodStopWatchingTime()
+            timerTickHandler.postDelayed(this, STOP_TIME_UPDATE_INTERVAL_MS)
+        }
+    }
 
     //method used to check if last added message added by User, but in VOD we don't use this check
     override fun checkIfMessageByUser(userID: String?): Boolean = false
@@ -106,48 +118,62 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
     private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun initUi(id: Int?, startTime: String?, stopTime: String?) {
+    fun initUi(id: Int?, startTime: String?) {
         this.startTime = startTime?.parseToDate()
         id?.let {
             this.streamId = it
             Repository.getStream(it).observeOnce(streamObserver)
+            this.stopWatchingTime = roomRepository.getStopTimeById(it)?: 0
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
         chatStateLiveData.postValue(true)
         markVODAsWatched()
-        this.predefinedStopWatchingTime = stopTime?.parseToMills()
     }
 
     override fun onResume() {
         super.onResume()
-        predefinedStopWatchingTime?.let { player?.seekTo(it) }
+        startUpdatingStopWatchingTime()
+        player?.seekTo(stopWatchingTime)
     }
 
     override fun onPause() {
         super.onPause()
-        predefinedStopWatchingTime = player?.currentPosition
-        setVodStopWatchingTime()
+        timerTickHandler.removeCallbacksAndMessages(null)
+        setVodStopWatchingTime(isUpdateLocally = true)
         stopMonitoringChatMessages()
     }
 
-    private fun setVodStopWatchingTime() {
+    private fun setVodStopWatchingTime(isUpdateLocally: Boolean = false) {
+        stopWatchingTime = player?.currentPosition ?: 0
+        val duration =  player?.duration ?: 0L
         vodId?.let { vodId ->
-            /**
-             * set stopWatching time to avoid additional server call when
-             * turning back from player to videos list screen
-             */
-            setVODStopWatchingTimeLocally()
-            stopWatchingTime?.let { stopWatchingTime ->
-                if (stopWatchingTime > 0) {
-                    Repository.stopWatchingVOD(
-                        StopWatchVodRequest(
-                            vodId, stopWatchingTime.formatDuration()
-                        )
+            if (stopWatchingTime > 0) {
+                if (duration != 0L  && duration * FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0){
+                    roomRepository.addStopTime(VideoStopTime(vodId, 0, getExpirationDate(vodId)))
+                } else {
+                    roomRepository.addStopTime(
+                        VideoStopTime(vodId, stopWatchingTime, getExpirationDate(vodId))
                     )
                 }
             }
+            if (isUpdateLocally) setVODStopWatchingTimeLocally()
         }
+    }
+
+
+    private fun startUpdatingStopWatchingTime() {
+        if (timerTickHandler.hasMessages(0)) {
+            timerTickHandler.removeCallbacksAndMessages(null)
+        } else {
+            timerTickHandler.post(timerTickRunnable)
+        }
+    }
+
+    //todo: test whether correctly parsed
+    private fun getExpirationDate(vodId: Int): Long {
+        return Repository.vods?.find { video -> video.id?.equals(vodId) ?: false }
+            ?.startTime?.let { convertUtcToLocal(it)?.time } ?: 0L
     }
 
     override fun onTrackEnd() {
@@ -176,11 +202,15 @@ internal class VideoViewModel @Inject constructor(application: Application) :
     override fun onVideoChanged() {
         val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
-        list[currentWindow].id?.apply {
+        currentVod.id?.apply {
             if (this != vodId) {
                 videoChanged = true
-                this@VideoViewModel.predefinedStopWatchingTime = currentVod.stopTime?.parseToMills()
-                setVodStopWatchingTime()
+                resetChronometer = true
+                vodId?.let {
+                    this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it)?: 0
+                    postVideoIsClosed(it)
+                }
+
             }
         }
         this.streamId = currentVod.id
@@ -241,7 +271,6 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
         for (i in 0 until (list?.size ?: 0)) {
             mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
-//            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource("") }
         }
         return ConcatenatingMediaSource(*mediaSources)
     }
@@ -287,14 +316,18 @@ internal class VideoViewModel @Inject constructor(application: Application) :
         Repository.vods?.find { it.id?.equals(vodId) ?: false }?.isNew = false
     }
 
+    /**
+     * set stopWatching time to avoid additional call to DB when
+     * turning back from player to videos list screen
+     */
     private fun setVODStopWatchingTimeLocally() {
         Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
-            ?.stopTime = stopWatchingTime?.formatDuration()
+            ?.stopTimeMillis = stopWatchingTime
     }
 
     fun seekToLastWatchingTime() {
         if (videoChanged) {
-            predefinedStopWatchingTime?.let { player?.seekTo(it) }
+            player?.seekTo(stopWatchingTime)
             videoChanged = false
         }
     }

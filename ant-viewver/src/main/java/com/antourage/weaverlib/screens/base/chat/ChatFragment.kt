@@ -38,8 +38,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
     private var newCommentsButton: ConstraintLayout? = null
-    //llMessageWrapper not in use in VOD
-    private var llMessageWrapper: ConstraintLayout? = null
     private var commentsLayout: ConstraintLayout? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
@@ -118,7 +116,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
 
             navigationView = findViewById(R.id.navView)
             rvMessages = findViewById(R.id.rvMessages)
-            llMessageWrapper = findViewById(R.id.ll_wrapper)
             newCommentsButton = findViewById(R.id.bttn_new_comments)
             commentsLayout = findViewById(R.id.clNavView)
         }
@@ -217,6 +214,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         })
     }
 
+    //used only in Live Player
     abstract fun showMessageInputVisibleIfRequired(shouldShow: Boolean)
 
     private fun initMessagesRV() {
@@ -268,8 +266,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             dp2px(context, 0f).toInt(),
             dp2px(context, 12f).toInt(),
             dp2px(context, 12f).toInt()
-        ) else MarginItemDecoration(
-            dp2px(context, 20f).toInt()
+        ) else MarginItemDecoration (
+            dp2px(context, 16f).toInt()
         )
         rvMessages.apply {
             if (itemDecorationCount > 0)

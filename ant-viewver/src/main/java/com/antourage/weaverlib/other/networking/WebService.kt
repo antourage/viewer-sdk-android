@@ -12,6 +12,12 @@ internal interface WebService {
     @GET("live/{id}/viewers")
     fun getLiveViewers(@Path("id") id: Int): LiveData<ApiResponse<Viewers>>
 
+    @POST("live/open")
+    fun postLiveOpen(@Body body: LiveOpenedRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("live/close")
+    fun postLiveClose(@Body body: LiveClosedRequest): LiveData<ApiResponse<SimpleResponse>>
+
     @GET("vod")
     fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
 
@@ -20,6 +26,12 @@ internal interface WebService {
 
     @GET("vod/new")
     fun getNewVODsCount(): LiveData<ApiResponse<Int>>
+
+    @POST("vod/open")
+    fun postVODOpen(@Body body: VideoOpenedRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("vod/close")
+    fun postVODClose(@Body body: VideoClosedRequest): LiveData<ApiResponse<SimpleResponse>>
 
     @POST("users")
     fun generateUser(@Body body: UserRequest): LiveData<ApiResponse<User>>
@@ -35,9 +47,6 @@ internal interface WebService {
 
     @POST("statistic/vod")
     fun statisticWatchVOD(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
-
-    @POST("vod/stopTime")
-    fun stopWatchingVOD(@Body body: StopWatchVodRequest): LiveData<ApiResponse<SimpleResponse>>
 
     @Multipart
     @POST("users/uploadimage")

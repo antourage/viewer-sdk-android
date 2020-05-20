@@ -345,7 +345,7 @@ internal class VideosAdapter(
                     txtDuration_vod.gone(duration == null || duration.isEmpty())
                     txtViewsCount_vod.text = viewsCount.toString()
                     txtViewsCount_vod.gone(viewsCount == null)
-                    if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
+                    /*if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
                             "00:00:00"
                         )
                     ) {
@@ -353,7 +353,10 @@ internal class VideosAdapter(
                             (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
                                 ?: 1)).toInt()
                         watchingProgress.visibility = View.VISIBLE
-                    }
+                    }*/
+                    //todo: please, check whether below changes are suitable
+                    watchingProgress.progress = stopTimeMillis.toInt()
+                    watchingProgress.visibility = View.VISIBLE
                 }
             }
         }

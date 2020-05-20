@@ -27,13 +27,11 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
-import com.antourage.weaverlib.screens.weaver.ChatStatus
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
@@ -182,7 +180,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_progress_bar.progress = 5000
             playerView.setOnTouchListener(null)
             //todo: onDrawerSingleClick block
-            controls.showTimeoutMs = 5000
+            controls.showTimeoutMs = 0 //blocks from hiding
 
             mCountDownTimer.start()
             vod_buttons_layout.visibility = View.INVISIBLE
@@ -194,7 +192,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 vod_rewind.visibility = View.VISIBLE
                 playerView.setOnTouchListener(playerOnTouchListener)
-                controls.showTimeoutMs = 1200
             }
             controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
                 mCountDownTimer.cancel()
@@ -202,11 +199,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 v.setOnTouchListener { _, _ -> false }
                 playerView.setOnTouchListener(playerOnTouchListener)
-                controls.showTimeoutMs = 1200
+                controls.showTimeoutMs = 2000
                 return@setOnTouchListener false
             }
 
             vod_controls_auto_next.setOnClickListener {
+                controls.hide()
                 mCountDownTimer.cancel()
                 viewModel.nextVideoPlay()
             }
@@ -279,7 +277,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
-            viewModel.initUi(id, startTime,  stopTime)
+            viewModel.initUi(id, startTime)
             id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {
