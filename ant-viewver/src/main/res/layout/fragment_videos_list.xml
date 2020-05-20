@@ -71,11 +71,22 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="parent">
 
+<!--                    <ImageView-->
+<!--                            android:id="@+id/ivNoContent"-->
+<!--                            android:layout_width="56dp"-->
+<!--                            android:layout_height="56dp"-->
+<!--                            android:src="@drawable/antourage_ic_holderlogolarge"-->
+<!--                            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                            app:layout_constraintRight_toRightOf="parent"-->
+<!--                            app:layout_constraintTop_toTopOf="parent" />-->
+
                     <ImageView
                             android:id="@+id/ivNoContent"
-                            android:layout_width="56dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="56dp"
-                            android:src="@drawable/antourage_ic_holderlogolarge"
+                            android:scaleType="fitXY"
+                            android:adjustViewBounds="true"
+                            android:src="@drawable/nordic_wellness"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -158,12 +169,25 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
 
+<!--        <ImageView-->
+<!--                android:id="@+id/ivTeamImage"-->
+<!--                android:layout_width="32dp"-->
+<!--                android:layout_height="32dp"-->
+<!--                android:layout_marginStart="12dp"-->
+<!--                android:src="@drawable/antourage_ic_holderlogosmall"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                tools:ignore="ContentDescription" />-->
+
         <ImageView
                 android:id="@+id/ivTeamImage"
-                android:layout_width="32dp"
+                android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:layout_marginStart="12dp"
-                android:src="@drawable/antourage_ic_holderlogosmall"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:src="@drawable/nordic_wellness"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -176,6 +200,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+<!--        <TextView-->
+<!--                android:id="@+id/tvTitle"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="20dp"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:ellipsize="end"-->
+<!--                android:fontFamily="sans-serif-medium"-->
+<!--                android:maxLines="1"-->
+<!--                android:text="@string/ant_demo_feed_title"-->
+<!--                android:textAlignment="center"-->
+<!--                android:textColor="@color/ant_white"-->
+<!--                android:textSize="15sp"-->
+<!--                android:visibility="visible"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintLeft_toRightOf="@id/ivTeamImage"-->
+<!--                app:layout_constraintRight_toLeftOf="@id/ivClose"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
+
         <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
@@ -185,15 +228,16 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:text="INSIDE THE GAME"
+                android:text="@string/ant_demo_feed_title"
                 android:textAlignment="center"
                 android:textColor="@color/ant_white"
                 android:textSize="15sp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/ivTeamImage"
-                app:layout_constraintRight_toLeftOf="@id/ivClose"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

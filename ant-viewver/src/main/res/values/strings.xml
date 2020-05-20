@@ -107,6 +107,7 @@
     <!--feed-->
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
     <string name="ant_new_live">NEW LIVE VIDEO</string>
+    <string name="ant_demo_feed_title">Studio Häcken</string>
     <string name="ant_join_conversation">Join conversation</string>
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>

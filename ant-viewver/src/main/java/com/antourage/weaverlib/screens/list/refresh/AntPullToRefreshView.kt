@@ -319,7 +319,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
             ensureTarget()
             mIsRefreshing = refreshing
             if (mIsRefreshing) {
-                mAntBaseProgressBar.setPercent(1f)
+//                mAntBaseProgressBar.setPercent(1f)
                 animateOffsetToCorrectPosition()
             } else {
                 animateOffsetToStartPosition()

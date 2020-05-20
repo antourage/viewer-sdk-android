@@ -24,14 +24,14 @@ internal object ApiClient {
     private var retrofit: Retrofit? = null
     private var usingAuth = false
 
-    private var shouldRebuild = false
+//    private var shouldRebuild = false
 
     fun getWebClient(useAuth: Boolean = true, v2: Boolean = false): ApiClient {
         if (retrofit == null
             || usingAuth != useAuth
             || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)
-            || v2
-            || shouldRebuild
+//            || v2
+//            || shouldRebuild
         ) {
             rebuildRetrofit(useAuth, v2)
         }
@@ -50,16 +50,17 @@ internal object ApiClient {
         val client = buildOkHttpClient(useAuth)
         retrofit = Retrofit.Builder()
             .baseUrl(
-                if (v2) {
-                    (BASE_URL + VERSION_2_SUFFIX)
-                } else (BASE_URL + VERSION_SUFFIX)
+//                if (v2) {
+//                    (BASE_URL + VERSION_2_SUFFIX)
+//                } else
+                (BASE_URL + VERSION_SUFFIX)
             )
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
         webService = retrofit?.create(WebService::class.java)!!
-        if (v2) shouldRebuild = true
+//        if (v2) shouldRebuild = true
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
