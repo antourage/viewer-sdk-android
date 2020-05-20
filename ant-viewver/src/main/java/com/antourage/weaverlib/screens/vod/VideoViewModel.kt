@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
+import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -47,6 +48,7 @@ internal class VideoViewModel @Inject constructor(
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var vodId: Int? = null
+    private var user: User? = null
 
     private var timerTickHandler = Handler()
     private var timerTickRunnable = object : Runnable {
@@ -58,6 +60,9 @@ internal class VideoViewModel @Inject constructor(
 
     //method used to check if last added message added by User, but in VOD we don't use this check
     override fun checkIfMessageByUser(userID: String?): Boolean = false
+
+    fun noDisplayNameSet() =
+        user == null || user?.displayName == null || user?.displayName?.isEmptyTrimmed() == true
 
     private val messagesRunnable = object : Runnable {
         override fun run() {
@@ -120,15 +125,40 @@ internal class VideoViewModel @Inject constructor(
 
     fun initUi(id: Int?, startTime: String?) {
         this.startTime = startTime?.parseToDate()
+        initUserAndFetchChat(id)
         id?.let {
             this.streamId = it
-            Repository.getStream(it).observeOnce(streamObserver)
             this.stopWatchingTime = roomRepository.getStopTimeById(it)?: 0
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
         chatStateLiveData.postValue(true)
         markVODAsWatched()
+    }
+
+    private fun fetchChatList(id: Int?){
+        id?.let {
+            Repository.getStream(it).observeOnce(streamObserver)
+        }
+    }
+
+    private fun initUserAndFetchChat( id: Int?) {
+        val response = Repository.getUser()
+        response.observeForever(object : Observer<Resource<User>> {
+            override fun onChanged(it: Resource<User>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        user = responseStatus.data
+                        fetchChatList(id)
+                        response.removeObserver(this)
+                    }
+                    is Status.Failure -> {
+                        fetchChatList(id)
+                        response.removeObserver(this)
+                    }
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -294,15 +324,17 @@ internal class VideoViewModel @Inject constructor(
             .createMediaSource(Uri.parse(uri))
     }
 
-    private fun processVODsChat(
-        messages: List<Message>
-    ) {
-        val pushedMessages = mutableListOf<Message>()
-        pushedMessages.addAll(messagesLiveData.value ?: mutableListOf())
+    private fun processVODsChat(messages: List<Message>) {
+        val currentUserId = user?.id
+        val currentUserName = user?.displayName
         val userMessages = messages.filter { it.type == MessageType.USER }
         for (message in userMessages) {
-            message.pushTimeMills =
-                ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
+            message.pushTimeMills = ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
+            if (message.userID != null && currentUserName != null
+                && message.userID == currentUserId.toString()){
+                //changes displayName on user's current
+                message.nickname = currentUserName
+            }
         }
         userProcessedMessages.clear()
         userProcessedMessages.addAll(userMessages)
