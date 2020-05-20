@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.ImageView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -34,6 +35,7 @@ class AntRefreshView @JvmOverloads constructor(
     }
 
     override fun setPercent(percent: Float) {
+        Log.e("info", "percent $percent")
         mPercent = percent
 
         when (percent.toInt()) {

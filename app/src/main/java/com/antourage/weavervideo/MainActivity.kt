@@ -1,13 +1,9 @@
 package com.antourage.weavervideo
 
-import android.graphics.drawable.Animatable2
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
-import androidx.vectordrawable.graphics.drawable.Animatable2Compat
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
 import com.antourage.weaverlib.ui.fab.UserAuthResult
@@ -15,6 +11,7 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
+
 
 class MainActivity : AppCompatActivity() {
 

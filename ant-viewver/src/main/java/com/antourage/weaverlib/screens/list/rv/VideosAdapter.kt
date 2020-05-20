@@ -4,9 +4,11 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -26,6 +28,7 @@ import kotlinx.android.synthetic.main.item_progress.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 import org.jetbrains.anko.windowManager
 import java.util.*
+
 
 internal class VideosAdapter(
     private val onClick: (stream: StreamResponse) -> Unit,
@@ -323,7 +326,6 @@ internal class VideosAdapter(
 
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_vod.text = videoName
-
                     txtComment_vod.gone(lastMessage.isNullOrEmpty())
                     txtCommentAuthor_vod.gone(lastMessage.isNullOrEmpty())
                     btnChat_vod.gone(lastMessage.isNullOrEmpty())

@@ -104,7 +104,7 @@ internal class Repository {
         fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
                 override fun createCall() =
-                    ApiClient.getWebClient(v2 = true).webService.getVODsForFab()
+                    ApiClient.getWebClient().webService.getVODsForFab()
             }.asLiveData()
 
         fun getNewVODsCount(): LiveData<Resource<Int>> =
@@ -238,7 +238,6 @@ internal class Repository {
                 }.addOnFailureListener {
                     callback.onFailure()
                 }
-
         }
 
 
