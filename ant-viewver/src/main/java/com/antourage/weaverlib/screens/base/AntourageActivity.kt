@@ -30,8 +30,8 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
-        BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
-            ?: DevSettingsDialog.DEFAULT_URL
+//        BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
+//            ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null

@@ -63,7 +63,6 @@ internal class ReceivingVideosManager {
                     }
                 }
             })
-
         }
 
         val handlerLiveVideos = Handler()

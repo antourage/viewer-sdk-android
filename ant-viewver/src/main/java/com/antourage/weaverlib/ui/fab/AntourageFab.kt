@@ -312,7 +312,6 @@ class AntourageFab @JvmOverloads constructor(
                         }
                         FabState.LIVE -> {
                             currentPlayerState.let {
-//                                Log.e("starting new circle", "wtf $it and  ${playerView.player.isPlaying}")
                                 if (it == Player.STATE_READY && playerView.player.isPlaying)
                                     startAnimation(
                                         FabState.LIVE
@@ -437,7 +436,6 @@ class AntourageFab @JvmOverloads constructor(
 
 
     private fun startPlayingStream(stream: StreamResponse) {
-//        Log.e("info", "called start stream")
         playerView.player = stream.hlsUrl?.get(0)?.let {
             StreamPreviewManager.getExoPlayer(
                 it, context

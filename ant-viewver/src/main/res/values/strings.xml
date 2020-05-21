@@ -113,6 +113,7 @@
     <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
     <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>
     <string name="ant_no_connection">no connection</string>
+    <string name="ant_server_error">something is not right…</string>
     <string name="ant_you_are_online">you are online</string>
     <string name="ant_most_recent">%s   •  most recent</string>
 
