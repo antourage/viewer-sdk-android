@@ -38,6 +38,12 @@ internal class VideoViewModel @Inject constructor(
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
 
+    enum class AutoPlayState {
+        START_AUTO_PLAY,     // auto play state should be started
+        START_REPLAY,        // replay state should be started
+        STOP_ALL_STATES      // leave all states as player's in default state
+    }
+
     private var videoChanged: Boolean = false
     private var stopWatchingTime: Long = 0
     private var chatStateLiveData = MutableLiveData<Boolean>()
@@ -56,6 +62,12 @@ internal class VideoViewModel @Inject constructor(
             timerTickHandler.postDelayed(this, STOP_TIME_UPDATE_INTERVAL_MS)
         }
     }
+
+    val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
+    fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
+
+    private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
+    fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
     //method used to check if last added message added by User, but in VOD we don't use this check
     override fun checkIfMessageByUser(userID: String?): Boolean = false
@@ -118,9 +130,6 @@ internal class VideoViewModel @Inject constructor(
             }
         }
 
-    val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
-    private val videoEndedLD: MutableLiveData<Boolean> = MutableLiveData()
-
     fun initUi(id: Int?, startTime: String?) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
@@ -167,6 +176,7 @@ internal class VideoViewModel @Inject constructor(
 
     override fun onPause() {
         super.onPause()
+        setReplayStateIfAutoPlayIsActive()
         timerTickHandler.removeCallbacksAndMessages(null)
         setVodStopWatchingTime(isUpdateLocally = true)
         stopMonitoringChatMessages()
@@ -206,21 +216,34 @@ internal class VideoViewModel @Inject constructor(
 
     override fun onTrackEnd() {
         player?.playWhenReady = false
-        videoEndedLD.postValue(true)
+        autoPlayStateLD.postValue(AutoPlayState.START_AUTO_PLAY)
+    }
+
+    fun startReplayState() { autoPlayStateLD.postValue(AutoPlayState.START_REPLAY) }
+    fun stopAutoPlayState(shouldCheckIfInReplayState: Boolean = false) {
+        if (shouldCheckIfInReplayState){
+            if (autoPlayStateLD.value == AutoPlayState.START_REPLAY) return
+        }
+        autoPlayStateLD.postValue(AutoPlayState.STOP_ALL_STATES)
+    }
+    private fun setReplayStateIfAutoPlayIsActive() {
+        if (autoPlayStateLD.value == AutoPlayState.START_AUTO_PLAY) {
+            startReplayState()
+        }
     }
 
     fun nextVideoPlay() {
         playNextTrack()
-        videoEndedLD.postValue(false)
+        stopAutoPlayState()
     }
 
     fun prevVideoPlay() {
         playPrevTrack()
-        videoEndedLD.postValue(false)
+        stopAutoPlayState()
     }
 
     fun rewindVideoPlay() {
-        videoEndedLD.postValue(false)
+        stopAutoPlayState()
         rewindAndPlayTrack()
     }
 
@@ -247,7 +270,7 @@ internal class VideoViewModel @Inject constructor(
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.id?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
-        videoEndedLD.postValue(false)
+        stopAutoPlayState( shouldCheckIfInReplayState = true)
         if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
             player?.playWhenReady = true
         }
@@ -269,10 +292,6 @@ internal class VideoViewModel @Inject constructor(
     fun onVideoPausedOrStopped() {
         messagesHandler.post(messagesSingleEventRunnable)
     }
-
-    fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
-
-    fun getVideoEndedLD(): LiveData<Boolean> = videoEndedLD
 
     fun setCurrentPlayerPosition(videoId: Int) {
         currentWindow = findVideoPositionById(videoId)
