@@ -163,12 +163,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
-        ivThanksForWatching?.visibility = View.VISIBLE
         ivFirstFrame?.visibility = View.VISIBLE
+        ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //blocks player controls appearance
         controls.visibility = View.GONE
-        playerView.visibility = View.INVISIBLE
         playerView.setOnTouchListener(null)
 
         txtNumberOfViewers.marginDp(6f, 6f)
