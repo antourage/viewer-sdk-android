@@ -68,7 +68,9 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
         val diffResult = DiffUtil.calculateDiff(MessageListDiffUtilCallback(list, userMessagesList))
 
         this.list.clear()
-        this.list.addAll(userMessagesList)
+        //use this instead of addAll, as it will create copy without reference to prev. objects
+        this.list = ArrayList(userMessagesList.map { it.copy().apply { id = it.id } })
+
         diffResult.dispatchUpdatesTo(this)
     }
 

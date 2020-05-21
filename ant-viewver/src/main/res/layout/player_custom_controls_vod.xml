@@ -165,7 +165,7 @@
             tools:ignore="ContentDescription" />
 
     <TextView
-            android:id="@+id/exo_position"
+            android:id="@+id/vod_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -189,22 +189,22 @@
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/exo_progress"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/exo_position" />
+            app:layout_constraintStart_toEndOf="@+id/vod_position" />
 
     <!--        this TextView's text value is set buy exo player lib, that is why-->
     <!--        you should not change its id-->
 
     <TextView
-            android:id="@+id/exo_duration"
+            android:id="@+id/vod_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:fontFamily="@font/roboto_bold"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="@+id/exo_position"
+            app:layout_constraintBottom_toBottomOf="@+id/vod_position"
             app:layout_constraintStart_toEndOf="@+id/controls_delimiter"
-            app:layout_constraintTop_toTopOf="@+id/exo_position"
+            app:layout_constraintTop_toTopOf="@+id/vod_position"
             tools:text="12:45" />
     <!--if you'll going to change it, also update progressBar in fragment-->
     <com.google.android.exoplayer2.ui.DefaultTimeBar

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
@@ -33,14 +34,6 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivFirstFrame
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -69,6 +62,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val progressHandler = Handler()
     private val updateProgressAction = Runnable { updateProgressBar() }
     private var playerOnTouchListener : View.OnTouchListener? = null
+    private var autoPlayCountDownTimer : CountDownTimer? = null
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -107,7 +101,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         viewModel.onVideoPausedOrStopped()
                     } else {
                         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                            ?.id?.let { id -> viewModel.onVideoStarted(id) }
+                            ?.id?.let { id -> viewModel.onVideoStarted() }
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
@@ -156,67 +150,72 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         vod_control_next.visibility = if (viewModel.hasNextTrack()) View.VISIBLE else View.INVISIBLE
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private val endVideoObserver: Observer<Boolean> = Observer { isEnded ->
-        if (isEnded && !viewModel.hasNextTrack()){
-            //STATE END OF LAST VIDEO IN PLAYLIST
-            vod_play_pause_layout.visibility = View.INVISIBLE
-            vod_buttons_layout.visibility = View.VISIBLE
-            vod_next_auto_layout.visibility = View.INVISIBLE
-            vod_rewind.visibility = View.VISIBLE
-        } else if (isEnded && vod_next_auto_layout.visibility != View.VISIBLE) {
-            //STATE END OF NOT LAST VIDEO IN PLAYLIST
-            val mCountDownTimer = object : CountDownTimer(5000, 20) {
-                override fun onTick(millisUntilFinished: Long) {
-                    vod_progress_bar?.progress = millisUntilFinished.toInt()
-                }
+    private val autoPlayStateObserver: Observer<VideoViewModel.AutoPlayState> = Observer { state ->
 
-                override fun onFinish() {
-                    if (vod_next_auto_layout?.visibility == View.VISIBLE) {
-                        viewModel.nextVideoPlay()
+        when (state) {
+            VideoViewModel.AutoPlayState.START_AUTO_PLAY -> {
+                if (!viewModel.hasNextTrack()){ //STATE END OF LAST VIDEO IN PLAYLIST
+                    viewModel.startReplayState()
+                } else if (vod_next_auto_layout.visibility != View.VISIBLE) {
+                    //STATE END OF NOT LAST VIDEO IN PLAYLIST
+                    autoPlayCountDownTimer = object : CountDownTimer(5000, 20) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            vod_progress_bar?.progress = millisUntilFinished.toInt()
+                        }
+
+                        override fun onFinish() {
+                            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+                                && vod_next_auto_layout?.visibility == View.VISIBLE) {
+                                controls.hide()
+                                viewModel.nextVideoPlay()
+                            } else {
+                                viewModel.startReplayState()
+                            }
+                        }
                     }
+                    vod_progress_bar?.progress = 5000
+                    playerView.setOnTouchListener(null) //blocks from clicking
+                    drawerLayout.touchListener = null
+                    controls.showTimeoutMs = 0 //blocks from hiding
+                    autoPlayCountDownTimer?.start()
+                    vod_buttons_layout.visibility = View.INVISIBLE
+                    vod_next_auto_layout.visibility = View.VISIBLE
+                    setProgressClickListenerForAutoPlay()
                 }
             }
-            vod_progress_bar.progress = 5000
-            playerView.setOnTouchListener(null)
-            //todo: onDrawerSingleClick block
-            controls.showTimeoutMs = 0 //blocks from hiding
-
-            mCountDownTimer.start()
-            vod_buttons_layout.visibility = View.INVISIBLE
-            vod_next_auto_layout.visibility = View.VISIBLE
-            vod_auto_next_cancel.setOnClickListener {
-                mCountDownTimer.cancel()
+            VideoViewModel.AutoPlayState.START_REPLAY -> {
+                drawerLayout.touchListener = this
+                autoPlayCountDownTimer?.cancel()
                 vod_play_pause_layout.visibility = View.INVISIBLE
                 vod_buttons_layout.visibility = View.VISIBLE
                 vod_next_auto_layout.visibility = View.INVISIBLE
                 vod_rewind.visibility = View.VISIBLE
                 playerView.setOnTouchListener(playerOnTouchListener)
+                setProgressClickListenerForAutoPlay()
             }
-            controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
-                mCountDownTimer.cancel()
-                vod_buttons_layout.visibility = View.VISIBLE
-                vod_next_auto_layout.visibility = View.INVISIBLE
-                v.setOnTouchListener { _, _ -> false }
-                playerView.setOnTouchListener(playerOnTouchListener)
-                controls.showTimeoutMs = 2000
-                return@setOnTouchListener false
+            VideoViewModel.AutoPlayState.STOP_ALL_STATES -> {
+                if (vod_rewind.visibility == View.VISIBLE ||
+                    vod_next_auto_layout.visibility == View.VISIBLE ){
+                    autoPlayCountDownTimer?.cancel()
+                    vod_play_pause_layout.visibility = View.VISIBLE
+                    vod_buttons_layout.visibility = View.VISIBLE
+                    vod_next_auto_layout.visibility = View.INVISIBLE
+                    vod_rewind.visibility = View.INVISIBLE
+                    playerView.setOnTouchListener(playerOnTouchListener)
+                    controls.showTimeoutMs = 2000
+                    drawerLayout.touchListener = this
+                }
             }
+            null -> {}
+        }
+    }
 
-            vod_controls_auto_next.setOnClickListener {
-                controls.hide()
-                mCountDownTimer.cancel()
-                viewModel.nextVideoPlay()
-            }
-        } else if (!isEnded) {
-            //NOT END VIDEO STATE
-            vod_play_pause_layout.visibility = View.VISIBLE
-            vod_buttons_layout.visibility = View.VISIBLE
-            vod_next_auto_layout.visibility = View.INVISIBLE
-            vod_rewind.visibility = View.INVISIBLE
-            playerView.setOnTouchListener(playerOnTouchListener)
-            controls.showTimeoutMs = 1200
-            //todo: onDrawerSingleClick unblock
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setProgressClickListenerForAutoPlay(){
+        controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setOnTouchListener { v, _ ->
+            viewModel.stopAutoPlayState()
+            v.setOnTouchListener { _, _ -> false }
+            return@setOnTouchListener false
         }
     }
 
@@ -260,7 +259,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
-        viewModel.getVideoEndedLD().observe(this.viewLifecycleOwner, endVideoObserver)
+        viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
@@ -298,8 +297,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initPortraitProgressListener() {
-        controls.setProgressUpdateListener {
-                pos, _ -> vod_player_progress.progress = pos.toInt()
+        controls.setProgressUpdateListener { pos, _ ->
+            vod_player_progress.progress = pos.toInt()
+            vod_position.text = pos.formatTimeMillisToTimer()
+            val duration = viewModel.getVideoDuration() ?: -1
+            if (duration > 0){ vod_duration.text = duration.formatTimeMillisToTimer() }
         }
     }
 
@@ -320,7 +322,16 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun initPlayerClickListeners() {
         vod_control_prev.setOnClickListener { viewModel.prevVideoPlay() }
         vod_control_next.setOnClickListener { viewModel.nextVideoPlay() }
-        vod_rewind.setOnClickListener { viewModel.rewindVideoPlay() }
+        vod_rewind.setOnClickListener {
+            controls.hide()
+            viewModel.rewindVideoPlay()
+        }
+        vod_auto_next_cancel.setOnClickListener { viewModel.startReplayState() }
+        vod_controls_auto_next.setOnClickListener {
+            controls.hide()
+            autoPlayCountDownTimer?.cancel()
+            viewModel.nextVideoPlay()
+        }
         updatePrevNextVisibility()
     }
 
@@ -393,8 +404,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun brightenNextPrevButtons() {
-        vod_control_next?.visibility = View.VISIBLE
-        vod_control_prev?.visibility = View.VISIBLE
+        vod_control_next.alpha = 1.0f
+        vod_control_prev.alpha = 1.0f
         controls?.hide()
     }
 
@@ -565,8 +576,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     override fun onMinuteChanged() {
-        viewModel.currentVideo.value.let {
-            if (it?.startTime != null && it?.duration != null) {
+        viewModel.currentVideo.value?.let {
+            if (it.startTime != null && it.duration != null) {
                 updateWasLiveValueOnUI(it.startTime, it.duration)
             }
         }
@@ -584,12 +595,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 .findViewById<TextView>(R.id.play_header_tv_ago)
             tvAgoLandscape.text = formattedStartTime
             tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
-        }
-    }
-
-    private fun updateViewsCountUI(currentViewsCount: Int?) {
-        currentViewsCount?.let {
-            txtNumberOfViewers.text = it.toString()
         }
     }
 

@@ -125,12 +125,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 is ChatStatus.ChatMessages -> {
                     enableChatUI()
-                    showRvMessages()
                     //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
                     enableChatUI()
-                    hideRvMessages()
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -165,12 +163,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
-        ivThanksForWatching?.visibility = View.VISIBLE
         ivFirstFrame?.visibility = View.VISIBLE
+        ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //blocks player controls appearance
         controls.visibility = View.GONE
-        playerView.visibility = View.INVISIBLE
         playerView.setOnTouchListener(null)
 
         txtNumberOfViewers.marginDp(6f, 6f)
@@ -279,6 +276,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.addMessage(message, id)
         }
         etMessage.setText("")
+        if (btnUserSettings.visibility == View.VISIBLE) { btnSend.visibility = View.INVISIBLE }
         rvMessages?.apply {
             adapter?.itemCount?.minus(0)?.let { adapterPosition ->
                 post { Handler().postDelayed({
@@ -415,7 +413,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun activateCommentInputBar(shouldActivate: Boolean) {
         //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
-        btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
+        btnSend.visibility = when {
+            shouldActivate -> View.VISIBLE
+            etMessage.text.isNullOrBlank() -> View.INVISIBLE
+            else -> View.VISIBLE
+        }
         if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
         changeInputBarConstraints(shouldActivate)
         if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
@@ -605,17 +607,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun orientation() = this?.resources?.configuration.orientation
 
-    private fun showRvMessages() {
-        rvMessages.visibility = View.VISIBLE
-    }
-
-    private fun hideRvMessages() {
-        rvMessages.visibility = View.INVISIBLE
-    }
-
     private fun enableChatUI() {
         enableMessageInput(true)
-        if (bottomLayout.visibility != View.VISIBLE){ showMessageInput() }
+        if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()){ showMessageInput() }
     }
     //end of region
 
@@ -798,7 +792,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
 
             show()
-            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), 50))
+            val inset = resources.getDimension(R.dimen.dialog_user_name_margin).toInt()
+            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), inset))
             window?.setLayout(
                 if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     WindowManager.LayoutParams.MATCH_PARENT

@@ -12,4 +12,6 @@
     <dimen name="large_next_prev_size">54dp</dimen>
 
     <dimen name="control_bottom_margin">15dp</dimen>
+
+    <dimen name="dialog_user_name_margin">20dp</dimen>
 </resources>

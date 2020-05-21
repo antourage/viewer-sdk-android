@@ -9,8 +9,7 @@ internal class MessageListDiffUtilCallback(
 ) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
         prevList[oldItemPosition].id == newList[newItemPosition].id &&
-        prevList[oldItemPosition].nickname == newList[newItemPosition].nickname &&
-        prevList[oldItemPosition].avatarUrl == newList[newItemPosition].avatarUrl
+        prevList[oldItemPosition].nickname == newList[newItemPosition].nickname
 
     override fun getOldListSize() = prevList.size
 

@@ -15,7 +15,6 @@ import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.reObserveForever
-import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -47,8 +46,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
-    internal var isUserSettingsDialogShown = false
-
     internal var currentPoll: Poll? = null
 
     var newAvatar: Bitmap? = null
@@ -70,20 +67,17 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
 
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
         resource?.status?.let {
-            if (it is Status.Success && it.data != null && isChatTurnedOn) {
+            if (it is Status.Success && it.data != null) {
                 if (chatContainsNonStatusMsg(it.data)) {
-                    chatStatusLiveData.postValue(ChatStatus.ChatMessages)
-                    messagesLiveData.value = it.data
-                    user?.apply {
-                        displayName?.let { displayName ->
-                            changeDisplayNameForAllMessagesLocally(displayName)
-                        }
-                        imageUrl?.let { avatarUrl ->
-                            changeAvatarForAllMessagesLocally(avatarUrl)
-                        }
+                    if (isChatTurnedOn)chatStatusLiveData.postValue(ChatStatus.ChatMessages)
+                    val name = user?.displayName
+                    if (name != null){
+                        changeAndPostDisplayNameForAllMessages(name, it.data)
+                    } else {
+                        messagesLiveData.value = it.data
                     }
                 } else {
-                    chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
+                    if (isChatTurnedOn) chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
                 }
             }
         }
@@ -126,13 +120,11 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
             if (it is Status.Success && it.data != null) {
                 isChatTurnedOn = it.data.isChatActive
                 if (!isChatTurnedOn) {
-                    messagesResponse?.removeObserver(messagesObserver)
                     chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
-                } else {
-                    streamId?.let { it1 ->
-                        messagesResponse = Repository.getMessages(it1)
-                        messagesResponse?.observeForever(messagesObserver)
-                    }
+                }
+                streamId?.let { it1 ->
+                    messagesResponse = Repository.getMessages(it1)
+                    messagesResponse?.observeForever(messagesObserver)
                 }
             }
         }
@@ -324,65 +316,28 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
         }
     }
 
-    //TODO: develop normal solution for display name change and delete this function
-    /**
-     * Method used to change current user display name for all his messages in recycler view
-     */
-    private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
-        getMessagesFromCurrentUser()?.forEach { it.nickname = newDisplayName }
-        messagesLiveData.apply {
-            postValue(this.value)
-        }
-    }
-
-    //TODO: develop normal solution for avatar change and delete this function
-    /**
-     * Method used to change current user avatar for all his messages in recycler view
-     */
-    private fun changeAvatarForAllMessagesLocally(newAvatar: String) {
-        getMessagesFromCurrentUser()?.forEach { it.avatarUrl = newAvatar }
-        messagesLiveData.apply {
-            postValue(this.value)
-        }
-    }
-
-    private fun getMessagesFromCurrentUser(): List<Message>? = run {
+    private fun changeAndPostDisplayNameForAllMessages(displayName: String, list: List<Message>) {
         val currentUserId = user?.id
         if (currentUserId != null) {
-            return messagesLiveData.value?.filter {
-                it.userID != null && it.userID == currentUserId.toString()
+            list.forEach {
+                if (it.userID != null && it.userID == currentUserId.toString()){
+                    it.nickname = displayName
+                }
             }
         }
-        return null
+        messagesLiveData.postValue(list)
     }
 
-    fun changeUserAvatar() {
-        newAvatar?.let { avatar ->
-            val userImgUpdateResponse = Repository.uploadImage(avatar.toMultipart())
-            userImgUpdateResponse.observeForever(object : Observer<Resource<UpdateImageResponse>> {
-                override fun onChanged(t: Resource<UpdateImageResponse>?) {
-                    t?.let {
-                        when (it.status) {
-                            is Status.Loading -> loaderLiveData.postValue(true)
-                            is Status.Failure -> {
-                                loaderLiveData.postValue(false)
-                                userImgUpdateResponse.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                loaderLiveData.postValue(false)
-                                val newAvatarUrl = it.status.data?.imageUrl
-                                user?.imageUrl = newAvatarUrl
-                                newAvatarUrl?.let { newAvatarUrl ->
-                                    changeAvatarForAllMessagesLocally(
-                                        newAvatarUrl
-                                    )
-                                }
-                                userImgUpdateResponse.removeObserver(this)
-                            }
-                        }
-                    }
+    private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
+        val currentUserId = user?.id
+        val list = messagesLiveData.value
+        if (currentUserId != null) {
+            list?.forEach {
+                if (it.userID != null && it.userID == currentUserId.toString()){
+                    it.nickname = newDisplayName
                 }
-            })
+            }
         }
+        messagesLiveData.postValue(list)
     }
 }
