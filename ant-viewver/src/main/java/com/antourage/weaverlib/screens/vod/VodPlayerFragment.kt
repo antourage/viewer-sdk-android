@@ -34,14 +34,6 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivFirstFrame
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
-import kotlinx.android.synthetic.main.fragment_player_vod_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -305,8 +297,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initPortraitProgressListener() {
-        controls.setProgressUpdateListener {
-                pos, _ -> vod_player_progress.progress = pos.toInt()
+        controls.setProgressUpdateListener { pos, _ ->
+            vod_player_progress.progress = pos.toInt()
+            vod_position.text = pos.formatTimeMillisToTimer()
+            val duration = viewModel.getVideoDuration() ?: -1
+            if (duration > 0){ vod_duration.text = duration.formatTimeMillisToTimer() }
         }
     }
 

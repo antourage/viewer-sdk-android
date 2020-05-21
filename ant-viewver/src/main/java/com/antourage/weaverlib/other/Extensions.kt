@@ -36,6 +36,7 @@ import com.antourage.weaverlib.other.Constants.secInYear
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
+import com.google.android.exoplayer2.C
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -265,6 +266,22 @@ internal fun Long.millisToTime(): String {
     val formattedS = if (s in 0..9) "0$s" else s.toString()
 
     return "$formattedH$m:$formattedS"
+}
+
+
+fun Long.formatTimeMillisToTimer(): String{
+    var time = this
+    if (this == C.TIME_UNSET) {
+        time = 0
+    }
+    val formatter = Formatter( StringBuilder(), Locale.getDefault())
+    val totalSeconds: Long = (time + 500) / 1000
+    val seconds = totalSeconds % 60
+    val minutes = totalSeconds / 60 % 60
+    val hours = totalSeconds / 3600
+
+    return if (hours > 0) formatter.format("%d:%02d:%02d", hours, minutes, seconds)
+        .toString() else formatter.format("%d:%02d", minutes, seconds).toString()
 }
 
 internal fun String.parseToMills(): Long {
