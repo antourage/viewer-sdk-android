@@ -142,7 +142,7 @@
 
     <com.antourage.weaverlib.other.ui.CustomDrawerLayout
             android:id="@+id/drawerLayout"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="50dp"
@@ -150,13 +150,13 @@
             android:clickable="false"
             android:focusable="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_half"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:layout_marginRight="-64dp"
@@ -167,30 +167,30 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-            <com.antourage.weaverlib.other.ui.FadingRecyclerView
-                    android:id="@+id/rvMessages"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="20dp"
-                    android:clickable="false"
-                    android:clipToPadding="false"
-                    android:fadingEdge="horizontal"
-                    android:fadingEdgeLength="130dp"
-                    android:fillViewport="false"
-                    android:focusable="false"
-                    android:paddingBottom="6dp"
-                    android:requiresFadingEdge="vertical" />
+                <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                        android:id="@+id/rvMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="20dp"
+                        android:clickable="false"
+                        android:clipToPadding="false"
+                        android:fadingEdge="horizontal"
+                        android:fadingEdgeLength="130dp"
+                        android:fillViewport="false"
+                        android:focusable="false"
+                        android:paddingBottom="6dp"
+                        android:requiresFadingEdge="vertical" />
 
-            <include
-                    android:id="@+id/bttn_new_comments"
-                    layout="@layout/item_new_comments"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:layout_marginBottom="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                <include
+                        android:id="@+id/bttn_new_comments"
+                        layout="@layout/item_new_comments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
 

@@ -107,7 +107,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         viewModel.onVideoPausedOrStopped()
                     } else {
                         arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                            ?.id?.let { id -> viewModel.onVideoStarted(id) }
+                            ?.id?.let { id -> viewModel.onVideoStarted() }
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
