@@ -4,11 +4,9 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -28,7 +26,6 @@ import kotlinx.android.synthetic.main.item_progress.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 import org.jetbrains.anko.windowManager
 import java.util.*
-
 
 internal class VideosAdapter(
     private val onClick: (stream: StreamResponse) -> Unit,
@@ -193,6 +190,8 @@ internal class VideosAdapter(
         ivThumbnail: ImageView?,
         ivPlaceholder: ImageView
     ) {
+        ivThumbnail?.alpha = 0f
+        ivPlaceholder.alpha = 1f
 
         val picasso = if (!thumbnailUrl.isNullOrBlank()) Picasso.get()
             .load(thumbnailUrl)
@@ -322,6 +321,8 @@ internal class VideosAdapter(
 
                     if (recyclerView.fullyViewedVods.contains(listOfStreams[adapterPosition])) {
                         replayContainer.visibility = View.VISIBLE
+                    }else{
+                        replayContainer.visibility = View.INVISIBLE
                     }
 
                     isNew?.let { txtNew.gone(!it) }
@@ -345,18 +346,15 @@ internal class VideosAdapter(
                     txtDuration_vod.gone(duration == null || duration.isEmpty())
                     txtViewsCount_vod.text = viewsCount.toString()
                     txtViewsCount_vod.gone(viewsCount == null)
-                    /*if (stopTime != null && (stopTime?.isEmptyTrimmed() == false) && !stopTime.equals(
-                            "00:00:00"
-                        )
-                    ) {
-                        watchingProgress.progress =
-                            (((stopTime?.parseToMills() ?: 0) * 100) / (duration?.parseToMills()
-                                ?: 1)).toInt()
+
+                    if (stopTimeMillis!= 0L){
+                        watchingProgress.progress = ((stopTimeMillis * 100) / (duration?.parseToMills()
+                            ?: 1)).toInt()
                         watchingProgress.visibility = View.VISIBLE
-                    }*/
-                    //todo: please, check whether below changes are suitable
-                    watchingProgress.progress = stopTimeMillis.toInt()
-                    watchingProgress.visibility = View.VISIBLE
+                    }else{
+                        watchingProgress.progress = 0
+                        watchingProgress.visibility = View.INVISIBLE
+                    }
                 }
             }
         }

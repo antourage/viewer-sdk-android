@@ -21,6 +21,7 @@
             app:layout_constraintTop_toBottomOf="@+id/header">
 
         <ImageView
+                android:id="@+id/mainContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
@@ -37,7 +38,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/hacken_header" />
+            tools:src="@drawable/hacken_header" />
 
 
     <ImageView
@@ -49,7 +50,7 @@
             app:layout_constraintTop_toBottomOf="@+id/header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/hacken_header_overlay" />
+            tools:src="@drawable/hacken_header_overlay" />
 
     <ImageView
             android:id="@+id/footer"
@@ -60,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/hacken_footer" />
+            tools:src="@drawable/hacken_footer" />
 
     <com.antourage.weaverlib.ui.fab.AntourageFab
             android:id="@+id/antfab"

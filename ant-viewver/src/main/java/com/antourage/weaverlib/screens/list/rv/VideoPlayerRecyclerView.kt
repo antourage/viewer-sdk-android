@@ -24,7 +24,11 @@ import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.hideWithAnimation
 import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.VideoStopTime
 import com.antourage.weaverlib.other.revealWithAnimation
+import com.antourage.weaverlib.other.room.RoomRepository
+import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -44,6 +48,7 @@ import kotlinx.android.synthetic.main.item_vod.view.*
 import java.util.*
 
 class VideoPlayerRecyclerView : RecyclerView {
+
     // ui
     private var thumbnail: ImageView? = null
     private var duration: TextView? = null
@@ -57,6 +62,8 @@ class VideoPlayerRecyclerView : RecyclerView {
     private var replayView: ConstraintLayout? = null
     private var watchingProgress: ProgressBar? = null
 
+    private lateinit var roomRepository: RoomRepository
+
     // vars
     private var streams: ArrayList<StreamResponse> = ArrayList<StreamResponse>()
     private var videoSurfaceDefaultHeight = 0
@@ -65,6 +72,7 @@ class VideoPlayerRecyclerView : RecyclerView {
     private var isVideoViewAdded = false
     private var playHandler = Handler(Looper.getMainLooper())
     private var durationHandler = Handler(Looper.getMainLooper())
+    private var shouldSetStopTime: Boolean = false
 
     private var currentlyPlayingVideo: StreamResponse? = null
     var fullyViewedVods = mutableSetOf<StreamResponse>()
@@ -78,6 +86,10 @@ class VideoPlayerRecyclerView : RecyclerView {
         @Nullable attrs: AttributeSet?
     ) : super(context, attrs) {
         init()
+    }
+
+    fun setRoomRepository(repo: RoomRepository) {
+        roomRepository = repo
     }
 
     fun onResume() {
@@ -183,7 +195,7 @@ class VideoPlayerRecyclerView : RecyclerView {
                         hideAutoPlayLayout()
                     }
                     playHandler.postDelayed({
-                            playVideo()
+                        playVideo()
                     }, 1200)
                 }
             }
@@ -205,8 +217,46 @@ class VideoPlayerRecyclerView : RecyclerView {
         })
     }
 
+    //todo: test whether correctly parsed
+    private fun getExpirationDate(vodId: Int): Long {
+        return Repository.vods?.find { video -> video.id?.equals(vodId) ?: false }
+            ?.startTime?.let { convertUtcToLocal(it)?.time } ?: 0L
+    }
+
+    /**
+     * set stopWatching time to avoid additional call to DB when
+     * turning back from player to videos list screen
+     */
+    private fun setVODStopWatchingTimeLocally(vodId: Int, stopWatchingTime: Long) {
+        Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
+            ?.stopTimeMillis = stopWatchingTime
+    }
+
+    private fun setVodStopWatchingTime() {
+        val vodId = currentlyPlayingVideo?.id
+        vodId?.let {
+            val stopWatchingTime = videoPlayer?.currentPosition ?: 0
+            val duration = videoPlayer?.duration ?: 0L
+            if (stopWatchingTime > 0) {
+                if (duration != 0L && duration * 0.9 - stopWatchingTime < 0) {
+                    roomRepository.addStopTime(VideoStopTime(vodId, 0, getExpirationDate(vodId)))
+                } else {
+                    roomRepository.addStopTime(
+                        VideoStopTime(vodId, stopWatchingTime, getExpirationDate(vodId))
+                    )
+                }
+                setVODStopWatchingTimeLocally(vodId, stopWatchingTime)
+            }
+        }
+    }
+
     fun hideAutoPlayLayout() {
-        if (isVideoViewAdded && thumbnail?.alpha!= 1f) {
+        if(shouldSetStopTime){
+            setVodStopWatchingTime()
+            shouldSetStopTime = false
+        }
+
+        if (isVideoViewAdded && thumbnail?.alpha != 1f) {
             thumbnail?.revealWithAnimation()
             autoPlayContainer?.hideWithAnimation()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
@@ -225,11 +275,20 @@ class VideoPlayerRecyclerView : RecyclerView {
             duration?.revealWithAnimation()
             thumbnail?.revealWithAnimation()
             autoPlayContainer?.hideWithAnimation()
+            watchingProgress?.hideWithAnimation()
+            if(shouldSetStopTime){
+                setVodStopWatchingTime()
+                shouldSetStopTime = false
+            }
             stopDurationUpdate()
         }
     }
 
     fun onPause() {
+        if(shouldSetStopTime){
+            setVodStopWatchingTime()
+            shouldSetStopTime = false
+        }
         resetVideoView()
         isVideoViewAdded = false
         playHandler.removeCallbacksAndMessages(null)
@@ -266,6 +325,7 @@ class VideoPlayerRecyclerView : RecyclerView {
     }
 
     fun playVideo() {
+        shouldSetStopTime = true
         val targetPosition: Int = getTargetPosition()
         // video is already playing so return
         if (targetPosition == playPosition || targetPosition == -1) return
@@ -280,6 +340,7 @@ class VideoPlayerRecyclerView : RecyclerView {
             targetPosition - (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
         val child: View = getChildAt(currentPosition) ?: return
         var mediaUrl: String? = null
+        var stopTime: Long? = null
         var holder: ViewHolder? = null
 
         if (child.tag is VideosAdapter.LiveVideoViewHolder) {
@@ -296,6 +357,7 @@ class VideoPlayerRecyclerView : RecyclerView {
             frameLayout = holder.itemView.mediaContainer_vod
             thumbnail = holder.itemView.ivThumbnail_vod
             mediaUrl = streams[targetPosition].videoURL
+            stopTime = streams[targetPosition].stopTimeMillis
             currentlyPlayingVideo = streams[targetPosition]
             autoPlayContainer = holder.itemView.autoPlayContainer_vod
             autoPlayImageView = holder.itemView.ivAutoPlay_vod
@@ -320,6 +382,7 @@ class VideoPlayerRecyclerView : RecyclerView {
             val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(Uri.parse(mediaUrl))
             videoPlayer?.prepare(videoSource)
+            stopTime?.let { videoPlayer?.seekTo(it) }
             videoPlayer?.playWhenReady = true
         }
     }
@@ -370,7 +433,7 @@ class VideoPlayerRecyclerView : RecyclerView {
         animateAutoPlay()
         startDurationUpdate()
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-            watchingProgress?.revealWithAnimation()
+            if(watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.revealWithAnimation()
             duration?.hideWithAnimation()
         }
     }
@@ -423,7 +486,7 @@ class VideoPlayerRecyclerView : RecyclerView {
 
     private fun stopDurationUpdate() {
         durationHandler.removeCallbacksAndMessages(null)
-        watchingProgress?.hideWithAnimation()
+//        watchingProgress?.hideWithAnimation()
     }
 
     private fun resetVideoView() {

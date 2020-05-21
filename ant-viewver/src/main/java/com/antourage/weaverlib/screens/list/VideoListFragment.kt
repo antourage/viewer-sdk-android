@@ -85,7 +85,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private val errorObserver: Observer<String> = Observer { error ->
         error?.let { it ->
-            if (Global.networkAvailable && it.isNotEmpty()) showErrorLayout(it)
+            if (Global.networkAvailable && it.isNotEmpty()) {
+                videoRefreshLayout.setRefreshing(false)
+                showErrorLayout(it)
+            }
         }
     }
 
@@ -196,6 +199,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         placeholdersAdapter = VideoPlaceholdersAdapter()
 
         initRecyclerView(videoAdapter, videosRV)
+        videosRV.setRoomRepository(viewModel.roomRepository)
         initRecyclerView(placeholdersAdapter, placeHolderRV)
 
         placeholderLayoutManager = LinearLayoutManager(context)
@@ -374,7 +378,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showErrorLayout(error: String) {
-        showErrorSnackbar(error)
+        showErrorSnackbar(R.string.ant_no_connection)
+//        showErrorSnackbar(error)
         if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
         if (placeHolderRV.alpha != 1f) {

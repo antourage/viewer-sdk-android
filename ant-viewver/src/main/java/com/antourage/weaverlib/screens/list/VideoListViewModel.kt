@@ -7,12 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
+import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
@@ -23,7 +25,10 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
 import javax.inject.Inject
 
-internal class VideoListViewModel @Inject constructor(application: Application) :
+internal class VideoListViewModel @Inject constructor(
+    application: Application,
+    val roomRepository: RoomRepository
+) :
     BaseViewModel(application), OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
     private var pulledToRefresh: Boolean = false
@@ -308,7 +313,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
                 }
             }
             if (liveVideosUpdated && areAllCommentsLoaded()) {
-                updateVideosList()
+                updateVideosList(shouldUpdateStopTimeFromDB = true)
             }
         }
 
@@ -322,7 +327,7 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
             }
 
             if (liveVideosUpdated && areAllCommentsLoaded()) {
-                updateVideosList()
+                updateVideosList(shouldUpdateStopTimeFromDB = true)
             }
         }
         Repository.getLastMessage(stream.id!!, success, failure)
@@ -348,11 +353,18 @@ internal class VideoListViewModel @Inject constructor(application: Application) 
         return true
     }
 
-    private fun updateVideosList(updateLiveStreams: Boolean = false) {
+    private fun updateVideosList(updateLiveStreams: Boolean = false, shouldUpdateStopTimeFromDB: Boolean = false) {
         if (showCallResult || updateLiveStreams) {
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
             vods?.let { resultList.addAll(it.toList()) }
+
+            if(shouldUpdateStopTimeFromDB){
+                vods?.forEach { video->
+                    video.stopTimeMillis = video.id?.let { roomRepository.getStopTimeById(it) }?: 0
+                }
+            }
+
             loaderLiveData.postValue(false)
             listOfStreams.postValue(resultList.toList())
             showCallResult = false

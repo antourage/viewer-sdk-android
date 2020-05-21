@@ -35,7 +35,6 @@ class AntRefreshView @JvmOverloads constructor(
     }
 
     override fun setPercent(percent: Float) {
-        Log.e("info", "percent $percent")
         mPercent = percent
 
         when (percent.toInt()) {
