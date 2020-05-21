@@ -15,7 +15,6 @@ import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.reObserveForever
-import com.antourage.weaverlib.other.toMultipart
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.Player
@@ -46,8 +45,6 @@ internal class PlayerViewModel @Inject constructor(application: Application) :
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
     private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
-
-    internal var isUserSettingsDialogShown = false
 
     internal var currentPoll: Poll? = null
 

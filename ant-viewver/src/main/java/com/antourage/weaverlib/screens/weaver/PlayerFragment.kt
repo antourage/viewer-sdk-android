@@ -788,7 +788,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
 
             show()
-            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), 50))
+            val inset = resources.getDimension(R.dimen.dialog_user_name_margin).toInt()
+            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), inset))
             window?.setLayout(
                 if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
                     WindowManager.LayoutParams.MATCH_PARENT
