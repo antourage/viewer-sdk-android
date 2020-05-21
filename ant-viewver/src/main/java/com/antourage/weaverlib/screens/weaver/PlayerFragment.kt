@@ -605,7 +605,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun enableChatUI() {
         enableMessageInput(true)
-        if (bottomLayout.visibility != View.VISIBLE){ showMessageInput() }
+        if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()){ showMessageInput() }
     }
     //end of region
 

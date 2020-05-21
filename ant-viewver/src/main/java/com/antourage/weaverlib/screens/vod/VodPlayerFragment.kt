@@ -581,8 +581,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     override fun onMinuteChanged() {
-        viewModel.currentVideo.value.let {
-            if (it?.startTime != null && it?.duration != null) {
+        viewModel.currentVideo.value?.let {
+            if (it.startTime != null && it.duration != null) {
                 updateWasLiveValueOnUI(it.startTime, it.duration)
             }
         }
@@ -600,12 +600,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 .findViewById<TextView>(R.id.play_header_tv_ago)
             tvAgoLandscape.text = formattedStartTime
             tvAgoLandscape.gone(formattedStartTime.isNullOrEmpty())
-        }
-    }
-
-    private fun updateViewsCountUI(currentViewsCount: Int?) {
-        currentViewsCount?.let {
-            txtNumberOfViewers.text = it.toString()
         }
     }
 
