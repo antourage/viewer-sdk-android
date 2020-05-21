@@ -277,6 +277,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.addMessage(message, id)
         }
         etMessage.setText("")
+        if (btnUserSettings.visibility == View.VISIBLE) { btnSend.visibility = View.INVISIBLE }
         rvMessages?.apply {
             adapter?.itemCount?.minus(0)?.let { adapterPosition ->
                 post { Handler().postDelayed({
@@ -413,7 +414,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun activateCommentInputBar(shouldActivate: Boolean) {
         //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
-        btnSend.visibility = if (shouldActivate) View.VISIBLE else View.GONE
+        btnSend.visibility = when {
+            shouldActivate -> View.VISIBLE
+            etMessage.text.isNullOrBlank() -> View.INVISIBLE
+            else -> View.VISIBLE
+        }
         if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
         changeInputBarConstraints(shouldActivate)
         if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
