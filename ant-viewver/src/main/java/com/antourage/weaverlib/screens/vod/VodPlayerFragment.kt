@@ -395,8 +395,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private fun brightenNextPrevButtons() {
         vod_control_next.alpha = 1.0f
         vod_control_prev.alpha = 1.0f
-        vod_control_next?.visibility = View.VISIBLE
-        vod_control_prev?.visibility = View.VISIBLE
         controls?.hide()
     }
 
