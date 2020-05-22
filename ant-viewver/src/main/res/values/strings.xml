@@ -12,7 +12,6 @@
     <string name="ant_new_stream">New stream</string>
     <string name="ant_chat_not_available">Chat is unavailable</string>
 
-
     <plurals name="ant_number_new_comments">
         <item quantity="one">%d NEW COMMENT</item>
         <item quantity="other">%d NEW COMMENTS</item>
@@ -117,7 +116,6 @@
     <string name="ant_you_are_online">you are online</string>
     <string name="ant_most_recent">%s   •  most recent</string>
 
-
     <!--player-->
     <string name="ant_at">at</string>
     <string name="ant_send">SEND</string>
@@ -126,5 +124,4 @@
     <string name="ant_slash" translatable="false">/</string>
     <string name="ant_init_time_doubled" translatable="false">00:00</string>
     <string name="ant_init_time" translatable="false">0:00</string>
-
 </resources>

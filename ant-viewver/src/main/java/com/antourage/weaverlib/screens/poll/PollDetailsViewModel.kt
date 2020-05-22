@@ -81,7 +81,9 @@ internal class PollDetailsViewModel @Inject constructor(
                         }
                         if (answeredUsers[j].chosenAnswer == i) {
                             counter++
-                            isAnsweredByUser = answeredUsers[j].id == userId.toString()
+                            if (!isAnsweredByUser){
+                                isAnsweredByUser = answeredUsers[j].id == userId.toString()
+                            }
                         }
                     }
                     val combinedAns = AnswersCombined(
