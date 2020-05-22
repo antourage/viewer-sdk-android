@@ -9,9 +9,6 @@
     <string name="ant_new_poll">New poll!</string>
     <string name="ant_poll_vote">VOTE</string>
 
-    <string name="ant_new_stream">New stream</string>
-    <string name="ant_chat_not_available">Chat is unavailable</string>
-
     <plurals name="ant_number_new_comments">
         <item quantity="one">%d NEW COMMENT</item>
         <item quantity="other">%d NEW COMMENTS</item>
@@ -26,8 +23,7 @@
         <item quantity="one">%d viewer</item>
         <item quantity="other">%d viewers</item>
     </plurals>
-    <string name="ant_no_comments_yet">There are no comments yet</string>
-    <string name="ant_commenting_off">Commenting is turned off for now</string>
+
     <plurals name="ant_seconds">
         <item quantity="one">%d s</item>
         <item quantity="other">%d s</item>
@@ -82,13 +78,11 @@
     <string name="ant_started_now">Just now</string>
 
     <string name="ant_set">set</string>
-    <string name="ant_main_title">Latest videos</string>
 
     <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string>
 
     <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>
-    <string name="ant_confirm">Confirm</string>
     <string name="ant_save">Save</string>
     <string name="ant_type_your_display_name">Type your display name</string>
     <string name="ant_your_chat_name">Your chat name</string>
@@ -105,11 +99,9 @@
 
     <!--feed-->
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
-    <string name="ant_new_live">NEW LIVE VIDEO</string>
     <string name="ant_demo_feed_title">Studio Häcken</string>
     <string name="ant_join_conversation">Join conversation</string>
     <string name="ant_new">New</string>
-    <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
     <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>
     <string name="ant_no_connection">no connection</string>
     <string name="ant_server_error">something is not right…</string>

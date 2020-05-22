@@ -1,0 +1,112 @@
+<resources>
+    <public />
+    <string name="ant_live">LIVE</string>
+    <string name="ant_new_vod">NY</string>
+    <string name="ant_hint_chat">Chatta</string>
+    <string name="ant_hint_disabled">Chat avstängd</string>
+
+    <!--polls-->
+    <string name="ant_new_poll">New poll!</string>
+    <string name="ant_poll_vote">RÖSTA</string>
+
+    <plurals name="ant_number_new_comments">
+        <item quantity="one">%d NY KOMMENTAR</item>
+        <item quantity="other">%d NY KOMMENTARER</item>
+    </plurals>
+
+    <plurals name="ant_number_answers">
+        <item quantity="one">%d poll answer</item>
+        <item quantity="other">%d poll answers</item>
+    </plurals>
+
+    <plurals name="ant_seconds">
+        <item quantity="one">%d s</item>
+        <item quantity="other">%d s</item>
+    </plurals>
+    <plurals name="ant_minutes">
+        <item quantity="one">%d m</item>
+        <item quantity="other">%d m</item>
+    </plurals>
+
+    <plurals name="ant_hours">
+        <item quantity="one">%d h</item>
+        <item quantity="other">%d h</item>
+    </plurals>
+    <plurals name="ant_days">
+        <item quantity="one">%d d</item>
+        <item quantity="other">%d d</item>
+    </plurals>
+
+    <plurals name="ant_minutes_long"> <!--missing-->
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="ant_hours_long"> <!--missing-->
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="ant_days_long">
+        <item quantity="one">%d day</item> <!--missing-->
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="ant_weeks_long">
+        <item quantity="one">%d week</item> <!--missing-->
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="ant_months_long">
+        <item quantity="one">%d month</item> <!--missing-->
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="ant_years_long">
+        <item quantity="one">%d year</item> <!--missing-->
+        <item quantity="other">%d years</item>
+    </plurals>
+
+    <string name="ant_started_ago">%1$s ago</string>
+    <string name="ant_started_now">Just now</string>
+
+    <string name="ant_set">set</string>
+
+    <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string> <!--missing-->
+
+    <!--dialog chat name-->
+    <string name="ant_cancel">Avsluta</string>
+    <string name="ant_save">Spara</string>
+
+    <string name="ant_type_your_display_name">Type your display name</string> <!--missing-->
+    <string name="ant_your_chat_name">Ditt chatt-namn</string>
+
+    <string name="ant_choose_image_source">Add image</string>  <!--missing-->
+    <string name="ant_delete_image">Delete image</string>  <!--missing-->
+    <string name="ant_from_gallery">From gallery</string>  <!--missing-->
+    <string name="ant_from_camera">From camera</string>  <!--missing-->
+    <string name="ant_version_name">Version %1$s</string>  <!--missing-->
+    <string name="ant_no_internet">No internet connection available</string>   <!--missing-->
+    <string name="ant_no_internet_action">No_internet_connection_available</string>
+    <string name="ant_failed_to_load_video">Failed to load video</string>   <!--missing-->
+    <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>    <!--missing-->
+
+    <!--feed-->
+    <string name="ant_jump_to_top">Gå till början</string>
+    <string name="ant_demo_feed_title">Studio Häcken</string>
+    <string name="ant_join_conversation">Gå med i konversation</string>
+    <string name="ant_new">Ny</string>
+    <string name="ant_videos_empty_list_placeholder_text_new">Snart kan du se interaktiv\nvideo här</string>
+    <string name="ant_no_connection">Ingen uppkoppling</string>
+
+    <string name="ant_server_error">something is not right…</string>    <!--missing-->
+    <string name="ant_you_are_online">Du ha uppkoppling</string>
+    <string name="ant_most_recent">%s   •  Senaste</string>
+
+
+    <!--player-->
+    <string name="ant_at">vid</string>
+    <string name="ant_send">SKICKA</string>
+
+    <string name="ant_delimiter" translatable="false">•</string>
+    <string name="ant_slash" translatable="false">/</string>
+    <string name="ant_init_time_doubled" translatable="false">00:00</string>
+    <string name="ant_init_time" translatable="false">0:00</string>
+
+</resources>

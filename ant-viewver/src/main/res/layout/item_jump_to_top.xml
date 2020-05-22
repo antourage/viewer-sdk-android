@@ -30,6 +30,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="9sp"
                 android:text="@string/ant_jump_to_top"
+                android:textAllCaps="true"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
                 android:textColor="@color/ant_white"/>

@@ -374,7 +374,6 @@ class AntourageFab @JvmOverloads constructor(
         playIconView.visibility = View.VISIBLE
         playIconView.animate().alpha(1f).setDuration(100).start()
         playIconAnimatedDrawable?.apply {
-            //TODO here delete maybe, seems like bugs are coming from play button
             clearAnimationCallbacks()
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
@@ -444,7 +443,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun invalidateBadge(value: String) {
-        if (value == "LIVE" || value == "NEW") {
+        if (value == context.getString(R.string.ant_live) || value == context.getString(R.string.ant_new_vod)) {
             showBadge()
         } else {
             hideBadge()
@@ -462,7 +461,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun updateBadgeColor(value: String) {
         val backgroundDrawableId =
-            if (value == "LIVE") R.drawable.antourage_fab_badge_rounded_background_live else R.drawable.antourage_fab_badge_rounded_background_vod
+            if (value == context.getString(R.string.ant_live)) R.drawable.antourage_fab_badge_rounded_background_live else R.drawable.antourage_fab_badge_rounded_background_vod
         badgeColor =
             ContextCompat.getDrawable(
                 context,
