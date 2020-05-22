@@ -10,6 +10,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.VideoListFragment
@@ -30,8 +31,8 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
-//        BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
-//            ?: DevSettingsDialog.DEFAULT_URL
+        if (BASE_URL.isEmptyTrimmed()) BASE_URL =
+            UserCache.getInstance(applicationContext)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null

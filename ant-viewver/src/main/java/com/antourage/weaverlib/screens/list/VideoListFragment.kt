@@ -356,9 +356,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     val total = rvLayoutManager.itemCount
-                    val lastVisibleItem = rvLayoutManager.findLastCompletelyVisibleItemPosition()
+                    val lastVisibleItem = rvLayoutManager.findLastVisibleItemPosition()
                     if (videoAdapter.getStreams()
                             .isNotEmpty() && !isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2
                     ) {
