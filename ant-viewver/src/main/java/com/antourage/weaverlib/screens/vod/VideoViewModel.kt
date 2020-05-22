@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.vod
 import android.app.Application
 import android.net.Uri
 import android.os.Handler
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import okhttp3.OkHttpClient
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 internal class VideoViewModel @Inject constructor(
     application: Application,
@@ -55,6 +57,9 @@ internal class VideoViewModel @Inject constructor(
     private var vodId: Int? = null
     private var user: User? = null
 
+    private var isFetching: Boolean =
+        false //in case user quickly tapping next fixes possible double fetch
+    private val mediaSource = ConcatenatingMediaSource()
     private var timerTickHandler = Handler()
     private var timerTickRunnable = object : Runnable {
         override fun run() {
@@ -115,27 +120,28 @@ internal class VideoViewModel @Inject constructor(
                         for (i in 0 until (snapshots?.documents?.size ?: 0)) {
                             val document = snapshots?.documents?.get(i)
                             document?.apply {
-                                    this.toObject(Message::class.java)?.let {
-                                        data.add(it)
-                                    }
-                                    data[i].id = id
+                                this.toObject(Message::class.java)?.let {
+                                    data.add(it)
                                 }
+                                data[i].id = id
                             }
-                        processVODsChat(data)
                         }
-
-                    this@VideoViewModel.streamId?.let { Repository.getMessagesVOD(it, success)}
+                        processVODsChat(data)
                     }
+
+                    this@VideoViewModel.streamId?.let { Repository.getMessagesVOD(it, success) }
                 }
             }
         }
+    }
 
     fun initUi(id: Int?, startTime: String?) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
             this.streamId = it
-            this.stopWatchingTime = roomRepository.getStopTimeById(it)?: 0
+            this.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
+            fetchNextVODsIfTheLast(it)
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
@@ -143,13 +149,13 @@ internal class VideoViewModel @Inject constructor(
         markVODAsWatched()
     }
 
-    private fun fetchChatList(id: Int?){
+    private fun fetchChatList(id: Int?) {
         id?.let {
             Repository.getStream(it).observeOnce(streamObserver)
         }
     }
 
-    private fun initUserAndFetchChat( id: Int?) {
+    private fun initUserAndFetchChat(id: Int?) {
         val response = Repository.getUser()
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
@@ -184,10 +190,10 @@ internal class VideoViewModel @Inject constructor(
 
     private fun setVodStopWatchingTime(isUpdateLocally: Boolean = false) {
         stopWatchingTime = player?.currentPosition ?: 0
-        val duration =  player?.duration ?: 0L
+        val duration = player?.duration ?: 0L
         vodId?.let { vodId ->
             if (stopWatchingTime > 0) {
-                if (duration != 0L  && duration * FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0){
+                if (duration != 0L && duration * FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0) {
                     roomRepository.addStopTime(VideoStopTime(vodId, 0, getExpirationDate(vodId)))
                 } else {
                     roomRepository.addStopTime(
@@ -219,13 +225,17 @@ internal class VideoViewModel @Inject constructor(
         autoPlayStateLD.postValue(AutoPlayState.START_AUTO_PLAY)
     }
 
-    fun startReplayState() { autoPlayStateLD.postValue(AutoPlayState.START_REPLAY) }
+    fun startReplayState() {
+        autoPlayStateLD.postValue(AutoPlayState.START_REPLAY)
+    }
+
     fun stopAutoPlayState(shouldCheckIfInReplayState: Boolean = false) {
-        if (shouldCheckIfInReplayState){
+        if (shouldCheckIfInReplayState) {
             if (autoPlayStateLD.value == AutoPlayState.START_REPLAY) return
         }
         autoPlayStateLD.postValue(AutoPlayState.STOP_ALL_STATES)
     }
+
     private fun setReplayStateIfAutoPlayIsActive() {
         if (autoPlayStateLD.value == AutoPlayState.START_AUTO_PLAY) {
             startReplayState()
@@ -258,10 +268,12 @@ internal class VideoViewModel @Inject constructor(
                 videoChanged = true
                 resetChronometer = true
                 vodId?.let {
-                    this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it)?: 0
+                    this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
                     postVideoIsClosed(it)
                 }
-
+                if (list.size <= currentWindow + 2) {
+                    fetchNextVODs()
+                }
             }
         }
         this.streamId = currentVod.id
@@ -270,7 +282,7 @@ internal class VideoViewModel @Inject constructor(
         this.startTime = currentVod.startTime?.parseToDate()
         currentVod.id?.let { Repository.getStream(it).observeOnce(streamObserver) }
         currentVideo.postValue(currentVod)
-        stopAutoPlayState( shouldCheckIfInReplayState = true)
+        stopAutoPlayState(shouldCheckIfInReplayState = true)
         if (player?.playWhenReady == true && player?.playbackState == Player.STATE_READY) {
             player?.playWhenReady = true
         }
@@ -315,11 +327,66 @@ internal class VideoViewModel @Inject constructor(
      */
     override fun getMediaSource(streamUrl: String?): MediaSource? {
         val list: List<StreamResponse>? = Repository.vods
-        val mediaSources = arrayOfNulls<MediaSource>(list?.size ?: 0)
+        val mediaSources = ArrayList<MediaSource?>()
         for (i in 0 until (list?.size ?: 0)) {
-            mediaSources[i] = list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) }
+            mediaSources.add(list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) })
         }
-        return ConcatenatingMediaSource(*mediaSources)
+        mediaSource.clear()
+        mediaSource.addMediaSources(mediaSources)
+        return mediaSource
+    }
+
+    private fun addToMediaSource(list: List<StreamResponse>) {
+        val mediaSources = ArrayList<MediaSource?>()
+        for (i in 0 until (list.size)) {
+            mediaSources.add(list[i].videoURL?.let { buildSimpleMediaSource(it) })
+        }
+        mediaSource.addMediaSources(mediaSources)
+    }
+
+    private fun fetchNextVODs() {
+        if (!isFetching) {
+            isFetching = true
+            val vodsCount = Repository.vods?.size ?: 0
+            val response = Repository.getVODs(vodsCount)
+            response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
+                override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                    if (resource != null) {
+                        when (resource.status) {
+                            is Status.Failure -> {
+                                isFetching = false
+                                Log.d(
+                                    "PLAYER_FETCH",
+                                    "Failed to load next 15 VODs: ${resource.status.errorMessage}"
+                                )
+                                response.removeObserver(this)
+                            }
+                            is Status.Success -> {
+                                isFetching = false
+                                Log.d(
+                                    "PLAYER_FETCH",
+                                    "Successfully loaded next 15 VODs"
+                                )
+                                resource.status.data?.let {
+                                    Repository.vods?.addAll(it)
+                                    addToMediaSource(it)
+                                }
+                                response.removeObserver(this)
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    private fun fetchNextVODsIfTheLast(id: Int) {
+        Repository.vods?.let {
+            //todo: handle case for NEW VOD
+            if (it.last().id == id && it.size != 1){
+                fetchNextVODs()
+            }
+        }
     }
 
     override fun onStreamStateChanged(playbackState: Int) {}
@@ -346,9 +413,11 @@ internal class VideoViewModel @Inject constructor(
         val currentUserName = user?.displayName
         val userMessages = messages.filter { it.type == MessageType.USER }
         for (message in userMessages) {
-            message.pushTimeMills = ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
+            message.pushTimeMills =
+                ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
             if (message.userID != null && currentUserName != null
-                && message.userID == currentUserId.toString()){
+                && message.userID == currentUserId.toString()
+            ) {
                 //changes displayName of current user's
                 message.nickname = currentUserName
             }
