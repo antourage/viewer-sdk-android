@@ -32,8 +32,6 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.User
-import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
-import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -239,24 +237,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
         }
     }
-
-    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
-        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
-            showLoading()
-            viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.INVISIBLE
-        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
-            if (!Global.networkAvailable) {
-                context?.resources?.getString(R.string.ant_no_internet)
-                    ?.let { messageToDisplay ->
-                        Handler().postDelayed({
-                            showWarningAlerter(messageToDisplay)
-                            playBtnPlaceholder.visibility = View.VISIBLE
-                        }, 500)
-                    }
-            }
-        }
-    }
 //endregion
 
     private val onBtnSendClicked = View.OnClickListener {
@@ -309,10 +289,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         viewModel.getPollStatusLiveData().observe(this.viewLifecycleOwner, pollStateObserver)
         viewModel.getChatStatusLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
         viewModel.getUserInfoLiveData().observe(this.viewLifecycleOwner, userInfoObserver)
-        ConnectionStateMonitor.internetStateLiveData.observe(
-            this.viewLifecycleOwner,
-            networkStateObserver
-        )
         viewModel.getCurrentLiveStreamInfo()
             .observe(this.viewLifecycleOwner, currentStreamInfoObserver)
         viewModel.currentStreamViewsLiveData
@@ -492,12 +468,18 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun onShowKeyboard(keyboardHeight: Int) {
         super.onShowKeyboard(keyboardHeight)
-        if (userDialog == null) { activateCommentInputBar(true)}
+        if (userDialog == null) {
+            activateCommentInputBar(true)
+            hideErrorSnackBar()
+        }
     }
 
     override fun onHideKeyboard(keyboardHeight: Int) {
         super.onHideKeyboard(keyboardHeight)
         activateCommentInputBar(false)
+        if (!Global.networkAvailable) {
+            showErrorSnackBar(getString(R.string.ant_no_connection), false)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

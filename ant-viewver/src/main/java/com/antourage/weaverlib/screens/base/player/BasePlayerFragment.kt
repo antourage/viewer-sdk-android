@@ -1,5 +1,7 @@
 package com.antourage.weaverlib.screens.base.player
 
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -20,7 +22,9 @@ import android.view.Surface.*
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
@@ -29,16 +33,17 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
-//import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
-import org.jetbrains.anko.sdk27.coroutines.onClick
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import org.jetbrains.anko.backgroundColor
 
 /**
- * handles Loader; screen rotation and player controls visibility
+ * handles Loader, errors, screen rotation and player controls visibility;
  */
 internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>() {
 
@@ -55,13 +60,16 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private var isLoaderShowing = false
     private var currentOrientation: Int? = null
 
+    private var snackBarBehaviour: BottomSheetBehavior<View>? = null
+    private var errorSnackBar: TextView? =null
+    private var snackBarLayout: CoordinatorLayout? =null
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
     private lateinit var ivScreenSize: ImageView
     private lateinit var ivClose: ImageView
     protected lateinit var playerControls: PlayerControlView
-    protected lateinit var playBtnPlaceholder: View
+    private lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
     private var minuteUpdateReceiver: BroadcastReceiver? = null
 
@@ -75,8 +83,21 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         }
     }
 
-    private val errorObserver =
-        Observer<String> { errorMessage -> errorMessage?.let { showWarningAlerter(it) } }
+    private val errorObserver = Observer<Boolean> { errorMessage ->
+        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_error)) } }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
+            resolveErrorSnackBar(R.string.ant_you_are_online)
+            showLoading()
+            viewModel.onNetworkGained()
+            playBtnPlaceholder.visibility = View.INVISIBLE
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
+            if (!Global.networkAvailable) {
+                showErrorSnackBar(getString(R.string.ant_no_connection), false)
+            }
+        }
+    }
 
     abstract fun onControlsVisible()
     abstract fun onMinuteChanged()
@@ -92,6 +113,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         viewModel.errorLiveData.observe(viewLifecycleOwner, errorObserver)
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
     }
 
     override fun onResume() {
@@ -123,6 +148,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             playerView.setShutterBackgroundColor(Color.TRANSPARENT)
             constraintLayoutParent = findViewById(R.id.constraintLayoutParent)
 
+            snackBarLayout = findViewById(R.id.bottom_coordinator)
+            errorSnackBar = findViewById(R.id.player_snack_bar)
+            initSnackBar()
+
             ivScreenSize = findViewById(R.id.ivScreenSize)
             ivScreenSize.setOnClickListener { onFullScreenImgClicked() }
 
@@ -148,11 +177,6 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 playBtnPlaceholder.visibility = View.VISIBLE
             } else {
                 playBtnPlaceholder.visibility = View.INVISIBLE
-            }
-            playBtnPlaceholder.onClick {
-                if (!ConnectionStateMonitor.isNetworkAvailable(context) && playerControls.isVisible) {
-                    showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
-                }
             }
         }
     }
@@ -194,6 +218,9 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
             }
         }
+        if (!Global.networkAvailable) {
+            showErrorSnackBar(getString(R.string.ant_no_connection), false)
+        }
         playerControls.hide()
         if (isLoaderShowing)
             initAndShowLoader()
@@ -205,6 +232,67 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         else {
             onControlsVisible()
             playerControls.show()
+        }
+    }
+
+    private fun initSnackBar() {
+        errorSnackBar.let { snackBar ->
+            snackBarBehaviour = BottomSheetBehavior.from(snackBar as View)
+            snackBarBehaviour?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                        //to disable user swipe
+                        snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+            })
+        }
+    }
+
+    override fun showNoInternetMessage() {
+        super.showNoInternetMessage()
+        showErrorSnackBar(getString(R.string.ant_no_connection), false)
+    }
+
+    fun showErrorSnackBar(message: String, isAutoCloseable: Boolean = true) {
+        errorSnackBar?.text = message
+        snackBarLayout?.visibility = View.VISIBLE
+        if (snackBarBehaviour?.state != BottomSheetBehavior.STATE_EXPANDED) {
+            context?.let {
+                errorSnackBar?.backgroundColor =
+                    ContextCompat.getColor(it, R.color.ant_error_bg_color)
+            }
+            snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        if (isAutoCloseable){
+            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
+        }
+    }
+
+    fun hideErrorSnackBar(){
+        snackBarBehaviour?.state = BottomSheetBehavior.STATE_COLLAPSED
+        snackBarLayout?.visibility = View.INVISIBLE
+    }
+
+    private fun resolveErrorSnackBar(messageId: Int) {
+        if (snackBarBehaviour?.state == BottomSheetBehavior.STATE_EXPANDED) {
+            context?.resources?.getString(messageId)
+                ?.let { messageToDisplay ->
+                    errorSnackBar?.text = messageToDisplay
+                    errorSnackBar?.let { snackBar ->
+                        val colorFrom: Int =  ContextCompat.getColor(requireContext(), R.color.ant_error_bg_color)
+                        val colorTo: Int =
+                            ContextCompat.getColor(requireContext(), R.color.ant_error_resolved_bg_color)
+                        val duration = 500L
+                        ObjectAnimator.ofObject(snackBar, "backgroundColor",
+                            ArgbEvaluator(), colorFrom, colorTo)
+                            .setDuration(duration)
+                            .start()
+                    }
+                }
+            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
         }
     }
 

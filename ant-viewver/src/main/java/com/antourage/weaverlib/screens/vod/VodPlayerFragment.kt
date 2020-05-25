@@ -18,14 +18,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
-import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
@@ -229,23 +226,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             //improvements todo: stop showing new users joined view
         }
     }
-
-    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
-        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
-            viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.INVISIBLE
-        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
-            if (!Global.networkAvailable) {
-                context?.resources?.getString(R.string.ant_no_internet)
-                    ?.let { messageToDisplay ->
-                        Handler().postDelayed({
-                            showWarningAlerter(messageToDisplay)
-                            playBtnPlaceholder.visibility = View.VISIBLE
-                        }, 500)
-                    }
-            }
-        }
-    }
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -261,10 +241,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
         viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
-        ConnectionStateMonitor.internetStateLiveData.observe(
-            this.viewLifecycleOwner,
-            networkStateObserver
-        )
     }
 
     override fun initUi(view: View?) {
