@@ -1,21 +1,22 @@
 package com.antourage.weaverlib.other.room
 
+import android.content.Context
+import com.antourage.weaverlib.other.SingletonHolder
 import com.antourage.weaverlib.other.models.VideoStopTime
 import kotlinx.coroutines.*
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.collections.ArrayList
 
-@Singleton
-class RoomRepository @Inject constructor(private var dao: VideoStopTimeDao){
+class RoomRepository private constructor(context: Context) {
 
     private val listOfExistingId = ArrayList<Int>()
+    private var dao: VideoStopTimeDao = AppDatabase.getInstance(context).videoStopTimeDao()
 
-    //todo: uncomment once RoomRepository will work actually like singleton
-    /*init {
+    companion object : SingletonHolder<RoomRepository, Context>(::RoomRepository)
+
+    init {
         deleteAllExpired()
-    }*/
+    }
 
     fun addStopTime(videoStopTime: VideoStopTime) {
         GlobalScope.launch(Dispatchers.IO) {

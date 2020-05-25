@@ -13,11 +13,9 @@ import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
-import javax.inject.Inject
 
-internal class PollDetailsViewModel @Inject constructor(
-    application: Application
-) : BaseViewModel(application) {
+internal class PollDetailsViewModel constructor(application: Application)
+    : BaseViewModel(application){
 
     internal var userId: Int? = null
     private val pollLiveData = MutableLiveData<Poll>()

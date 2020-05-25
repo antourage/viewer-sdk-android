@@ -26,13 +26,9 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
 import okhttp3.OkHttpClient
 import java.util.*
-import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-internal class VideoViewModel @Inject constructor(
-    application: Application,
-    private val roomRepository: RoomRepository
-) : ChatViewModel(application) {
+internal class VideoViewModel constructor(application: Application) : ChatViewModel(application) {
 
     companion object {
         private const val STOP_TIME_UPDATE_INTERVAL_MS = 5000L
@@ -45,6 +41,8 @@ internal class VideoViewModel @Inject constructor(
         START_REPLAY,        // replay state should be started
         STOP_ALL_STATES      // leave all states as player's in default state
     }
+
+    private val roomRepository: RoomRepository = RoomRepository.getInstance(application)
 
     private var videoChanged: Boolean = false
     private var stopWatchingTime: Long = 0

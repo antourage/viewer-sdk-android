@@ -20,7 +20,6 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
@@ -230,9 +229,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.injector?.getVideoViewModelFactory()?.let {
-            viewModel = ViewModelProvider(this, it).get(VideoViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this).get(VideoViewModel::class.java)
     }
 
     override fun subscribeToObservers() {

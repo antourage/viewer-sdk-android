@@ -11,7 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.dp2px
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
@@ -59,9 +58,7 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.injector?.getPollViewModelFactory()?.let {
-            viewModel = ViewModelProvider(this, it).get(PollDetailsViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this).get(PollDetailsViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {

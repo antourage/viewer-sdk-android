@@ -26,7 +26,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
@@ -278,9 +277,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.injector?.getWeaverViewModelFactory()?.let {
-            viewModel = ViewModelProvider(this, it).get(PlayerViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
     }
 
     override fun subscribeToObservers() {
