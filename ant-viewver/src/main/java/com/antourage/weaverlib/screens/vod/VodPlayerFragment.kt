@@ -172,7 +172,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     vod_progress_bar?.progress = 5000
                     playerView.setOnTouchListener(null) //blocks from clicking
                     drawerLayout.touchListener = null
-                    controls.showTimeoutMs = 4900 //not a 5000 due to hiding animation duration
+                    controls.showTimeoutMs = 4800 //not a 5000 due to hiding animation duration
                     autoPlayCountDownTimer?.start()
                     vod_buttons_layout.visibility = View.INVISIBLE
                     vod_next_auto_layout.visibility = View.VISIBLE
