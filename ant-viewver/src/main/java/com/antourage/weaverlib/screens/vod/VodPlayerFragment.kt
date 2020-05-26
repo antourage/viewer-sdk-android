@@ -193,10 +193,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 if (vod_rewind.visibility == View.VISIBLE ||
                     vod_next_auto_layout.visibility == View.VISIBLE ){
                     autoPlayCountDownTimer?.cancel()
-                    vod_play_pause_layout.visibility = View.VISIBLE
-                    vod_buttons_layout.visibility = View.VISIBLE
                     vod_next_auto_layout.visibility = View.INVISIBLE
                     vod_rewind.visibility = View.INVISIBLE
+                    vod_play_pause_layout.postDelayed(
+                        {vod_play_pause_layout?.visibility = View.VISIBLE},500)
+                    vod_buttons_layout.postDelayed(
+                        {vod_buttons_layout?.visibility = View.VISIBLE},500)
+
                     playerView.setOnTouchListener(playerOnTouchListener)
                     controls.showTimeoutMs = 2000
                     drawerLayout.touchListener = this
