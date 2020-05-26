@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.other.models
 
 import androidx.annotation.Keep
+import androidx.room.Ignore
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.IgnoreExtraProperties
@@ -16,17 +17,17 @@ internal class MessageType {
 }
 
 @Keep
-internal open class FirestoreModel(@get:Exclude open var id: String? = null)
+internal open class FirestoreModel(@get:Exclude var id: String? = null)
 
 @Keep
 internal data class Message(
-    override var id: String? = null,
     var avatarUrl: String? = null,
     var email: String? = null,
     var nickname: String? = null,
     var text: String? = null,
     var type: Int? = null,
     @ServerTimestamp
+    @Ignore
     var timestamp: Timestamp? = null,
     var userID: String? = null,
     var pushTimeMills: Long? = null

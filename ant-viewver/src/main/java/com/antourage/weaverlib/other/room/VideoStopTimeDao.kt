@@ -1,30 +1,44 @@
 package com.antourage.weaverlib.other.room
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import com.antourage.weaverlib.other.models.VideoStopTime
+import androidx.room.*
+import com.antourage.weaverlib.other.models.Video
+
 
 @Dao
 internal interface VideoStopTimeDao {
 
-    @Query("SELECT * FROM VideoStopTimes ORDER BY vodId DESC")
-    suspend fun getAllStopTimeRecords(): List<VideoStopTime>
+    @Query("SELECT * FROM videos ORDER BY id DESC")
+    suspend fun getAllStopTimeRecords(): List<Video>
 
-    @Query("SELECT stopTimeMillis FROM VideoStopTimes WHERE vodId == :vodId")
+    @Query("SELECT stopTimeMillis FROM videos WHERE id == :vodId")
     suspend fun getStopTimeById(vodId: Int): Long
 
-    @Query("UPDATE VideoStopTimes SET stopTimeMillis = :stopTimeMillis WHERE vodId == :vodId")
-    fun updateStopTimeMillis(stopTimeMillis: Long, vodId:Int)
+    /**
+     * Used to check whether table has respective vod
+     */
+    @Query("SELECT COUNT(*) FROM videos WHERE id == :vodId")
+    suspend fun getCountOfStopTimeById(vodId: Int): Int
+
+    @Query("DELETE FROM videos WHERE startDate < :expirationDate")
+    suspend fun deleteByExpirationTime(expirationDate: Long) : Int
+
+    @Query("UPDATE videos SET stopTimeMillis = :stopTimeMillis WHERE id == :vodId")
+    suspend fun updateStopTimeMillis(stopTimeMillis: Long, vodId:Int)
 
     /**
-     * Insert a record in the database. If the record already exists, replace it.
+     * Insert a record in the database.
+     *  @return The SQLite row id
+     * If the record already exists returns -1 and does nothing
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertStopTime(videoStopTime: VideoStopTime): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertStopTimeIfNotExists(video: Video): Long
 
+    @Transaction
+    suspend fun upsertStopTime(video: Video) {
+        val resultCode = insertStopTimeIfNotExists(video)
+        if (resultCode == -1L) {
+            updateStopTimeMillis(video.stopTimeMillis, video.id)
+        }
+    }
 
-    @Query("DELETE FROM VideoStopTimes WHERE startDate < :expirationDate")
-    fun deleteByExpirationTime(expirationDate: Long) : Int
 }
