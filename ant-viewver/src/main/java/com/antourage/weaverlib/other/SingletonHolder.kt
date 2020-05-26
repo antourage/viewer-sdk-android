@@ -4,7 +4,7 @@ package com.antourage.weaverlib.other
  * Solution for creating singleton objects with argument by the lazy approach.
  * Based on: https://medium.com/@BladeCoder/kotlin-singletons-with-argument-194ef06edd9e
  */
-open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
+internal open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
     private var creator: ((A) -> T)? = creator
     @Volatile private var instance: T? = null
 

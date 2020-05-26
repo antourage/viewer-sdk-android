@@ -8,7 +8,7 @@ import com.antourage.weaverlib.other.SingletonHolder
 import com.antourage.weaverlib.other.models.VideoStopTime
 
 @Database(entities = [VideoStopTime::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
+internal abstract class AppDatabase : RoomDatabase() {
     abstract fun videoStopTimeDao(): VideoStopTimeDao
 
     companion object : SingletonHolder<AppDatabase, Context>({

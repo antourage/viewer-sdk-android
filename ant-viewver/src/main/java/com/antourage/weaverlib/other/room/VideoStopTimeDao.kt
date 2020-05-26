@@ -7,7 +7,7 @@ import androidx.room.Query
 import com.antourage.weaverlib.other.models.VideoStopTime
 
 @Dao
-interface VideoStopTimeDao {
+internal interface VideoStopTimeDao {
 
     @Query("SELECT * FROM VideoStopTimes ORDER BY vodId DESC")
     suspend fun getAllStopTimeRecords(): List<VideoStopTime>

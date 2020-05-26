@@ -240,6 +240,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val onBtnSendClicked = View.OnClickListener {
         val message = Message(
+            null,
             viewModel.getUser()?.imageUrl ?: "",
             null,
             viewModel.getUser()?.displayName,

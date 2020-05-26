@@ -7,7 +7,7 @@ import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RoomRepository private constructor(context: Context) {
+internal class RoomRepository private constructor(context: Context) {
 
     private val listOfExistingId = ArrayList<Int>()
     private var dao: VideoStopTimeDao = AppDatabase.getInstance(context).videoStopTimeDao()

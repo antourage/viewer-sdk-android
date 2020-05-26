@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "VideoStopTimes")
-data class VideoStopTime(
+internal data class VideoStopTime(
     @PrimaryKey
     var vodId: Int,
     @ColumnInfo(name = "stopTimeMillis")

@@ -47,7 +47,7 @@ import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 import java.util.*
 
-class VideoPlayerRecyclerView : RecyclerView {
+internal class VideoPlayerRecyclerView : RecyclerView {
 
     // ui
     private var thumbnail: ImageView? = null

@@ -16,10 +16,11 @@ internal class MessageType {
 }
 
 @Keep
-internal open class FirestoreModel(@get:Exclude var id: String = "")
+internal open class FirestoreModel(@get:Exclude open var id: String? = null)
 
 @Keep
 internal data class Message(
+    override var id: String? = null,
     var avatarUrl: String? = null,
     var email: String? = null,
     var nickname: String? = null,
