@@ -15,7 +15,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="100dp"
             android:paddingBottom="8dp"
-            android:text="Choose link"
+            android:text="@string/choose_link"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"

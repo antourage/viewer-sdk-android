@@ -77,6 +77,7 @@
     <string name="ant_started_ago">%1$s ago</string>
     <string name="ant_started_now">Just now</string>
 
+    <string name="choose_link">Choose link</string>
     <string name="ant_set">set</string>
 
     <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string>
@@ -87,12 +88,15 @@
     <string name="ant_type_your_display_name">Type your display name</string>
     <string name="ant_your_chat_name">Your chat name</string>
 
+    <!--avatar chooser - to be deleted-->
     <string name="ant_choose_image_source">Add image</string>
     <string name="ant_delete_image">Delete image</string>
     <string name="ant_from_gallery">From gallery</string>
     <string name="ant_from_camera">From camera</string>
+
+
     <string name="ant_version_name">Version %1$s</string>
-    <string name="ant_no_internet">No internet connection available</string>
+    <string name="ant_no_internet">No connection</string>
     <string name="ant_no_internet_action">No_internet_connection_available</string>
     <string name="ant_failed_to_load_video">Failed to load video</string>
     <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>
@@ -104,7 +108,7 @@
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>
     <string name="ant_no_connection">no connection</string>
-    <string name="ant_server_error">something is not right…</string>
+    <string name="ant_server_error">Something is not right. We are working to get this fixed</string>
     <string name="ant_you_are_online">you are online</string>
     <string name="ant_most_recent">%s   •  most recent</string>
 

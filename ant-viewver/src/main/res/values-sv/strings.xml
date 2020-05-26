@@ -37,55 +37,58 @@
         <item quantity="other">%d d</item>
     </plurals>
 
-    <plurals name="ant_minutes_long"> <!--missing-->
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
+    <plurals name="ant_minutes_long">
+        <item quantity="one">%d minut</item>
+        <item quantity="other">%d minuter</item>
     </plurals>
 
-    <plurals name="ant_hours_long"> <!--missing-->
-        <item quantity="one">%d hour</item>
-        <item quantity="other">%d hours</item>
+    <plurals name="ant_hours_long">
+        <item quantity="one">%d timme</item>
+        <item quantity="other">%d timmar</item>
     </plurals>
     <plurals name="ant_days_long">
-        <item quantity="one">%d day</item> <!--missing-->
-        <item quantity="other">%d days</item>
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagar</item>
     </plurals>
     <plurals name="ant_weeks_long">
-        <item quantity="one">%d week</item> <!--missing-->
-        <item quantity="other">%d weeks</item>
+        <item quantity="one">%d vecka</item>
+        <item quantity="other">%d veckor</item>
     </plurals>
     <plurals name="ant_months_long">
-        <item quantity="one">%d month</item> <!--missing-->
-        <item quantity="other">%d months</item>
+        <item quantity="one">%d månad</item>
+        <item quantity="other">%d månader</item>
     </plurals>
     <plurals name="ant_years_long">
-        <item quantity="one">%d year</item> <!--missing-->
-        <item quantity="other">%d years</item>
+        <item quantity="one">%d år</item>
+        <item quantity="other">%d år</item>
     </plurals>
 
     <string name="ant_started_ago">%1$s ago</string>
-    <string name="ant_started_now">Just now</string>
+    <string name="ant_started_now">Alldeles nyss</string>
 
-    <string name="ant_set">set</string>
+    <string name="choose_link">Välj länk</string>
+    <string name="ant_set">Ställ in</string>
 
-    <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string> <!--missing-->
+    <string name="ant_thanks_for_watching">TACK FÖR ATT DU TITTADE</string>
 
     <!--dialog chat name-->
     <string name="ant_cancel">Avsluta</string>
     <string name="ant_save">Spara</string>
 
-    <string name="ant_type_your_display_name">Type your display name</string> <!--missing-->
+    <string name="ant_type_your_display_name">Välj ett chatt-namn</string>
     <string name="ant_your_chat_name">Ditt chatt-namn</string>
 
-    <string name="ant_choose_image_source">Add image</string>  <!--missing-->
-    <string name="ant_delete_image">Delete image</string>  <!--missing-->
-    <string name="ant_from_gallery">From gallery</string>  <!--missing-->
-    <string name="ant_from_camera">From camera</string>  <!--missing-->
-    <string name="ant_version_name">Version %1$s</string>  <!--missing-->
-    <string name="ant_no_internet">No internet connection available</string>   <!--missing-->
+    <!--avatar chooser - to be deleted-->
+    <string name="ant_choose_image_source">Add image</string>
+    <string name="ant_delete_image">Delete image</string>
+    <string name="ant_from_gallery">From gallery</string>
+    <string name="ant_from_camera">From camera</string>
+
+    <string name="ant_version_name">Version %1$s</string>
+    <string name="ant_no_internet">Ingen uppkoppling</string>
     <string name="ant_no_internet_action">No_internet_connection_available</string>
-    <string name="ant_failed_to_load_video">Failed to load video</string>   <!--missing-->
-    <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>    <!--missing-->
+    <string name="ant_failed_to_load_video">Video kan inte visas</string>
+    <string name="invalid_toke_error_message">Innehållet kan inte visas. Försök öppna innehåll igen.</string>
 
     <!--feed-->
     <string name="ant_jump_to_top">Gå till början</string>
@@ -95,10 +98,9 @@
     <string name="ant_videos_empty_list_placeholder_text_new">Snart kan du se interaktiv\nvideo här</string>
     <string name="ant_no_connection">Ingen uppkoppling</string>
 
-    <string name="ant_server_error">something is not right…</string>    <!--missing-->
+    <string name="ant_server_error">Något gick fel. Vi jobbar på en lösning</string>
     <string name="ant_you_are_online">Du ha uppkoppling</string>
-    <string name="ant_most_recent">%s   •  Senaste</string>
-
+    <string name="ant_most_recent">%s   •  senaste</string>
 
     <!--player-->
     <string name="ant_at">vid</string>
