@@ -84,7 +84,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private val errorObserver = Observer<Boolean> { errorMessage ->
-        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_error)) } }
+        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_server_error)) } }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {

@@ -98,7 +98,6 @@
     <string name="ant_version_name">Version %1$s</string>
     <string name="ant_no_internet_action" translatable="false">No_internet_connection_available</string>
     <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>
-    <string name="ant_error">Something is not right. We are working to get this fixed</string>
 
     <!--feed-->
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
