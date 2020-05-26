@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
@@ -100,9 +99,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.injector?.getVideoListViewModelFactory()?.let {
-            viewModel = ViewModelProvider(this, it).get(VideoListViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this).get(VideoListViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

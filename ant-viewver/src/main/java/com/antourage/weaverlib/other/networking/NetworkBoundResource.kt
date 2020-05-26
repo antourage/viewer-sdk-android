@@ -24,7 +24,7 @@ internal abstract class NetworkBoundResource<ResultType>
                     Intent(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 result.value =
-                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet))
+                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
             }
         }
     }

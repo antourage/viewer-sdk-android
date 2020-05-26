@@ -18,14 +18,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
-import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.di.injector
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
-import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
@@ -176,7 +172,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     vod_progress_bar?.progress = 5000
                     playerView.setOnTouchListener(null) //blocks from clicking
                     drawerLayout.touchListener = null
-                    controls.showTimeoutMs = 4900 //not a 5000 due to hiding animation duration
+                    controls.showTimeoutMs = 4800 //not a 5000 due to hiding animation duration
                     autoPlayCountDownTimer?.start()
                     vod_buttons_layout.visibility = View.INVISIBLE
                     vod_next_auto_layout.visibility = View.VISIBLE
@@ -197,10 +193,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 if (vod_rewind.visibility == View.VISIBLE ||
                     vod_next_auto_layout.visibility == View.VISIBLE ){
                     autoPlayCountDownTimer?.cancel()
-                    vod_play_pause_layout.visibility = View.VISIBLE
-                    vod_buttons_layout.visibility = View.VISIBLE
                     vod_next_auto_layout.visibility = View.INVISIBLE
                     vod_rewind.visibility = View.INVISIBLE
+                    vod_play_pause_layout.postDelayed(
+                        {vod_play_pause_layout?.visibility = View.VISIBLE},500)
+                    vod_buttons_layout.postDelayed(
+                        {vod_buttons_layout?.visibility = View.VISIBLE},500)
+
                     playerView.setOnTouchListener(playerOnTouchListener)
                     controls.showTimeoutMs = 2000
                     drawerLayout.touchListener = this
@@ -229,30 +228,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             //improvements todo: stop showing new users joined view
         }
     }
-
-    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
-        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
-            viewModel.onNetworkGained()
-            playBtnPlaceholder.visibility = View.INVISIBLE
-        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
-            if (!Global.networkAvailable) {
-                context?.resources?.getString(R.string.ant_no_internet)
-                    ?.let { messageToDisplay ->
-                        Handler().postDelayed({
-                            showWarningAlerter(messageToDisplay)
-                            playBtnPlaceholder.visibility = View.VISIBLE
-                        }, 500)
-                    }
-            }
-        }
-    }
     //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.injector?.getVideoViewModelFactory()?.let {
-            viewModel = ViewModelProvider(this, it).get(VideoViewModel::class.java)
-        }
+        viewModel = ViewModelProvider(this).get(VideoViewModel::class.java)
     }
 
     override fun subscribeToObservers() {
@@ -261,10 +241,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
         viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
-        ConnectionStateMonitor.internetStateLiveData.observe(
-            this.viewLifecycleOwner,
-            networkStateObserver
-        )
     }
 
     override fun initUi(view: View?) {

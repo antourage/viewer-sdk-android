@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
-import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
@@ -23,14 +22,12 @@ import com.antourage.weaverlib.ui.fab.UserAuthResult
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
-import javax.inject.Inject
 
-internal class VideoListViewModel @Inject constructor(
-    application: Application,
-    val roomRepository: RoomRepository
-) :
-    BaseViewModel(application), OnDevSettingsChangedListener,
+internal class VideoListViewModel (application: Application) : BaseViewModel(application),
+    OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
+
+    val roomRepository: RoomRepository = RoomRepository.getInstance(application)
     private var pulledToRefresh: Boolean = false
     private var canRefresh: Boolean = false
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()

@@ -85,9 +85,6 @@
     <string name="ant_from_camera">From camera</string>
 
     <string name="ant_version_name">Version %1$s</string>
-    <string name="ant_no_internet">Ingen uppkoppling</string>
-    <string name="ant_no_internet_action">No_internet_connection_available</string>
-    <string name="ant_failed_to_load_video">Video kan inte visas</string>
     <string name="invalid_toke_error_message">Innehållet kan inte visas. Försök öppna innehåll igen.</string>
 
     <!--feed-->

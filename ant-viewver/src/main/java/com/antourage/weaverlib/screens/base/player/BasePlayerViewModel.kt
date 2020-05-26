@@ -10,7 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.LiveOpenedRequest
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
@@ -55,7 +55,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
-    var errorLiveData: MutableLiveData<String> = MutableLiveData()
+
+    //should be used for all kinds of error, which user should be informed with.
+    //will always show same error message to user, that's why used Boolean
+    var errorLiveData: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
     private var stopwatch = Stopwatch()
     protected var resetChronometer = true
@@ -320,7 +323,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 currentWindow = player?.currentWindowIndex ?: 0
-                errorLiveData.postValue(application.resources.getString(R.string.ant_failed_to_load_video))
+                errorLiveData.value = true
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
             Log.d(

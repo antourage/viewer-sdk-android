@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.other
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.text.Editable
@@ -25,8 +24,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.di.ApplicationComponent
-import com.antourage.weaverlib.di.DaggerApplicationComponent
 import com.antourage.weaverlib.other.Constants.secInDay
 import com.antourage.weaverlib.other.Constants.secInHour
 import com.antourage.weaverlib.other.Constants.secInMin
@@ -61,13 +58,6 @@ internal fun AppCompatActivity.replaceFragment(
         supportFragmentManager.inTransaction {
             replace(frameId, fragment)
         }
-}
-
-//Did not want to use Application class(problem with merging), decided on extension function
-internal fun Application.initDagger(): ApplicationComponent {
-    return DaggerApplicationComponent.builder()
-        .application(this)
-        .build()
 }
 
 internal fun Fragment.replaceFragment(

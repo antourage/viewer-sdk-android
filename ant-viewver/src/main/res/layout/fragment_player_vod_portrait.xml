@@ -202,4 +202,34 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/bottom_coordinator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:elevation="10dp"
+            android:isScrollContainer="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+        <TextView
+                android:id="@+id/player_snack_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/ant_error_bg_color"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:isScrollContainer="false"
+                android:padding="5dp"
+                android:elevation="10dp"
+                android:text="@string/ant_no_connection"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="@color/ant_white"
+                android:textSize="11sp"
+                app:behavior_hideable="false"
+                app:behavior_peekHeight="0dp"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
