@@ -313,7 +313,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
-                gestureDetector.onTouchEvent(p1)
+                if (!etMessage.isFocused) gestureDetector.onTouchEvent(p1)
                 return true
             }
         })
