@@ -3,7 +3,9 @@ package com.antourage.weaverlib.other.room
 import android.content.Context
 import com.antourage.weaverlib.other.SingletonHolder
 import com.antourage.weaverlib.other.models.Comment
+import com.antourage.weaverlib.other.models.CommentMinimal
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Video
 import kotlinx.coroutines.*
 import java.util.*
@@ -42,6 +44,19 @@ internal class RoomRepository private constructor(context: Context) {
         }
     }
 
+    /**
+     *  Method will return:
+     *  @return null - no fetched data for this videoID;
+     *  @return List<Message> with size == 0  -  the chat is empty;
+     *  @return List<Message> with size >0 - you can get first element as last chat message by User;
+     */
+    suspend fun getLastComment(videoId: Int): List<CommentMinimal>?{
+        val resultList = commentDao.getLastFirebaseMessagesByVideoIdByBothTypes(videoId)
+        if (resultList.isEmpty()) return null
+        return resultList.filter {it.type == MessageType.USER}
+    }
+
+
     suspend fun getFirebaseMessagesById(vodId: Int) = commentDao.getFirebaseMessagesByVideoId(vodId)
 
     private fun transformMessages(messages: List<Message>, vodId:Int): Array<Comment> {
@@ -72,12 +87,5 @@ internal class RoomRepository private constructor(context: Context) {
             calendar.add(Calendar.MONTH, -1)
             videoDao.deleteByExpirationTime(calendar.timeInMillis)
         }
-    }
-
-    /**
-     * If there are no record with videoId, than the messages wasn't fetched;
-     */
-    suspend fun queryIfVideoRecordExists(videoId: Int): Boolean{
-        return videoDao.getCountOfStopTimeById(videoId) != 0
     }
 }

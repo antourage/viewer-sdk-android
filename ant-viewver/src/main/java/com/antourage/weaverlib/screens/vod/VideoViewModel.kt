@@ -125,9 +125,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun getChatList(id: Int?) {
-        //todo: do we need migration?
-        //todo: https://www.raywenderlich.com/5686-room-db-advanced-data-persistence#toc-anchor-002
-        id?.let {vodId ->
+        id?.let { vodId ->
             viewModelScope.launch {
                 val messages =  roomRepository.getFirebaseMessagesById(vodId)
                 if (messages.isEmpty()){
@@ -136,7 +134,6 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                     processVODsChat(messages, isFetched = false)
                 }
             }
-
         }
     }
 
@@ -152,14 +149,12 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                     data[i].id = id
                 }
             }
-            processVODsChat(data, true)
+            val messages = processVODsChat(data, true)
             roomRepository.insertAllComments(Video(vodId, 0, getExpirationDate(vodId)),
-                userProcessedMessages)
+                messages)
         }
         Repository.getMessagesVOD(vodId, onSuccess)
     }
-
-
 
     private fun initUserAndFetchChat(id: Int?) {
         val response = Repository.getUser()
@@ -220,7 +215,6 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
     }
 
-    //todo: test whether correctly parsed
     private fun getExpirationDate(vodId: Int): Long {
         return Repository.vods?.find { video -> video.id?.equals(vodId) ?: false }
             ?.startTime?.let { convertUtcToLocal(it)?.time } ?: 0L
@@ -276,11 +270,11 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 vodId?.let {
                     this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
                     postVideoIsClosed(it)
-                    getChatList(it)
                 }
                 if (list.size <= currentWindow + 2) {
                     fetchNextVODs()
                 }
+                getChatList(this)
             }
         }
         this.streamId = currentVod.id
@@ -414,11 +408,11 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             .createMediaSource(Uri.parse(uri))
     }
 
-    private fun processVODsChat(messages: List<Message>, isFetched: Boolean = true) {
+    private fun processVODsChat(messages: List<Message>, isFetched: Boolean = true): List<Message>{
         val currentUserId = user?.id
         val currentUserName = user?.displayName
-        val userMessages = messages.filter { it.type == MessageType.USER }
-        for (message in userMessages) {
+
+        for (message in messages) {
             if (isFetched){
                 message.pushTimeMills =
                     ((message.timestamp?.seconds ?: 0) * 1000) - (startTime?.time ?: 0)
@@ -430,8 +424,11 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 message.nickname = currentUserName
             }
         }
+
+        val userMessages = messages.filter { it.type == MessageType.USER }
         userProcessedMessages.clear()
         userProcessedMessages.addAll(userMessages)
+        return messages
     }
 
     private fun stopMonitoringChatMessages() {

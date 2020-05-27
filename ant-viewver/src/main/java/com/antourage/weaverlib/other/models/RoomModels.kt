@@ -28,3 +28,9 @@ internal data class Comment(
     @ColumnInfo(name = "userID") var userID: String? = null,
     @ColumnInfo(name = "pushTimeMills") var pushTimeMills: Long? = null
 )
+
+internal data class CommentMinimal(
+    @ColumnInfo(name = "nickname") var nickname: String? = null,
+    @ColumnInfo(name = "text") var text: String? = null,
+    @ColumnInfo(name = "type") var type: Int? = null
+)
