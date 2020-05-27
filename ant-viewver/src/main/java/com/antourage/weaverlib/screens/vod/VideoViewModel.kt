@@ -348,7 +348,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         if (!isFetching) {
             isFetching = true
             val vodsCount = Repository.vods?.size ?: 0
-            val response = Repository.getVODs(vodsCount)
+            val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
             response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                     if (resource != null) {

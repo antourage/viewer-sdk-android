@@ -65,7 +65,7 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
             vodsCount = 0
         }
         this.pulledToRefresh = noLoadingPlaceholder
-        ReceivingVideosManager.loadVODs(vodsCount)
+        ReceivingVideosManager.loadVODs(vodsCount, RoomRepository.getInstance(getApplication()))
     }
 
     fun refreshVODsLocally() {
