@@ -106,23 +106,51 @@
             android:id="@+id/skipForward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="200dp"
+            android:layout_marginStart="200dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/skipForwardTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/ant_ten_seconds"
+            android:textColor="@color/ant_white"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="@+id/skipForward"
+            app:layout_constraintTop_toBottomOf="@+id/skipForward" />
 
     <ImageView
             android:id="@+id/skipBackward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="200dp"
+            android:layout_marginEnd="200dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/skipBackwardTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/ant_ten_seconds"
+            android:textColor="@color/ant_white"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/skipBackward"
+            app:layout_constraintTop_toBottomOf="@+id/skipBackward" />
 
     <ImageView
             android:id="@+id/ivLoader"
@@ -132,7 +160,8 @@
             app:layout_constraintBottom_toBottomOf="@id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
 
     <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_half_vod"

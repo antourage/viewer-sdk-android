@@ -364,13 +364,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun handleSkipForward() {
         dimNextPrevButtons()
-        showSkipAnim(skipForwardVDrawable, skipForward)
+        showSkipAnim(skipForwardVDrawable, skipForward, skipForwardTV)
         viewModel.skipForward()
     }
 
     private fun handleSkipBackward() {
         dimNextPrevButtons()
-        showSkipAnim(skipBackwardVDrawable, skipBackward)
+        showSkipAnim(skipBackwardVDrawable, skipBackward, skipBackwardTV)
         viewModel.skipBackward()
     }
 
@@ -535,11 +535,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         changeButtonsSize(isEnlarge = isLandscape)
     }
 
-    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?) {
+    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?, descView: TextView?) {
         vDrawable?.apply {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                     override fun onAnimationEnd(drawable: Drawable?) {
+                        descView?.visibility = View.INVISIBLE
                         iv?.visibility = View.INVISIBLE
                         brightenNextPrevButtons()
                         clearAnimationCallbacks()
@@ -547,6 +548,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 })
                 start()
                 iv?.visibility = View.VISIBLE
+                descView?.visibility = View.VISIBLE
             }
         }
     }
