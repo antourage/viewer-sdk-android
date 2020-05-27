@@ -151,8 +151,8 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         currentPoll?.id?.let { pollId ->
             UserCache.getInstance(getApplication())?.saveCollapsedPoll(pollId)
         }
-        currentPoll?.let {
-            pollStatusLiveData.value = (PollStatus.PollDetails(it.id))
+        currentPoll?.id?.let {
+            pollStatusLiveData.value = (PollStatus.PollDetails(it))
         }
     }
 
@@ -180,9 +180,9 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     }
 
     private fun observeAnsweredUsers() {
-        currentPoll?.let { poll ->
+        currentPoll?.id?.let { id ->
             streamId?.let { streamId ->
-                Repository.getAnsweredUsers(streamId, poll.id).observeForever { resource ->
+                Repository.getAnsweredUsers(streamId, id).observeForever { resource ->
                     resource?.status?.let {
                         if (it is Status.Success && it.data != null) {
                             if (wasAnswered(it.data)) {

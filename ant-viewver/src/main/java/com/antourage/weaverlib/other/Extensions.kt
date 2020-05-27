@@ -386,7 +386,7 @@ internal fun View.hideWithAnimation() {
     animate().alpha(0f).setDuration(300).withEndAction { this.visibility = View.INVISIBLE }.start()
 }
 
-inline fun VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {
+internal inline fun VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             if (measuredWidth > 0 && measuredHeight > 0) {

@@ -24,11 +24,10 @@ import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.hideWithAnimation
 import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.VideoStopTime
+import com.antourage.weaverlib.other.models.Video
 import com.antourage.weaverlib.other.revealWithAnimation
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
-import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
@@ -47,7 +46,7 @@ import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 import java.util.*
 
-class VideoPlayerRecyclerView : RecyclerView {
+internal class VideoPlayerRecyclerView : RecyclerView {
 
     // ui
     private var thumbnail: ImageView? = null
@@ -239,10 +238,10 @@ class VideoPlayerRecyclerView : RecyclerView {
             val duration = videoPlayer?.duration ?: 0L
             if (stopWatchingTime > 0) {
                 if (duration != 0L && duration * 0.9 - stopWatchingTime < 0) {
-                    roomRepository.addStopTime(VideoStopTime(vodId, 0, getExpirationDate(vodId)))
+                    roomRepository.addStopTime(Video(vodId, 0, getExpirationDate(vodId)))
                 } else {
                     roomRepository.addStopTime(
-                        VideoStopTime(vodId, stopWatchingTime, getExpirationDate(vodId))
+                        Video(vodId, stopWatchingTime, getExpirationDate(vodId))
                     )
                 }
                 setVODStopWatchingTimeLocally(vodId, stopWatchingTime)

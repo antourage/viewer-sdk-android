@@ -5,11 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.antourage.weaverlib.other.SingletonHolder
-import com.antourage.weaverlib.other.models.VideoStopTime
+import com.antourage.weaverlib.other.models.Comment
+import com.antourage.weaverlib.other.models.Video
 
-@Database(entities = [VideoStopTime::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
+@Database(entities = [Video::class, Comment::class], version = 1)
+internal abstract class AppDatabase : RoomDatabase() {
+
     abstract fun videoStopTimeDao(): VideoStopTimeDao
+    abstract fun commentDao(): CommentDao
 
     companion object : SingletonHolder<AppDatabase, Context>({
         Room.databaseBuilder(it.applicationContext,

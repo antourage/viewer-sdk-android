@@ -13,7 +13,6 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import okhttp3.MultipartBody
 import com.antourage.weaverlib.other.models.Stream
-import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
@@ -346,7 +345,7 @@ internal class Repository {
         }
 
         internal fun vote(streamId: Int, pollId: String, user: AnsweredUser) {
-            FirestoreDatabase().getAnsweredUsersReference(streamId, pollId).document(user.id)
+            FirestoreDatabase().getAnsweredUsersReference(streamId, pollId).document(user.id!!)
                 .set(user)
         }
         //endregion
