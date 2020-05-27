@@ -84,7 +84,6 @@
                             android:id="@+id/ivNoContent"
                             android:layout_width="wrap_content"
                             android:layout_height="56dp"
-                            android:scaleType="fitXY"
                             android:adjustViewBounds="true"
                             android:src="@drawable/hacken_logo"
                             app:layout_constraintLeft_toLeftOf="parent"
