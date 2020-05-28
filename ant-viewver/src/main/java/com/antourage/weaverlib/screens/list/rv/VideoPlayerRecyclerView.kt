@@ -7,11 +7,13 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -46,6 +48,8 @@ import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
 import java.util.*
 
+private const val AUTO_PLAY_DEBOUNCE: Long = 500
+
 internal class VideoPlayerRecyclerView : RecyclerView {
 
     // ui
@@ -67,7 +71,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     private var streams: ArrayList<StreamResponse> = ArrayList<StreamResponse>()
     private var videoSurfaceDefaultHeight = 0
     private var screenDefaultHeight = 0
-    private var playPosition = -1
+    var playPosition = -1
     private var isVideoViewAdded = false
     private var playHandler = Handler(Looper.getMainLooper())
     private var durationHandler = Handler(Looper.getMainLooper())
@@ -91,13 +95,25 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         roomRepository = repo
     }
 
+    fun resumePlaying() {
+        if (streams.isNotEmpty()) {
+            playHandler.removeCallbacksAndMessages(null)
+            playHandler.postDelayed({
+                if (!videoPlayer?.isPlaying!!) {
+                    playPosition = -1
+                    playVideo()
+                }
+            }, AUTO_PLAY_DEBOUNCE)
+        }
+    }
+
     fun onResume() {
         initPlayer()
         if (streams.isNotEmpty()) {
             playHandler.removeCallbacksAndMessages(null)
             playHandler.postDelayed({
                 playVideo()
-            }, 1200)
+            }, AUTO_PLAY_DEBOUNCE)
         }
     }
 
@@ -185,9 +201,6 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (newState == SCROLL_STATE_IDLE) {
-                    // There's a special case when the end of the list has been reached.
-                    // Need to handle that with this bit of logic
-
                     playHandler.removeCallbacksAndMessages(null)
                     val position = getTargetPosition()
                     if (position != playPosition && !fullyViewedVods.contains(currentlyPlayingVideo)) {
@@ -195,7 +208,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
                     }
                     playHandler.postDelayed({
                         playVideo()
-                    }, 1200)
+                    }, AUTO_PLAY_DEBOUNCE)
                 }
             }
 
@@ -250,7 +263,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     fun hideAutoPlayLayout() {
-        if(shouldSetStopTime){
+        if (shouldSetStopTime) {
             setVodStopWatchingTime()
             shouldSetStopTime = false
         }
@@ -275,7 +288,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             thumbnail?.revealWithAnimation()
             autoPlayContainer?.hideWithAnimation()
             watchingProgress?.hideWithAnimation()
-            if(shouldSetStopTime){
+            if (shouldSetStopTime) {
                 setVodStopWatchingTime()
                 shouldSetStopTime = false
             }
@@ -284,14 +297,17 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     fun onPause() {
-        if(shouldSetStopTime){
+        if (shouldSetStopTime) {
             setVodStopWatchingTime()
             shouldSetStopTime = false
         }
-        resetVideoView()
-        isVideoViewAdded = false
         playHandler.removeCallbacksAndMessages(null)
         stopDurationUpdate()
+        //needed for smooth transition to player
+        Handler().postDelayed({
+            resetVideoView()
+            isVideoViewAdded = false
+        }, 400)
     }
 
     private fun getTargetPosition(): Int {
@@ -395,10 +411,6 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     private fun getVisibleVideoSurfaceHeight(playPosition: Int): Int {
         val at: Int =
             playPosition - (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        Log.d(
-            TAG,
-            "getVisibleVideoSurfaceHeight: at: $at"
-        )
         val child: View = getChildAt(at) ?: return 0
         val location = IntArray(2)
         child.getLocationInWindow(location)
@@ -432,7 +444,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         animateAutoPlay()
         startDurationUpdate()
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-            if(watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.revealWithAnimation()
+            if (watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.revealWithAnimation()
             duration?.hideWithAnimation()
         }
     }
@@ -516,7 +528,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         this.streams = mediaObjects
     }
 
-    companion object {
-        private const val TAG = "VideoPlayerRecyclerView"
+    fun resetPlayPosition() {
+        playPosition = -1
     }
 }

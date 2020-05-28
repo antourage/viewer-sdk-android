@@ -46,6 +46,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private var isInitialListSet = true
     private var newLivesList = mutableListOf<StreamResponse>()
 
+    private var canShowNewButton = false
+
     companion object {
         fun newInstance(): VideoListFragment {
             return VideoListFragment()
@@ -60,14 +62,25 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 else showNoConnectionPlaceHolder()
             } else {
                 isLoadingMoreVideos = false
-                checkIsNewLiveAdded(newStreams)
-                checkIsLiveWasRemoved(newStreams)
+
+                val listBeforeUpdate =
+                    mutableListOf<StreamResponse>().apply { addAll(videoAdapter.getStreams()) }
+
+                videosRV.resumePlaying()
+
                 if (videoRefreshLayout.mIsRefreshing) {
                     videoAdapter.setStreamListForceUpdate(newStreams)
                     videosRV.onRefresh()
                 } else {
                     videoAdapter.setStreamList(newStreams)
                 }
+
+
+                Handler().postDelayed({
+                    checkIsNewLiveAdded(newStreams, listBeforeUpdate)
+                    checkIsLiveWasRemoved(newStreams)
+                }, 1000)
+
                 isInitialListSet = false
                 hidePlaceholder()
             }
@@ -79,7 +92,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         error?.let { it ->
             if (Global.networkAvailable && it.isNotEmpty()) {
                 videoRefreshLayout.setRefreshing(false)
-                showErrorLayout(it)
+                showErrorLayout()
             }
         }
     }
@@ -105,7 +118,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
-        initOnScrollListener()
+//        initOnScrollListener()
     }
 
     private fun subscribeToObservers() {
@@ -139,6 +152,16 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
             videosRV.onResume()
         }
+
+        initNewButtonCountdown()
+    }
+
+    private fun initNewButtonCountdown() {
+        //needed in case live video was opened, then ended, and new live appeared
+        canShowNewButton = false
+        Handler().postDelayed({
+            canShowNewButton = true
+        }, 3000)
     }
 
     override fun onPause() {
@@ -159,6 +182,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             when {
                 streamResponse.isLive -> {
+                    videosRV.hideAutoPlayLayout()
                     openLiveFragment(streamResponse)
                 }
                 streamResponse.id == -1 -> {
@@ -170,11 +194,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                             UserCache.getInstance(context)?.saveVideoToSeen(it)
                         }
                     }
-                    replaceFragment(
-                        VodPlayerFragment.newInstance(streamResponse),
-                        R.id.mainContent,
-                        true
-                    )
+                    videosRV.hideAutoPlayLayout()
+                    openVodFragment(streamResponse)
                 }
             }
         }
@@ -183,7 +204,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             openLiveFragment(streamResponse, true)
         }
 
-        btnNewLive.setOnClickListener { videosRV.betterSmoothScrollToPosition(0) }
+        btnNewLive.setOnClickListener {
+            videosRV.betterSmoothScrollToPosition(0)
+            videosRV.resetPlayPosition()
+        }
 
         videoAdapter = VideosAdapter(onClick, onJoinedClick, videosRV)
         placeholdersAdapter = VideoPlaceholdersAdapter()
@@ -367,9 +391,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         placeHolderRV.revealWithAnimation()
     }
 
-    private fun showErrorLayout(error: String) {
-        showErrorSnackbar(R.string.ant_no_connection)
-//        showErrorSnackbar(error)
+    private fun showErrorLayout() {
+        showErrorSnackbar(R.string.ant_server_error)
         if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
         if (placeHolderRV.alpha != 1f) {
@@ -407,6 +430,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             isNewLiveButtonShown = true
             btnNewLive.animate().translationYBy(150f).setDuration(300).start()
         } else if (!isVisible && isNewLiveButtonShown) {
+            newLivesList.clear()
             isNewLiveButtonShown = false
             btnNewLive.animate().translationY(0f).setDuration(300).start()
         }
@@ -424,13 +448,20 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun checkIsNewLiveAdded(newStreams: List<StreamResponse>) {
-        if (!isInitialListSet) {
+    private fun checkIsNewLiveAdded(
+        newStreams: List<StreamResponse>,
+        oldStreams: List<StreamResponse>
+    ) {
+        if (!isInitialListSet && canShowNewButton) {
             for (stream in newStreams) {
-                if (stream.isLive && videoAdapter.getStreams().none { it.id == stream.id }) {
-                    newLivesList.add(stream)
-                    triggerNewLiveButton(true)
-                    break
+                if (stream.isLive && oldStreams.none { it.id == stream.id }) {
+                    if (videoAdapter.getStreams()
+                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
+                    ) {
+                        newLivesList.add(stream)
+                        triggerNewLiveButton(true)
+                        break
+                    }
                 }
             }
         }
@@ -455,7 +486,17 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         replaceFragment(
             PlayerFragment.newInstance(stream, userId, isFromJoinChat),
             R.id.mainContent,
-            true
+            addToBackStack = true,
+            slideFromBottom = true
+        )
+    }
+
+    private fun openVodFragment(stream: StreamResponse) {
+        replaceFragment(
+            VodPlayerFragment.newInstance(stream),
+            R.id.mainContent,
+            addToBackStack = true,
+            slideFromBottom = true
         )
     }
 }
