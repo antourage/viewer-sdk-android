@@ -72,6 +72,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
     private var minuteUpdateReceiver: BroadcastReceiver? = null
+    protected var isNewCommentClicked: Boolean = false
 
     /**
      * we need to know if user turns on screen auto rotation or locks
@@ -227,9 +228,9 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     protected fun toggleControlsVisibility() {
-        if (playerControls.isVisible)
+        if (playerControls.isVisible) {
             playerControls.hide()
-        else {
+        } else if (!isNewCommentClicked){
             onControlsVisible()
             playerControls.show()
         }
