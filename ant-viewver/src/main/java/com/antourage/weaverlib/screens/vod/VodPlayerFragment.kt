@@ -119,6 +119,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         }
     }
 
+    private val videoFetchedObserver: Observer<Boolean> = Observer {
+        updatePrevNextVisibility()
+    }
+
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
             viewModel.getVideoDuration()?.let{duration ->
@@ -251,6 +255,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
         viewModel.getCurrentViewersLD().observe(this.viewLifecycleOwner, viewersChangeObserver)
         viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
+        viewModel.getNextVideosFetchedLD().observe(this.viewLifecycleOwner, videoFetchedObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
     }
 

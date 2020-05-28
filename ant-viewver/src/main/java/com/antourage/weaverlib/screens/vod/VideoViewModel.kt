@@ -77,6 +77,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
+    private val nextVideosFetchedLD: MutableLiveData<Boolean> = MutableLiveData<Boolean>()
+    fun getNextVideosFetchedLD(): LiveData<Boolean> = nextVideosFetchedLD
+
     //method used to check if last added message added by User, but in VOD we don't use this check
     override fun checkIfMessageByUser(userID: String?): Boolean = false
 
@@ -384,10 +387,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                                     val list = if (isNewVod) it.drop(1) else it
                                     Repository.vods?.addAll(list)
                                     addToMediaSource(list)
-                                    Log.d(
-                                        "PLAYER_FETCH",
-                                        "was new vod " + isNewVod
-                                    )
+                                    nextVideosFetchedLD.value = true
+                                    Log.d("PLAYER_FETCH", "was new vod $isNewVod")
                                 }
                                 response.removeObserver(this)
                             }
