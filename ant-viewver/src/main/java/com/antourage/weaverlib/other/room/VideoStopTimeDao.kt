@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other.room
 
+import android.provider.ContactsContract
 import androidx.room.*
 import com.antourage.weaverlib.other.models.Video
 
@@ -13,6 +14,9 @@ internal interface VideoStopTimeDao {
     @Query("SELECT stopTimeMillis FROM videos WHERE id == :vodId")
     suspend fun getStopTimeById(vodId: Int): Long
 
+    @Query("SELECT * FROM videos WHERE id == :vodId")
+    suspend fun getVideoById(vodId: Int): Video?
+
     /**
      * Used to check whether table has respective vod
      */
@@ -25,20 +29,30 @@ internal interface VideoStopTimeDao {
     @Query("UPDATE videos SET stopTimeMillis = :stopTimeMillis WHERE id == :vodId")
     suspend fun updateStopTimeMillis(stopTimeMillis: Long, vodId:Int)
 
+    @Query("UPDATE videos SET nickname = :nickname, text = :text WHERE id == :vodId")
+    suspend fun updateLastMessage(vodId:Int, nickname: String, text: String)
+
     /**
      * Insert a record in the database.
      *  @return The SQLite row id
      * If the record already exists returns -1 and does nothing
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertStopTimeIfNotExists(video: Video): Long
+    suspend fun insertVideoIfNotExists(video: Video): Long
 
     @Transaction
     suspend fun upsertStopTime(video: Video) {
-        val resultCode = insertStopTimeIfNotExists(video)
+        val resultCode = insertVideoIfNotExists(video)
         if (resultCode == -1L) {
             updateStopTimeMillis(video.stopTimeMillis, video.id)
         }
     }
 
+    @Transaction
+    suspend fun upsertLastMessage(video: Video) {
+        val resultCode = insertVideoIfNotExists(video)
+        if (resultCode == -1L) {
+            updateStopTimeMillis(video.stopTimeMillis, video.id)
+        }
+    }
 }

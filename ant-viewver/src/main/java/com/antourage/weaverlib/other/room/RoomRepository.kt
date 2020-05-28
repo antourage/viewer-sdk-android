@@ -3,9 +3,7 @@ package com.antourage.weaverlib.other.room
 import android.content.Context
 import com.antourage.weaverlib.other.SingletonHolder
 import com.antourage.weaverlib.other.models.Comment
-import com.antourage.weaverlib.other.models.CommentMinimal
 import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.models.Video
 import kotlinx.coroutines.*
 import java.util.*
@@ -26,6 +24,8 @@ internal class RoomRepository private constructor(context: Context) {
         GlobalScope.launch(Dispatchers.IO) { videoDao.upsertStopTime(video) }
     }
 
+    suspend fun addVideo(video: Video) { videoDao.insertVideoIfNotExists(video) }
+
     //used blocking due to Room doesn't works on main thread
     fun getStopTimeById(vodId: Int): Long? {
         return runBlocking{
@@ -33,29 +33,18 @@ internal class RoomRepository private constructor(context: Context) {
         }
     }
 
+    suspend fun getVideoById(vodId: Int): Video?  = videoDao.getVideoById(vodId)
+
     fun insertAllComments(video: Video, message: List<Message> ){
         GlobalScope.launch(Dispatchers.IO) {
 
-            val result = videoDao.insertStopTimeIfNotExists(video)
+            val result = videoDao.insertVideoIfNotExists(video)
             val comments = transformMessages(message, video.id)
             with(result){
                 commentDao.insertComments(*comments)
             }
         }
     }
-
-    /**
-     *  Method will return:
-     *  @return null - no fetched data for this videoID;
-     *  @return List<Message> with size == 0  -  the chat is empty;
-     *  @return List<Message> with size >0 - you can get first element as last chat message by User;
-     */
-    suspend fun getLastComment(videoId: Int): List<CommentMinimal>?{
-        val resultList = commentDao.getLastFirebaseMessagesByVideoIdByBothTypes(videoId)
-        if (resultList.isEmpty()) return null
-        return resultList.filter {it.type == MessageType.USER}
-    }
-
 
     suspend fun getFirebaseMessagesById(vodId: Int) = commentDao.getFirebaseMessagesByVideoId(vodId)
 

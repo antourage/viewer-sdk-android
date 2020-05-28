@@ -8,37 +8,47 @@
         android:background="@color/ant_dark_transparent"
         android:elevation="6dp">
 
-    <View
-            android:id="@+id/playBtnPlaceholder"
-            android:layout_width="70dp"
-            android:elevation="100dp"
-            android:layout_height="60dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/live_buttons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-            android:id="@+id/exo_play"
-            android:layout_height="@dimen/small_play_pause_size"
-            android:layout_width="@dimen/small_play_pause_size"
-            android:src="@drawable/antourage_ic_play_arrow"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
+        <View
+                android:id="@+id/playBtnPlaceholder"
+                android:layout_width="70dp"
+                android:elevation="100dp"
+                android:layout_height="60dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-            android:id="@+id/exo_pause"
-            android:layout_height="@dimen/small_play_pause_size"
-            android:layout_width="@dimen/small_play_pause_size"
-            android:src="@drawable/antourage_ic_pause"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
+        <ImageView
+                android:id="@+id/exo_play"
+                android:layout_height="@dimen/small_play_pause_size"
+                android:layout_width="@dimen/small_play_pause_size"
+                android:src="@drawable/antourage_ic_play_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
+        <ImageView
+                android:id="@+id/exo_pause"
+                android:layout_height="@dimen/small_play_pause_size"
+                android:layout_width="@dimen/small_play_pause_size"
+                android:src="@drawable/antourage_ic_pause"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
             android:id="@+id/ivScreenSize"

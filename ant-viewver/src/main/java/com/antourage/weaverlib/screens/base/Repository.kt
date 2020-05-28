@@ -2,7 +2,9 @@ package com.antourage.weaverlib.screens.base
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
@@ -18,7 +20,12 @@ import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.google.firebase.firestore.Source
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.jetbrains.anko.collections.forEachWithIndex
 
 internal class Repository {
 
@@ -118,11 +125,13 @@ internal class Repository {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d("STAT_CLOSE", "Failed to send vod/close: ${resource.status.errorMessage}")
+                                Log.d("STAT_CLOSE",
+                                    "Failed to send vod/close: ${resource.status.errorMessage}"
+                                )
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
-                                Log.d("STAT_CLOSE", "Successfully send vod/close: ${body.span}" )
+                                Log.d("STAT_CLOSE", "Successfully send vod/close: ${body.span}")
                                 response.removeObserver(this)
                             }
                         }
@@ -149,11 +158,14 @@ internal class Repository {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d("STAT_CLOSE", "Failed to send live/close: ${resource.status.errorMessage}")
+                                Log.d(
+                                    "STAT_CLOSE",
+                                    "Failed to send live/close: ${resource.status.errorMessage}"
+                                )
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
-                                Log.d("STAT_CLOSE", "Successfully sent live/close: ${body.span}" )
+                                Log.d("STAT_CLOSE", "Successfully sent live/close: ${body.span}")
                                 response.removeObserver(this)
                             }
                         }
@@ -162,10 +174,100 @@ internal class Repository {
             })
         }
 
-        fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
+        private fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
                 override fun createCall() = ApiClient.getWebClient().webService.getVODs(count)
             }.asLiveData()
+
+        fun getVODsWithLastCommentAndStopTime(
+            count: Int,
+            repository: RoomRepository
+        ): LiveData<Resource<List<StreamResponse>>> {
+            val response = getVODs(count)
+            val streamResponseLD = MutableLiveData<Resource<List<StreamResponse>>>()
+
+            response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
+                override fun onChanged(resource: Resource<List<StreamResponse>>) {
+                    when (resource.status) {
+                        is Status.Failure -> {
+                            streamResponseLD.value = resource
+                            response.removeObserver(this)
+                        }
+                        is Status.Success -> {
+                            val videoList = resource.status.data
+                            if (videoList != null) {
+                                updateListWithLastComments(videoList, repository) {
+                                    streamResponseLD.postValue(Resource(Status.Success(it)))
+                                }
+                            } else {
+                                streamResponseLD.value = resource
+                            }
+                            response.removeObserver(this)
+                        }
+                        is Status.Loading -> {
+                            streamResponseLD.value = resource
+                        }
+                    }
+                }
+            })
+            return streamResponseLD
+        }
+
+        private fun updateListWithLastComments(
+            videoList: List<StreamResponse>,
+            repository: RoomRepository,
+            onFinish: (videoListNew: List<StreamResponse>) -> Unit
+        ) {
+            GlobalScope.launch(Dispatchers.IO) {
+                val arrayOfUpdatedIds = ArrayList<Int>()
+                videoList.forEachWithIndex { index, vod ->
+                    vod.id?.let { vodId ->
+                        val video = repository.getVideoById(vodId)
+                        if (video?.nickname != null) { //due to no data for new vod
+                            vod.lastMessage = video.text
+                            vod.lastMessageAuthor = video.nickname
+                            vod.stopTimeMillis = video.stopTimeMillis
+                            arrayOfUpdatedIds.add(vodId)
+                            if (index == videoList.size - 1) {
+                                if (arrayOfUpdatedIds.size == videoList.size) onFinish(videoList)
+                            }
+                        } else {
+                            fetchLastMessage(vodId, vod.startTime?.let { startTime ->
+                                convertUtcToLocal(startTime)?.time } ?: 0L) {
+                                vod.lastMessage = it.text
+                                vod.lastMessageAuthor = it.nickname
+                                vod.stopTimeMillis = it.stopTimeMillis
+                                arrayOfUpdatedIds.add(vodId)
+                                if (arrayOfUpdatedIds.size == videoList.size) onFinish(videoList)
+                                GlobalScope.launch(Dispatchers.Unconfined) { repository.addVideo(it) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun fetchLastMessage(vodID: Int, startTime: Long, onFinish: (video: Video) -> Unit){
+            val video = Video(vodID, 0L, startTime, "", "")
+
+            val success = OnSuccessListener<QuerySnapshot> { data ->
+                val messageList = data?.toObjects(Message::class.java)
+                var message: Message? = null
+                if (!messageList.isNullOrEmpty()) {
+                    val userMessages = messageList.filter { it.type == 1 }
+                    if (userMessages.isNotEmpty()) {
+                        message = userMessages[0]
+                    }
+                }
+
+                video.text = message?.text ?: ""
+                video.nickname = message?.nickname ?: ""
+                onFinish(video)
+            }
+
+            val failure = OnFailureListener { onFinish(video) }
+            getLastMessage(vodID, success, failure)
+        }
 
         fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
@@ -233,8 +335,10 @@ internal class Repository {
             )
         }
 
-        internal fun getMessagesVOD(streamId: Int,
-                                    successListener: OnSuccessListener<QuerySnapshot>) {
+        internal fun getMessagesVOD(
+            streamId: Int,
+            successListener: OnSuccessListener<QuerySnapshot>
+        ) {
             FirestoreDatabase().getMessagesReferences(streamId).orderBy(
                 "timestamp",
                 Query.Direction.ASCENDING
@@ -246,10 +350,11 @@ internal class Repository {
             successListener: OnSuccessListener<QuerySnapshot>,
             failureListener: OnFailureListener
         ) {
-            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1).orderBy(
-                "timestamp",
-                Query.Direction.DESCENDING
-            ).get().addOnSuccessListener(successListener).addOnFailureListener(failureListener)
+            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1)
+                .orderBy(
+                    "timestamp",
+                    Query.Direction.DESCENDING
+                ).get().addOnSuccessListener(successListener).addOnFailureListener(failureListener)
 
         }
 
@@ -271,29 +376,30 @@ internal class Repository {
                     }
                 }.addOnFailureListener { callback.onFailure() }
 
-            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1).orderBy(
-                "timestamp",
-                Query.Direction.DESCENDING
-            ).get().addOnSuccessListener { snapshot ->
-                val messageList = snapshot?.toObjects(Message::class.java)
-                message = if (!messageList.isNullOrEmpty()) {
-                    val userMessages = messageList.filter { it.type == 1 }
-                    if (userMessages.isNotEmpty()) {
-                        userMessages[0]
-                    }else{
+            FirestoreDatabase().getMessagesReferences(streamId).whereEqualTo("type", 1).limit(1)
+                .orderBy(
+                    "timestamp",
+                    Query.Direction.DESCENDING
+                ).get().addOnSuccessListener { snapshot ->
+                    val messageList = snapshot?.toObjects(Message::class.java)
+                    message = if (!messageList.isNullOrEmpty()) {
+                        val userMessages = messageList.filter { it.type == 1 }
+                        if (userMessages.isNotEmpty()) {
+                            userMessages[0]
+                        } else {
+                            Message()
+                        }
+                    } else {
                         Message()
                     }
-                }else{
-                    Message()
-                }
 
-                if (chatEnabled != null && pollEnabled != null) {
-                    callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
-                }
+                    if (chatEnabled != null && pollEnabled != null) {
+                        callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
+                    }
 
-            }.addOnFailureListener {
-                callback.onFailure()
-            }
+                }.addOnFailureListener {
+                    callback.onFailure()
+                }
 
             FirestoreDatabase().getPollsReferences(streamId).whereEqualTo("isActive", true).get()
                 .addOnSuccessListener { documentSnapshot ->

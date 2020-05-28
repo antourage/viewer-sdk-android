@@ -88,6 +88,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     open fun onTrackEnd() {}
 
     open fun onVideoChanged() {}
+    //should be used only in vod
+    open fun onOpenStatisticUpdate(vodId: Int) {}
 
     open fun onResume() {
         initStatisticsListeners()
@@ -250,6 +252,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                             }
                             is Status.Success -> {
                                 Log.d("STAT_OPEN", "Successfully sent /open")
+                                onOpenStatisticUpdate(id)
                                 response.removeObserver(this)
                             }
                         }

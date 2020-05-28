@@ -163,9 +163,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         ivFirstFrame?.visibility = View.VISIBLE
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
-        //blocks player controls appearance
+        //hides controls appearance
         controls.visibility = View.GONE
-        playerView.setOnTouchListener(null)
+        live_control_chronometer.visibility = View.INVISIBLE
+        live_buttons_layout.visibility = View.INVISIBLE
 
         txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = live_control_chronometer.text
@@ -313,7 +314,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
-                gestureDetector.onTouchEvent(p1)
+                if (!etMessage.isFocused) gestureDetector.onTouchEvent(p1)
                 return true
             }
         })

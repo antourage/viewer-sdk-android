@@ -70,6 +70,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
 
+    //firstValue - Id, second - Viewers
+    private val currentViewers: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
+    fun getCurrentViewersLD(): LiveData<Pair<Int, Int>> = currentViewers
+
     private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
@@ -289,6 +293,15 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         markVODAsWatched()
     }
 
+    override fun onOpenStatisticUpdate(vodId: Int) {
+        val currCount =  Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount
+        currCount?.let { count ->
+            Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount = count + 1
+
+            currentViewers.postValue(Pair(vodId, count + 1))
+        }
+    }
+
     fun skipForward() {
         player?.seekTo((player?.currentPosition ?: 0) + SKIP_VIDEO_TIME_MILLS)
     }
@@ -348,7 +361,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         if (!isFetching) {
             isFetching = true
             val vodsCount = Repository.vods?.size ?: 0
-            val response = Repository.getVODs(vodsCount)
+            val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
             response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                     if (resource != null) {

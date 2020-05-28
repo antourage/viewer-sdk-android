@@ -109,6 +109,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
     }
 
+    private val viewersChangeObserver: Observer<Pair<Int,Int>> = Observer { viewInfo ->
+        viewInfo?.apply {
+            if (first == viewModel.streamId){
+                txtNumberOfViewers.text = second.toString()
+            }
+        }
+    }
+
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
             viewModel.getVideoDuration()?.let{duration ->
@@ -239,6 +247,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
+        viewModel.getCurrentViewersLD().observe(this.viewLifecycleOwner, viewersChangeObserver)
         viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
     }
@@ -364,13 +373,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun handleSkipForward() {
         dimNextPrevButtons()
-        showSkipAnim(skipForwardVDrawable, skipForward)
+        showSkipAnim(skipForwardVDrawable, skipForward, skipForwardTV)
         viewModel.skipForward()
     }
 
     private fun handleSkipBackward() {
         dimNextPrevButtons()
-        showSkipAnim(skipBackwardVDrawable, skipBackward)
+        showSkipAnim(skipBackwardVDrawable, skipBackward, skipBackwardTV)
         viewModel.skipBackward()
     }
 
@@ -535,11 +544,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         changeButtonsSize(isEnlarge = isLandscape)
     }
 
-    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?) {
+    private fun showSkipAnim(vDrawable: AnimatedVectorDrawableCompat?, iv: View?, descView: TextView?) {
         vDrawable?.apply {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                     override fun onAnimationEnd(drawable: Drawable?) {
+                        descView?.visibility = View.INVISIBLE
                         iv?.visibility = View.INVISIBLE
                         brightenNextPrevButtons()
                         clearAnimationCallbacks()
@@ -547,6 +557,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 })
                 start()
                 iv?.visibility = View.VISIBLE
+                descView?.visibility = View.VISIBLE
             }
         }
     }

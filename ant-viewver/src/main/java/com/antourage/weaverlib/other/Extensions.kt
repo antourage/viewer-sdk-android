@@ -279,9 +279,10 @@ internal fun Long.millisToTime(): String {
     val s = (this / 1000 % 60)
 
     val formattedH = if (h > 0) "$h:" else ""
+    val formattedM = if (m in 0..9 && h != 0L) "0$m" else m.toString()
     val formattedS = if (s in 0..9) "0$s" else s.toString()
 
-    return "$formattedH$m:$formattedS"
+    return "$formattedH$formattedM:$formattedS"
 }
 
 

@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.view.View
 import android.view.ViewTreeObserver
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -39,6 +40,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var navigationView: NavigationView
     private var newCommentsButton: ConstraintLayout? = null
     private var commentsLayout: ConstraintLayout? = null
+    private var etMessage: EditText? = null
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         val filteredList = list?.filter { it.type == MessageType.USER }
@@ -103,7 +105,9 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
      * the possibility to toggle player controls on single tap
      */
     override fun onDrawerSingleClick() {
-        toggleControlsVisibility()
+        if (etMessage?.isFocused == false || etMessage == null){
+            toggleControlsVisibility()
+        }
     }
 
     override fun initUi(view: View?) {
@@ -118,6 +122,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             rvMessages = findViewById(R.id.rvMessages)
             newCommentsButton = findViewById(R.id.bttn_new_comments)
             commentsLayout = findViewById(R.id.clNavView)
+            etMessage = findViewById(R.id.etMessage)
         }
         initMessagesRV()
         initOnScrollRVListener()

@@ -8,6 +8,7 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.ui.fab.AntourageFab
 
@@ -32,9 +33,9 @@ internal class ReceivingVideosManager {
             ReceivingVideosManager.callback = callback
         }
 
-        fun loadVODs(count: Int) {
+        fun loadVODs(count: Int,  roomRepository: RoomRepository) {
             Log.d(AntourageFab.TAG, "Trying to load VODs")
-            val response = Repository.getVODs(count)
+            val response = Repository.getVODsWithLastCommentAndStopTime(count,roomRepository)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
