@@ -121,11 +121,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
                 is ChatStatus.ChatMessages -> {
-                    enableChatUI()
+                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
                     //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
-                    enableChatUI()
+                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -582,7 +582,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun removeMessageInput() {
-        ll_wrapper.visibility = View.GONE
+        ll_wrapper?.visibility = View.GONE
     }
 
     private fun orientation() = this?.resources?.configuration.orientation
