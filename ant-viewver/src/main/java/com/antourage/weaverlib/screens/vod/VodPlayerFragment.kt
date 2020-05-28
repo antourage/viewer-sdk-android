@@ -40,13 +40,15 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     companion object {
         const val ARGS_STREAM = "args_stream"
+        const val ARGS_IS_NEW = "args_new"
         const val MIN_PROGRESS_UPDATE_MILLIS = 50L
         const val MAX_PROGRESS_UPDATE_MILLIS = 500L
 
-        fun newInstance(stream: StreamResponse): VodPlayerFragment {
+        fun newInstance(stream: StreamResponse, isNewVod: Boolean = false): VodPlayerFragment {
             val fragment = VodPlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
+            bundle.putBoolean(ARGS_IS_NEW, isNewVod)
             fragment.arguments = bundle
             return fragment
         }
@@ -261,7 +263,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
-            viewModel.initUi(id, startTime)
+            viewModel.initUi(id, startTime,  arguments?.getBoolean(ARGS_IS_NEW) ?: false)
             id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {

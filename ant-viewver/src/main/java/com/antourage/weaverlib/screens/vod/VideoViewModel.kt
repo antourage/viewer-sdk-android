@@ -114,13 +114,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         messagesLiveData.postValue(shownMessages)
     }
 
-    fun initUi(id: Int?, startTime: String?) {
+    fun initUi(id: Int?, startTime: String?, isNewVod: Boolean = false) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
             this.streamId = it
             this.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
-            fetchNextVODsIfTheLast(it)
+            fetchNextVODsIfTheLast(it, isNewVod)
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
@@ -357,10 +357,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         mediaSource.addMediaSources(mediaSources)
     }
 
-    private fun fetchNextVODs() {
+    private fun fetchNextVODs(isNewVod: Boolean = false) {
         if (!isFetching) {
             isFetching = true
-            val vodsCount = Repository.vods?.size ?: 0
+            val vodsCount = if (isNewVod) 0 else Repository.vods?.size ?: 0
             val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
             response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -381,8 +381,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                                     "Successfully loaded next 15 VODs"
                                 )
                                 resource.status.data?.let {
-                                    Repository.vods?.addAll(it)
-                                    addToMediaSource(it)
+                                    val list = if (isNewVod) it.drop(1) else it
+                                    Repository.vods?.addAll(list)
+                                    addToMediaSource(list)
+                                    Log.d(
+                                        "PLAYER_FETCH",
+                                        "was new vod " + isNewVod
+                                    )
                                 }
                                 response.removeObserver(this)
                             }
@@ -393,11 +398,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
     }
 
-    private fun fetchNextVODsIfTheLast(id: Int) {
+    private fun fetchNextVODsIfTheLast(id: Int, isNewVod: Boolean = false) {
         Repository.vods?.let {
-            //todo: handle case for NEW VOD
-            if (it.last().id == id && it.size != 1){
-                fetchNextVODs()
+            if (it.last().id == id ){
+                fetchNextVODs(isNewVod && it.size == 1)
             }
         }
     }
