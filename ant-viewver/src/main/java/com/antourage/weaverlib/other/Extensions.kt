@@ -48,14 +48,31 @@ internal inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -
 internal fun AppCompatActivity.replaceFragment(
     fragment: Fragment,
     frameId: Int,
-    addToBackStack: Boolean = false
+    addToBackStack: Boolean = false,
+    slideFromBottom: Boolean = false
 ) {
     if (addToBackStack) {
         supportFragmentManager.inTransaction {
+            if (slideFromBottom) {
+                setCustomAnimations(
+                    R.anim.antourage_slide_up,
+                    R.anim.antourage_replace_fade_out,
+                    0,
+                    R.anim.antourage_slide_down
+                )
+            }
             replace(frameId, fragment).addToBackStack(fragment.javaClass.simpleName)
         }
     } else
         supportFragmentManager.inTransaction {
+            if (slideFromBottom) {
+                setCustomAnimations(
+                    R.anim.antourage_slide_up,
+                    R.anim.antourage_replace_fade_out,
+                    0,
+                    R.anim.antourage_slide_down
+                )
+            }
             replace(frameId, fragment)
         }
 }
@@ -63,9 +80,15 @@ internal fun AppCompatActivity.replaceFragment(
 internal fun Fragment.replaceFragment(
     fragment: Fragment,
     frameId: Int,
-    addToBackStack: Boolean = false
+    addToBackStack: Boolean = false,
+    slideFromBottom: Boolean = false
 ) {
-    (activity as AppCompatActivity).replaceFragment(fragment, frameId, addToBackStack)
+    (activity as AppCompatActivity).replaceFragment(
+        fragment,
+        frameId,
+        addToBackStack,
+        slideFromBottom
+    )
 }
 
 internal fun Fragment.replaceChildFragment(
@@ -171,9 +194,12 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
         }
         diff > secInMin -> {
             val minute = (diff / secInMin).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
-        else -> { return context.getString(R.string.ant_started_now)}
+        else -> {
+            return context.getString(R.string.ant_started_now)
+        }
     }
     return context.getString(R.string.ant_started_ago, timeAgo)
 }
@@ -260,12 +286,12 @@ internal fun Long.millisToTime(): String {
 }
 
 
-fun Long.formatTimeMillisToTimer(): String{
+fun Long.formatTimeMillisToTimer(): String {
     var time = this
     if (this == C.TIME_UNSET) {
         time = 0
     }
-    val formatter = Formatter( StringBuilder(), Locale.getDefault())
+    val formatter = Formatter(StringBuilder(), Locale.getDefault())
     val totalSeconds: Long = (time + 500) / 1000
     val seconds = totalSeconds % 60
     val minutes = totalSeconds / 60 % 60
@@ -287,7 +313,11 @@ internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val imageByteArray = bos.toByteArray()
 
     val imageRequestBody =
-        imageByteArray.toRequestBody("multipart/form-data".toMediaTypeOrNull(), 0, imageByteArray.size)
+        imageByteArray.toRequestBody(
+            "multipart/form-data".toMediaTypeOrNull(),
+            0,
+            imageByteArray.size
+        )
     return MultipartBody.Part.createFormData("file", "file.png", imageRequestBody)
 }
 

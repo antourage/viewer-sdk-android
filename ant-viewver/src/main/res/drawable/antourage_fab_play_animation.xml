@@ -206,7 +206,7 @@
                     </aapt:attr>
                 </objectAnimator>
                 <objectAnimator
-                        android:duration="4000"
+                        android:duration="10000"
                         android:propertyName="scaleX"
                         android:startOffset="4000"
                         android:valueFrom="2.2"
@@ -217,7 +217,7 @@
                     </aapt:attr>
                 </objectAnimator>
                 <objectAnimator
-                        android:duration="4000"
+                        android:duration="10000"
                         android:propertyName="scaleY"
                         android:startOffset="4000"
                         android:valueFrom="2.2"
