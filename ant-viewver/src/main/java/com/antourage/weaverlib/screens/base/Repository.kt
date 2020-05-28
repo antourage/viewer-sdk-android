@@ -125,8 +125,7 @@ internal class Repository {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d(
-                                    "STAT_CLOSE",
+                                Log.d("STAT_CLOSE",
                                     "Failed to send vod/close: ${resource.status.errorMessage}"
                                 )
                                 response.removeObserver(this)
