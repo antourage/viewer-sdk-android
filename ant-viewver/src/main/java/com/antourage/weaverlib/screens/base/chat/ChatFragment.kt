@@ -106,9 +106,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
      * the possibility to toggle player controls on single tap
      */
     override fun onDrawerSingleClick() {
-        if (etMessage?.isFocused == false || etMessage == null){
-            toggleControlsVisibility()
-        }
+        toggleControlsVisibility()
     }
 
     override fun initUi(view: View?) {
@@ -129,8 +127,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         initOnScrollRVListener()
         initAndOpenNavigationDrawer()
         newCommentsButton?.setOnClickListener {
-            isNewCommentClicked = true
-            it.postDelayed({isNewCommentClicked = false}, 1000)
+            wasNewButtonFocused = true
+            it.postDelayed({wasNewButtonFocused = false}, 500)
             rvMessages.adapter?.let {rvMessages.smoothScrollToPosition(it.itemCount - 1) }
         }
     }

@@ -314,7 +314,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
-                if (!etMessage.isFocused) gestureDetector.onTouchEvent(p1)
+                gestureDetector.onTouchEvent(p1)
                 return true
             }
         })
@@ -665,7 +665,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
-        etMessage.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) controls.hide() }
+        etMessage?.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus){
+                wasEditTextFocused = true
+                v.postDelayed({wasEditTextFocused = false}, 500)
+            } else {
+                wasEditTextFocused = true
+                controls.hide()
+            }
+        }
         etMessage.setOnLongClickListener {
             //added to make impossible to paste text without opening keyboard
             showKeyboard(etMessage)
