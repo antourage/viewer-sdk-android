@@ -109,6 +109,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
     }
 
+    private val viewersChangeObserver: Observer<Pair<Int,Int>> = Observer { viewInfo ->
+        viewInfo?.apply {
+            if (first == viewModel.streamId){
+                txtNumberOfViewers.text = second.toString()
+            }
+        }
+    }
+
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
             viewModel.getVideoDuration()?.let{duration ->
@@ -239,6 +247,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         super.subscribeToObservers()
         viewModel.getPlaybackState().observe(this.viewLifecycleOwner, streamStateObserver)
         viewModel.getCurrentVideo().observe(this.viewLifecycleOwner, videoChangeObserver)
+        viewModel.getCurrentViewersLD().observe(this.viewLifecycleOwner, viewersChangeObserver)
         viewModel.getAutoPlayStateLD().observe(this.viewLifecycleOwner, autoPlayStateObserver)
         viewModel.getChatStateLiveData().observe(this.viewLifecycleOwner, chatStateObserver)
     }

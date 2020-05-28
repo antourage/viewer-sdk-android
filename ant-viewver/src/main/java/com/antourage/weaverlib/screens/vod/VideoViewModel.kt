@@ -70,6 +70,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     val currentVideo: MutableLiveData<StreamResponse> = MutableLiveData()
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
 
+    //firstValue - Id, second - Viewers
+    private val currentViewers: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
+    fun getCurrentViewersLD(): LiveData<Pair<Int, Int>> = currentViewers
+
     private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
@@ -287,6 +291,15 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             player?.playWhenReady = true
         }
         markVODAsWatched()
+    }
+
+    override fun onOpenStatisticUpdate(vodId: Int) {
+        val currCount =  Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount
+        currCount?.let { count ->
+            Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount = count + 1
+
+            currentViewers.postValue(Pair(vodId, count + 1))
+        }
     }
 
     fun skipForward() {
