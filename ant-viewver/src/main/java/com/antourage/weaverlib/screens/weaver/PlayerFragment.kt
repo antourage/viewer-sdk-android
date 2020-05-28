@@ -832,10 +832,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
         if (!shouldShow && ll_wrapper.visibility == View.VISIBLE){
             ll_wrapper.visibility = View.GONE
-        } else if (shouldShow && viewModel.getChatStatusLiveData().value !is ChatStatus.ChatTurnedOff){
-            if (ll_wrapper.visibility != View.VISIBLE){
-                ll_wrapper.visibility = View.VISIBLE
-            }
+        } else if (shouldShow  && ll_wrapper.visibility != View.VISIBLE){
+            ll_wrapper.visibility = View.VISIBLE
         }
     }
 
