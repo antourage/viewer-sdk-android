@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.list
 
 import android.content.Context
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -27,9 +28,10 @@ internal class VideoPlaceholdersAdapter :
 
     fun setState(newState: LoadingState) {
         if (state.isEmpty() || state[0] != newState.value) setItems(arrayListOf(newState.value))
-//        else if (state[0] != newState.value) {
-//            setItems(arrayListOf(newState.value))
-//        }
+    }
+
+    fun getState(): Int{
+        return state[0]
     }
 
     private fun setItems(newItems: ArrayList<Int>) {

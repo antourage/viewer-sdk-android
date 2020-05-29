@@ -113,8 +113,7 @@
     <!--player-->
     <string name="ant_at">at</string>
     <string name="ant_send">SEND</string>
-    <!--TODO: translate this string-->
-    <string name="ant_ten_seconds" translatable="false">10 seconds</string>
+    <string name="ant_ten_seconds">10 seconds</string>
 
 
     <string name="ant_delimiter" translatable="false">•</string>

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -77,6 +78,9 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     private var durationHandler = Handler(Looper.getMainLooper())
     private var shouldSetStopTime: Boolean = false
 
+    var isOpeningPlayer: Boolean = false
+
+
     private var currentlyPlayingVideo: StreamResponse? = null
     var fullyViewedVods = mutableSetOf<StreamResponse>()
 
@@ -109,18 +113,12 @@ internal class VideoPlayerRecyclerView : RecyclerView {
 
     fun onResume() {
         initPlayer()
-        if (streams.isNotEmpty()) {
-            playHandler.removeCallbacksAndMessages(null)
-            playHandler.postDelayed({
-                playVideo()
-            }, AUTO_PLAY_DEBOUNCE)
-        }
     }
 
     fun onRefresh() {
-        releasePlayer()
-        onPause()
-        onResume()
+//        releasePlayer()
+//        onPause()
+//        onResume()
     }
 
     private fun initPlayer() {
@@ -304,10 +302,16 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         playHandler.removeCallbacksAndMessages(null)
         stopDurationUpdate()
         //needed for smooth transition to player
-        Handler().postDelayed({
+        if (isOpeningPlayer) {
+            Handler().postDelayed({
+                resetVideoView()
+                isVideoViewAdded = false
+            }, 400)
+            isOpeningPlayer = false
+        } else {
             resetVideoView()
             isVideoViewAdded = false
-        }, 400)
+        }
     }
 
     private fun getTargetPosition(): Int {
@@ -340,65 +344,67 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     fun playVideo() {
-        shouldSetStopTime = true
-        val targetPosition: Int = getTargetPosition()
-        // video is already playing so return
-        if (targetPosition == playPosition || targetPosition == -1) return
+        if (!videoPlayer?.isPlaying!!) {
+            shouldSetStopTime = true
+            val targetPosition: Int = getTargetPosition()
+            // video is already playing so return
+            if (targetPosition == playPosition || targetPosition == -1) return
 
-        playPosition = targetPosition
-        videoSurfaceView?.visibility = INVISIBLE
-        removeVideoView(videoSurfaceView)
+            playPosition = targetPosition
+            videoSurfaceView?.visibility = INVISIBLE
+            removeVideoView(videoSurfaceView)
 
-        if (fullyViewedVods.isNotEmpty() && fullyViewedVods.contains(streams[targetPosition])) return
+            if (fullyViewedVods.isNotEmpty() && fullyViewedVods.contains(streams[targetPosition])) return
 
-        val currentPosition: Int =
-            targetPosition - (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        val child: View = getChildAt(currentPosition) ?: return
-        var mediaUrl: String? = null
-        var stopTime: Long? = null
-        var holder: ViewHolder? = null
+            val currentPosition: Int =
+                targetPosition - (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            val child: View = getChildAt(currentPosition) ?: return
+            var mediaUrl: String? = null
+            var stopTime: Long? = null
+            var holder: ViewHolder? = null
 
-        if (child.tag is VideosAdapter.LiveVideoViewHolder) {
-            holder = child.tag as VideosAdapter.LiveVideoViewHolder
-            frameLayout = holder.itemView.mediaContainer_live
-            thumbnail = holder.itemView.ivThumbnail_live
-            mediaUrl = streams[targetPosition].hlsUrl?.get(0)
-            currentlyPlayingVideo = streams[targetPosition]
-            autoPlayContainer = holder.itemView.autoPlayContainer_live
-            autoPlayImageView = holder.itemView.ivAutoPlay_live
-            autoPlayTextView = holder.itemView.txtAutoPlayDuration_live
-        } else if (child.tag is VideosAdapter.VODViewHolder) {
-            holder = child.tag as VideosAdapter.VODViewHolder
-            frameLayout = holder.itemView.mediaContainer_vod
-            thumbnail = holder.itemView.ivThumbnail_vod
-            mediaUrl = streams[targetPosition].videoURL
-            stopTime = streams[targetPosition].stopTimeMillis
-            currentlyPlayingVideo = streams[targetPosition]
-            autoPlayContainer = holder.itemView.autoPlayContainer_vod
-            autoPlayImageView = holder.itemView.ivAutoPlay_vod
-            autoPlayTextView = holder.itemView.txtAutoPlayDuration_vod
-            duration = holder.itemView.txtDuration_vod
-            replayView = holder.itemView.replayContainer
-            watchingProgress = holder.itemView.watchingProgress
-        }
-        if (holder == null) {
-            playPosition = -1
-            return
-        }
+            if (child.tag is VideosAdapter.LiveVideoViewHolder) {
+                holder = child.tag as VideosAdapter.LiveVideoViewHolder
+                frameLayout = holder.itemView.mediaContainer_live
+                thumbnail = holder.itemView.ivThumbnail_live
+                mediaUrl = streams[targetPosition].hlsUrl?.get(0)
+                currentlyPlayingVideo = streams[targetPosition]
+                autoPlayContainer = holder.itemView.autoPlayContainer_live
+                autoPlayImageView = holder.itemView.ivAutoPlay_live
+                autoPlayTextView = holder.itemView.txtAutoPlayDuration_live
+            } else if (child.tag is VideosAdapter.VODViewHolder) {
+                holder = child.tag as VideosAdapter.VODViewHolder
+                frameLayout = holder.itemView.mediaContainer_vod
+                thumbnail = holder.itemView.ivThumbnail_vod
+                mediaUrl = streams[targetPosition].videoURL
+                stopTime = streams[targetPosition].stopTimeMillis
+                currentlyPlayingVideo = streams[targetPosition]
+                autoPlayContainer = holder.itemView.autoPlayContainer_vod
+                autoPlayImageView = holder.itemView.ivAutoPlay_vod
+                autoPlayTextView = holder.itemView.txtAutoPlayDuration_vod
+                duration = holder.itemView.txtDuration_vod
+                replayView = holder.itemView.replayContainer
+                watchingProgress = holder.itemView.watchingProgress
+            }
+            if (holder == null) {
+                playPosition = -1
+                return
+            }
 
-        viewHolderParent = holder.itemView
-        videoSurfaceView?.player = videoPlayer
-        val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
-        val dataSourceFactory = DefaultDataSourceFactory(
-            context,
-            Util.getUserAgent(context, "Exo2"), defaultBandwidthMeter
-        )
-        if (mediaUrl != null) {
-            val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse(mediaUrl))
-            videoPlayer?.prepare(videoSource)
-            stopTime?.let { videoPlayer?.seekTo(it) }
-            videoPlayer?.playWhenReady = true
+            viewHolderParent = holder.itemView
+            videoSurfaceView?.player = videoPlayer
+            val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
+            val dataSourceFactory = DefaultDataSourceFactory(
+                context,
+                Util.getUserAgent(context, "Exo2"), defaultBandwidthMeter
+            )
+            if (mediaUrl != null) {
+                val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(mediaUrl))
+                videoPlayer?.prepare(videoSource)
+                stopTime?.let { videoPlayer?.seekTo(it) }
+                videoPlayer?.playWhenReady = true
+            }
         }
     }
 

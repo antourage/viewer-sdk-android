@@ -17,68 +17,75 @@
                 android:id="@+id/videoRefreshLayout"
                 app:customBar="true"
                 app:offsetTop="90"
+                android:visibility="invisible"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+
+            <com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
+                    android:id="@+id/videosRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollIndicators="none"
+                    android:visibility="invisible"
                     android:background="@color/ant_feed_bg_color"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/item_live_video" />
+
+
+        </com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView>
+
+        <com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
+                android:id="@+id/placeholderRefreshLayout"
+                app:customBar="true"
+                app:offsetTop="90"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/placeHolderRV"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollIndicators="none"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/item_video_placeholder" />
+
+
+        </com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView>
+
+        <com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
+                android:id="@+id/noContentRefreshLayout"
+                app:customBar="true"
+                app:offsetTop="90"
+                android:visibility="invisible"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+            <ScrollView
+                    android:foregroundGravity="center_vertical"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/placeHolderRV"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollIndicators="none"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:listitem="@layout/item_video_placeholder" />
-
-                <com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
-                        android:id="@+id/videosRV"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollIndicators="none"
-                        android:visibility="invisible"
-                        android:background="@color/ant_feed_bg_color"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:listitem="@layout/item_live_video" />
-
-                <!--                <include-->
-                <!--                        android:id="@+id/skeletonView"-->
-                <!--                        layout="@layout/item_video_placeholder"-->
-                <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
-                <!--                        app:layout_constraintLeft_toLeftOf="parent"-->
-                <!--                        app:layout_constraintRight_toRightOf="parent"-->
-                <!--                        app:layout_constraintTop_toTopOf="parent"/>-->
-
                 <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/viewNoContentContainer"
+                        android:id="@+id/noContentContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:visibility="invisible"
-                        app:layout_constraintBottom_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="parent">
-
-<!--                    <ImageView-->
-<!--                            android:id="@+id/ivNoContent"-->
-<!--                            android:layout_width="56dp"-->
-<!--                            android:layout_height="56dp"-->
-<!--                            android:src="@drawable/antourage_ic_holderlogolarge"-->
-<!--                            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--                            app:layout_constraintRight_toRightOf="parent"-->
-<!--                            app:layout_constraintTop_toTopOf="parent" />-->
+                        android:layout_gravity="center_vertical"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                     <ImageView
                             android:id="@+id/ivNoContent"
@@ -108,7 +115,7 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </ScrollView>
 
         </com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView>
 
@@ -168,17 +175,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
 
-<!--        <ImageView-->
-<!--                android:id="@+id/ivTeamImage"-->
-<!--                android:layout_width="32dp"-->
-<!--                android:layout_height="32dp"-->
-<!--                android:layout_marginStart="12dp"-->
-<!--                android:src="@drawable/antourage_ic_holderlogosmall"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                tools:ignore="ContentDescription" />-->
-
         <ImageView
                 android:id="@+id/ivTeamImage"
                 android:layout_width="wrap_content"
@@ -198,25 +194,6 @@
                 android:layout_height="48dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-<!--        <TextView-->
-<!--                android:id="@+id/tvTitle"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginStart="20dp"-->
-<!--                android:layout_marginEnd="20dp"-->
-<!--                android:ellipsize="end"-->
-<!--                android:fontFamily="sans-serif-medium"-->
-<!--                android:maxLines="1"-->
-<!--                android:text="@string/ant_demo_feed_title"-->
-<!--                android:textAlignment="center"-->
-<!--                android:textColor="@color/ant_white"-->
-<!--                android:textSize="15sp"-->
-<!--                android:visibility="visible"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintLeft_toRightOf="@id/ivTeamImage"-->
-<!--                app:layout_constraintRight_toLeftOf="@id/ivClose"-->
-<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
         <TextView
                 android:id="@+id/tvTitle"
