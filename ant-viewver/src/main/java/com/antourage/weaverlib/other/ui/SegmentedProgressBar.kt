@@ -177,7 +177,8 @@ internal class SegmentedProgressBar : View {
     * TODO: Possibly combine with setMax()
     */
     internal fun setListOfCurtains(curtains: List<CurtainRange>){
-        if (curtainsRange != curtains){
+        //todo: uncommit
+        /*if (curtainsRange != curtains){
             curtainsRange.clear()
             curtainsSegments.clear()
             curtainsRange = ArrayList(curtains.map { it.copy() })
@@ -185,7 +186,7 @@ internal class SegmentedProgressBar : View {
                 transformCurtainRangeToSegment(it)?.let {segment ->  curtainsSegments.add(segment)}
             }
             postInvalidate()
-        }
+        }*/
     }
 
     private fun transformCurtainRangeToSegment(curtain: CurtainRange) :CurtainRangeSegments?{
