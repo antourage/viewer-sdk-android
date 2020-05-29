@@ -242,11 +242,29 @@ internal class VideosAdapter(
                     )
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_live)
 
-                    isChatEnabled?.let { btnChat_live.gone(!it) }
-                    isChatEnabled?.let { btnJoinConversation.gone(!it) }
-                    arePollsEnabled?.let { btnPoll_live.gone(!it) }
+                    isChatEnabled?.let {
+                        if(!it && lastMessage.isNullOrEmpty()){
+                            btnChat_live.gone(true)
+                        }else{
+                            btnChat_live.visibility = View.VISIBLE
+                        }
+                    }
+                    isChatEnabled?.let {
+                        if(it){
+                            btnJoinConversation.visibility = View.VISIBLE
+                        }else{
+                            btnJoinConversation.gone(true)
+                        }
+                    }
+                    arePollsEnabled?.let {
+                        if(it){
+                            btnPoll_live.visibility = View.VISIBLE
+                        }else{
+                            btnPoll_live.gone(!it)
+                        }
+                    }
 
-                    viewButtonsContainer.gone(isChatEnabled != null && isChatEnabled == false && arePollsEnabled != null && arePollsEnabled == false)
+                    viewButtonsContainer.gone(isChatEnabled != null && isChatEnabled == false && lastMessage.isNullOrEmpty() && arePollsEnabled != null && arePollsEnabled == false)
 
                     txtComment_live.gone(lastMessage.isNullOrEmpty())
                     txtCommentAuthor_live.gone(lastMessage.isNullOrEmpty())
@@ -321,7 +339,7 @@ internal class VideosAdapter(
 
                     if (recyclerView.fullyViewedVods.contains(listOfStreams[adapterPosition])) {
                         replayContainer.visibility = View.VISIBLE
-                    }else{
+                    } else {
                         replayContainer.visibility = View.INVISIBLE
                     }
 
@@ -347,11 +365,12 @@ internal class VideosAdapter(
                     txtViewsCount_vod.text = viewsCount.toString()
                     txtViewsCount_vod.gone(viewsCount == null)
 
-                    if (stopTimeMillis!= 0L){
-                        watchingProgress.progress = ((stopTimeMillis * 100) / (duration?.parseToMills()
-                            ?: 1)).toInt()
+                    if (stopTimeMillis != 0L) {
+                        watchingProgress.progress =
+                            ((stopTimeMillis * 100) / (duration?.parseToMills()
+                                ?: 1)).toInt()
                         watchingProgress.visibility = View.VISIBLE
-                    }else{
+                    } else {
                         watchingProgress.progress = 0
                         watchingProgress.visibility = View.INVISIBLE
                     }

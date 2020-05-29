@@ -23,7 +23,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
 
-internal class VideoListViewModel (application: Application) : BaseViewModel(application),
+internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
     ReceivingVideosManager.ReceivingVideoCallback {
 
@@ -41,8 +41,8 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
 
     private var showCallResult = false
 
-    private var liveVideosUpdated = false
-    private var vodsUpdated = false
+    var liveVideosUpdated = false
+    var vodsUpdated = false
 
     companion object {
         private const val VODS_COUNT = 15
@@ -137,7 +137,7 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
 
                 if (newList != null) {
                     list.addAll(list.size, newList)
-                    getMessagesForNewVideos(newList)
+//                    getMessagesForNewVideos(newList)
                 }
                 Repository.vods = list.toMutableList()
 
@@ -148,7 +148,13 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                 } else if (newList?.size!! < VODS_COUNT) {
                     list.add(list.size, getListEndPlaceHolder())
                 }
+
                 vods = list
+                vodsUpdated = true
+                if (liveVideosUpdated) {
+                    updateVideosList()
+                }
+
             }
             is Status.Loading -> {
                 vodsUpdated = false
@@ -174,10 +180,9 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                 }
 
                 vods = newList
-                if (newList != null) {
-                    getMessagesForNewVideos(newList)
-                } else if (liveVideosUpdated) {
-                    vodsUpdated = true
+
+                vodsUpdated = true
+                if (liveVideosUpdated) {
                     updateVideosList()
                 }
             }
@@ -200,21 +205,6 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
         }
     }
 
-    private fun getMessagesForNewVideos(list: List<StreamResponse>) {
-        vodsToFetchComments.clear()
-        vodsToFetchComments.addAll(list)
-        if (list.isEmpty()) {
-            vodsUpdated = true
-            if (liveVideosUpdated) {
-                updateVideosList()
-            }
-        } else {
-            list.forEach {
-                getLastMessage(it)
-            }
-        }
-
-    }
 
     private fun getChatPollInfoForLives(list: List<StreamResponse>) {
         livesToFetchInfo.clear()
@@ -238,13 +228,18 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
         Repository.getChatPollInfoFromLiveStream(
             stream.id!!,
             object : Repository.LiveChatPollInfoCallback {
-                override fun onSuccess(chatEnabled: Boolean, pollEnabled: Boolean, message: Message) {
+                override fun onSuccess(
+                    chatEnabled: Boolean,
+                    pollEnabled: Boolean,
+                    message: Message
+                ) {
                     comment = message
                     isChatEnabled = chatEnabled
                     isPollEnabled = pollEnabled
                     val streamToUpdate = liveVideos?.filter { it.id == stream.id }
                     if (!streamToUpdate
-                            .isNullOrEmpty()) {
+                            .isNullOrEmpty()
+                    ) {
                         streamToUpdate[0].isChatEnabled = isChatEnabled
                         streamToUpdate[0].arePollsEnabled = isPollEnabled
                         streamToUpdate[0].lastMessage = comment?.text ?: ""
@@ -260,6 +255,7 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                         }
                     }
                     if (areAllChatPollDataLoaded()) {
+                        liveVideosUpdated = true
                         if (vodsUpdated) {
                             updateVideosList(true)
                         }
@@ -278,6 +274,7 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                     }
 
                     if (areAllChatPollDataLoaded()) {
+                        liveVideosUpdated = true
                         if (vodsUpdated) {
                             updateVideosList(true)
                         }
@@ -285,49 +282,6 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                 }
 
             })
-    }
-
-    private fun getLastMessage(stream: StreamResponse) {
-        var message: Message? = null
-        val success = OnSuccessListener<QuerySnapshot> { data ->
-            val messageList = data?.toObjects(Message::class.java)
-            if (!messageList.isNullOrEmpty()) {
-                val userMessages = messageList.filter { it.type == 1 }
-                if (userMessages.isNotEmpty()) {
-                    message = userMessages[0]
-                }
-            }
-
-            val streamToUpdate = vods?.filter { it.id == stream.id }
-            if (!streamToUpdate.isNullOrEmpty()) {
-                streamToUpdate[0].lastMessage = message?.text ?: ""
-                streamToUpdate[0].lastMessageAuthor = message?.nickname ?: ""
-            }
-            vodsToFetchComments.forEach {
-                if (it.id == stream.id) {
-                    it.lastMessage = message?.text ?: ""
-                    it.lastMessageAuthor = message?.nickname ?: ""
-                }
-            }
-            if (liveVideosUpdated && areAllCommentsLoaded()) {
-                updateVideosList(shouldUpdateStopTimeFromDB = true)
-            }
-        }
-
-        val failure = OnFailureListener {
-            val streamToUpdate = vods?.filter { it.id == stream.id }
-            if (!streamToUpdate.isNullOrEmpty()) streamToUpdate[0].lastMessage = ""
-            vodsToFetchComments.forEach {
-                if (it.id == stream.id) {
-                    it.lastMessage = ""
-                }
-            }
-
-            if (liveVideosUpdated && areAllCommentsLoaded()) {
-                updateVideosList(shouldUpdateStopTimeFromDB = true)
-            }
-        }
-        Repository.getLastMessage(stream.id!!, success, failure)
     }
 
     private fun areAllChatPollDataLoaded(): Boolean {
@@ -350,15 +304,18 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
         return true
     }
 
-    private fun updateVideosList(updateLiveStreams: Boolean = false, shouldUpdateStopTimeFromDB: Boolean = false) {
+    private fun updateVideosList(
+        updateLiveStreams: Boolean = false,
+        shouldUpdateStopTimeFromDB: Boolean = false
+    ) {
         if (showCallResult || updateLiveStreams) {
             val resultList = mutableListOf<StreamResponse>()
             liveVideos?.let { resultList.addAll(it) }
             vods?.let { resultList.addAll(it.toList()) }
 
-            if(shouldUpdateStopTimeFromDB){
-                vods?.forEach { video->
-                    video.stopTimeMillis = video.id?.let { roomRepository.getStopTimeById(it) }?: 0
+            if (shouldUpdateStopTimeFromDB) {
+                vods?.forEach { video ->
+                    video.stopTimeMillis = video.id?.let { roomRepository.getStopTimeById(it) } ?: 0
                 }
             }
 
@@ -490,6 +447,7 @@ internal class VideoListViewModel (application: Application) : BaseViewModel(app
                             "Ant authorization failed: ${responseStatus.errorMessage}"
                         )
                         callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
+                        errorLiveData.postValue(responseStatus.errorMessage)
                         response.removeObserver(this)
                     }
                 }

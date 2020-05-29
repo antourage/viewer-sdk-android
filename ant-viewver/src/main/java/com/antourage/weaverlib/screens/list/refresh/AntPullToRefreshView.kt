@@ -2,7 +2,6 @@ package com.antourage.weaverlib.screens.list.refresh
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -11,9 +10,16 @@ import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.Transformation
-import androidx.core.view.*
+import androidx.core.view.MotionEventCompat
+import androidx.core.view.NestedScrollingChild
+import androidx.core.view.NestedScrollingParent
+import androidx.core.view.ViewCompat
+import androidx.customview.widget.ViewDragHelper
 import com.antourage.weaverlib.other.dp2px
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 class AntPullToRefreshView @JvmOverloads constructor(
     context: Context,
@@ -41,13 +47,6 @@ class AntPullToRefreshView @JvmOverloads constructor(
     private var mTargetPaddingRight = 0
     private var mTargetPaddingLeft = 0
 
-    private var mTotalUnconsumed = 0f
-    private val mNestedScrollingParentHelper: NestedScrollingParentHelper
-    private val mNestedScrollingChildHelper: NestedScrollingChildHelper
-    private val mParentScrollConsumed = IntArray(2)
-    private val mParentOffsetInWindow = IntArray(2)
-    private var mNestedScrollInProgress = false
-
     private var mCustomAnimatedView: View? = null
     private var customAnimatedViewHeight: Int = 0
     private var customAnimatedViewWidth: Int = 0
@@ -73,8 +72,6 @@ class AntPullToRefreshView @JvmOverloads constructor(
         initBar()
         setWillNotDraw(false)
         ViewCompat.setChildrenDrawingOrderEnabled(this, true)
-        mNestedScrollingParentHelper = NestedScrollingParentHelper(this)
-        mNestedScrollingChildHelper = NestedScrollingChildHelper(this)
         isNestedScrollingEnabled = true
     }
 
@@ -142,14 +139,14 @@ class AntPullToRefreshView @JvmOverloads constructor(
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         ensureTarget()
-        val action = MotionEventCompat.getActionMasked(ev)
-        if (!isEnabled || canChildScrollUp() || mIsRefreshing || mNestedScrollInProgress) {
+        if(!isEnabled||canChildScrollUp()|| mIsRefreshing){
             return false
         }
-        when (action) {
+
+        when(ev.actionMasked){
             MotionEvent.ACTION_DOWN -> {
                 setTargetOffsetTop(0)
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0)
+                mActivePointerId = ev.getPointerId(0)
                 mIsBeingDragged = false
                 val initialMotionY = getMotionEventY(ev, mActivePointerId)
                 if (initialMotionY == -1f) {
@@ -158,24 +155,27 @@ class AntPullToRefreshView @JvmOverloads constructor(
                 mInitialMotionY = initialMotionY
             }
             MotionEvent.ACTION_MOVE -> {
-                if (mActivePointerId == INVALID_POINTER) {
+                if (mActivePointerId == ViewDragHelper.INVALID_POINTER) {
                     return false
                 }
+
                 val y = getMotionEventY(ev, mActivePointerId)
                 if (y == -1f) {
                     return false
                 }
-                val yDiff = y - mInitialMotionY
+
+                val yDiff = y - mInitialMotionY;
                 if (yDiff > mTouchSlop && !mIsBeingDragged) {
-                    mInitialMotionY += mTouchSlop
                     mIsBeingDragged = true
                 }
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            MotionEvent.ACTION_CANCEL -> {
                 mIsBeingDragged = false
-                mActivePointerId = INVALID_POINTER
+                mActivePointerId = ViewDragHelper.INVALID_POINTER
             }
-            MotionEventCompat.ACTION_POINTER_UP -> onSecondaryPointerUp(ev)
+            MotionEvent.ACTION_POINTER_UP -> {
+                onSecondaryPointerUp(ev)
+            }
         }
         return mIsBeingDragged
     }
@@ -184,11 +184,10 @@ class AntPullToRefreshView @JvmOverloads constructor(
         if (!mIsBeingDragged) {
             return super.onTouchEvent(ev)
         }
-        val action = MotionEventCompat.getActionMasked(ev)
-        if (!isEnabled || canChildScrollUp() || mIsRefreshing || mNestedScrollInProgress) {
-            return false
-        }
-        when (action) {
+//        if (!isEnabled || canChildScrollUp() || mIsRefreshing || mNestedScrollInProgress) {
+//            return false
+//        }
+        when(ev.actionMasked){
             MotionEvent.ACTION_MOVE -> {
                 val pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId)
                 if (pointerIndex < 0) {
@@ -196,14 +195,36 @@ class AntPullToRefreshView @JvmOverloads constructor(
                 }
                 val y = MotionEventCompat.getY(ev, pointerIndex)
                 val yDiff = y - mInitialMotionY
-                moveAnimation(yDiff)
+                val scrollTop = yDiff * DRAG_RATE
+                mCurrentDragPercent = scrollTop / totalDragDistance
+                if (mCurrentDragPercent < 0) {
+                    return false
+                }
+                val boundedDragPercent = min(1f, abs(mCurrentDragPercent))
+                val extraOS = abs(scrollTop) - totalDragDistance
+                val slingshotDist = totalDragDistance.toFloat()
+                val tensionSlingshotPercent = max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
+                val tensionPercent =
+                    ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2)) * 2f
+                val extraMove = slingshotDist * tensionPercent / 2
+                val targetY = (slingshotDist * boundedDragPercent + extraMove).toInt()
+
+                val offsetScrollTop = scrollTop - (totalDragDistance / 2)
+                if (offsetScrollTop > 0) {
+                    mAntBaseProgressBar.setPercent(200 * offsetScrollTop / totalDragDistance)
+                    mCurrentDragPercent = offsetScrollTop / totalDragDistance * 2
+                }
+
+                setTargetOffsetTop((targetY - mCurrentOffsetTop))
             }
-            MotionEventCompat.ACTION_POINTER_DOWN -> {
-                val index = MotionEventCompat.getActionIndex(ev)
-                mActivePointerId = MotionEventCompat.getPointerId(ev, index)
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                val index = ev.actionIndex
+                mActivePointerId = ev.getPointerId(index)
             }
-            MotionEventCompat.ACTION_POINTER_UP -> onSecondaryPointerUp(ev)
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            MotionEvent.ACTION_POINTER_UP -> {
+                onSecondaryPointerUp(ev)
+            }
+            MotionEvent.ACTION_UP -> {
                 if (mActivePointerId == INVALID_POINTER) {
                     return false
                 }
@@ -228,11 +249,14 @@ class AntPullToRefreshView @JvmOverloads constructor(
     private fun animateOffsetToStartPosition() {
         mFrom = mCurrentOffsetTop
         mFromDragPercent = mCurrentDragPercent
+
         val animationDuration: Long = if (mFromDragPercent <= 4) {
             abs((MAX_OFFSET_ANIMATION_DURATION * mFromDragPercent).toLong())
         } else {
             abs(MAX_OFFSET_ANIMATION_DURATION.toLong())
         }
+
+
         mAnimateToStartPosition.reset()
         mAnimateToStartPosition.duration = animationDuration
         mAnimateToStartPosition.interpolator = mDecelerateInterpolator
@@ -244,9 +268,11 @@ class AntPullToRefreshView @JvmOverloads constructor(
     private fun animateOffsetToCorrectPosition() {
         mFrom = mCurrentOffsetTop
         mFromDragPercent = mCurrentDragPercent
+
         mAnimateToCorrectPosition.reset()
         mAnimateToCorrectPosition.duration = MAX_OFFSET_ANIMATION_DURATION.toLong()
         mAnimateToCorrectPosition.interpolator = mDecelerateInterpolator
+
         mAntBaseProgressBar.clearAnimation()
         mAntBaseProgressBar.startAnimation(mAnimateToCorrectPosition)
         if (mIsRefreshing) {
@@ -416,177 +442,4 @@ class AntPullToRefreshView @JvmOverloads constructor(
                 && nestedScrollAxes and ViewCompat.SCROLL_AXIS_VERTICAL != 0)
     }
 
-    override fun onNestedScrollAccepted(
-        child: View,
-        target: View,
-        axes: Int
-    ) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes)
-        startNestedScroll(axes and ViewCompat.SCROLL_AXIS_VERTICAL)
-        mTotalUnconsumed = 0f
-        mNestedScrollInProgress = true
-    }
-
-    override fun onNestedPreScroll(
-        target: View,
-        dx: Int,
-        dy: Int,
-        consumed: IntArray
-    ) {
-        if (dy > 0 && mTotalUnconsumed > 0) {
-            if (dy > mTotalUnconsumed) {
-                consumed[1] = dy - mTotalUnconsumed.toInt()
-                mTotalUnconsumed = 0f
-            } else {
-                mTotalUnconsumed -= dy.toFloat()
-                consumed[1] = dy
-            }
-            moveAnimation(mTotalUnconsumed)
-        }
-
-        val parentConsumed = mParentScrollConsumed
-        if (dispatchNestedPreScroll(
-                dx - consumed[0],
-                dy - consumed[1],
-                parentConsumed,
-                null
-            )
-        ) {
-            consumed[0] += parentConsumed[0]
-            consumed[1] += parentConsumed[1]
-        }
-    }
-
-    override fun getNestedScrollAxes(): Int {
-        return mNestedScrollingParentHelper.nestedScrollAxes
-    }
-
-    override fun onStopNestedScroll(target: View) {
-        mNestedScrollingParentHelper.onStopNestedScroll(target)
-        mNestedScrollInProgress = false
-        if (mTotalUnconsumed > 0) {
-            finishAnimation(mTotalUnconsumed)
-            mTotalUnconsumed = 0f
-        }
-
-        stopNestedScroll()
-    }
-
-    override fun onNestedScroll(
-        target: View, dxConsumed: Int, dyConsumed: Int,
-        dxUnconsumed: Int, dyUnconsumed: Int
-    ) {
-        dispatchNestedScroll(
-            dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-            mParentOffsetInWindow
-        )
-
-        val dy = dyUnconsumed + mParentOffsetInWindow[1]
-        if (dy < 0 && !canChildScrollUp()) {
-            mTotalUnconsumed += Math.abs(dy).toFloat()
-            moveAnimation(mTotalUnconsumed)
-        }
-    }
-
-    private fun moveAnimation(overscrollTop: Float) {
-        val scrollTop = overscrollTop * DRAG_RATE
-        mCurrentDragPercent = scrollTop / totalDragDistance
-        if (mCurrentDragPercent < 0) {
-            return
-        }
-        val boundedDragPercent = min(1f, abs(mCurrentDragPercent))
-        val extraOS = abs(scrollTop) - totalDragDistance
-        val slingshotDist = totalDragDistance.toFloat()
-        val tensionSlingshotPercent = max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
-        val tensionPercent =
-            ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2)) * 2f
-        val extraMove = slingshotDist * tensionPercent / 2
-        val targetY = (slingshotDist * boundedDragPercent + extraMove).toInt()
-
-        val offsetScrollTop = scrollTop - (totalDragDistance / 2)
-        if (offsetScrollTop > 0) {
-            mAntBaseProgressBar.setPercent(200 * offsetScrollTop / totalDragDistance)
-            mCurrentDragPercent = offsetScrollTop / totalDragDistance * 2
-        }
-
-        setTargetOffsetTop((targetY - mCurrentOffsetTop))
-    }
-
-    private fun finishAnimation(overscrollTop: Float) {
-        if (overscrollTop > totalDragDistance*2) {
-            setRefreshing(true, true /* notify */)
-        } else {
-            // cancel refresh
-            mIsRefreshing = false
-            animateOffsetToStartPosition()
-        }
-    }
-
-    override fun setNestedScrollingEnabled(enabled: Boolean) {
-        mNestedScrollingChildHelper.isNestedScrollingEnabled = enabled
-    }
-
-    override fun isNestedScrollingEnabled(): Boolean {
-        return mNestedScrollingChildHelper.isNestedScrollingEnabled
-    }
-
-    override fun startNestedScroll(axes: Int): Boolean {
-        return mNestedScrollingChildHelper.startNestedScroll(axes)
-    }
-
-    override fun stopNestedScroll() {
-        mNestedScrollingChildHelper.stopNestedScroll()
-    }
-
-    override fun hasNestedScrollingParent(): Boolean {
-        return mNestedScrollingChildHelper.hasNestedScrollingParent()
-    }
-
-    override fun dispatchNestedScroll(
-        dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int,
-        dyUnconsumed: Int, offsetInWindow: IntArray?
-    ): Boolean {
-        return mNestedScrollingChildHelper.dispatchNestedScroll(
-            dxConsumed, dyConsumed,
-            dxUnconsumed, dyUnconsumed, offsetInWindow
-        )
-    }
-
-    override fun dispatchNestedPreScroll(
-        dx: Int,
-        dy: Int,
-        consumed: IntArray?,
-        offsetInWindow: IntArray?
-    ): Boolean {
-        return mNestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow)
-    }
-
-    override fun onNestedPreFling(
-        target: View, velocityX: Float,
-        velocityY: Float
-    ): Boolean {
-        return dispatchNestedPreFling(velocityX, velocityY)
-    }
-
-    override fun onNestedFling(
-        target: View, velocityX: Float, velocityY: Float,
-        consumed: Boolean
-    ): Boolean {
-        return dispatchNestedFling(velocityX, velocityY, consumed)
-    }
-
-    override fun dispatchNestedFling(
-        velocityX: Float,
-        velocityY: Float,
-        consumed: Boolean
-    ): Boolean {
-        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed)
-    }
-
-    override fun dispatchNestedPreFling(
-        velocityX: Float,
-        velocityY: Float
-    ): Boolean {
-        return mNestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY)
-    }
 }

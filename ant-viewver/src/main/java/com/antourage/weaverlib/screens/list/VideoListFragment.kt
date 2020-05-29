@@ -75,14 +75,16 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     videoAdapter.setStreamList(newStreams)
                 }
 
-
                 Handler().postDelayed({
                     checkIsNewLiveAdded(newStreams, listBeforeUpdate)
                     checkIsLiveWasRemoved(newStreams)
                 }, 1000)
 
                 isInitialListSet = false
-                hidePlaceholder()
+                if(viewModel.vodsUpdated && viewModel.liveVideosUpdated){
+                    resolveErrorSnackbar()
+                    hidePlaceholder()
+                }
             }
         }
         videoRefreshLayout.setRefreshing(false)
@@ -92,6 +94,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         error?.let { it ->
             if (Global.networkAvailable && it.isNotEmpty()) {
                 videoRefreshLayout.setRefreshing(false)
+                noContentRefreshLayout.setRefreshing(false)
+                placeholderRefreshLayout.setRefreshing(false)
                 showErrorLayout()
             }
         }
@@ -118,7 +122,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
-//        initOnScrollListener()
     }
 
     private fun subscribeToObservers() {
@@ -144,13 +147,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             } else if (ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
-                showEmptyListPlaceholder()
+//                showEmptyListPlaceholder()
+                showLoadingLayout()
+                viewModel.refreshVODs(0)
             }
 
-            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+            if (ConnectionStateMonitor.isNetworkAvailable(it) && isNoConnectionSnackbarShowing()) {
                 resolveErrorSnackbar(R.string.ant_you_are_online)
             }
-            videosRV.onResume()
+            if(videoRefreshLayout.alpha == 1f) videosRV.onResume()
         }
 
         initNewButtonCountdown()
@@ -166,8 +171,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun onPause() {
         super.onPause()
-        videosRV.onPause()
         videosRV.releasePlayer()
+        videosRV.onPause()
         viewModel.onPause()
         viewModel.errorLiveData.postValue(null)
     }
@@ -249,6 +254,42 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         })
 
+        placeholderRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
+            override fun onRefresh() {
+                context?.let {
+                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                        if (viewModel.userAuthorized()) {
+                            viewModel.refreshVODs(0, true)
+                        } else {
+                            placeholderRefreshLayout.setRefreshing(false)
+                            showErrorSnackbar(R.string.invalid_toke_error_message)
+                        }
+                    } else {
+                        placeholderRefreshLayout.setRefreshing(false)
+                        showErrorSnackbar(R.string.ant_no_connection)
+                    }
+                }
+            }
+        })
+
+        noContentRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
+            override fun onRefresh() {
+                context?.let {
+                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                        if (viewModel.userAuthorized()) {
+                            viewModel.refreshVODs(0, true)
+                        } else {
+                            noContentRefreshLayout.setRefreshing(false)
+                            showErrorSnackbar(R.string.invalid_toke_error_message)
+                        }
+                    } else {
+                        noContentRefreshLayout.setRefreshing(false)
+                        showErrorSnackbar(R.string.ant_no_connection)
+                    }
+                }
+            }
+        })
+
         ivClose.setOnClickListener { activity?.finish() }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
 
@@ -317,27 +358,33 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun resolveErrorSnackbar(messageId: Int) {
+    private fun isNoConnectionSnackbarShowing(): Boolean{
+        return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED &&  snackBar.text == context?.resources?.getString(R.string.ant_no_connection)
+    }
+
+    private fun resolveErrorSnackbar(messageId: Int? = null) {
         if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED) {
-            context?.resources?.getString(messageId)
-                ?.let { messageToDisplay ->
-                    snackBar.text = messageToDisplay
-                    context?.let {
-                        val colorFrom: Int = ContextCompat.getColor(it, R.color.ant_error_bg_color)
-                        val colorTo: Int =
-                            ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
-                        val duration = 500L
-                        ObjectAnimator.ofObject(
-                            snackBar,
-                            "backgroundColor",
-                            ArgbEvaluator(),
-                            colorFrom,
-                            colorTo
-                        )
-                            .setDuration(duration)
-                            .start()
+            if(messageId!=null){
+                context?.resources?.getString(messageId)
+                    ?.let { messageToDisplay ->
+                        snackBar.text = messageToDisplay
+                        context?.let {
+                            val colorFrom: Int = ContextCompat.getColor(it, R.color.ant_error_bg_color)
+                            val colorTo: Int =
+                                ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
+                            val duration = 500L
+                            ObjectAnimator.ofObject(
+                                snackBar,
+                                "backgroundColor",
+                                ArgbEvaluator(),
+                                colorFrom,
+                                colorTo
+                            )
+                                .setDuration(duration)
+                                .start()
+                        }
                     }
-                }
+            }
             Handler().postDelayed({
                 snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
             }, 2000)
@@ -386,42 +433,58 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
-        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
+//        if (noContentContainer.visibility == View.VISIBLE) noContentContainer.hideWithAnimation()
+        if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
+        if (videoRefreshLayout.visibility == View.VISIBLE) {
+            videoRefreshLayout.hideWithAnimation()
+        }
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
+        placeholderRefreshLayout.revealWithAnimation()
         placeHolderRV.revealWithAnimation()
     }
 
     private fun showErrorLayout() {
         showErrorSnackbar(R.string.ant_server_error)
-        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
+        if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
-        if (placeHolderRV.alpha != 1f) {
-            placeHolderRV.revealWithAnimation()
+        if(videoRefreshLayout.alpha!=1f){
+            if (placeholderRefreshLayout.alpha != 1f) {
+                placeholderRefreshLayout.revealWithAnimation()
+                placeHolderRV.revealWithAnimation()
+            }
         }
     }
 
     private fun hidePlaceholder() {
-        if (viewNoContentContainer.visibility == View.VISIBLE) viewNoContentContainer.hideWithAnimation()
-        if (placeHolderRV.visibility == View.VISIBLE) placeHolderRV.hideWithAnimation()
-        if (videosRV.visibility != View.VISIBLE) videosRV.revealWithAnimation()
+        if (videoRefreshLayout.visibility != View.VISIBLE){
+            videoRefreshLayout.revealWithAnimation()
+            videosRV.revealWithAnimation()
+        }
+        if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
+        if (placeholderRefreshLayout.visibility == View.VISIBLE) placeholderRefreshLayout.hideWithAnimation()
+
+
+
+//        if (videosRV.visibility != View.VISIBLE) videosRV.revealWithAnimation()
     }
 
     private fun showEmptyListPlaceholder() {
-        if (viewNoContentContainer.visibility != View.VISIBLE) {
-            placeHolderRV.hideWithAnimation()
-            videosRV.hideWithAnimation()
+//        if (noContentContainer.visibility != View.VISIBLE) {
+        if (noContentRefreshLayout.visibility != View.VISIBLE) {
+            placeholderRefreshLayout.hideWithAnimation()
+            videoRefreshLayout.hideWithAnimation()
             videosRV.releasePlayer()
             videosRV.onPause()
-            viewNoContentContainer.revealWithAnimation()
+            noContentRefreshLayout.revealWithAnimation()
+            noContentContainer.revealWithAnimation()
         }
     }
 
     private fun showNoConnectionPlaceHolder() {
-//        placeholdersAdapter.setItems(arrayListOf(1))
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
+        placeholderRefreshLayout.revealWithAnimation()
         placeHolderRV.revealWithAnimation()
         showErrorSnackbar(R.string.ant_no_connection)
-//        TODO("Not yet implemented")
     }
 
 
@@ -471,6 +534,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         when (networkState?.ordinal) {
             NetworkConnectionState.LOST.ordinal -> {
                 if (!Global.networkAvailable) {
+                    if(placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value){
+                        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
+                    }
                     showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
@@ -483,6 +549,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false) {
         val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
+        videosRV.isOpeningPlayer = true
         replaceFragment(
             PlayerFragment.newInstance(stream, userId, isFromJoinChat),
             R.id.mainContent,
@@ -492,6 +559,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun openVodFragment(stream: StreamResponse) {
+        videosRV.isOpeningPlayer = true
         replaceFragment(
             VodPlayerFragment.newInstance(stream),
             R.id.mainContent,
