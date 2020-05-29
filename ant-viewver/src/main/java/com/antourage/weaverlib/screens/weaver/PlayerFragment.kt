@@ -121,11 +121,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
                 is ChatStatus.ChatMessages -> {
-                    enableChatUI()
+                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
                     //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
-                    enableChatUI()
+                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -314,7 +314,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
-                if (!etMessage.isFocused) gestureDetector.onTouchEvent(p1)
+                gestureDetector.onTouchEvent(p1)
                 return true
             }
         })
@@ -582,7 +582,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun removeMessageInput() {
-        ll_wrapper.visibility = View.GONE
+        ll_wrapper?.visibility = View.GONE
     }
 
     private fun orientation() = this?.resources?.configuration.orientation
@@ -665,7 +665,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
-        etMessage.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) controls.hide() }
+        etMessage?.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus){
+                wasEditTextFocused = true
+                v.postDelayed({wasEditTextFocused = false}, 500)
+            } else {
+                wasEditTextFocused = true
+                controls.hide()
+            }
+        }
         etMessage.setOnLongClickListener {
             //added to make impossible to paste text without opening keyboard
             showKeyboard(etMessage)
@@ -832,10 +840,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
         if (!shouldShow && ll_wrapper.visibility == View.VISIBLE){
             ll_wrapper.visibility = View.GONE
-        } else if (shouldShow && viewModel.getChatStatusLiveData().value !is ChatStatus.ChatTurnedOff){
-            if (ll_wrapper.visibility != View.VISIBLE){
-                ll_wrapper.visibility = View.VISIBLE
-            }
+        } else if (shouldShow  && ll_wrapper.visibility != View.VISIBLE){
+            ll_wrapper.visibility = View.VISIBLE
         }
     }
 

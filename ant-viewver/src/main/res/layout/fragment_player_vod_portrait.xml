@@ -28,20 +28,6 @@
             app:layout_constraintTop_toBottomOf="@id/vod_header_layout"
             app:resize_mode="fit"
             app:use_controller="false" />
-
-    <ProgressBar
-            android:id="@+id/vod_player_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="4dp"
-            android:progressDrawable="@drawable/antourage_progress_horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playerView"
-            android:visibility="visible"
-            tools:max="100"
-            tools:progress="70" />
-
     <View
             android:id="@+id/viewHelper"
             android:layout_width="0dp"
@@ -79,6 +65,19 @@
             app:layout_constraintTop_toTopOf="@id/playerView"
             app:show_buffering="never"
             app:show_timeout="2000" />
+
+    <com.antourage.weaverlib.other.ui.SegmentedProgressBar
+            android:id="@+id/vod_player_progress"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:visibility="visible"
+            app:barHeight="4dp"
+            app:backgroundColor="@color/ant_white_a60"
+            app:segmentColor="@color/ant_yellow"
+            app:progressColor="@color/ant_pink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerView" />
 
     <TextView
             android:id="@+id/txtNumberOfViewers"
@@ -162,6 +161,17 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView"
             tools:ignore="ContentDescription" />
+
+    <include
+            android:id="@+id/vod_skip_button"
+            layout="@layout/item_skip_curtain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/vod_player_progress"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_half_vod"

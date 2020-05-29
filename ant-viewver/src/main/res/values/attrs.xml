@@ -16,4 +16,11 @@
         <attr name="customBar" format="boolean"/>
     </declare-styleable>
 
+    <declare-styleable name="SegmentedProgressBar">
+        <attr name="progressColor" format="color"/>
+        <attr name="segmentColor" format="color"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="barHeight" format="dimension"/>
+    </declare-styleable>
+
 </resources>

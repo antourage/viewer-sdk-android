@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -38,7 +39,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private lateinit var rvMessages: RecyclerView
     private lateinit var drawerLayout: CustomDrawerLayout
     private lateinit var navigationView: NavigationView
-    private var newCommentsButton: ConstraintLayout? = null
+    private var newCommentsButton: LinearLayout? = null
     private var commentsLayout: ConstraintLayout? = null
     private var etMessage: EditText? = null
 
@@ -105,9 +106,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
      * the possibility to toggle player controls on single tap
      */
     override fun onDrawerSingleClick() {
-        if (etMessage?.isFocused == false || etMessage == null){
-            toggleControlsVisibility()
-        }
+        toggleControlsVisibility()
     }
 
     override fun initUi(view: View?) {
@@ -128,6 +127,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         initOnScrollRVListener()
         initAndOpenNavigationDrawer()
         newCommentsButton?.setOnClickListener {
+            wasNewButtonFocused = true
+            it.postDelayed({wasNewButtonFocused = false}, 500)
             rvMessages.adapter?.let {rvMessages.smoothScrollToPosition(it.itemCount - 1) }
         }
     }
@@ -170,7 +171,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             }
             set.applyTo(parentLayout)
             if (isLandscape){
-                newCommentsButton?.marginDp(left = 12f, bottom = 14f)
+                newCommentsButton?.marginDp(left = 4f, bottom = 6f)
             } else {
                 newCommentsButton?.marginDp(left = 0f, bottom = 40f)
             }

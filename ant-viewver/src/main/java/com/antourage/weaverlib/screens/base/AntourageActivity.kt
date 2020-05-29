@@ -44,7 +44,7 @@ class AntourageActivity : AppCompatActivity() {
                         PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
                     }
                     else{
-                        VodPlayerFragment.newInstance(streamToWatch)
+                        VodPlayerFragment.newInstance(streamToWatch, isNewVod = true)
                     }
                 }
                 else VideoListFragment.newInstance()
