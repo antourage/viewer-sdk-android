@@ -207,6 +207,24 @@
             app:layout_constraintStart_toEndOf="@+id/controls_delimiter"
             app:layout_constraintTop_toTopOf="@+id/vod_position"
             tools:text="12:45" />
+
+    <com.antourage.weaverlib.other.ui.SegmentedProgressBar
+            android:id="@+id/vod_controls_progress"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:visibility="invisible"
+            android:layout_marginBottom="11dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            app:barHeight="4dp"
+            app:backgroundColor="@color/ant_white_a60"
+            app:segmentColor="@color/ant_yellow"
+            app:progressColor="@color/ant_pink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+
     <!--if you'll going to change it, also update progressBar in fragment-->
     <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@+id/exo_progress"
@@ -215,13 +233,13 @@
             android:layout_marginEnd="@dimen/ant_margin_seekbar_portrait"
             android:layout_marginStart="@dimen/ant_margin_seekbar_portrait"
             app:bar_height="4.5dp"
-            app:buffered_color="@color/ant_streamer_name_color"
+            app:buffered_color="@color/ant_transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:played_color="@color/ant_pink"
+            app:played_color="@color/ant_transparent"
             app:scrubber_color="@color/ant_pink"
-            app:unplayed_color="@color/ant_streamer_name_color" />
+            app:unplayed_color="@color/ant_transparent" />
 
     <!--should be shown only in landscape-->
     <include

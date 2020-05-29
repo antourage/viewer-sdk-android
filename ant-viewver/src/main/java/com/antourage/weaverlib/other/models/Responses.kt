@@ -55,6 +55,7 @@ data class StreamResponse(
     @field:SerializedName("duration") val duration: String?,
     @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
     @field:SerializedName("viewsCount") var viewsCount: Int?,
+    @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") val viewersCount: Int?,
     @field:SerializedName("isNew") var isNew: Boolean?,
@@ -86,6 +87,12 @@ data class User(
     @field:SerializedName("displayName") var displayName: String?,
     @field:SerializedName("imageUrl") var imageUrl: String?
 )
+
+@Parcelize
+data class CurtainRange(
+    @field:SerializedName("start") val start: String?,
+    @field:SerializedName("end") val end: String?
+) : Parcelable
 
 data class UpdateImageResponse(
     @field:SerializedName("imageUrl") val imageUrl: String?,

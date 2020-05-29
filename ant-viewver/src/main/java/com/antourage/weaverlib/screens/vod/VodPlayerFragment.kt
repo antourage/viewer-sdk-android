@@ -21,6 +21,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.models.CurtainRange
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -68,7 +69,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
-                    vod_player_progress.max = viewModel.getVideoDuration()?.toInt() ?: 1
+                    vod_player_progress.setMax(viewModel.getVideoDuration()?.toInt() ?: 1)
+                    vod_controls_progress.setMax(viewModel.getVideoDuration()?.toInt() ?: 1)
+                    vod_player_progress.setListOfCurtains(arrayListOf(CurtainRange("00:00:02","00:00:08")))
+                    vod_controls_progress.setListOfCurtains(arrayListOf(CurtainRange("00:00:02","00:00:08")))
                     if (!playerControls.isVisible) {
                         progressHandler.postDelayed(
                             updateProgressAction,
@@ -126,7 +130,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val videoChangeObserver: Observer<StreamResponse> = Observer { video ->
         video?.apply {
             viewModel.getVideoDuration()?.let{duration ->
-                if (duration > 0 ) { vod_player_progress.max = duration.toInt() }
+                if (duration > 0 ) {
+                    vod_player_progress.setMax(duration.toInt())
+                    vod_controls_progress.setMax(duration.toInt())
+                }
             }
             tvStreamName.text = videoName
             tvBroadcastedBy.text = creatorNickname
@@ -290,7 +297,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initPortraitProgressListener() {
         controls.setProgressUpdateListener { pos, _ ->
-            vod_player_progress.progress = pos.toInt()
+            if (orientation() == Configuration.ORIENTATION_PORTRAIT){
+                vod_player_progress.setProgress( pos.toInt())
+            } else {
+                vod_controls_progress.setProgress(pos.toInt())
+            }
             vod_position.text = pos.formatTimeMillisToTimer()
             val duration = viewModel.getVideoDuration() ?: -1
             if (duration > 0){ vod_duration.text = duration.formatTimeMillisToTimer() }
@@ -301,8 +312,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val duration = viewModel.getVideoDuration()?.toInt() ?: -1
         val position = viewModel.getVideoPosition()?.toInt() ?: -1
         if (duration > 0  && position > 0 && position <= duration) {
-            vod_player_progress?.max = duration
-            vod_player_progress?.progress = position
+            vod_player_progress?.setMax(duration)
+            vod_player_progress?.setProgress(position)
         }
         progressHandler.removeCallbacks(updateProgressAction)
         progressHandler.postDelayed(
@@ -547,6 +558,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         controls.findViewById<DefaultTimeBar>(R.id.exo_progress).setMargins(
             progressMarginPx, 0, progressMarginPx, 0
         )
+        vod_controls_progress.visibility = if (isLandscape) View.VISIBLE else View.INVISIBLE
         vod_shadow.marginDp(bottom = if (isLandscape) 0f else 15f)
         changeButtonsSize(isEnlarge = isLandscape)
     }
