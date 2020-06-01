@@ -32,7 +32,7 @@ import kotlin.collections.ArrayList
 internal class VideoViewModel constructor(application: Application) : ChatViewModel(application) {
 
     companion object {
-        private const val STOP_TIME_UPDATE_INTERVAL_MS = 5000L
+        private const val STOP_TIME_UPDATE_INTERVAL_MS = 2000L
         private const val FULLY_VIEWED_VIDEO_SEGMENT = 0.9
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
@@ -54,6 +54,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var vodId: Int? = null
+    private var curtains : ArrayList<CurtainRange> = ArrayList()
     private var user: User? = null
 
     private var isFetching: Boolean =
@@ -117,7 +118,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         messagesLiveData.postValue(shownMessages)
     }
 
-    fun initUi(id: Int?, startTime: String?, isNewVod: Boolean = false) {
+    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, isNewVod: Boolean = false) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
@@ -127,6 +128,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
+        updateCurtains(curtains)
         chatStateLiveData.postValue(true)
         markVODAsWatched()
     }
@@ -264,6 +266,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         rewindAndPlayTrack()
     }
 
+    fun getCurrentCurtains(): ArrayList<CurtainRange> = curtains
+
+    private fun updateCurtains(newCurtains: List<CurtainRange>?){
+        curtains.clear()
+        curtains.addAll((newCurtains ?: ArrayList()) as ArrayList<CurtainRange>)
+    }
+
     fun getVideoDuration() = getCurrentDuration()
     fun getVideoPosition() = getCurrentPosition()
 
@@ -275,13 +284,14 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 videoChanged = true
                 resetChronometer = true
                 vodId?.let {
-                    this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
                     postVideoIsClosed(it)
                 }
                 if (list.size <= currentWindow + 2) {
                     fetchNextVODs()
                 }
+                this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(this) ?: 0
                 getChatList(this)
+                updateCurtains(currentVod.curtainRangeModels)
             }
         }
         this.streamId = currentVod.id

@@ -21,7 +21,6 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
-import com.antourage.weaverlib.other.models.CurtainRange
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -69,10 +68,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 Player.STATE_BUFFERING -> showLoading()
                 Player.STATE_READY -> {
                     hideLoading()
-                    vod_player_progress.setMax(viewModel.getVideoDuration()?.toInt() ?: 1)
-                    vod_controls_progress.setMax(viewModel.getVideoDuration()?.toInt() ?: 1)
-                    vod_player_progress.setListOfCurtains(arrayListOf(CurtainRange("00:00:02","00:00:08")))
-                    vod_controls_progress.setListOfCurtains(arrayListOf(CurtainRange("00:00:02","00:00:08")))
+                    vod_player_progress.setListOfCurtainsAndMax(viewModel.getCurrentCurtains(), viewModel.getVideoDuration()?.toInt() ?: 1)
+                    vod_controls_progress.setListOfCurtainsAndMax(viewModel.getCurrentCurtains(),viewModel.getVideoDuration()?.toInt() ?: 1)
                     if (!playerControls.isVisible) {
                         progressHandler.postDelayed(
                             updateProgressAction,
@@ -102,8 +99,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         playerControls.show()
                         viewModel.onVideoPausedOrStopped()
                     } else {
-                        arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
-                            ?.id?.let { id -> viewModel.onVideoStarted() }
+                        viewModel.onVideoStarted()
                     }
                 }
                 Player.STATE_IDLE -> hideLoading()
@@ -131,8 +127,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         video?.apply {
             viewModel.getVideoDuration()?.let{duration ->
                 if (duration > 0 ) {
-                    vod_player_progress.setMax(duration.toInt())
-                    vod_controls_progress.setMax(duration.toInt())
+                    vod_player_progress.setListOfCurtainsAndMax(viewModel.getCurrentCurtains(),duration.toInt())
+                    vod_controls_progress.setListOfCurtainsAndMax(viewModel.getCurrentCurtains(), duration.toInt())
                 }
             }
             tvStreamName.text = videoName
@@ -275,7 +271,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
             updateWasLiveValueOnUI(startTime, duration)
-            viewModel.initUi(id, startTime,  arguments?.getBoolean(ARGS_IS_NEW) ?: false)
+            viewModel.initUi(id, startTime,  this.curtainRangeModels,arguments?.getBoolean(ARGS_IS_NEW) ?: false)
             id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {
@@ -312,8 +308,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val duration = viewModel.getVideoDuration()?.toInt() ?: -1
         val position = viewModel.getVideoPosition()?.toInt() ?: -1
         if (duration > 0  && position > 0 && position <= duration) {
-            vod_player_progress?.setMax(duration)
             vod_player_progress?.setProgress(position)
+            vod_player_progress?.setMax(duration)
         }
         progressHandler.removeCallbacks(updateProgressAction)
         progressHandler.postDelayed(

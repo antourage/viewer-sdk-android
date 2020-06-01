@@ -45,8 +45,14 @@ internal class SegmentedProgressBar : View {
     }
 
     internal fun setMax(max: Int) {
-        this.max = max
-        postInvalidate()
+        if (this.max != max){
+            this.max = max
+            //todo: uncommit if required
+            /*if (curtainsSegments.isNotEmpty()){
+                curtainsSegments.clear()
+            }*/
+            postInvalidate()
+        }
     }
 
     private fun init(attrs: AttributeSet) {
@@ -165,20 +171,18 @@ internal class SegmentedProgressBar : View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    internal fun setProgress(progress: Int) {
+    internal fun setProgress(progress: Int, shouldUpdateView : Boolean = true) {
         val currProgress = constrain(progress, min, max)
         if (currProgress == this.progress) return
         this.progress = progress
-        postInvalidate()
+        if (shouldUpdateView) postInvalidate()
     }
 
-    /*
-    * Should be called after max was set;
-    * TODO: Possibly combine with setMax()
-    */
-    internal fun setListOfCurtains(curtains: List<CurtainRange>){
-        //todo: uncommit
-        /*if (curtainsRange != curtains){
+    /**
+     * Should be called after max was set;
+     */
+    private fun setListOfCurtains(curtains: List<CurtainRange>){
+        if (curtainsRange != curtains){
             curtainsRange.clear()
             curtainsSegments.clear()
             curtainsRange = ArrayList(curtains.map { it.copy() })
@@ -186,7 +190,12 @@ internal class SegmentedProgressBar : View {
                 transformCurtainRangeToSegment(it)?.let {segment ->  curtainsSegments.add(segment)}
             }
             postInvalidate()
-        }*/
+        }
+    }
+
+    fun setListOfCurtainsAndMax(curtains: List<CurtainRange>, max: Int){
+        setMax(max)
+        setListOfCurtains(curtains)
     }
 
     private fun transformCurtainRangeToSegment(curtain: CurtainRange) :CurtainRangeSegments?{
