@@ -94,6 +94,12 @@ data class CurtainRange(
     @field:SerializedName("end") val end: String?
 ) : Parcelable
 
+@Parcelize
+data class CurtainRangeMillis(
+    @field:SerializedName("start") val start: Long,
+    @field:SerializedName("end") val end: Long
+) : Parcelable
+
 data class UpdateImageResponse(
     @field:SerializedName("imageUrl") val imageUrl: String?,
     @field:SerializedName("success") val success: Boolean?

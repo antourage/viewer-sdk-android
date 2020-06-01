@@ -114,6 +114,8 @@
     <string name="ant_at">at</string>
     <string name="ant_send">SEND</string>
     <string name="ant_ten_seconds">10 seconds</string>
+    <!--todo:  translate-->
+    <string name="ant_skip_curtain" translatable="false">skip curtain</string>
 
 
     <string name="ant_delimiter" translatable="false">•</string>

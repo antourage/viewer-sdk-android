@@ -8,10 +8,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.parseTimerToMills
 import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
@@ -54,7 +56,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var vodId: Int? = null
-    private var curtains : ArrayList<CurtainRange> = ArrayList()
+    private var curtains : ArrayList<CurtainRangeMillis> = ArrayList()
     private var user: User? = null
 
     private var isFetching: Boolean =
@@ -74,6 +76,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     //firstValue - Id, second - Viewers
     private val currentViewers: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
     fun getCurrentViewersLD(): LiveData<Pair<Int, Int>> = currentViewers
+
+    //long - curtain end time in millis
+    private val curtainShown: SingleLiveEvent<Long> = SingleLiveEvent()
+    fun getCurtainShownLD(): LiveData<Long> = curtainShown
 
     private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
@@ -234,6 +240,17 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         autoPlayStateLD.postValue(AutoPlayState.START_AUTO_PLAY)
     }
 
+    override fun registerCallbacks(windowIndex: Int) {
+        curtains.forEach {
+            if ((getVideoDuration() ?: 0) - it.end > 1000){
+                //we shouldn't show skip button if the curtain in the end of video
+                createAdCallback(windowIndex, it) { curtainEndTime, windowIndex ->
+                    if (windowIndex == currentWindow) curtainShown.postValue(curtainEndTime)
+                }
+            }
+        }
+    }
+
     fun startReplayState() {
         autoPlayStateLD.postValue(AutoPlayState.START_REPLAY)
     }
@@ -266,11 +283,16 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         rewindAndPlayTrack()
     }
 
-    fun getCurrentCurtains(): ArrayList<CurtainRange> = curtains
+    fun getCurrentCurtains(): ArrayList<CurtainRangeMillis> = curtains
 
     private fun updateCurtains(newCurtains: List<CurtainRange>?){
         curtains.clear()
-        curtains.addAll((newCurtains ?: ArrayList()) as ArrayList<CurtainRange>)
+        if (!newCurtains.isNullOrEmpty()){
+            curtains = ArrayList(newCurtains!!.map { CurtainRangeMillis(
+                it.start?.parseTimerToMills() ?: 0L,
+                it.end?.parseTimerToMills() ?: 0L
+            ) })
+        }
     }
 
     fun getVideoDuration() = getCurrentDuration()
@@ -322,6 +344,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun skipBackward() {
         player?.seekTo((player?.currentPosition ?: 0) - SKIP_VIDEO_TIME_MILLS)
     }
+
+    fun seekPlayerTo(position: Long) { player?.seekTo(position) }
 
     fun onVideoStarted() {
         messagesHandler.post(messagesRunnable)

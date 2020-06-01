@@ -87,7 +87,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     open fun onTrackEnd() {}
 
+    open fun registerCallbacks(windowIndex: Int) {}
+
     open fun onVideoChanged() {}
+
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
 
@@ -228,7 +231,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         timestamp: String = Timestamp(System.currentTimeMillis()).toString()
     ) {
         streamId?.let { id ->
-            val response : LiveData<Resource<SimpleResponse>> = when (this) {
+            val response: LiveData<Resource<SimpleResponse>> = when (this) {
                 is VideoViewModel -> {
                     Repository.postVideoOpened(
                         VideoOpenedRequest(id, getBatteryLevel(), timestamp)
@@ -240,14 +243,19 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         LiveOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
                 }
-                else -> {return}
+                else -> {
+                    return
+                }
             }
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(resource: Resource<SimpleResponse>?) {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d("STAT_OPEN", "Failed to send /open: ${resource.status.errorMessage}")
+                                Log.d(
+                                    "STAT_OPEN",
+                                    "Failed to send /open: ${resource.status.errorMessage}"
+                                )
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
@@ -263,8 +271,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     protected fun postVideoIsClosed(
-        videoId : Int? = null,
-        timestamp: String = Timestamp(System.currentTimeMillis()).toString()) {
+        videoId: Int? = null,
+        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+    ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
             when (this) {
@@ -274,11 +283,11 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
                     LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
                 )
-                else -> { }
+                else -> {
+                }
             }
         }
     }
-
 
 
     //region Listeners
@@ -355,20 +364,38 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             }
         }
 
-        override fun onTracksChanged(trackGroups: TrackGroupArray?,
-                                     trackSelections: TrackSelectionArray?) {
-            if (player != null){
-                if (player!!.duration != C.TIME_UNSET){
+        override fun onTracksChanged(
+            trackGroups: TrackGroupArray?,
+            trackSelections: TrackSelectionArray?
+        ) {
+            if (player != null) {
+                if (player!!.duration != C.TIME_UNSET) {
                     player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
                         .setHandler(Handler())
-                        .setPosition(currentWindow, player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS)
+                        .setPosition(
+                            currentWindow,
+                            player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
+                        )
                         .setDeleteAfterDelivery(false)
                         .send()
+                    registerCallbacks(currentWindow)
                 }
             }
         }
     }
     //endregion
+
+    protected fun createAdCallback(
+        windowIndex: Int,
+        curtainRangeMillis: CurtainRangeMillis,
+        onAddStarted: (curtainEndTime: Long, windowIndex: Int) -> Unit
+    ) {
+        player!!.createMessage { _, _ -> onAddStarted(curtainRangeMillis.end, windowIndex)}
+            .setHandler(Handler())
+            .setPosition(windowIndex, curtainRangeMillis.start)
+            .setDeleteAfterDelivery(false)
+            .send()
+    }
 
     /**
      * method used to update live viewers count in real time on player screen ONLY for LIVE

@@ -8,7 +8,10 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.TranslateAnimation
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.NonNull
@@ -305,6 +308,13 @@ internal fun String.parseToMills(): Long {
     val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     inputFmt.timeZone = TimeZone.getTimeZone("UTC")
     return inputFmt.parse(this).time
+}
+
+internal fun String.parseTimerToMills(): Long {
+    val stringToParse =  if (this.length > 8) this.substring(0, 8) else this
+    val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+    inputFmt.timeZone = TimeZone.getTimeZone("UTC")
+    return inputFmt.parse(stringToParse)?.time ?: 0L
 }
 
 internal fun Bitmap.toMultipart(): MultipartBody.Part {
