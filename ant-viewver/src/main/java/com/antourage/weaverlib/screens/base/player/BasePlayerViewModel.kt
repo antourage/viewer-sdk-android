@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
@@ -335,7 +336,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 currentWindow = player?.currentWindowIndex ?: 0
-                errorLiveData.value = true
+                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) errorLiveData.value = true
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
             Log.d(
@@ -350,6 +351,14 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             )
             if (err.cause is BehindLiveWindowException) {
                 player?.prepare(getMediaSource(streamUrl), false, true)
+            } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
+                if (this@BasePlayerViewModel is PlayerViewModel){
+                    stopwatch.stopIfRunning()
+                    onLiveStreamEnded()
+                } else {
+                    errorLiveData.value = true
+                    error.postValue(err.toString())
+                }
             } else {
                 error.postValue(err.toString())
             }
