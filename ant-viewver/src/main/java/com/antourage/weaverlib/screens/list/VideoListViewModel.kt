@@ -36,13 +36,17 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
-    private var vodsToFetchComments: MutableList<StreamResponse> = mutableListOf()
     private var livesToFetchInfo: MutableList<StreamResponse> = mutableListOf()
 
     private var showCallResult = false
 
+    fun dataWasAlreadyLoaded(): Boolean{
+        return !vods.isNullOrEmpty() && !liveVideos.isNullOrEmpty()
+    }
+
     var liveVideosUpdated = false
     var vodsUpdated = false
+    var vodsUpdatedWithoutError = false
 
     companion object {
         private const val VODS_COUNT = 15
@@ -114,6 +118,9 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                         liveVideos?.get(i)?.isLive = true
                     }
                 }
+                if (!vodsUpdatedWithoutError && vodsUpdated && vods.isNullOrEmpty()) {
+                    refreshVODs(noLoadingPlaceholder = false)
+                }
             }
             is Status.Loading -> {
                 liveVideosUpdated = false
@@ -137,7 +144,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
                 if (newList != null) {
                     list.addAll(list.size, newList)
-//                    getMessagesForNewVideos(newList)
                 }
                 Repository.vods = list.toMutableList()
 
@@ -151,6 +157,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
                 vods = list
                 vodsUpdated = true
+                vodsUpdatedWithoutError = true
                 if (liveVideosUpdated) {
                     updateVideosList()
                 }
@@ -158,9 +165,11 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             }
             is Status.Loading -> {
                 vodsUpdated = false
+                vodsUpdatedWithoutError = false
             }
             is Status.Failure -> {
                 vodsUpdated = true
+                vodsUpdatedWithoutError = false
                 loaderLiveData.postValue(false)
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
@@ -182,12 +191,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 vods = newList
 
                 vodsUpdated = true
+                vodsUpdatedWithoutError = true
+
                 if (liveVideosUpdated) {
                     updateVideosList()
                 }
             }
             is Status.Loading -> {
                 vodsUpdated = false
+                vodsUpdatedWithoutError = false
+
                 if (!pulledToRefresh) {
                     loaderLiveData.postValue(true)
                 }
@@ -198,6 +211,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             }
             is Status.Failure -> {
                 vodsUpdated = true
+                vodsUpdatedWithoutError = false
+
                 loaderLiveData.postValue(false)
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
@@ -294,16 +309,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         return true
     }
 
-    private fun areAllCommentsLoaded(): Boolean {
-        vodsToFetchComments.forEach {
-            if (it.lastMessage == null) {
-                return false
-            }
-        }
-        vodsUpdated = true
-        return true
-    }
-
     private fun updateVideosList(
         updateLiveStreams: Boolean = false,
         shouldUpdateStopTimeFromDB: Boolean = false
@@ -330,7 +335,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             -1, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, null, null,false, null, false, null
+            null, null, null, null, null, false, null, false, null
         )
     }
 
@@ -339,7 +344,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             -2, null, null,
             null, null, null, null,
             null, null, null, null, null,
-            null, null, null, null, null,false, null, false, null
+            null, null, null, null, null, false, null, false, null
         )
     }
 
@@ -379,8 +384,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
     //endregion
 
-    fun onNetworkGained() {
-        refreshVODs(noLoadingPlaceholder = true)
+    fun onNetworkGained(isErrorShown: Boolean = false) {
+        refreshVODs(noLoadingPlaceholder = !isErrorShown)
     }
 
     fun handleUserAuthorization() {

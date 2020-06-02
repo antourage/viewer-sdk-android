@@ -60,7 +60,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
         private var DRAG_MAX_DISTANCE = 100f
         private const val DRAG_RATE = .5f
         private const val DECELERATE_INTERPOLATION_FACTOR = 2f
-        const val MAX_OFFSET_ANIMATION_DURATION = 700
+        const val MAX_OFFSET_ANIMATION_DURATION = 500
         private const val INVALID_POINTER = -1
     }
 
@@ -138,12 +138,12 @@ class AntPullToRefreshView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        ensureTarget()
-        if(!isEnabled||canChildScrollUp()|| mIsRefreshing){
+//        ensureTarget()
+        if (!isEnabled || canChildScrollUp() || mIsRefreshing) {
             return false
         }
 
-        when(ev.actionMasked){
+        when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 setTargetOffsetTop(0)
                 mActivePointerId = ev.getPointerId(0)
@@ -187,7 +187,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
 //        if (!isEnabled || canChildScrollUp() || mIsRefreshing || mNestedScrollInProgress) {
 //            return false
 //        }
-        when(ev.actionMasked){
+        when (ev.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 val pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId)
                 if (pointerIndex < 0) {
@@ -203,7 +203,8 @@ class AntPullToRefreshView @JvmOverloads constructor(
                 val boundedDragPercent = min(1f, abs(mCurrentDragPercent))
                 val extraOS = abs(scrollTop) - totalDragDistance
                 val slingshotDist = totalDragDistance.toFloat()
-                val tensionSlingshotPercent = max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
+                val tensionSlingshotPercent =
+                    max(0f, min(extraOS, slingshotDist * 2) / slingshotDist)
                 val tensionPercent =
                     ((tensionSlingshotPercent / 4) - (tensionSlingshotPercent / 4).pow(2)) * 2f
                 val extraMove = slingshotDist * tensionPercent / 2
@@ -250,15 +251,8 @@ class AntPullToRefreshView @JvmOverloads constructor(
         mFrom = mCurrentOffsetTop
         mFromDragPercent = mCurrentDragPercent
 
-        val animationDuration: Long = if (mFromDragPercent <= 4) {
-            abs((MAX_OFFSET_ANIMATION_DURATION * mFromDragPercent).toLong())
-        } else {
-            abs(MAX_OFFSET_ANIMATION_DURATION.toLong())
-        }
-
-
         mAnimateToStartPosition.reset()
-        mAnimateToStartPosition.duration = animationDuration
+        mAnimateToStartPosition.duration = MAX_OFFSET_ANIMATION_DURATION.toLong()
         mAnimateToStartPosition.interpolator = mDecelerateInterpolator
         mAnimateToStartPosition.setAnimationListener(mToStartListener)
         mAntBaseProgressBar.clearAnimation()
@@ -381,7 +375,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
 
     private fun setTargetOffsetTop(offset: Int) {
         mTarget?.offsetTopAndBottom(offset)
-        mAntBaseProgressBar.offsetTopAndBottom(offset)
+//        mAntBaseProgressBar.offsetTopAndBottom(offset)
         mCurrentOffsetTop = mTarget!!.top
     }
 

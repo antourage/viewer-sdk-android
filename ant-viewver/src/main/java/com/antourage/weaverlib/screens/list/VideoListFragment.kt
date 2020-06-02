@@ -58,8 +58,14 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
         list?.let { newStreams ->
             if (newStreams.isEmpty()) {
-                if (Global.networkAvailable) showEmptyListPlaceholder()
-                else showNoConnectionPlaceHolder()
+                Log.e(
+                    "${viewModel.liveVideosUpdated} && ${viewModel.vodsUpdated}",
+                    "LIST IS : $newStreams"
+                )
+                if (viewModel.vodsUpdatedWithoutError) {
+                    if (Global.networkAvailable) showEmptyListPlaceholder()
+                    else showNoConnectionPlaceHolder()
+                }
             } else {
                 isLoadingMoreVideos = false
 
@@ -81,7 +87,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }, 1000)
 
                 isInitialListSet = false
-                if(viewModel.vodsUpdated && viewModel.liveVideosUpdated){
+                if (viewModel.vodsUpdated && viewModel.liveVideosUpdated) {
                     resolveErrorSnackbar()
                     hidePlaceholder()
                 }
@@ -139,6 +145,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        videosRV.resetVideoView()
         context?.let {
             viewModel.handleUserAuthorization()
             viewModel.refreshVODsLocally()
@@ -155,7 +162,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             if (ConnectionStateMonitor.isNetworkAvailable(it) && isNoConnectionSnackbarShowing()) {
                 resolveErrorSnackbar(R.string.ant_you_are_online)
             }
-            if(videoRefreshLayout.alpha == 1f) videosRV.onResume()
+            if (videoRefreshLayout.alpha == 1f) videosRV.onResume()
         }
 
         initNewButtonCountdown()
@@ -171,7 +178,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     override fun onPause() {
         super.onPause()
-        videosRV.releasePlayer()
         videosRV.onPause()
         viewModel.onPause()
         viewModel.errorLiveData.postValue(null)
@@ -254,7 +260,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         })
 
-        placeholderRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
+        placeholderRefreshLayout.setOnRefreshListener(object :
+            AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable(it)) {
@@ -272,7 +279,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         })
 
-        noContentRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
+        noContentRefreshLayout.setOnRefreshListener(object :
+            AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable(it)) {
@@ -358,18 +366,21 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun isNoConnectionSnackbarShowing(): Boolean{
-        return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED &&  snackBar.text == context?.resources?.getString(R.string.ant_no_connection)
+    private fun isNoConnectionSnackbarShowing(): Boolean {
+        return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && snackBar.text == context?.resources?.getString(
+            R.string.ant_no_connection
+        )
     }
 
     private fun resolveErrorSnackbar(messageId: Int? = null) {
         if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED) {
-            if(messageId!=null){
+            if (messageId != null) {
                 context?.resources?.getString(messageId)
                     ?.let { messageToDisplay ->
                         snackBar.text = messageToDisplay
                         context?.let {
-                            val colorFrom: Int = ContextCompat.getColor(it, R.color.ant_error_bg_color)
+                            val colorFrom: Int =
+                                ContextCompat.getColor(it, R.color.ant_error_bg_color)
                             val colorTo: Int =
                                 ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
                             val duration = 500L
@@ -447,7 +458,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         showErrorSnackbar(R.string.ant_server_error)
         if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.ERROR)
-        if(videoRefreshLayout.alpha!=1f){
+        if (videoRefreshLayout.alpha != 1f) {
             if (placeholderRefreshLayout.alpha != 1f) {
                 placeholderRefreshLayout.revealWithAnimation()
                 placeHolderRV.revealWithAnimation()
@@ -456,13 +467,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun hidePlaceholder() {
-        if (videoRefreshLayout.visibility != View.VISIBLE){
+        if (videoRefreshLayout.visibility != View.VISIBLE) {
             videoRefreshLayout.revealWithAnimation()
             videosRV.revealWithAnimation()
         }
         if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
         if (placeholderRefreshLayout.visibility == View.VISIBLE) placeholderRefreshLayout.hideWithAnimation()
-
 
 
 //        if (videosRV.visibility != View.VISIBLE) videosRV.revealWithAnimation()
@@ -473,7 +483,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         if (noContentRefreshLayout.visibility != View.VISIBLE) {
             placeholderRefreshLayout.hideWithAnimation()
             videoRefreshLayout.hideWithAnimation()
-            videosRV.releasePlayer()
             videosRV.onPause()
             noContentRefreshLayout.revealWithAnimation()
             noContentContainer.revealWithAnimation()
@@ -534,7 +543,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         when (networkState?.ordinal) {
             NetworkConnectionState.LOST.ordinal -> {
                 if (!Global.networkAvailable) {
-                    if(placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value){
+                    if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value) {
                         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
                     }
                     showErrorSnackbar(R.string.ant_no_connection)
@@ -542,7 +551,14 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
                 resolveErrorSnackbar(R.string.ant_you_are_online)
-                viewModel.onNetworkGained()
+                if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.ERROR.value
+                    || placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.NO_INTERNET.value && placeholderRefreshLayout.alpha == 1f
+                ) {
+                    viewModel.onNetworkGained(true)
+                    placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
+                } else {
+                    viewModel.onNetworkGained()
+                }
             }
         }
     }

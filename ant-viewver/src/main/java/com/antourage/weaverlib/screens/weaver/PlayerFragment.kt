@@ -348,7 +348,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun initControlsVisibilityListener() {
-        playerControls.setVisibilityListener { visibility ->
+        playerControls.addVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                 if (visibility == View.VISIBLE) {
                     txtNumberOfViewers.marginDp(4f, 62f)

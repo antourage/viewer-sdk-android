@@ -83,7 +83,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     abstract fun onStreamStateChanged(playbackState: Int)
 
-    abstract fun getMediaSource(streamUrl: String?): MediaSource?
+    abstract fun getMediaSource(streamUrl: String?): MediaSource
 
     open fun onTrackEnd() {}
 
@@ -285,9 +285,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private val streamAnalyticsListener = object : AnalyticsListener {
         override fun onTracksChanged(
-            eventTime: AnalyticsListener.EventTime?,
-            trackGroups: TrackGroupArray?,
-            trackSelections: TrackSelectionArray?
+            eventTime: AnalyticsListener.EventTime,
+            trackGroups: TrackGroupArray,
+            trackSelections: TrackSelectionArray
         ) {
             Log.d("TAG", "onTracksChanged")
         }
@@ -355,8 +355,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             }
         }
 
-        override fun onTracksChanged(trackGroups: TrackGroupArray?,
-                                     trackSelections: TrackSelectionArray?) {
+        override fun onTracksChanged(
+            trackGroups: TrackGroupArray,
+            trackSelections: TrackSelectionArray
+        ) {
             if (player != null){
                 if (player!!.duration != C.TIME_UNSET){
                     player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }

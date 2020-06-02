@@ -341,7 +341,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     /**
      * using this to create playlist. For now, was approved
      */
-    override fun getMediaSource(streamUrl: String?): MediaSource? {
+    override fun getMediaSource(streamUrl: String?): MediaSource {
         val list: List<StreamResponse>? = Repository.vods
         val mediaSources = ArrayList<MediaSource?>()
         for (i in 0 until (list?.size ?: 0)) {

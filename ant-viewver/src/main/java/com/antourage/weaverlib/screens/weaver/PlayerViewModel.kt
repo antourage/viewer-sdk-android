@@ -245,7 +245,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
     }
 
-    override fun getMediaSource(streamUrl: String?): MediaSource? {
+    override fun getMediaSource(streamUrl: String?): MediaSource {
         val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(getApplication()).build()
         val dataSourceFactory = DefaultDataSourceFactory(
             getApplication(),
