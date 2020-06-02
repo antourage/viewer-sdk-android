@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.*
@@ -48,6 +49,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val roomRepository: RoomRepository = RoomRepository.getInstance(application)
 
     private var videoChanged: Boolean = false
+    private var endOfCurtain = 0L //if not 0L - show skip Button
     private var stopWatchingTime: Long = 0
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -502,15 +504,32 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     fun seekToLastWatchingTime() {
         if (videoChanged) {
-            var timeToSeekTo = stopWatchingTime
+            var endOfCurtainOnBeginning = 0L
             curtains.forEach{
-                if (stopWatchingTime > it.start && stopWatchingTime < it.end){
-                    timeToSeekTo = it.end
+                if (stopWatchingTime >= it.start && stopWatchingTime < it.end){
+                    if (stopWatchingTime == 0L) {
+                        endOfCurtainOnBeginning = it.end
+                    } else {
+                        endOfCurtain =  it.end
+                    }
                     return@forEach
                 }
             }
+            val timeToSeekTo = if (endOfCurtainOnBeginning != 0L) endOfCurtainOnBeginning else stopWatchingTime
             player?.seekTo(timeToSeekTo)
             videoChanged = false
+        }
+    }
+
+    fun shouldShowSkipButton(): Boolean = endOfCurtain != 0L
+
+    fun showSkipButtonIfRequired() {
+        if (endOfCurtain != 0L){
+            curtainShown.postValue(endOfCurtain)
+            viewModelScope.launch {
+                delay(500)
+                endOfCurtain = 0L
+            }
         }
     }
 }

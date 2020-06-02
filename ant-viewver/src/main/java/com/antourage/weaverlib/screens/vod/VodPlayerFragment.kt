@@ -131,16 +131,18 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_skip_button.visibility = View.INVISIBLE
             viewModel.seekPlayerTo(curtainEndTimeMillis)
         }
-        vod_skip_button.revealWithAnimation()
-        val timeToCurtainEnd = curtainEndTimeMillis - (viewModel.getVideoPosition() ?: 0)
-        vod_skip_button.postDelayed(
-            {
-                if (vod_skip_button?.visibility == View.VISIBLE) {
-                    vod_skip_button.visibility = View.INVISIBLE
-                }
-            },
-            minOf(timeToCurtainEnd, SKIP_CURTAIN_HIDE_DELAY_MILLIS)
-        )
+        if (vod_skip_button.visibility != View.VISIBLE){
+            vod_skip_button.revealWithAnimation()
+            val timeToCurtainEnd = curtainEndTimeMillis - (viewModel.getVideoPosition() ?: 0)
+            vod_skip_button.postDelayed(
+                {
+                    if (vod_skip_button?.visibility == View.VISIBLE) {
+                        vod_skip_button.visibility = View.INVISIBLE
+                    }
+                },
+                minOf(timeToCurtainEnd, SKIP_CURTAIN_HIDE_DELAY_MILLIS)
+            )
+        }
     }
 
     private val videoFetchedObserver: Observer<Boolean> = Observer {
@@ -184,10 +186,11 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                             .findViewById(R.id.play_header_iv_photo) as ImageView
                     )
             }
-            if (vod_skip_button.visibility == View.VISIBLE) {
+            if (vod_skip_button.visibility == View.VISIBLE && !viewModel.shouldShowSkipButton() ) {
                 vod_skip_button.visibility = View.INVISIBLE
             }
             viewModel.seekToLastWatchingTime()
+            viewModel.showSkipButtonIfRequired()
         }
     }
 
