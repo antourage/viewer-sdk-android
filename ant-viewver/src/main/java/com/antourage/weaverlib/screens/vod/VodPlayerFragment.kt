@@ -384,7 +384,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private fun initControlsVisibilityListener() {
-        playerControls.setVisibilityListener { visibility ->
+        playerControls.addVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                 if (visibility == View.VISIBLE) {
                     txtNumberOfViewers.marginDp(12f, 62f)

@@ -59,7 +59,7 @@ internal class StreamPreviewManager {
             )
         }
 
-        private fun getMediaSource(streamUrl: String?, context: Context): MediaSource? {
+        private fun getMediaSource(streamUrl: String?, context: Context): MediaSource {
             val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
             val dataSourceFactory = DefaultDataSourceFactory(
                 context,

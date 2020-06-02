@@ -4,10 +4,10 @@ import android.content.Context
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -65,6 +65,8 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     private var videoPlayer: SimpleExoPlayer? = null
     private var replayView: ConstraintLayout? = null
     private var watchingProgress: ProgressBar? = null
+    private var autoPlayAnimatedDrawable: AnimatedVectorDrawableCompat? = null
+
 
     private lateinit var roomRepository: RoomRepository
 
@@ -225,6 +227,8 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             override fun onChildViewAttachedToWindow(view: View) {
             }
         })
+
+        initAutoPlayAnimation()
     }
 
     //todo: test whether correctly parsed
@@ -295,23 +299,13 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     fun onPause() {
+        releasePlayer()
         if (shouldSetStopTime) {
             setVodStopWatchingTime()
             shouldSetStopTime = false
         }
         playHandler.removeCallbacksAndMessages(null)
         stopDurationUpdate()
-        //needed for smooth transition to player
-        if (isOpeningPlayer) {
-            Handler().postDelayed({
-                resetVideoView()
-                isVideoViewAdded = false
-            }, 400)
-            isOpeningPlayer = false
-        } else {
-            resetVideoView()
-            isVideoViewAdded = false
-        }
     }
 
     private fun getTargetPosition(): Int {
@@ -455,16 +449,23 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         }
     }
 
-    private fun animateAutoPlay() {
-        val animatedDrawable = context?.let {
+    private fun initAutoPlayAnimation(){
+        autoPlayAnimatedDrawable = context?.let {
             AnimatedVectorDrawableCompat.create(
                 it,
                 R.drawable.antourage_autoplay_animation
             )
         }
-        autoPlayImageView?.setImageDrawable(animatedDrawable)
+    }
+
+    private fun animateAutoPlay() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            initAutoPlayAnimation()
+        }
+        autoPlayImageView?.setImageDrawable(autoPlayAnimatedDrawable)
         autoPlayImageView?.background = null
-        animatedDrawable?.apply {
+        autoPlayAnimatedDrawable?.apply {
+            clearAnimationCallbacks()
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     start()
@@ -506,7 +507,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
 //        watchingProgress?.hideWithAnimation()
     }
 
-    private fun resetVideoView() {
+    fun resetVideoView() {
         if (isVideoViewAdded) {
             removeVideoView(videoSurfaceView)
             playPosition = -1
@@ -517,6 +518,8 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             autoPlayContainer?.visibility = View.INVISIBLE
             autoPlayContainer?.alpha = 1f
             autoPlayImageView?.clearAnimation()
+            autoPlayAnimatedDrawable?.clearAnimationCallbacks()
+            autoPlayAnimatedDrawable?.stop()
             stopDurationUpdate()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
                 duration?.visibility = View.VISIBLE
@@ -525,7 +528,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         }
     }
 
-    fun releasePlayer() {
+    private fun releasePlayer() {
         videoPlayer?.release()
         viewHolderParent = null
     }

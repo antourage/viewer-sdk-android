@@ -312,7 +312,7 @@ class AntourageFab @JvmOverloads constructor(
                         }
                         FabState.LIVE -> {
                             currentPlayerState.let {
-                                if (it == Player.STATE_READY && playerView.player.isPlaying)
+                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true)
                                     startAnimation(
                                         FabState.LIVE
                                     )
