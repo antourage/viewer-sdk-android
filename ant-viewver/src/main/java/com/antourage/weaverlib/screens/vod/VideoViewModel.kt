@@ -288,7 +288,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private fun updateCurtains(newCurtains: List<CurtainRange>?){
         curtains.clear()
         if (!newCurtains.isNullOrEmpty()){
-            curtains = ArrayList(newCurtains!!.map { CurtainRangeMillis(
+            curtains = ArrayList(newCurtains.map { CurtainRangeMillis(
                 it.start?.parseTimerToMills() ?: 0L,
                 it.end?.parseTimerToMills() ?: 0L
             ) })
@@ -502,7 +502,14 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     fun seekToLastWatchingTime() {
         if (videoChanged) {
-            player?.seekTo(stopWatchingTime)
+            var timeToSeekTo = stopWatchingTime
+            curtains.forEach{
+                if (stopWatchingTime > it.start && stopWatchingTime < it.end){
+                    timeToSeekTo = it.end
+                    return@forEach
+                }
+            }
+            player?.seekTo(timeToSeekTo)
             videoChanged = false
         }
     }
