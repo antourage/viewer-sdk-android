@@ -8,10 +8,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.parseTimerToMills
 import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
@@ -24,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.*
@@ -32,7 +35,7 @@ import kotlin.collections.ArrayList
 internal class VideoViewModel constructor(application: Application) : ChatViewModel(application) {
 
     companion object {
-        private const val STOP_TIME_UPDATE_INTERVAL_MS = 5000L
+        private const val STOP_TIME_UPDATE_INTERVAL_MS = 2000L
         private const val FULLY_VIEWED_VIDEO_SEGMENT = 0.9
         private const val SKIP_VIDEO_TIME_MILLS = 10000
     }
@@ -46,6 +49,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val roomRepository: RoomRepository = RoomRepository.getInstance(application)
 
     private var videoChanged: Boolean = false
+    private var endOfCurtain = 0L //if not 0L - show skip Button
     private var stopWatchingTime: Long = 0
     private var chatStateLiveData = MutableLiveData<Boolean>()
     private var startTime: Date? = null
@@ -54,6 +58,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private var shownMessages = mutableListOf<Message>()
     private val messagesHandler = Handler()
     private var vodId: Int? = null
+    private var curtains : ArrayList<CurtainRangeMillis> = ArrayList()
     private var user: User? = null
 
     private var isFetching: Boolean =
@@ -73,6 +78,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     //firstValue - Id, second - Viewers
     private val currentViewers: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
     fun getCurrentViewersLD(): LiveData<Pair<Int, Int>> = currentViewers
+
+    //long - curtain end time in millis
+    private val curtainShown: SingleLiveEvent<Long> = SingleLiveEvent()
+    fun getCurtainShownLD(): LiveData<Long> = curtainShown
 
     private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
@@ -117,7 +126,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         messagesLiveData.postValue(shownMessages)
     }
 
-    fun initUi(id: Int?, startTime: String?, isNewVod: Boolean = false) {
+    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, isNewVod: Boolean = false) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
@@ -127,6 +136,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
+        updateCurtains(curtains)
         chatStateLiveData.postValue(true)
         markVODAsWatched()
     }
@@ -232,6 +242,17 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         autoPlayStateLD.postValue(AutoPlayState.START_AUTO_PLAY)
     }
 
+    override fun registerCallbacks(windowIndex: Int) {
+        curtains.forEach {
+            if ((getVideoDuration() ?: 0) - it.end > 1000){
+                //we shouldn't show skip button if the curtain in the end of video
+                createAdCallback(windowIndex, it) { curtainEndTime, windowIndex ->
+                    if (windowIndex == currentWindow) curtainShown.postValue(curtainEndTime)
+                }
+            }
+        }
+    }
+
     fun startReplayState() {
         autoPlayStateLD.postValue(AutoPlayState.START_REPLAY)
     }
@@ -264,6 +285,18 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         rewindAndPlayTrack()
     }
 
+    fun getCurrentCurtains(): ArrayList<CurtainRangeMillis> = curtains
+
+    private fun updateCurtains(newCurtains: List<CurtainRange>?){
+        curtains.clear()
+        if (!newCurtains.isNullOrEmpty()){
+            curtains = ArrayList(newCurtains.map { CurtainRangeMillis(
+                it.start?.parseTimerToMills() ?: 0L,
+                it.end?.parseTimerToMills() ?: 0L
+            ) })
+        }
+    }
+
     fun getVideoDuration() = getCurrentDuration()
     fun getVideoPosition() = getCurrentPosition()
 
@@ -275,13 +308,14 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 videoChanged = true
                 resetChronometer = true
                 vodId?.let {
-                    this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(it) ?: 0
                     postVideoIsClosed(it)
                 }
                 if (list.size <= currentWindow + 2) {
                     fetchNextVODs()
                 }
+                this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(this) ?: 0
                 getChatList(this)
+                updateCurtains(currentVod.curtainRangeModels)
             }
         }
         this.streamId = currentVod.id
@@ -312,6 +346,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun skipBackward() {
         player?.seekTo((player?.currentPosition ?: 0) - SKIP_VIDEO_TIME_MILLS)
     }
+
+    fun seekPlayerTo(position: Long) { player?.seekTo(position) }
 
     fun onVideoStarted() {
         messagesHandler.post(messagesRunnable)
@@ -468,8 +504,32 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     fun seekToLastWatchingTime() {
         if (videoChanged) {
-            player?.seekTo(stopWatchingTime)
+            var endOfCurtainOnBeginning = 0L
+            curtains.forEach{
+                if (stopWatchingTime >= it.start && stopWatchingTime < it.end){
+                    if (stopWatchingTime == 0L) {
+                        endOfCurtainOnBeginning = it.end
+                    } else {
+                        endOfCurtain =  it.end
+                    }
+                    return@forEach
+                }
+            }
+            val timeToSeekTo = if (endOfCurtainOnBeginning != 0L) endOfCurtainOnBeginning else stopWatchingTime
+            player?.seekTo(timeToSeekTo)
             videoChanged = false
+        }
+    }
+
+    fun shouldShowSkipButton(): Boolean = endOfCurtain != 0L
+
+    fun showSkipButtonIfRequired() {
+        if (endOfCurtain != 0L){
+            curtainShown.postValue(endOfCurtain)
+            viewModelScope.launch {
+                delay(500)
+                endOfCurtain = 0L
+            }
         }
     }
 }

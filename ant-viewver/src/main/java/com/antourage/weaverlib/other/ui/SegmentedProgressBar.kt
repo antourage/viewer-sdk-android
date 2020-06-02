@@ -9,8 +9,7 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.CurtainRange
-import com.antourage.weaverlib.other.parseToMills
+import com.antourage.weaverlib.other.models.CurtainRangeMillis
 import kotlin.math.min
 
 internal class SegmentedProgressBar : View {
@@ -28,7 +27,7 @@ internal class SegmentedProgressBar : View {
     private var progress = 0
     private var progressSegment = 0f
     private var curtainsSegments = ArrayList<CurtainRangeSegments>()
-    private var curtainsRange = ArrayList<CurtainRange>()
+    private var curtainsRange = ArrayList<CurtainRangeMillis>()
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(attrs)
@@ -39,14 +38,15 @@ internal class SegmentedProgressBar : View {
         init(attrs)
     }
 
-
-    private fun getPX(dp: Float): Int {
-        return (resources.displayMetrics.density * dp).toInt()
-    }
-
     internal fun setMax(max: Int) {
-        this.max = max
-        postInvalidate()
+        if (this.max != max){
+            this.max = max
+            //todo: uncommit if required
+            /*if (curtainsSegments.isNotEmpty()){
+                curtainsSegments.clear()
+            }*/
+            postInvalidate()
+        }
     }
 
     private fun init(attrs: AttributeSet) {
@@ -101,20 +101,19 @@ internal class SegmentedProgressBar : View {
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
-        var state = state
+        var restoredState = state
         if (state is Bundle) {
-            val bundle = state
-
             // restore our added state - progress, max and curtain
-            setProgress(bundle.getInt("progress"))
-            setMax(bundle.getInt("max"))
-            setListOfCurtains(bundle.getParcelableArrayList<CurtainRange>("curtains")
-                    as ArrayList<CurtainRange>)
+            setProgress(state.getInt("progress"))
+            setMax(state.getInt("max"))
+            setListOfCurtains(
+                state.getParcelableArrayList<CurtainRangeMillis>("curtains")
+                    as ArrayList<CurtainRangeMillis>)
 
             // restore super state
-            state = bundle.getParcelable("superState")
+            restoredState = state.getParcelable("superState")
         }
-        super.onRestoreInstanceState(state)
+        super.onRestoreInstanceState(restoredState)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -165,39 +164,36 @@ internal class SegmentedProgressBar : View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    internal fun setProgress(progress: Int) {
+    internal fun setProgress(progress: Int, shouldUpdateView : Boolean = true) {
         val currProgress = constrain(progress, min, max)
         if (currProgress == this.progress) return
         this.progress = progress
-        postInvalidate()
+        if (shouldUpdateView) postInvalidate()
     }
 
-    /*
-    * Should be called after max was set;
-    * TODO: Possibly combine with setMax()
-    */
-    internal fun setListOfCurtains(curtains: List<CurtainRange>){
-        //todo: uncommit
-        /*if (curtainsRange != curtains){
+    /**
+     * Should be called after max was set;
+     */
+    private fun setListOfCurtains(curtains: List<CurtainRangeMillis>){
+        if (curtainsRange != curtains){
             curtainsRange.clear()
             curtainsSegments.clear()
-            curtainsRange = ArrayList(curtains.map { it.copy() })
-            curtainsRange.forEach {
-                transformCurtainRangeToSegment(it)?.let {segment ->  curtainsSegments.add(segment)}
+            if (curtains.isNotEmpty()){
+                curtainsRange = ArrayList(curtains.map { it.copy() })
+                curtainsRange.forEach {
+                    curtainsSegments.add(CurtainRangeSegments(
+                        getTimePointSegment(it.start),
+                        getTimePointSegment(it.end)
+                    ))
+                }
             }
             postInvalidate()
-        }*/
+        }
     }
 
-    private fun transformCurtainRangeToSegment(curtain: CurtainRange) :CurtainRangeSegments?{
-        val start = curtain.start?.parseToMills()
-        val end = curtain.end?.parseToMills()
-
-        return if (start!= null && end != null){
-            CurtainRangeSegments(getTimePointSegment(start), getTimePointSegment(end))
-        } else {
-            null
-        }
+    fun setListOfCurtainsAndMax(curtains: List<CurtainRangeMillis>, max: Int){
+        setMax(max)
+        setListOfCurtains(curtains)
     }
 
     private fun getTimePointSegment(point : Long) : Float {

@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
@@ -87,7 +88,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     open fun onTrackEnd() {}
 
+    open fun registerCallbacks(windowIndex: Int) {}
+
     open fun onVideoChanged() {}
+
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
 
@@ -228,7 +232,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         timestamp: String = Timestamp(System.currentTimeMillis()).toString()
     ) {
         streamId?.let { id ->
-            val response : LiveData<Resource<SimpleResponse>> = when (this) {
+            val response: LiveData<Resource<SimpleResponse>> = when (this) {
                 is VideoViewModel -> {
                     Repository.postVideoOpened(
                         VideoOpenedRequest(id, getBatteryLevel(), timestamp)
@@ -240,14 +244,19 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         LiveOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
                 }
-                else -> {return}
+                else -> {
+                    return
+                }
             }
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(resource: Resource<SimpleResponse>?) {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d("STAT_OPEN", "Failed to send /open: ${resource.status.errorMessage}")
+                                Log.d(
+                                    "STAT_OPEN",
+                                    "Failed to send /open: ${resource.status.errorMessage}"
+                                )
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
@@ -263,8 +272,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     protected fun postVideoIsClosed(
-        videoId : Int? = null,
-        timestamp: String = Timestamp(System.currentTimeMillis()).toString()) {
+        videoId: Int? = null,
+        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+    ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
             when (this) {
@@ -274,11 +284,11 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
                     LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
                 )
-                else -> { }
+                else -> {
+                }
             }
         }
     }
-
 
 
     //region Listeners
@@ -326,7 +336,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 currentWindow = player?.currentWindowIndex ?: 0
-                errorLiveData.value = true
+                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) errorLiveData.value = true
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
             Log.d(
@@ -341,6 +351,14 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             )
             if (err.cause is BehindLiveWindowException) {
                 player?.prepare(getMediaSource(streamUrl), false, true)
+            } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
+                if (this@BasePlayerViewModel is PlayerViewModel){
+                    stopwatch.stopIfRunning()
+                    onLiveStreamEnded()
+                } else {
+                    errorLiveData.value = true
+                    error.postValue(err.toString())
+                }
             } else {
                 error.postValue(err.toString())
             }
@@ -363,14 +381,30 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 if (player!!.duration != C.TIME_UNSET){
                     player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
                         .setHandler(Handler())
-                        .setPosition(currentWindow, player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS)
+                        .setPosition(
+                            currentWindow,
+                            player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
+                        )
                         .setDeleteAfterDelivery(false)
                         .send()
+                    registerCallbacks(currentWindow)
                 }
             }
         }
     }
     //endregion
+
+    protected fun createAdCallback(
+        windowIndex: Int,
+        curtainRangeMillis: CurtainRangeMillis,
+        onAddStarted: (curtainEndTime: Long, windowIndex: Int) -> Unit
+    ) {
+        player!!.createMessage { _, _ -> onAddStarted(curtainRangeMillis.end, windowIndex)}
+            .setHandler(Handler())
+            .setPosition(windowIndex, curtainRangeMillis.start)
+            .setDeleteAfterDelivery(false)
+            .send()
+    }
 
     /**
      * method used to update live viewers count in real time on player screen ONLY for LIVE

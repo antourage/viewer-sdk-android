@@ -307,6 +307,13 @@ internal fun String.parseToMills(): Long {
     return inputFmt.parse(this).time
 }
 
+internal fun String.parseTimerToMills(): Long {
+    val stringToParse =  if (this.length > 8) this.substring(0, 8) else this
+    val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
+    inputFmt.timeZone = TimeZone.getTimeZone("UTC")
+    return inputFmt.parse(stringToParse)?.time ?: 0L
+}
+
 internal fun Bitmap.toMultipart(): MultipartBody.Part {
     val bos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.PNG, 75, bos)
