@@ -85,7 +85,8 @@
     <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>
     <string name="ant_save">Save</string>
-    <string name="ant_type_your_display_name">Type your display name</string>
+    <!--todo:  translate properly in sweden. Was "Type your display name"-->
+    <string name="ant_type_your_display_name">Start typing</string>
     <string name="ant_your_chat_name">Your chat name</string>
 
     <!--avatar chooser - to be deleted-->
