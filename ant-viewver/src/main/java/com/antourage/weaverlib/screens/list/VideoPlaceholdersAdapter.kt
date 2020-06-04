@@ -30,8 +30,9 @@ internal class VideoPlaceholdersAdapter :
         if (state.isEmpty() || state[0] != newState.value) setItems(arrayListOf(newState.value))
     }
 
-    fun getState(): Int{
-        return state[0]
+    fun getState(): Int {
+        return if (state.isEmpty()) 0
+        else state[0]
     }
 
     private fun setItems(newItems: ArrayList<Int>) {

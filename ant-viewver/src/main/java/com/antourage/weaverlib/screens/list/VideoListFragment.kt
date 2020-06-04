@@ -58,17 +58,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val streamsObserver: Observer<List<StreamResponse>> = Observer { list ->
         list?.let { newStreams ->
             if (newStreams.isEmpty()) {
-                Log.e(
-                    "${viewModel.liveVideosUpdated} && ${viewModel.vodsUpdated}",
-                    "LIST IS : $newStreams"
-                )
                 if (viewModel.vodsUpdatedWithoutError) {
                     if (Global.networkAvailable) showEmptyListPlaceholder()
                     else showNoConnectionPlaceHolder()
                 }
             } else {
-                isLoadingMoreVideos = false
-
                 val listBeforeUpdate =
                     mutableListOf<StreamResponse>().apply { addAll(videoAdapter.getStreams()) }
 
@@ -93,18 +87,22 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
         }
-        videoRefreshLayout.setRefreshing(false)
+        stopRefreshing()
     }
 
     private val errorObserver: Observer<String> = Observer { error ->
         error?.let { it ->
             if (Global.networkAvailable && it.isNotEmpty()) {
-                videoRefreshLayout.setRefreshing(false)
-                noContentRefreshLayout.setRefreshing(false)
-                placeholderRefreshLayout.setRefreshing(false)
+                stopRefreshing()
                 showErrorLayout()
             }
         }
+    }
+
+    private fun stopRefreshing(){
+        videoRefreshLayout.setRefreshing(false)
+        noContentRefreshLayout.setRefreshing(false)
+        placeholderRefreshLayout.setRefreshing(false)
     }
 
     private val loaderObserver: Observer<Boolean> = Observer { show ->
@@ -145,6 +143,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        initNewButtonCountdown()
         videosRV.resetVideoView()
         context?.let {
             viewModel.handleUserAuthorization()
@@ -154,7 +153,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             } else if (ConnectionStateMonitor.isNetworkAvailable(it) &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
-//                showEmptyListPlaceholder()
                 showLoadingLayout()
                 viewModel.refreshVODs(0)
             }
@@ -163,9 +161,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 resolveErrorSnackbar(R.string.ant_you_are_online)
             }
             if (videoRefreshLayout.alpha == 1f) videosRV.onResume()
-        }
 
-        initNewButtonCountdown()
+        }
     }
 
     private fun initNewButtonCountdown() {
@@ -444,7 +441,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout() {
-//        if (noContentContainer.visibility == View.VISIBLE) noContentContainer.hideWithAnimation()
         if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
         if (videoRefreshLayout.visibility == View.VISIBLE) {
             videoRefreshLayout.hideWithAnimation()
@@ -473,13 +469,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
         if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
         if (placeholderRefreshLayout.visibility == View.VISIBLE) placeholderRefreshLayout.hideWithAnimation()
-
-
-//        if (videosRV.visibility != View.VISIBLE) videosRV.revealWithAnimation()
     }
 
     private fun showEmptyListPlaceholder() {
-//        if (noContentContainer.visibility != View.VISIBLE) {
         if (noContentRefreshLayout.visibility != View.VISIBLE) {
             placeholderRefreshLayout.hideWithAnimation()
             videoRefreshLayout.hideWithAnimation()
@@ -498,6 +490,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
 
     private fun triggerNewLiveButton(isVisible: Boolean) {
+        Log.e("WTF", "triggerNewLiveButton: $isVisible" )
         if (isVisible && !isNewLiveButtonShown) {
             isNewLiveButtonShown = true
             btnNewLive.animate().translationYBy(150f).setDuration(300).start()

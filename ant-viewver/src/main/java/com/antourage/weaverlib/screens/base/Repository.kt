@@ -196,8 +196,12 @@ internal class Repository {
                         is Status.Success -> {
                             val videoList = resource.status.data
                             if (videoList != null) {
-                                updateListWithLastComments(videoList, repository) {
-                                    streamResponseLD.postValue(Resource(Status.Success(it)))
+                                if(videoList.isEmpty()){
+                                    streamResponseLD.postValue(Resource(Status.Success(videoList)))
+                                }else{
+                                    updateListWithLastComments(videoList, repository) {
+                                        streamResponseLD.postValue(Resource(Status.Success(it)))
+                                    }
                                 }
                             } else {
                                 streamResponseLD.value = resource
