@@ -121,11 +121,11 @@ internal class ReceivingVideosManager {
                                     when (resource.status) {
                                         is Status.Failure -> {
                                             callback?.onVODForFabReceived(resource)
-                                            Log.d(AntourageFab.TAG, "Get vods list request failed")
+                                            Log.d(AntourageFab.TAG, "Get vods list request failed for fab")
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
-                                            Log.d(AntourageFab.TAG, "Successfully received vods list")
+                                            Log.d(AntourageFab.TAG, "Successfully received vods list for fab")
                                             callback?.onVODForFabReceived(resource)
                                             vodsForFab = resource
                                             streamResponse.removeObserver(this)

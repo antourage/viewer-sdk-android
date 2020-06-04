@@ -103,5 +103,6 @@
     <string name="ant_at">vid</string>
     <string name="ant_send">SKICKA</string>
     <string name="ant_ten_seconds">10 sekunder</string>
+    <string name="ant_skip_curtain">skippa ridå</string>
 
 </resources>

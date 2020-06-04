@@ -21,7 +21,8 @@ internal class DevSettingsDialog(
 //        const val BASE_URL_DEV = "http://35.156.199.125/"
         const val BASE_URL_DEV = "https://docker.dev.antourage.com/"
         const val BASE_URL_LOAD = "https://docker.staging.antourage.com/"
-        const val BASE_URL_STAGING = "https://staging-myra.com/"
+//        const val BASE_URL_STAGING = "https://staging-myra.com/"
+        const val BASE_URL_STAGING = "https://docker.staging.antourage.com/"
         const val BASE_URL_PROD = "https://app.antourage.com/"
         const val DEFAULT_URL = BASE_URL_PROD
 //        const val DEFAULT_URL = BASE_URL_DEV
