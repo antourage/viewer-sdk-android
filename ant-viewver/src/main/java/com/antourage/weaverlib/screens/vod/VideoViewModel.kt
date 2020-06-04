@@ -311,7 +311,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                     postVideoIsClosed(it)
                 }
                 if (list.size <= currentWindow + 2) {
-                    fetchNextVODs()
+                    fetchNextVODsIfRequired()
                 }
                 this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(this) ?: 0
                 getChatList(this)
@@ -393,52 +393,71 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         for (i in 0 until (list.size)) {
             mediaSources.add(list[i].videoURL?.let { buildSimpleMediaSource(it) })
         }
-        mediaSource.addMediaSources(mediaSources)
+        if (mediaSources.isNotEmpty()) mediaSource.addMediaSources(mediaSources)
     }
 
-    private fun fetchNextVODs(isNewVod: Boolean = false) {
+
+    /**
+     * Checks whether current vods count divides on 15, as 15 is the batch of vods from back-end.
+     * @isNewVod - marks that we have 1 video in playlist, so will fetch next videos.
+     * Will not proceed if next batch is already fetching.
+     * If all checks successful - will also fetch next VODs.
+     */
+    private fun fetchNextVODsIfRequired(isNewVod: Boolean = false) {
         if (!isFetching) {
-            isFetching = true
             val vodsCount = if (isNewVod) 0 else Repository.vods?.size ?: 0
-            val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
-            response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
-                override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                isFetching = false
-                                Log.d(
-                                    "PLAYER_FETCH",
-                                    "Failed to load next 15 VODs: ${resource.status.errorMessage}"
-                                )
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                isFetching = false
-                                Log.d(
-                                    "PLAYER_FETCH",
-                                    "Successfully loaded next 15 VODs"
-                                )
-                                resource.status.data?.let {
-                                    val list = if (isNewVod) it.drop(1) else it
-                                    Repository.vods?.addAll(list)
-                                    addToMediaSource(list)
-                                    nextVideosFetchedLD.value = true
-                                    Log.d("PLAYER_FETCH", "was new vod $isNewVod")
+            if (vodsCount % 15 == 0 || isNewVod) {
+                fetchNextVODs( vodsCount, isNewVod)
+            }
+        }
+    }
+
+    private fun fetchNextVODs(vodsCount: Int, isNewVod: Boolean = false) {
+        isFetching = true
+        val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
+        response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
+            override fun onChanged(resource: Resource<List<StreamResponse>>?) {
+                if (resource != null) {
+                    when (resource.status) {
+                        is Status.Failure -> {
+                            isFetching = false
+                            Log.d(
+                                "PLAYER_FETCH",
+                                "Failed to load next 15 VODs: ${resource.status.errorMessage}"
+                            )
+                            response.removeObserver(this)
+                        }
+                        is Status.Success -> {
+                            isFetching = false
+                            Log.d("PLAYER_FETCH", "Successfully loaded next 15 VODs")
+                            resource.status.data?.let {
+                                var list = listOf<StreamResponse>()
+                                if (isNewVod){
+                                    list = it.drop(1)
+                                } else {
+                                    val lastVideoId = Repository.vods?.last()?.id ?: 0
+                                    if (!it.any { video -> video.id == lastVideoId }){
+                                        list = it
+                                    }
                                 }
-                                response.removeObserver(this)
+
+                                Repository.vods?.addAll(list)
+                                addToMediaSource(list)
+                                nextVideosFetchedLD.value = true
+                                Log.d("PLAYER_FETCH", "was new vod $isNewVod")
                             }
+                            response.removeObserver(this)
                         }
                     }
                 }
-            })
-        }
+            }
+        })
     }
 
     private fun fetchNextVODsIfTheLast(id: Int, isNewVod: Boolean = false) {
         Repository.vods?.let {
             if (it.last().id == id ){
-                fetchNextVODs(isNewVod && it.size == 1)
+                fetchNextVODsIfRequired(isNewVod && it.size == 1)
             }
         }
     }
