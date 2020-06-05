@@ -465,7 +465,6 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         autoPlayImageView?.setImageDrawable(autoPlayAnimatedDrawable)
         autoPlayImageView?.background = null
         autoPlayAnimatedDrawable?.apply {
-            clearAnimationCallbacks()
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     start()

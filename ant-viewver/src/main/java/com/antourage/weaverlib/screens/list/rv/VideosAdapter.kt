@@ -4,6 +4,7 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,16 +50,20 @@ internal class VideosAdapter(
     fun setStreamList(newListOfStreams: List<StreamResponse>) {
         val diffCallback = StreamItemDiffCallback(this.listOfStreams, newListOfStreams)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
+
         this.listOfStreams.clear()
         this.listOfStreams.addAll(newListOfStreams)
         recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
+
+        diffResult.dispatchUpdatesTo(this)
+
         if (isListInitial && listOfStreams.isNotEmpty()) {
             recyclerView.afterMeasured {
                 this.playVideo()
             }
             isListInitial = false
         }
-        diffResult.dispatchUpdatesTo(this)
+
     }
 
     fun setStreamListForceUpdate(newListOfStreams: List<StreamResponse>) {
@@ -156,16 +161,18 @@ internal class VideosAdapter(
             for (key in bundle.keySet()) {
                 if (key == ARGS_REFRESH_VIEWS) {
                     if (holder is LiveVideoViewHolder) {
-                        holder.itemView.txtViewersCount_live.text =
-                            listOfStreams[position].viewsCount.toString()
+                        holder.setViews(listOfStreams[position].viewsCount.toString())
+//                        holder.itemView.txtViewersCount_live.text =
+//                            listOfStreams[position].viewsCount.toString()
                     } else if (holder is VODViewHolder) {
                         holder.itemView.txtViewsCount_vod.text =
                             listOfStreams[position].viewsCount.toString()
                     }
                 }
             }
+        }else{
+            super.onBindViewHolder(holder, position, payloads)
         }
-        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -224,6 +231,10 @@ internal class VideosAdapter(
 
     inner class LiveVideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var parent: View = itemView
+        fun setViews(views: String){
+            itemView.txtViewersCount_live.text = views
+        }
+
         fun bindView(liveStream: StreamResponse) {
             parent.tag = this
             with(itemView) {
