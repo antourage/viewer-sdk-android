@@ -71,7 +71,7 @@
             android:layout_width="0dp"
             android:layout_height="4dp"
             android:visibility="visible"
-            app:barHeight="4dp"
+            app:barHeight="4.5dp"
             app:backgroundColor="@color/ant_white_a60"
             app:segmentColor="@color/ant_yellow"
             app:progressColor="@color/ant_pink"
