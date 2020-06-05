@@ -170,12 +170,14 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         canShowNewButton = false
         Handler().postDelayed({
             canShowNewButton = true
-        }, 3000)
+        }, 1500)
     }
 
     override fun onPause() {
         super.onPause()
         videosRV.onPause()
+        triggerNewLiveButton(isVisible = false, isPause = true)
+        canShowNewButton = false
         viewModel.onPause()
         viewModel.errorLiveData.postValue(null)
     }
@@ -315,7 +317,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 videosRV.setPadding(0, 0, 0, (bottomSheet.height * offset).toInt())
                 if (canScroll) {
                     canScroll = if (lastOffset > offset) {
-                        videosRV.smoothScrollBy(0, (bottomSheet.height))
+                        if(videoRefreshLayout.alpha == 1f && videosRV.canScrollVertically(-1)){
+                            videosRV.smoothScrollBy(0, (bottomSheet.height))
+                        }
                         false
                     } else {
                         videosRV.smoothScrollBy(0, -(bottomSheet.height))
@@ -488,16 +492,24 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         showErrorSnackbar(R.string.ant_no_connection)
     }
 
+    private fun triggerNewLiveButton(isVisible: Boolean, isPause: Boolean = false) {
 
-    private fun triggerNewLiveButton(isVisible: Boolean) {
-        Log.e("WTF", "triggerNewLiveButton: $isVisible" )
         if (isVisible && !isNewLiveButtonShown) {
             isNewLiveButtonShown = true
-            btnNewLive.animate().translationYBy(150f).setDuration(300).start()
-        } else if (!isVisible && isNewLiveButtonShown) {
-            newLivesList.clear()
-            isNewLiveButtonShown = false
-            btnNewLive.animate().translationY(0f).setDuration(300).start()
+            if(btnNewLive != null){
+                btnNewLive.alpha = 1f
+                btnNewLive.animate().translationYBy(150f).setDuration(300).start()
+            }
+        } else if (!isVisible) {
+            if(!isPause){
+                newLivesList.clear()
+            }
+            if(isNewLiveButtonShown){
+                isNewLiveButtonShown = false
+                if(btnNewLive != null){
+                    btnNewLive.animate().translationY(0f).setDuration(300).withEndAction{btnNewLive.alpha = 0f}.start()
+                }
+            }
         }
     }
 
@@ -508,7 +520,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 iterator.remove()
             }
         }
-        if (newLivesList.isEmpty()) {
+        if (newLivesList.isEmpty() && isNewLiveButtonShown) {
             triggerNewLiveButton(false)
         }
     }
@@ -517,17 +529,20 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         newStreams: List<StreamResponse>,
         oldStreams: List<StreamResponse>
     ) {
-        if (!isInitialListSet && canShowNewButton) {
+        if (!isInitialListSet && canShowNewButton && oldStreams.isNotEmpty()) {
             for (stream in newStreams) {
                 if (stream.isLive && oldStreams.none { it.id == stream.id }) {
                     if (videoAdapter.getStreams()
                             .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
                     ) {
                         newLivesList.add(stream)
-                        triggerNewLiveButton(true)
                         break
                     }
                 }
+            }
+
+            if(newLivesList.isNotEmpty() && oldStreams.isNotEmpty()){
+                triggerNewLiveButton(true)
             }
         }
     }
