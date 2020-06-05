@@ -338,4 +338,6 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
         messagesLiveData.postValue(list)
     }
+
+    fun getDuration() = getCurrentDuration()
 }
