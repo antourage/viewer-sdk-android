@@ -118,7 +118,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
     }
 
-    private val viewersChangeObserver: Observer<Pair<Int, Int>> = Observer { viewInfo ->
+    private val viewersChangeObserver: Observer<Pair<Int, Long>> = Observer { viewInfo ->
         viewInfo?.apply {
             if (first == viewModel.streamId) {
                 txtNumberOfViewers.text = second.toString()
