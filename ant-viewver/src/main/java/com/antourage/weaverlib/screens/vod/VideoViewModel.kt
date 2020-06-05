@@ -76,8 +76,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getCurrentVideo(): LiveData<StreamResponse> = currentVideo
 
     //firstValue - Id, second - Viewers
-    private val currentViewers: MutableLiveData<Pair<Int, Int>> = MutableLiveData()
-    fun getCurrentViewersLD(): LiveData<Pair<Int, Int>> = currentViewers
+    private val currentViewers: MutableLiveData<Pair<Int, Long>> = MutableLiveData()
+    fun getCurrentViewersLD(): LiveData<Pair<Int, Long>> = currentViewers
 
     //long - curtain end time in millis
     private val curtainShown: SingleLiveEvent<Long> = SingleLiveEvent()

@@ -54,7 +54,7 @@ data class StreamResponse(
     @field:SerializedName("channelId") val channelId: Int?,
     @field:SerializedName("duration") val duration: String?,
     @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
-    @field:SerializedName("viewsCount") var viewsCount: Int?,
+    @field:SerializedName("viewsCount") var viewsCount: Long?,
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") val viewersCount: Int?,
