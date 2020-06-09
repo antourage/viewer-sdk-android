@@ -9,7 +9,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
-import android.os.SystemClock
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
@@ -40,6 +39,16 @@ import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
@@ -54,7 +63,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private var wasDrawerClosed = false
     private var userDialog: Dialog? = null
-    private var isChronometerRunning = false
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -99,17 +107,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     hideLoading()
                 }
             }
-        if (state == Player.STATE_READY && !viewModel.isPlaybackPaused()) {
-            if (!isChronometerRunning) {
-                isChronometerRunning = true
-                live_control_chronometer.start()
-            }
-        } else {
-            if (isChronometerRunning) {
-                isChronometerRunning = false
-                live_control_chronometer.stop()
-            }
-        }
     }
 
     private val chatStateObserver: Observer<ChatStatus> = Observer { state ->
@@ -165,11 +162,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         txtLabelLive.visibility = View.GONE
         //hides controls appearance
         controls.visibility = View.GONE
-        live_control_chronometer.visibility = View.INVISIBLE
+        live_control_timer.visibility = View.INVISIBLE
         live_buttons_layout.visibility = View.INVISIBLE
 
         txtNumberOfViewers.marginDp(6f, 6f)
-        tv_live_end_time.text = live_control_chronometer.text
+        tv_live_end_time.text = viewModel.getDuration()?.formatTimeMillisToTimer() ?: "0:00"
         tv_live_end_time.visibility = View.VISIBLE
         enableMessageInput(false, disableButtons = true)
         if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
@@ -332,6 +329,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initClickListeners()
         initKeyboardListener()
         initControlsVisibilityListener()
+        initProgressListener()
     }
 
     private fun startUserInputIfRequesting() {
@@ -344,6 +342,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             etMessage.isFocusable = true
             etMessage.isFocusableInTouchMode = true
             showKeyboard(etMessage)
+        }
+    }
+
+    private fun initProgressListener() {
+        controls.setProgressUpdateListener { pos, _ ->
+            live_control_timer.text = pos.formatTimeMillisToTimer()
         }
     }
 
@@ -638,27 +642,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             txtNumberOfViewers.text = viewersCount.toString()
             setWasLiveText(context?.let { startTime?.parseDateLong(it) })
-            if (startTime != null) {
-                initChronometer(startTime)
-                startTime.parseToDate()?.time?.let {setStartTime(it)}
-
-            } else {
-                live_control_chronometer.visibility = View.GONE
-            }
-
-        }
-    }
-
-    //starts updates of current time of live video watching
-    private fun initChronometer(startTime: String) {
-        if (!isChronometerRunning) {
-            live_control_chronometer.visibility = View.VISIBLE
-            live_control_chronometer.base =
-                SystemClock.elapsedRealtime() - (System.currentTimeMillis() - (convertUtcToLocal(
-                    startTime
-                )?.time ?: 0))
-            isChronometerRunning = true
-            live_control_chronometer.start()
+            if (startTime != null) { startTime.parseToDate()?.time?.let {setStartTime(it)} }
         }
     }
 

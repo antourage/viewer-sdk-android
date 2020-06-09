@@ -61,8 +61,8 @@
             app:layout_constraintRight_toRightOf="parent"
             tools:ignore="ContentDescription" />
 
-    <Chronometer
-            android:id="@+id/live_control_chronometer"
+    <TextView
+            android:id="@+id/live_control_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
@@ -72,7 +72,7 @@
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="@string/ant_init_time_doubled" />
+            android:text="@string/ant_init_time" />
 
     <!--should be shown only in landscape-->
     <include
