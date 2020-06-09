@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -359,6 +360,17 @@ internal class VideoPlayerRecyclerView : RecyclerView {
 
             if (child.tag is VideosAdapter.LiveVideoViewHolder) {
                 holder = child.tag as VideosAdapter.LiveVideoViewHolder
+            } else if (child.tag is VideosAdapter.VODViewHolder) {
+                holder = child.tag as VideosAdapter.VODViewHolder
+            }
+
+            if (holder == null) {
+                playPosition = -1
+                return
+            }
+
+            if (child.tag is VideosAdapter.LiveVideoViewHolder) {
+//                holder = child.tag as VideosAdapter.LiveVideoViewHolder
                 frameLayout = holder.itemView.mediaContainer_live
                 thumbnail = holder.itemView.ivThumbnail_live
                 mediaUrl = streams[targetPosition].hlsUrl?.get(0)
@@ -367,7 +379,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
                 autoPlayImageView = holder.itemView.ivAutoPlay_live
                 autoPlayTextView = holder.itemView.txtAutoPlayDuration_live
             } else if (child.tag is VideosAdapter.VODViewHolder) {
-                holder = child.tag as VideosAdapter.VODViewHolder
+//                holder = child.tag as VideosAdapter.VODViewHolder
                 frameLayout = holder.itemView.mediaContainer_vod
                 thumbnail = holder.itemView.ivThumbnail_vod
                 mediaUrl = streams[targetPosition].videoURL
@@ -379,10 +391,6 @@ internal class VideoPlayerRecyclerView : RecyclerView {
                 duration = holder.itemView.txtDuration_vod
                 replayView = holder.itemView.replayContainer
                 watchingProgress = holder.itemView.watchingProgress
-            }
-            if (holder == null) {
-                playPosition = -1
-                return
             }
 
             viewHolderParent = holder.itemView
@@ -449,7 +457,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         }
     }
 
-    private fun initAutoPlayAnimation(){
+    private fun initAutoPlayAnimation() {
         autoPlayAnimatedDrawable = context?.let {
             AnimatedVectorDrawableCompat.create(
                 it,
@@ -462,12 +470,14 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
             initAutoPlayAnimation()
         }
+
+        autoPlayImageView?.setImageDrawable(null)
         autoPlayImageView?.setImageDrawable(autoPlayAnimatedDrawable)
-        autoPlayImageView?.background = null
         autoPlayAnimatedDrawable?.apply {
+            clearAnimationCallbacks()
             registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                    start()
+                    animateAutoPlay()
                 }
             })
             start()
