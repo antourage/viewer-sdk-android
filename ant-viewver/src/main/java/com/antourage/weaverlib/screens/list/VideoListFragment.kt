@@ -68,6 +68,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
                 videosRV.resumePlaying()
 
+                isLoadingMoreVideos = false
+
                 if (videoRefreshLayout.mIsRefreshing) {
                     videoAdapter.setStreamListForceUpdate(newStreams)
                     videosRV.onRefresh()
