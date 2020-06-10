@@ -76,6 +76,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                     }
                 } else {
                     if (isChatTurnedOn) chatStatusLiveData.postValue(ChatStatus.ChatNoMessages)
+                    messagesLiveData.value = listOf()
                 }
             }
         }
