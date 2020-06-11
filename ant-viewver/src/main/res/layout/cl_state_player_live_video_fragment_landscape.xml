@@ -284,10 +284,13 @@
 
     <androidx.constraintlayout.motion.widget.MotionLayout
             android:id="@+id/polls_motion_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
             android:visibility="invisible"
+            tools:visibility="visible"
+            app:layoutDescription="@xml/scene_poll_expand"
+            app:layout_constraintStart_toEndOf="@+id/guideline_half"
             app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
             app:layout_constraintEnd_toEndOf="parent">
 

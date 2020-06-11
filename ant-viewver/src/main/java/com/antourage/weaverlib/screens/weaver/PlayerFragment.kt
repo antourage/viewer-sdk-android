@@ -187,7 +187,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 is PollStatus.ActivePoll -> {
                     poll_name?.text = state.poll.question
-                    showPollStatusLayout(orientation() == Configuration.ORIENTATION_PORTRAIT)
+                    showPollStatusLayout(true)
                 }
                 is PollStatus.ActivePollDismissed -> {
                     if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
