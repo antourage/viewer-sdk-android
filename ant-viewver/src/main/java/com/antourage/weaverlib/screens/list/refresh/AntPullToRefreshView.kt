@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.list.refresh
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -70,9 +71,9 @@ class AntPullToRefreshView @JvmOverloads constructor(
         mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         totalDragDistance = dp2px(context, DRAG_MAX_DISTANCE).toInt()
         initBar()
+        setRefreshing(false)
         setWillNotDraw(false)
         ViewCompat.setChildrenDrawingOrderEnabled(this, true)
-        isNestedScrollingEnabled = true
     }
 
 
@@ -250,9 +251,11 @@ class AntPullToRefreshView @JvmOverloads constructor(
     private fun animateOffsetToStartPosition() {
         mFrom = mCurrentOffsetTop
         mFromDragPercent = mCurrentDragPercent
+        val animationDuration = abs((MAX_OFFSET_ANIMATION_DURATION * mFromDragPercent).toLong())
 
         mAnimateToStartPosition.reset()
-        mAnimateToStartPosition.duration = MAX_OFFSET_ANIMATION_DURATION.toLong()
+//        mAnimateToStartPosition.duration = MAX_OFFSET_ANIMATION_DURATION.toLong()
+        mAnimateToStartPosition.duration = animationDuration.toLong()
         mAnimateToStartPosition.interpolator = mDecelerateInterpolator
         mAnimateToStartPosition.setAnimationListener(mToStartListener)
         mAntBaseProgressBar.clearAnimation()
@@ -374,8 +377,8 @@ class AntPullToRefreshView @JvmOverloads constructor(
     }
 
     private fun setTargetOffsetTop(offset: Int) {
+        Log.e("TAG", "OFFSET $offset" )
         mTarget?.offsetTopAndBottom(offset)
-//        mAntBaseProgressBar.offsetTopAndBottom(offset)
         mCurrentOffsetTop = mTarget!!.top
     }
 

@@ -101,7 +101,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun stopRefreshing(){
+    private fun stopRefreshing() {
         videoRefreshLayout.setRefreshing(false)
         noContentRefreshLayout.setRefreshing(false)
         placeholderRefreshLayout.setRefreshing(false)
@@ -319,7 +319,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 videosRV.setPadding(0, 0, 0, (bottomSheet.height * offset).toInt())
                 if (canScroll) {
                     canScroll = if (lastOffset > offset) {
-                        if(videoRefreshLayout.alpha == 1f && videosRV.canScrollVertically(-1)){
+                        if (videoRefreshLayout.alpha == 1f && videosRV.canScrollVertically(-1)) {
                             videosRV.smoothScrollBy(0, (bottomSheet.height))
                         }
                         false
@@ -452,8 +452,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             videoRefreshLayout.hideWithAnimation()
         }
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
-        placeholderRefreshLayout.revealWithAnimation()
-        placeHolderRV.revealWithAnimation()
+        if (placeholderRefreshLayout.alpha != 1f) {
+            placeholderRefreshLayout.revealWithAnimation()
+            placeHolderRV.revealWithAnimation()
+        }
     }
 
     private fun showErrorLayout() {
@@ -489,8 +491,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun showNoConnectionPlaceHolder() {
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
-        placeholderRefreshLayout.revealWithAnimation()
-        placeHolderRV.revealWithAnimation()
+        if (placeholderRefreshLayout.alpha != 1f) {
+            placeholderRefreshLayout.revealWithAnimation()
+            placeHolderRV.revealWithAnimation()
+        }
         showErrorSnackbar(R.string.ant_no_connection)
     }
 
@@ -498,18 +502,19 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         if (isVisible && !isNewLiveButtonShown) {
             isNewLiveButtonShown = true
-            if(btnNewLive != null){
+            if (btnNewLive != null) {
                 btnNewLive.alpha = 1f
                 btnNewLive.animate().translationYBy(150f).setDuration(300).start()
             }
         } else if (!isVisible) {
-            if(!isPause){
+            if (!isPause) {
                 newLivesList.clear()
             }
-            if(isNewLiveButtonShown){
+            if (isNewLiveButtonShown) {
                 isNewLiveButtonShown = false
-                if(btnNewLive != null){
-                    btnNewLive.animate().translationY(0f).setDuration(300).withEndAction{btnNewLive.alpha = 0f}.start()
+                if (btnNewLive != null) {
+                    btnNewLive.animate().translationY(0f).setDuration(300)
+                        .withEndAction { btnNewLive.alpha = 0f }.start()
                 }
             }
         }
@@ -543,7 +548,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
 
-            if(newLivesList.isNotEmpty() && oldStreams.isNotEmpty()){
+            if (newLivesList.isNotEmpty() && oldStreams.isNotEmpty()) {
                 triggerNewLiveButton(true)
             }
         }

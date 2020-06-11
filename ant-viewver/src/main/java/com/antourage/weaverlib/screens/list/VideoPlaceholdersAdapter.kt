@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.list
 
 import android.content.Context
+import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.recyclerview.widget.DiffUtil
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.screens.list.rv.PlaceHolderDiffCallback
+import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback
+import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import kotlinx.android.synthetic.main.item_video_placeholder.view.*
 import org.jetbrains.anko.windowManager
 
@@ -36,9 +42,15 @@ internal class VideoPlaceholdersAdapter :
     }
 
     private fun setItems(newItems: ArrayList<Int>) {
+        val diffCallback = PlaceHolderDiffCallback(state, newItems)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        diffResult.dispatchUpdatesTo(this)
+
         this.state.clear()
         this.state.addAll(newItems)
-        notifyDataSetChanged()
+
+//        notifyDataSetChanged()
     }
 
     private fun setThumbnailSize(view: View) {
@@ -76,7 +88,43 @@ internal class VideoPlaceholdersAdapter :
         holder.bindView()
     }
 
+    override fun onBindViewHolder(
+        holder: PlaceholderViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isNotEmpty()) {
+            val bundle = payloads[0] as Bundle
+            for (key in bundle.keySet()) {
+                when (key) {
+                    PlaceHolderDiffCallback.STATE -> {
+                        holder.setState(bundle.getInt(key))
+                    }
+                }
+            }
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     inner class PlaceholderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        fun setState(state: Int){
+            with(itemView){
+                when (state) {
+                    LoadingState.LOADING.value -> {
+                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_video)
+                    }
+                    LoadingState.NO_INTERNET.value -> {
+                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_no_connection)
+                    }
+                    LoadingState.ERROR.value -> {
+                        ivThumbnail_holder.setImageResource(R.drawable.antourage_ic_placeholder_error)
+                    }
+                }
+            }
+        }
+
         fun bindView() {
             with(itemView) {
                 setThumbnailSize(ivThumbnail_holder)
