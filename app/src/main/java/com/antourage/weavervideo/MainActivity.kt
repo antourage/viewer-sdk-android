@@ -1,5 +1,6 @@
 package com.antourage.weavervideo
 
+import android.R.attr.fragment
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -7,8 +8,12 @@ import androidx.multidex.MultiDex
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
 import com.antourage.weaverlib.ui.fab.UserAuthResult
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
@@ -31,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         Picasso.get().load(R.drawable.hacken_header).into(header)
         Picasso.get().load(R.drawable.hacken_header_overlay).into(header_overlay)
         Picasso.get().load(R.drawable.hacken_footer).into(footer)
+
         Picasso.get().load(R.drawable.hacken_background).into(mainContent)
 
         //region Antourage authorization
