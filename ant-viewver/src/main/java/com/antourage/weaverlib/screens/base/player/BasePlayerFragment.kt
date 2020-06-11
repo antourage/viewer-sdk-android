@@ -142,7 +142,6 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         requireActivity().registerReceiver(minuteUpdateReceiver, intentFilter)
     }
 
-
     override fun initUi(view: View?) {
         view?.run {
             ivLoader = findViewById(R.id.ivLoader)

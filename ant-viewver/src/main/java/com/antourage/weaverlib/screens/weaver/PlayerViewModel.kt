@@ -41,7 +41,6 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     private val pollStatusLiveData: MutableLiveData<PollStatus> = MutableLiveData()
     private val chatStatusLiveData: MutableLiveData<ChatStatus> = MutableLiveData()
     private val userInfoLiveData: MutableLiveData<User> = MutableLiveData()
-    private val loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val isCurrentStreamStillLiveLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     internal var currentPoll: Poll? = null
@@ -54,7 +53,6 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     internal fun getPollStatusLiveData(): LiveData<PollStatus> = pollStatusLiveData
     fun getChatStatusLiveData(): LiveData<ChatStatus> = chatStatusLiveData
     fun getUserInfoLiveData(): LiveData<User> = userInfoLiveData
-    fun getLoaderLiveData(): LiveData<Boolean> = loaderLiveData
     fun getCurrentLiveStreamInfo() = isCurrentStreamStillLiveLiveData
     fun getUser() = user
 
@@ -138,6 +136,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
     }
 
+    //Didn't deleted, as it can be useful in some next design refinement
     fun onAvatarChanged(it: Bitmap) {
         avatarDeleted = false
         newAvatar = it
@@ -298,15 +297,12 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(it: Resource<SimpleResponse>?) {
                     when (it?.status) {
-                        is Status.Loading -> loaderLiveData.postValue(true)
                         is Status.Success -> {
-                            loaderLiveData.postValue(false)
                             user?.displayName = newDisplayName
                             userInfoLiveData.postValue(user)
                             response.removeObserver(this)
                         }
                         is Status.Failure -> {
-                            loaderLiveData.postValue(false)
                             response.removeObserver(this)
                         }
                     }

@@ -353,12 +353,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 player?.prepare(getMediaSource(streamUrl), false, true)
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
                 if (this@BasePlayerViewModel is PlayerViewModel){
-                    stopwatch.stopIfRunning()
-                    onLiveStreamEnded()
-                } else {
-                    errorLiveData.value = true
-                    error.postValue(err.toString())
+                    player?.prepare(getMediaSource(streamUrl), false, true)
                 }
+                errorLiveData.value = true
+                error.postValue(err.toString())
             } else {
                 error.postValue(err.toString())
             }
