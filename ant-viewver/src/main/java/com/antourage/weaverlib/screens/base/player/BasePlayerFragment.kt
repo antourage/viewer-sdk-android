@@ -166,7 +166,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
 
             //for portrait only
             ivClose = findViewById(R.id.play_header_iv_close)
-            ivClose.setOnClickListener { onCloseClicked() }
+            ivClose.setOnClickListener {
+                it.isEnabled = false
+                onCloseClicked()
+            }
 
             controllerHeaderLayout.visibility = View.GONE
 

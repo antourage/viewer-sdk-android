@@ -331,6 +331,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         initSkipControls()
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
             .setOnClickListener {
+                it.isEnabled = false
                 onCloseClicked()
             }
         initControlsVisibilityListener()

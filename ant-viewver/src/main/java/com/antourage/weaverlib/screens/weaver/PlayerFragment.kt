@@ -671,7 +671,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
 
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
-            .setOnClickListener { onCloseClicked() }
+            .setOnClickListener {
+                it.isEnabled = false
+                onCloseClicked()
+            }
     }
 
     private fun showFullScreenIcon() {

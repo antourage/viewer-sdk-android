@@ -56,6 +56,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
+    //var to track whether opened video request was sent in order to send close
+    private var lastStatOpenedID : Int? = null
 
     //should be used for all kinds of error, which user should be informed with.
     //will always show same error message to user, that's why used Boolean
@@ -237,7 +239,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     Repository.postVideoOpened(
                         VideoOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
-
                 }
                 is PlayerViewModel -> {
                     Repository.postLiveOpened(
@@ -253,14 +254,14 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d(
-                                    "STAT_OPEN",
+                                Log.d("STAT_OPEN",
                                     "Failed to send /open: ${resource.status.errorMessage}"
                                 )
                                 response.removeObserver(this)
                             }
                             is Status.Success -> {
                                 Log.d("STAT_OPEN", "Successfully sent /open")
+                                lastStatOpenedID = id
                                 onOpenStatisticUpdate(id)
                                 response.removeObserver(this)
                             }
@@ -277,15 +278,17 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
-            when (this) {
-                is VideoViewModel -> Repository.postVideoClosedInternalObserve(
-                    VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                )
-                is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
-                    LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                )
-                else -> {
+            if (id == lastStatOpenedID){
+                when (this) {
+                    is VideoViewModel -> Repository.postVideoClosedInternalObserve(
+                        VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
+                    )
+                    is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
+                        LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
+                    )
+                    else -> { }
                 }
+                lastStatOpenedID = null
             }
         }
     }
