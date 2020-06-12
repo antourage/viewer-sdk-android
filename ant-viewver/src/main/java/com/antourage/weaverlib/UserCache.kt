@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
 import java.lang.ref.WeakReference
 import java.util.*
@@ -22,6 +23,8 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
+        private const val SP_BANNER_IMAGE = "sp_banner_image"
+        private const val SP_BANNER_URL = "sp_banner_url"
         private const val SP_USER_ID = "sp_user_id"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
@@ -64,6 +67,20 @@ internal class UserCache private constructor(context: Context) {
             i++
         }
         return savedList.toHashSet()
+    }
+
+    fun saveBanner(ad: AdBanner?){
+        prefs?.edit()
+            ?.putString(SP_BANNER_IMAGE, ad?.imageUrl)
+            ?.putString(SP_BANNER_URL, ad?.externalUrl)
+            ?.apply()
+    }
+
+    fun getBanner(): AdBanner? {
+        return AdBanner(
+            prefs?.getString(SP_BANNER_IMAGE, null),
+            prefs?.getString(SP_BANNER_URL, null)
+        )
     }
 
     fun getBeChoice(): String? {

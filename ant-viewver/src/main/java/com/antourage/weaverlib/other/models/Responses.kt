@@ -110,3 +110,9 @@ data class Viewers(
     @field:SerializedName("viewers") val viewers : Int
 )
 
+@Parcelize
+data class AdBanner(
+    @field:SerializedName("imageUrl") val imageUrl : String?,
+    @field:SerializedName("externalUrl") val externalUrl : String?
+) : Parcelable
+

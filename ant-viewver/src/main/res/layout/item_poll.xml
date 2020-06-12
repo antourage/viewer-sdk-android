@@ -11,6 +11,7 @@
         android:focusable="true"
         android:background="@drawable/state_activated_bg_rect_round_100_pink_grey">
     <com.google.android.material.card.MaterialCardView
+            android:id="@+id/item_poll_card"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="1dp"

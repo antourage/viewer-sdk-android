@@ -140,8 +140,8 @@ internal class Repository {
             })
         }
 
-        fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<SimpleResponse>> =
-            object : NetworkBoundResource<SimpleResponse>() {
+        fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<AdBanner>> =
+            object : NetworkBoundResource<AdBanner>() {
                 override fun createCall() = ApiClient.getWebClient().webService.postLiveOpen(body)
             }.asLiveData()
 

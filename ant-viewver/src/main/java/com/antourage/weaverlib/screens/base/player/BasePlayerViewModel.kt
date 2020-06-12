@@ -96,6 +96,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
+    //should be used only in live
+    open fun onUpdateBannerInfo(banner: AdBanner?) {}
 
     open fun onResume() {
         initStatisticsListeners()
@@ -234,41 +236,62 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         timestamp: String = Timestamp(System.currentTimeMillis()).toString()
     ) {
         streamId?.let { id ->
-            val response: LiveData<Resource<SimpleResponse>> = when (this) {
+            when (this) {
                 is VideoViewModel -> {
-                    Repository.postVideoOpened(
+                    val response = Repository.postVideoOpened(
                         VideoOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
+                    response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                        override fun onChanged(resource: Resource<SimpleResponse>?) {
+                            if (resource != null) {
+                                when (resource.status) {
+                                    is Status.Failure -> {
+                                        Log.d("STAT_OPEN",
+                                            "Failed to send /open: ${resource.status.errorMessage}"
+                                        )
+                                        response.removeObserver(this)
+                                    }
+                                    is Status.Success -> {
+                                        Log.d("STAT_OPEN", "Successfully sent /open")
+                                        lastStatOpenedID = id
+                                        onOpenStatisticUpdate(id)
+                                        response.removeObserver(this)
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
                 is PlayerViewModel -> {
-                    Repository.postLiveOpened(
+                    val response = Repository.postLiveOpened(
                         LiveOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
+                    response.observeForever(object : Observer<Resource<AdBanner>> {
+                        override fun onChanged(resource: Resource<AdBanner>?) {
+                            if (resource != null) {
+                                when (resource.status) {
+                                    is Status.Failure -> {
+                                        Log.d("STAT_OPEN",
+                                            "Failed to send /open: ${resource.status.errorMessage}"
+                                        )
+                                        response.removeObserver(this)
+                                    }
+                                    is Status.Success -> {
+                                        Log.d("STAT_OPEN", "Successfully sent /open")
+                                        lastStatOpenedID = id
+                                        onUpdateBannerInfo(resource.status.data)
+                                        response.removeObserver(this)
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
                 else -> {
                     return
                 }
             }
-            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-                override fun onChanged(resource: Resource<SimpleResponse>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d("STAT_OPEN",
-                                    "Failed to send /open: ${resource.status.errorMessage}"
-                                )
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                Log.d("STAT_OPEN", "Successfully sent /open")
-                                lastStatOpenedID = id
-                                onOpenStatisticUpdate(id)
-                                response.removeObserver(this)
-                            }
-                        }
-                    }
-                }
-            })
+
         }
     }
 

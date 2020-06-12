@@ -35,6 +35,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     private var isChatTurnedOn = false
     private var postAnsweredUsers = false
     private var user: User? = null
+    private var banner: AdBanner? = null
 
     private var messagesResponse: QuerySnapshotLiveData<Message>? = null
 
@@ -59,6 +60,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     init {
         pollStatusLiveData.value = PollStatus.NoPoll
         postAnsweredUsers = false
+        banner = UserCache.getInstance(getApplication())?.getBanner()
     }
 
     private val messagesObserver: Observer<Resource<List<Message>>> = Observer { resource ->
@@ -337,4 +339,11 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     }
 
     fun getDuration() = getCurrentDuration()
+
+    override fun onUpdateBannerInfo(banner: AdBanner?) {
+        this.banner = banner
+        UserCache.getInstance(getApplication())?.saveBanner(banner)
+    }
+
+    fun getBanner() = banner
 }

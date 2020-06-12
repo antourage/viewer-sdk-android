@@ -212,7 +212,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             PollDetailsFragment.newInstance(
                                 videoId,
                                 state.pollId,
-                                userId
+                                userId,
+                                viewModel.getBanner()
                             ), R.id.bottomLayout, true
                         )
                     }
