@@ -161,7 +161,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //hides controls appearance
-        controls.visibility = View.GONE
+        controls.hide()
         live_control_timer.visibility = View.INVISIBLE
         live_buttons_layout.visibility = View.INVISIBLE
 

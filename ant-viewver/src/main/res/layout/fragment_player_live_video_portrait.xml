@@ -65,6 +65,7 @@
             android:layout_height="0dp"
             android:animateLayoutChanges="true"
             android:elevation="10dp"
+            app:show_timeout="2000"
             app:auto_show="false"
             app:controller_layout_id="@layout/player_custom_controls_live_video"
             app:hide_on_touch="true"
