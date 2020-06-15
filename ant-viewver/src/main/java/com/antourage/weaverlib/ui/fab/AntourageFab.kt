@@ -155,7 +155,7 @@ class AntourageFab @JvmOverloads constructor(
                         is Status.Success -> {
                             if (!status.data.isNullOrEmpty()) {
                                 liveStreams.clear()
-                                liveStreams.addAll(status.data)
+                                liveStreams.addAll(status.data.reversed())
                                 if (!goingLiveToLive) {
                                     manageLiveStreams()
                                 }
@@ -312,6 +312,7 @@ class AntourageFab @JvmOverloads constructor(
                         }
                         FabState.LIVE -> {
                             currentPlayerState.let {
+//                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true || it == Player.STATE_BUFFERING)
                                 if (it == Player.STATE_READY && playerView.player?.isPlaying == true)
                                     startAnimation(
                                         FabState.LIVE

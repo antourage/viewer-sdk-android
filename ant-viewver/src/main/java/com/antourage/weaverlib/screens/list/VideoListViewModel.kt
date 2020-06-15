@@ -111,7 +111,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
         when (resource.status) {
             is Status.Success -> {
-                liveVideos = (resource.status.data)?.toMutableList()
+                liveVideos = (resource.status.data)?.reversed()?.toMutableList()
                 liveVideos?.let { getChatPollInfoForLives(it) }
                 liveVideos?.let {
                     for (i in 0 until (liveVideos?.size ?: 0)) {

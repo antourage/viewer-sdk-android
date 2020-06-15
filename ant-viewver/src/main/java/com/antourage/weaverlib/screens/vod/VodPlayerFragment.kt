@@ -33,6 +33,7 @@ import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
@@ -44,6 +45,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         const val MIN_PROGRESS_UPDATE_MILLIS = 50L
         const val MAX_PROGRESS_UPDATE_MILLIS = 500L
         const val SKIP_CURTAIN_HIDE_DELAY_MILLIS = 5000L
+
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
 
         fun newInstance(stream: StreamResponse, isNewVod: Boolean = false): VodPlayerFragment {
             val fragment = VodPlayerFragment()
@@ -406,6 +410,30 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         playerOnTouchListener = object : View.OnTouchListener {
             private val gestureDetector =
                 GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onFling(
+                        e1: MotionEvent,
+                        e2: MotionEvent,
+                        velocityX: Float,
+                        velocityY: Float
+                    ): Boolean {
+                        var result = false
+                        try {
+                            val diffY = e2.y - e1.y
+                            if (abs(diffY) > SWIPE_THRESHOLD && abs(
+                                    velocityY
+                                ) > SWIPE_VELOCITY_THRESHOLD
+                            ) {
+                                if (diffY > 0) {
+                                    onCloseClicked()
+                                }
+                                result = true
+                            }
+                        } catch (exception: Exception) {
+                            exception.printStackTrace()
+                        }
+                        return result
+                    }
+
                     override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                         toggleControlsVisibility()
                         return super.onSingleTapConfirmed(e)
