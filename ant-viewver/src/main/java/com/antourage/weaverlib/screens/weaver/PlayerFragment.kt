@@ -53,6 +53,7 @@ import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
 import kotlinx.android.synthetic.main.player_header.*
+import java.lang.Math.abs
 
 /**
  * Be careful not to create multiple instances of player
@@ -68,6 +69,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         const val ARGS_STREAM = "args_stream"
         const val ARGS_USER_ID = "args_user_id"
         const val ARGS_START_CHAT = "args_required_to_start_chat"
+
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
 
         fun newInstance(stream: StreamResponse,
                         userId: Int,
@@ -307,6 +311,29 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                             toggleControlsVisibility()
                             return super.onSingleTapConfirmed(e)
+                        }
+                        override fun onFling(
+                            e1: MotionEvent,
+                            e2: MotionEvent,
+                            velocityX: Float,
+                            velocityY: Float
+                        ): Boolean {
+                            var result = false
+                            try {
+                                val diffY = e2.y - e1.y
+                                if (abs(diffY) > SWIPE_THRESHOLD && abs(
+                                        velocityY
+                                    ) > SWIPE_VELOCITY_THRESHOLD
+                                ) {
+                                    if (diffY > 0) {
+                                        onCloseClicked()
+                                    }
+                                    result = true
+                                }
+                            } catch (exception: Exception) {
+                                exception.printStackTrace()
+                            }
+                            return result
                         }
                     })
 
