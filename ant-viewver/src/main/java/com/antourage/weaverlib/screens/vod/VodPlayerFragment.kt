@@ -121,7 +121,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val viewersChangeObserver: Observer<Pair<Int, Long>> = Observer { viewInfo ->
         viewInfo?.apply {
             if (first == viewModel.streamId) {
-                txtNumberOfViewers.text = second.toString()
+                txtNumberOfViewers.text = second.formatQuantity()
             }
         }
     }
@@ -168,7 +168,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = videoName
             player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
                 creatorNickname
-            txtNumberOfViewers.text = viewsCount.toString()
+            txtNumberOfViewers.text = viewsCount?.formatQuantity() ?: "0"
             context?.let { context ->
                 updateWasLiveValueOnUI(startTime, duration)
                 id?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }

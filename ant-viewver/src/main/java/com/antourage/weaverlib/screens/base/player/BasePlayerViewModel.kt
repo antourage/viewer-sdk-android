@@ -72,7 +72,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var batteryStatus: Intent? = null
 
     val requestingStreamInfoHandler = Handler()
-    val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
+    val currentStreamViewsLiveData: MutableLiveData<Long> = MutableLiveData()
 
     init {
         currentWindow = 0

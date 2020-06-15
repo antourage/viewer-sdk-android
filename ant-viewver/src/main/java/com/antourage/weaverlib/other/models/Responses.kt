@@ -57,7 +57,7 @@ data class StreamResponse(
     @field:SerializedName("viewsCount") var viewsCount: Long?,
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
-    @field:SerializedName("viewersCount") val viewersCount: Int?,
+    @field:SerializedName("viewersCount") val viewersCount: Long?,
     @field:SerializedName("isNew") var isNew: Boolean?,
     @field:SerializedName("stopTime") var stopTime: String?, //todo:once implemented delete this
     var stopTimeMillis: Long = 0,
@@ -107,7 +107,7 @@ data class UpdateImageResponse(
 
 data class Viewers(
     @field:SerializedName("liveStreamId") val liveStreamId : Int,
-    @field:SerializedName("viewers") val viewers : Int
+    @field:SerializedName("viewers") val viewers : Long
 )
 
 @Parcelize
