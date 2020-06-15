@@ -56,6 +56,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
+    //var to track whether opened video request was sent in order to send close
+    private var lastStatOpenedID : Int? = null
 
     //should be used for all kinds of error, which user should be informed with.
     //will always show same error message to user, that's why used Boolean
@@ -70,7 +72,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private var batteryStatus: Intent? = null
 
     val requestingStreamInfoHandler = Handler()
-    val currentStreamViewsLiveData: MutableLiveData<Int> = MutableLiveData()
+    val currentStreamViewsLiveData: MutableLiveData<Long> = MutableLiveData()
 
     init {
         currentWindow = 0
@@ -94,6 +96,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
+    //should be used only in live
+    open fun onUpdateBannerInfo(banner: AdBanner?) {}
 
     open fun onResume() {
         initStatisticsListeners()
@@ -232,42 +236,62 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         timestamp: String = Timestamp(System.currentTimeMillis()).toString()
     ) {
         streamId?.let { id ->
-            val response: LiveData<Resource<SimpleResponse>> = when (this) {
+            when (this) {
                 is VideoViewModel -> {
-                    Repository.postVideoOpened(
+                    val response = Repository.postVideoOpened(
                         VideoOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
-
+                    response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                        override fun onChanged(resource: Resource<SimpleResponse>?) {
+                            if (resource != null) {
+                                when (resource.status) {
+                                    is Status.Failure -> {
+                                        Log.d("STAT_OPEN",
+                                            "Failed to send /open: ${resource.status.errorMessage}"
+                                        )
+                                        response.removeObserver(this)
+                                    }
+                                    is Status.Success -> {
+                                        Log.d("STAT_OPEN", "Successfully sent /open")
+                                        lastStatOpenedID = id
+                                        onOpenStatisticUpdate(id)
+                                        response.removeObserver(this)
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
                 is PlayerViewModel -> {
-                    Repository.postLiveOpened(
+                    val response = Repository.postLiveOpened(
                         LiveOpenedRequest(id, getBatteryLevel(), timestamp)
                     )
+                    response.observeForever(object : Observer<Resource<AdBanner>> {
+                        override fun onChanged(resource: Resource<AdBanner>?) {
+                            if (resource != null) {
+                                when (resource.status) {
+                                    is Status.Failure -> {
+                                        Log.d("STAT_OPEN",
+                                            "Failed to send /open: ${resource.status.errorMessage}"
+                                        )
+                                        response.removeObserver(this)
+                                    }
+                                    is Status.Success -> {
+                                        Log.d("STAT_OPEN", "Successfully sent /open")
+                                        lastStatOpenedID = id
+                                        onUpdateBannerInfo(resource.status.data)
+                                        response.removeObserver(this)
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
                 else -> {
                     return
                 }
             }
-            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-                override fun onChanged(resource: Resource<SimpleResponse>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d(
-                                    "STAT_OPEN",
-                                    "Failed to send /open: ${resource.status.errorMessage}"
-                                )
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                Log.d("STAT_OPEN", "Successfully sent /open")
-                                onOpenStatisticUpdate(id)
-                                response.removeObserver(this)
-                            }
-                        }
-                    }
-                }
-            })
+
         }
     }
 
@@ -277,15 +301,17 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
-            when (this) {
-                is VideoViewModel -> Repository.postVideoClosedInternalObserve(
-                    VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                )
-                is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
-                    LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                )
-                else -> {
+            if (id == lastStatOpenedID){
+                when (this) {
+                    is VideoViewModel -> Repository.postVideoClosedInternalObserve(
+                        VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
+                    )
+                    is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
+                        LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
+                    )
+                    else -> { }
                 }
+                lastStatOpenedID = null
             }
         }
     }
@@ -353,12 +379,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 player?.prepare(getMediaSource(streamUrl), false, true)
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
                 if (this@BasePlayerViewModel is PlayerViewModel){
-                    stopwatch.stopIfRunning()
-                    onLiveStreamEnded()
-                } else {
-                    errorLiveData.value = true
-                    error.postValue(err.toString())
+                    player?.prepare(getMediaSource(streamUrl), false, true)
                 }
+                errorLiveData.value = true
+                error.postValue(err.toString())
             } else {
                 error.postValue(err.toString())
             }

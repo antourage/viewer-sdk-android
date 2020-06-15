@@ -1,6 +1,8 @@
 package com.antourage.weaverlib.screens.poll
 
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -12,13 +14,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.dp2px
+import com.antourage.weaverlib.other.marginDp
+import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
+import com.antourage.weaverlib.other.orientation
 import com.antourage.weaverlib.other.reObserve
 import com.antourage.weaverlib.other.ui.TopBottomItemDecoration
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.poll.rv.PollAnswersAdapter
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_poll_details.*
+
 
 internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     PollAnswersAdapter.AnswerClickedCallback {
@@ -27,12 +34,14 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         const val ARGS_POLL_ID = "args_poll_id"
         const val ARGS_STREAM_ID = "args_stream_id"
         const val ARGS_USER_ID = "args_user_id"
+        const val ARGS_BANNER = "args_banner"
 
-        fun newInstance(streamId: Int, pollId: String, userId: Int): PollDetailsFragment {
+        fun newInstance(streamId: Int, pollId: String, userId: Int, banner: AdBanner?): PollDetailsFragment {
             val bundle = Bundle()
             bundle.putString(ARGS_POLL_ID, pollId)
             bundle.putInt(ARGS_STREAM_ID, streamId)
             bundle.putInt(ARGS_USER_ID, userId)
+            bundle.putParcelable(ARGS_BANNER, banner)
             val fragment = PollDetailsFragment()
             fragment.arguments = bundle
             return fragment
@@ -64,6 +73,37 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
+        initAdBanner()
+    }
+
+    private fun initAdBanner() {
+       if (viewModel.getBanner()?.imageUrl != null) {
+           cardPollBanner.visibility = View.VISIBLE
+           cardPollBanner.setOnClickListener {
+              viewModel.getBanner()?.externalUrl?.let {
+                  if (it.startsWith("https://") || it.startsWith("http://")){
+                      val intent = Intent(Intent.ACTION_VIEW)
+                      intent.data = Uri.parse(it)
+                      startActivity(intent)
+                  }
+              }
+           }
+           Picasso.get().load(viewModel.getBanner()!!.imageUrl).centerCrop().fit()
+               .into(ivPollBanner)
+           configureAdBannerStyle(orientation() == Configuration.ORIENTATION_LANDSCAPE)
+       } else{
+           cardPollBanner.visibility = View.INVISIBLE
+       }
+    }
+
+    private fun configureAdBannerStyle(isLandscape: Boolean){
+        if (isLandscape){
+            cardPollBanner.marginDp()
+            cardPollBanner.radius = 0f
+        } else {
+            cardPollBanner.marginDp(left = 12f, right = 12f,bottom = 6f)
+            cardPollBanner.radius = dp2px(requireContext(),3f)
+        }
     }
 
     private fun subscribeToObservers() {
@@ -76,13 +116,14 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
             viewModel.initPollDetails(
                 arguments.getInt(ARGS_STREAM_ID, -1),
                 arguments.getString(ARGS_POLL_ID, ""),
-                arguments.getInt(ARGS_USER_ID, -1)
+                arguments.getInt(ARGS_USER_ID, -1),
+                arguments.getParcelable(ARGS_BANNER)
             )
         }
         view?.let {
             rvAnswers.apply {
                 layoutManager = LinearLayoutManager(context)
-                addItemDecoration(TopBottomItemDecoration(dp2px(context, 20f).toInt()))
+                addItemDecoration(TopBottomItemDecoration(context.resources.getDimension(R.dimen.poll_divider_size).toInt()))
                 adapter =
                     PollAnswersAdapter(ArrayList(), viewModel.isAnswered, this@PollDetailsFragment)
             }
@@ -110,10 +151,8 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         super.onConfigurationChanged(newConfig)
         viewModel.getPollLiveData().reObserve(this.viewLifecycleOwner, pollObserver)
         viewModel.getAnswersLiveData().reObserve(this.viewLifecycleOwner, answersObserver)
+        if (viewModel.getBanner()?.imageUrl != null) {
+            configureAdBannerStyle(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
 }

@@ -13,7 +13,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
-
 class MainActivity : AppCompatActivity() {
 
     companion object {

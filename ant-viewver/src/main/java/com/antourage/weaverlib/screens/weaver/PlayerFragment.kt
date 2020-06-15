@@ -149,13 +149,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    private val currentStreamViewersObserver: Observer<Int> = Observer { currentViewersCount ->
+    private val currentStreamViewersObserver: Observer<Long> = Observer { currentViewersCount ->
         updateViewersCountUI(currentViewersCount)
     }
 
-    private fun updateViewersCountUI(currentViewersCount: Int?) {
+    private fun updateViewersCountUI(currentViewersCount: Long?) {
         currentViewersCount?.let {
-            txtNumberOfViewers.text = it.toString()
+            txtNumberOfViewers.text = it.formatQuantity()
         }
     }
 
@@ -165,7 +165,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         ivThanksForWatching?.visibility = View.VISIBLE
         txtLabelLive.visibility = View.GONE
         //hides controls appearance
-        controls.visibility = View.GONE
+        controls.hide()
         live_control_timer.visibility = View.INVISIBLE
         live_buttons_layout.visibility = View.INVISIBLE
 
@@ -216,7 +216,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             PollDetailsFragment.newInstance(
                                 videoId,
                                 state.pollId,
-                                userId
+                                userId,
+                                viewModel.getBanner()
                             ), R.id.bottomLayout, true
                         )
                     }
@@ -667,7 +668,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     .error(R.drawable.antourage_ic_default_user)
                     .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
-            txtNumberOfViewers.text = viewersCount.toString()
+            txtNumberOfViewers.text = viewersCount?.formatQuantity() ?: "0"
             setWasLiveText(context?.let { startTime?.parseDateLong(it) })
             if (startTime != null) { startTime.parseToDate()?.time?.let {setStartTime(it)} }
         }
@@ -698,7 +699,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
 
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)
-            .setOnClickListener { onCloseClicked() }
+            .setOnClickListener {
+                it.isEnabled = false
+                onCloseClicked()
+            }
     }
 
     private fun showFullScreenIcon() {

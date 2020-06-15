@@ -3,11 +3,7 @@ package com.antourage.weaverlib.screens.poll.rv
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.constraintlayout.motion.widget.MotionScene
-import androidx.constraintlayout.motion.widget.TransitionBuilder
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.AnswersCombined
@@ -53,10 +49,15 @@ internal class PollAnswersAdapter(
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): PollViewHolder {
-        return PollViewHolder(
-            LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.item_poll, viewGroup, false)
-        )
+        val inflater = LayoutInflater.from(viewGroup.context)
+        val itemView: View = inflater.inflate(R.layout.item_poll, viewGroup, false)
+        val itemHeight =  (viewGroup.height * 0.25).toInt() -
+                viewGroup.context.resources.getDimension(R.dimen.poll_divider_size).toInt()
+        val layoutParams = itemView.layoutParams
+        layoutParams.height = itemHeight
+        itemView.layoutParams = layoutParams
+
+        return PollViewHolder(itemView, itemHeight)
     }
 
     override fun onBindViewHolder(viewHolder: PollViewHolder, pos: Int) {
@@ -77,9 +78,11 @@ internal class PollAnswersAdapter(
         return sum.toDouble()
     }
 
-    inner class PollViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class PollViewHolder(itemView: View, var itemHeight: Int) : RecyclerView.ViewHolder(itemView) {
         fun bind(result: AnswersCombined, pos: Int) {
             itemView.apply {
+                item_poll_card.radius = itemHeight.toFloat() /2
+
                 val prevPercentage =
                     (item_poll_guideline.layoutParams as ConstraintLayout.LayoutParams).guidePercent
                 val newPercentage = getPercentage(pos).toFloat()
@@ -126,48 +129,4 @@ internal class PollAnswersAdapter(
             }
         }
     }
-
-
-    /**
-     * Creates a basic transition programmatically.
-     */
-    private fun createTransition(layout: MotionLayout, scene: MotionScene): MotionScene.Transition {
-        val startSetId = View.generateViewId()
-        val startSet = ConstraintSet()
-        startSet.clone(layout)
-        val endSetId = View.generateViewId()
-        val endSet = ConstraintSet()
-        endSet.clone(layout)
-        val transitionId = View.generateViewId()
-        return TransitionBuilder.buildTransition(
-            scene,
-            transitionId,
-            startSetId, startSet,
-            endSetId, endSet
-        )
-    }
-
-    /**
-     * Creates a basic transition programmatically.
-     */
-    private fun createTransition2(
-        layout: MotionLayout,
-        scene: MotionScene
-    ): MotionScene.Transition {
-        val startSetId = View.generateViewId()
-        val startSet = ConstraintSet()
-        startSet.clone(layout)
-        val endSetId = View.generateViewId()
-        val endSet = ConstraintSet()
-        endSet.clone(layout)
-        val transitionId = View.generateViewId()
-        return TransitionBuilder.buildTransition(
-            scene,
-            transitionId,
-            startSetId, startSet,
-            endSetId, endSet
-        )
-    }
-
-
 }

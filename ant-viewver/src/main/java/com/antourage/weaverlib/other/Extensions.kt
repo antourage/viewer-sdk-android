@@ -30,6 +30,7 @@ import com.antourage.weaverlib.other.Constants.secInMin
 import com.antourage.weaverlib.other.Constants.secInMonth
 import com.antourage.weaverlib.other.Constants.secInWeek
 import com.antourage.weaverlib.other.Constants.secInYear
+import com.antourage.weaverlib.other.Constants.suffixes
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
@@ -308,7 +309,7 @@ internal fun String.parseToMills(): Long {
 }
 
 internal fun String.parseTimerToMills(): Long {
-    val stringToParse =  if (this.length > 8) this.substring(0, 8) else this
+    val stringToParse = if (this.length > 8) this.substring(0, 8) else this
     val inputFmt = SimpleDateFormat("HH:mm:ss", Locale.ENGLISH)
     inputFmt.timeZone = TimeZone.getTimeZone("UTC")
     return inputFmt.parse(stringToParse)?.time ?: 0L
@@ -404,16 +405,6 @@ fun View.animateShowHideDown(isShow: Boolean) {
     }
 }
 
-/*fun View.animateShowHideUp(isShow: Boolean){
-    if (isShow && visibility != View.VISIBLE){
-        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_in))
-        visibility = View.VISIBLE
-    } else if (!isShow && visibility == View.VISIBLE){
-        startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_out))
-        visibility = View.GONE
-    }
-}*/
-
 internal fun View.revealWithAnimation() {
     alpha = 0f
     visibility = View.VISIBLE
@@ -443,4 +434,17 @@ internal fun View.removeConstraints(parent: ConstraintLayout) {
     set.clear(this.id, ConstraintSet.BOTTOM)
     set.clear(this.id, ConstraintSet.LEFT)
     set.applyTo(parent)
+}
+
+internal fun Long.formatQuantity(): String {
+    if (this < 1000) return this.toString() //deal with easy case
+
+    val e = suffixes.floorEntry(this)!!
+    val divideBy: Long = e.key
+    val suffix: String = e.value
+
+    val truncated: Long = this / (divideBy / 10) //the number part of the output times 10
+
+    val hasDecimal = truncated < 100 && truncated / 10.0 != (truncated / 10).toDouble()
+    return if (hasDecimal) (truncated / 10.0).toString() + suffix else (truncated / 10).toString() + suffix
 }

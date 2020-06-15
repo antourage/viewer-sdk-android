@@ -13,7 +13,7 @@ internal interface WebService {
     fun getLiveViewers(@Path("id") id: Int): LiveData<ApiResponse<Viewers>>
 
     @POST("live/open")
-    fun postLiveOpen(@Body body: LiveOpenedRequest): LiveData<ApiResponse<SimpleResponse>>
+    fun postLiveOpen(@Body body: LiveOpenedRequest): LiveData<ApiResponse<AdBanner>>
 
     @POST("live/close")
     fun postLiveClose(@Body body: LiveClosedRequest): LiveData<ApiResponse<SimpleResponse>>

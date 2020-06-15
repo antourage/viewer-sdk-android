@@ -49,7 +49,7 @@ internal class Repository {
                     "Creator $index",
                     "https://djyokoo.com/wp-content/uploads/2018/06/blog-placeholder-800x400.jpg",
                     null, null, null, null, null,
-                    null, null, index.toLong(), null,true, index, true, null
+                    null, null, index.toLong(), null,true, index.toLong(), true, null
                 )
             }
             return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
@@ -140,8 +140,8 @@ internal class Repository {
             })
         }
 
-        fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<SimpleResponse>> =
-            object : NetworkBoundResource<SimpleResponse>() {
+        fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<AdBanner>> =
+            object : NetworkBoundResource<AdBanner>() {
                 override fun createCall() = ApiClient.getWebClient().webService.postLiveOpen(body)
             }.asLiveData()
 
