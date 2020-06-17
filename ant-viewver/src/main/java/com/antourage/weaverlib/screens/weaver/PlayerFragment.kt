@@ -326,7 +326,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                     ) > SWIPE_VELOCITY_THRESHOLD
                                 ) {
                                     if (diffY > 0) {
-                                        onCloseClicked()
+                                        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                                            onFullScreenImgClicked()
+                                        }else{
+                                            onCloseClicked()
+                                        }
                                     }
                                     result = true
                                 }
