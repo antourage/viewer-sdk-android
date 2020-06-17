@@ -268,6 +268,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     if (ConnectionStateMonitor.isNetworkAvailable(it)) {
                         if (viewModel.userAuthorized()) {
                             viewModel.refreshVODs(0, true)
+                            showLoadingLayout(true)
                         } else {
                             placeholderRefreshLayout.setRefreshing(false)
                             showErrorSnackbar(R.string.invalid_toke_error_message)
@@ -353,6 +354,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     }
                 }
             snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+        } else if (messageId == R.string.ant_no_connection) {
+            context?.resources?.getString(messageId)
+                ?.let { messageToDisplay ->
+                    snackBar.text = messageToDisplay
+                    context?.let {
+                        snackBar.backgroundColor =
+                            ContextCompat.getColor(it, R.color.ant_error_bg_color)
+                    }
+                }
         }
     }
 
@@ -446,16 +456,27 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         })
     }
 
-    private fun showLoadingLayout() {
-        if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
-        if (videoRefreshLayout.visibility == View.VISIBLE) {
-            videoRefreshLayout.hideWithAnimation()
-        }
+    private fun showLoadingLayout(showOnlyIfError: Boolean = false) {
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
-        if (placeholderRefreshLayout.alpha != 1f) {
-            placeholderRefreshLayout.revealWithAnimation()
-            placeHolderRV.revealWithAnimation()
+
+        if (showOnlyIfError) {
+            if (videoRefreshLayout.alpha != 1f) {
+                if (placeholderRefreshLayout.alpha != 1f) {
+                    placeholderRefreshLayout.revealWithAnimation()
+                    placeHolderRV.revealWithAnimation()
+                }
+            }
+        } else {
+            if (noContentRefreshLayout.visibility == View.VISIBLE) noContentRefreshLayout.hideWithAnimation()
+            if (videoRefreshLayout.visibility == View.VISIBLE) {
+                videoRefreshLayout.hideWithAnimation()
+            }
+            if (placeholderRefreshLayout.alpha != 1f) {
+                placeholderRefreshLayout.revealWithAnimation()
+                placeHolderRV.revealWithAnimation()
+            }
         }
+
     }
 
     private fun showErrorLayout() {
@@ -490,12 +511,19 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showNoConnectionPlaceHolder() {
-        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
-        if (placeholderRefreshLayout.alpha != 1f) {
-            placeholderRefreshLayout.revealWithAnimation()
-            placeHolderRV.revealWithAnimation()
-        }
         showErrorSnackbar(R.string.ant_no_connection)
+        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
+//        if (placeholderRefreshLayout.alpha != 1f) {
+//            placeholderRefreshLayout.revealWithAnimation()
+//            placeHolderRV.revealWithAnimation()
+//        }
+
+        if (videoRefreshLayout.alpha != 1f) {
+            if (placeholderRefreshLayout.alpha != 1f) {
+                placeholderRefreshLayout.revealWithAnimation()
+                placeHolderRV.revealWithAnimation()
+            }
+        }
     }
 
     private fun triggerNewLiveButton(isVisible: Boolean, isPause: Boolean = false) {
@@ -561,7 +589,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value) {
                         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
                     }
-                    showErrorSnackbar(R.string.ant_no_connection)
+                    showNoConnectionPlaceHolder()
+//                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {

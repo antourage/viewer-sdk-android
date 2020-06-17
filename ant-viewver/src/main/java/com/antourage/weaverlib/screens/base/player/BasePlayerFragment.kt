@@ -377,7 +377,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         return false
     }
 
-    private fun onFullScreenImgClicked() {
+    fun onFullScreenImgClicked() {
         enableOrientationChangeListenerIfAutoRotationEnabled()
         toggleScreenOrientation()
     }
