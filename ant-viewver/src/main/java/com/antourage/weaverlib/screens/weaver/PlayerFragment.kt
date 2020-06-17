@@ -564,6 +564,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
 
         if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
+            polls_motion_layout?.transitionToStart()
             viewModel.markActivePollDismissed()
         }
         viewModel.getChatStatusLiveData().reObserve(this.viewLifecycleOwner, chatStateObserver)
@@ -637,7 +638,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             //callback to collapse extended poll layout in 6 sec
             Handler().postDelayed({
                     if (polls_motion_layout != null &&
-                        orientation() == Configuration.ORIENTATION_PORTRAIT &&
                         viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
                         polls_motion_layout?.transitionToStart()
                         viewModel.markActivePollDismissed()
