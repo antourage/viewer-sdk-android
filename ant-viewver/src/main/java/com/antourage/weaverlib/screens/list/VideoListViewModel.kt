@@ -1,6 +1,9 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
+import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,6 +13,7 @@ import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
@@ -19,9 +23,9 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.UserAuthResult
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.firestore.QuerySnapshot
+import com.microsoft.signalr.HubConnection
+import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.HubConnectionState
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -40,7 +44,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private var showCallResult = false
 
-    fun dataWasAlreadyLoaded(): Boolean{
+    fun dataWasAlreadyLoaded(): Boolean {
         return !vods.isNullOrEmpty() && !liveVideos.isNullOrEmpty()
     }
 
@@ -50,15 +54,66 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     companion object {
         private const val VODS_COUNT = 15
-
         private const val BE_CHOICE_TIMEOUT = 4000L
         private const val BE_CHOICE_CLICKS = 4
     }
 
     fun subscribeToLiveStreams() {
+//        fun onSocketSuccess() {
+//            Log.e("SOCKETS", "CONNECTED")
+//        }
+//
+//        fun onSocketError() {
+//            Log.e("SOCKETS", "ERROR")
+//            ReceivingVideosManager.setReceivingVideoCallback(this)
+//            ReceivingVideosManager.startReceivingLiveStreams()
+//        }
+//
+//        UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()?.let {
+//            ApiClient.connectToSockets(it, ::onSocketSuccess, ::onSocketError)
+//            initListeners()
+//        }
+
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingLiveStreams()
     }
+
+    private fun initListeners() {
+        ApiClient.hubConnection.on(ApiClient.SOCKET_LIVE, { newStreams ->
+            liveVideos = (newStreams as ArrayList<StreamResponse>).reversed().toMutableList()
+            liveVideos?.let { getChatPollInfoForLives(it) }
+            liveVideos?.let {
+                for (i in 0 until (liveVideos?.size ?: 0)) {
+                    liveVideos?.get(i)?.isLive = true
+                }
+            }
+            if (!vodsUpdatedWithoutError && vodsUpdated && vods.isNullOrEmpty()) {
+                refreshVODs(noLoadingPlaceholder = false)
+            }
+            Log.e(AntourageFab.TAG, "sockets live: $newStreams")
+        }, ListOfStreams::class.java )
+
+        ApiClient.hubConnection.on(ApiClient.SOCKET_VOD, { newStreams ->
+            Log.e(AntourageFab.TAG, "sockets vod: $newStreams")
+        }, ListOfStreams::class.java)
+
+
+        ApiClient.hubConnection.onClosed {
+            Log.e(AntourageFab.TAG, "socket closed")
+        }
+    }
+
+    private fun runOnUi(method: () -> Unit) {
+        Handler(Looper.getMainLooper()).post {
+            method()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+//        ApiClient.disconnectSocket()
+    }
+
 
     fun refreshVODs(
         count: Int = (vods?.size?.minus(1)) ?: 0,

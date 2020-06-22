@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.util.AttributeSet
 import android.util.Log
@@ -22,7 +23,10 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.other.networking.ApiClient.SOCKET_LIVE
+import com.antourage.weaverlib.other.networking.ApiClient.SOCKET_VOD
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.showBadge
@@ -93,8 +97,8 @@ class AntourageFab @JvmOverloads constructor(
     private var currentlyDisplayedLiveStream: StreamResponse? = null
     private var currentAnimationDrawableId: Int = -1
     private val liveStreams = arrayListOf<StreamResponse>()
-    private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private val vods = arrayListOf<StreamResponse>()
+    private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private var currentFabState: FabState = FabState.INACTIVE
     private var nextFabState: FabState? = null
     private var isAnimationRunning = false
@@ -128,65 +132,65 @@ class AntourageFab @JvmOverloads constructor(
 
 
     override fun onResume() {
-            ReceivingVideosManager.setReceivingVideoCallback(object :
-                ReceivingVideosManager.ReceivingVideoCallback {
-                override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
-                    super.onVODForFabReceived(resource)
-                    when (val status = resource.status) {
-                        is Status.Success -> {
-                            if (!status.data.isNullOrEmpty()) {
-                                vods.clear()
-                                vods.addAll(status.data)
-                                manageVODs()
-                            } else {
-                                vods.clear()
-                                manageVODs()
-                            }
-                        }
-                        is Status.Failure -> {
+        ReceivingVideosManager.setReceivingVideoCallback(object :
+            ReceivingVideosManager.ReceivingVideoCallback {
+            override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
+                super.onVODForFabReceived(resource)
+                when (val status = resource.status) {
+                    is Status.Success -> {
+                        if (!status.data.isNullOrEmpty()) {
+                            vods.clear()
+                            vods.addAll(status.data)
+                            manageVODs()
+                        } else {
                             vods.clear()
                             manageVODs()
                         }
                     }
+                    is Status.Failure -> {
+                        vods.clear()
+                        manageVODs()
+                    }
                 }
+            }
 
-                override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
-                    when (val status = resource.status) {
-                        is Status.Success -> {
-                            if (!status.data.isNullOrEmpty()) {
-                                liveStreams.clear()
-                                liveStreams.addAll(status.data.reversed())
-                                if (!goingLiveToLive) {
-                                    manageLiveStreams()
-                                }
-                            } else {
-                                manageVODs(true)
-                                goingLiveToLive = false
+            override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
+                when (val status = resource.status) {
+                    is Status.Success -> {
+                        if (!status.data.isNullOrEmpty()) {
+                            liveStreams.clear()
+                            liveStreams.addAll(status.data.reversed())
+                            if (!goingLiveToLive) {
+                                manageLiveStreams()
                             }
-                        }
-                        is Status.Failure -> {
+                        } else {
                             manageVODs(true)
                             goingLiveToLive = false
                         }
                     }
-                }
-            })
-
-            StreamPreviewManager.setStreamManager(object : StreamPreviewManager.StreamCallback {
-                override fun onNewState(playbackState: Int) {
-                    super.onNewState(playbackState)
-                    currentPlayerState = playbackState
-                    if (playbackState == Player.STATE_READY) {
-                        bounceHandler.removeCallbacksAndMessages(null)
-                        setIncomingWidgetStatus(FabState.LIVE)
+                    is Status.Failure -> {
+                        manageVODs(true)
+                        goingLiveToLive = false
                     }
                 }
+            }
+        })
 
-                override fun onError() {
-                    super.onError()
-                    manageVODs(true)
+        StreamPreviewManager.setStreamManager(object : StreamPreviewManager.StreamCallback {
+            override fun onNewState(playbackState: Int) {
+                super.onNewState(playbackState)
+                currentPlayerState = playbackState
+                if (playbackState == Player.STATE_READY) {
+                    bounceHandler.removeCallbacksAndMessages(null)
+                    setIncomingWidgetStatus(FabState.LIVE)
                 }
-            })
+            }
+
+            override fun onError() {
+                super.onError()
+                manageVODs(true)
+            }
+        })
 
         Handler().postDelayed({
             if (userAuthorized()) {
@@ -417,6 +421,7 @@ class AntourageFab @JvmOverloads constructor(
     override fun onPause() {
         StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
+//        ApiClient.disconnectSocket()
         currentPlayerState = 0
         isAnimationRunning = false
         goingLiveToLive = false
@@ -607,7 +612,65 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun startAntRequests() {
+//        fun onSocketSuccess() {
+//            Log.e("SOCKETS", "CONNECTED")
+//        }
+//
+//        fun onSocketError() {
+//            Log.e("SOCKETS", "ERROR")
+//            ReceivingVideosManager.startReceivingLiveStreams(true)
+//        }
+//
+//        UserCache.getInstance(context)?.getToken()?.let {
+//            ApiClient.connectToSockets(it, ::onSocketSuccess, ::onSocketError)
+//            initListeners()
+//        }
+
         ReceivingVideosManager.startReceivingLiveStreams(true)
+
+    }
+
+    private fun initListeners() {
+        ApiClient.hubConnection.on(SOCKET_LIVE, { newStreams ->
+            val newLives = newStreams as ArrayList<StreamResponse>
+            if (!newLives.isNullOrEmpty()) {
+                liveStreams.clear()
+                liveStreams.addAll(newLives.reversed())
+                if (!goingLiveToLive) {
+                    runOnUi { manageLiveStreams() }
+                }
+            } else {
+                runOnUi { manageVODs(true) }
+                goingLiveToLive = false
+            }
+
+            Log.e(TAG, "sockets live: $newStreams")
+        }, ListOfStreams::class.java )
+
+        ApiClient.hubConnection.on(SOCKET_VOD, { newStreams ->
+            val newVods = newStreams as ArrayList<StreamResponse>
+
+            if (!newVods.isNullOrEmpty()) {
+                vods.clear()
+                vods.addAll(newVods)
+                runOnUi { manageVODs() }
+            } else {
+                vods.clear()
+                runOnUi { manageVODs() }
+            }
+
+            Log.e(TAG, "sockets vod: $newStreams")
+        }, ListOfStreams::class.java)
+
+        ApiClient.hubConnection.onClosed {
+            Log.e(TAG, "socket closed")
+        }
+    }
+
+    private fun runOnUi(method: () -> Unit) {
+        Handler(Looper.getMainLooper()).post {
+            method()
+        }
     }
 
     private fun userAuthorized(): Boolean {

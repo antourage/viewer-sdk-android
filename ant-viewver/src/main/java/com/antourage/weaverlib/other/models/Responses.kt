@@ -37,6 +37,8 @@ class NotificationSubscriptionResponse : SimpleResponse() {
     var topic: String? = null
 }
 
+class ListOfStreams : ArrayList<StreamResponse>()
+
 @Parcelize
 data class StreamResponse(
     @field:SerializedName("id") val id: Int?,
