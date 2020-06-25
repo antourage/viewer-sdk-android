@@ -377,7 +377,6 @@ class AntPullToRefreshView @JvmOverloads constructor(
     }
 
     private fun setTargetOffsetTop(offset: Int) {
-        Log.e("TAG", "OFFSET $offset" )
         mTarget?.offsetTopAndBottom(offset)
         mCurrentOffsetTop = mTarget!!.top
     }

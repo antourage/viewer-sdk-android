@@ -12,6 +12,7 @@ internal class FirebaseConfig {
         const val DOCUMENT_PATH_DEV = "dev"
         const val DOCUMENT_PATH_STAGING = "staging"
         const val DOCUMENT_PATH_PROD = "prod"
+        const val DOCUMENT_PATH_LOAD = "load"
         const val DOCUMENT_PATH_DEFAULT = DOCUMENT_PATH_PROD
     }
 }

@@ -1,6 +1,12 @@
 package com.antourage.weaverlib.other.networking
 
+import android.os.AsyncTask
+import android.util.Log
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.ui.fab.AntourageFab
+import com.microsoft.signalr.HubConnection
+import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.HubConnectionState
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,14 +17,14 @@ import java.util.concurrent.TimeUnit
 
 internal object ApiClient {
 
+    lateinit var hubConnection: HubConnection
     var BASE_URL = ""
     private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/widget/"
 
-    //    private const val VERSION_SUFFIX = "api/v1/"
-    private const val VERSION_2_SUFFIX = "api/v2/widget/"
-//    private const val VERSION_2_SUFFIX = "api/v2/"
+    const val SOCKET_LIVE = "LiveStreamStarted"
+    const val SOCKET_VOD = "NewVod"
 
     lateinit var webService: WebService
     private var retrofit: Retrofit? = null
@@ -30,8 +36,6 @@ internal object ApiClient {
         if (retrofit == null
             || usingAuth != useAuth
             || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)
-//            || v2
-//            || shouldRebuild
         ) {
             rebuildRetrofit(useAuth, v2)
         }
@@ -50,9 +54,6 @@ internal object ApiClient {
         val client = buildOkHttpClient(useAuth)
         retrofit = Retrofit.Builder()
             .baseUrl(
-//                if (v2) {
-//                    (BASE_URL + VERSION_2_SUFFIX)
-//                } else
                 (BASE_URL + VERSION_SUFFIX)
             )
             .client(client)
@@ -60,7 +61,6 @@ internal object ApiClient {
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
         webService = retrofit?.create(WebService::class.java)!!
-//        if (v2) shouldRebuild = true
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
@@ -110,4 +110,43 @@ internal object ApiClient {
         builder.addInterceptor(tokenInterceptor)
     }
     //endregion
+
+
+    fun connectToSockets(token: String, onSuccess: () -> Unit, onError: () -> Unit) {
+
+        class ConnectToSocketTask : AsyncTask<Any, Any, Any>() {
+            override fun doInBackground(vararg params: Any?) {
+                hubConnection.keepAliveInterval = 1000
+                hubConnection.start().blockingGet()
+                return
+            }
+
+            override fun onPostExecute(result: Any?) {
+                super.onPostExecute(result)
+                if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
+                    onError()
+                } else {
+                    onSuccess()
+                }
+            }
+        }
+
+        hubConnection = HubConnectionBuilder.create(
+            "${BASE_URL}hub?access_token=${token}"
+        ).build()
+
+        Log.e(AntourageFab.TAG, "${BASE_URL}hub?access_token=${token}" )
+
+
+        if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
+            ConnectToSocketTask().execute()
+        }
+    }
+
+
+    fun disconnectSocket() {
+        hubConnection.stop()
+    }
+
+
 }
