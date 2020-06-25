@@ -84,10 +84,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val curtainShown: SingleLiveEvent<Long> = SingleLiveEvent()
     fun getCurtainShownLD(): LiveData<Long> = curtainShown
 
-    private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
+    private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
-    private val nextVideosFetchedLD: MutableLiveData<Boolean> = MutableLiveData<Boolean>()
+    private val nextVideosFetchedLD: MutableLiveData<Boolean> = MutableLiveData()
     fun getNextVideosFetchedLD(): LiveData<Boolean> = nextVideosFetchedLD
 
     //method used to check if last added message added by User, but in VOD we don't use this check
