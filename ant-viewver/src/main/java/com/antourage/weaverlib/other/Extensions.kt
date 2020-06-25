@@ -446,5 +446,9 @@ internal fun Long.formatQuantity(): String {
     val truncated: Long = this / (divideBy / 10) //the number part of the output times 10
 
     val hasDecimal = truncated < 100 && truncated / 10.0 != (truncated / 10).toDouble()
-    return if (hasDecimal) (truncated / 10.0).toString() + suffix else (truncated / 10).toString() + suffix
+    return if (hasDecimal) {
+        (truncated / 10.0).toString().replace(".", ",") + suffix
+    } else {
+        (truncated / 10).toString() + suffix
+    }
 }
