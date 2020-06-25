@@ -51,8 +51,12 @@ internal class PollAnswersAdapter(
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): PollViewHolder {
         val inflater = LayoutInflater.from(viewGroup.context)
         val itemView: View = inflater.inflate(R.layout.item_poll, viewGroup, false)
-        val itemHeight =  (viewGroup.height * 0.25).toInt() -
+        var itemHeight =  (viewGroup.height * 0.25).toInt() -
                 viewGroup.context.resources.getDimension(R.dimen.poll_divider_size).toInt()
+        val maxAnswerHeight = viewGroup.context.resources.getDimension(R.dimen.poll_answer_max_size).toInt()
+        if (itemHeight >= maxAnswerHeight){
+            itemHeight = maxAnswerHeight
+        }
         val layoutParams = itemView.layoutParams
         layoutParams.height = itemHeight
         itemView.layoutParams = layoutParams
