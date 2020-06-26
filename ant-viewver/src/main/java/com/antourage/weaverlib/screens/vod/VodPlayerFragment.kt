@@ -321,6 +321,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 id,
                 startTime,
                 this.curtainRangeModels,
+                duration,
                 arguments?.getBoolean(ARGS_IS_NEW) ?: false
             )
             id?.let { viewModel.setStreamId(it) }

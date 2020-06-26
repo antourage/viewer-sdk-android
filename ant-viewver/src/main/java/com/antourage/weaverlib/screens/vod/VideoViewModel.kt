@@ -60,6 +60,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val messagesHandler = Handler()
     private var vodId: Int? = null
     private var curtains : ArrayList<CurtainRangeMillis> = ArrayList()
+    private var vodResponseDuration : Long =0L
     private var user: User? = null
 
     private var isFetching: Boolean =
@@ -127,7 +128,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         messagesLiveData.postValue(shownMessages)
     }
 
-    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, isNewVod: Boolean = false) {
+    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, duration: String?,
+               isNewVod: Boolean = false) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
@@ -137,6 +139,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
+        vodResponseDuration = duration?.parseTimerToMills() ?: 0L
         updateCurtains(curtains)
         chatStateLiveData.postValue(true)
         markVODAsWatched()
@@ -318,6 +321,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 }
                 this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(this) ?: 0
                 getChatList(this)
+                vodResponseDuration = currentVod.duration?.parseTimerToMills() ?: 0L
                 updateCurtains(currentVod.curtainRangeModels)
             }
         }
@@ -539,15 +543,22 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             curtains.forEach{
                 if (stopWatchingTime + CURTAIN_MARGIN_MILLS >= it.start && stopWatchingTime < it.end){
                     if (it.start <= CURTAIN_MARGIN_MILLS) {
-                        endOfCurtainOnBeginning = it.end
+                        if (it.end + 1000 >= getDurationOnVideoStart()){
+                            //case curtain duration equals length of whole video
+                            endOfCurtain = alignTimeToDuration(it.end)
+                        } else {
+                            //case curtain on the beginning
+                            endOfCurtainOnBeginning = it.end
+                        }
                     } else {
-                        endOfCurtain = it.end
+                        //case curtain in the middle
+                        endOfCurtain = alignTimeToDuration(it.end)
                     }
                     return@forEach
                 }
             }
             val timeToSeekTo = if (endOfCurtainOnBeginning != 0L) endOfCurtainOnBeginning else stopWatchingTime
-            seekToNoMoreThanDuration(timeToSeekTo)
+            player?.seekTo(timeToSeekTo)
             videoChanged = false
         }
     }
@@ -565,15 +576,22 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     /**
-     * Duplicates player.seekTo() method but with timeToSeek correction on video duration;
+     * @timeToSeek is aligned to not exceed duration of current video
      */
-    private fun seekToNoMoreThanDuration(timeToSeek: Long) {
+    private fun alignTimeToDuration(timeToSeek: Long) : Long {
         var finalTimeToSeek  = timeToSeek
-        val duration = getVideoDuration() ?: 0L
+        val duration = getDurationOnVideoStart()
         if (duration in (CURTAIN_MARGIN_MILLS)..timeToSeek){
             finalTimeToSeek = duration - CURTAIN_MARGIN_MILLS
         }
+        return finalTimeToSeek
+    }
 
-        player?.seekTo(finalTimeToSeek)
+    private fun getDurationOnVideoStart() : Long {
+        var duration = getVideoDuration() ?: 0L
+        if (duration < 0L){
+            duration = vodResponseDuration
+        }
+        return duration
     }
 }
