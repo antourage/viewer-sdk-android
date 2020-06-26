@@ -195,7 +195,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
                 is PollStatus.ActivePoll -> {
                     poll_name?.text = state.poll.question
-                    showPollStatusLayout(true)
+                    showPollStatusLayout(state.poll.id)
                 }
                 is PollStatus.ActivePollDismissed -> {
                     if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
@@ -646,16 +646,18 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     //end of region
 
     //region poll UI helper func
-    private fun showPollStatusLayout(isWithAnimation: Boolean = false) {
+    private fun showPollStatusLayout(pollIdForAnimation: String? = null) {
         polls_motion_layout.visibility = View.VISIBLE
-        if (isWithAnimation){
+        if (pollIdForAnimation != null){
             polls_motion_layout.transitionToEnd()
             //callback to collapse extended poll layout in 6 sec
             Handler().postDelayed({
-                    if (polls_motion_layout != null &&
-                        viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
-                        polls_motion_layout?.transitionToStart()
-                        viewModel.markActivePollDismissed()
+                val pollStatus =  viewModel.getPollStatusLiveData().value
+                if (polls_motion_layout != null && pollStatus is PollStatus.ActivePoll){
+                        if (pollStatus.poll.id == pollIdForAnimation){
+                            polls_motion_layout?.transitionToStart()
+                            viewModel.markActivePollDismissed()
+                        }
                     }
                 }, PlayerViewModel.CLOSE_EXPANDED_POLL_DELAY_MS
             )
@@ -664,7 +666,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun hidePollStatusLayout() {
         polls_motion_layout.visibility = View.INVISIBLE
-        polls_motion_layout.transitionToStart() //to be sure, that it's in proper state
+        if (polls_motion_layout?.currentState == polls_motion_layout.endState){
+            //to be sure, that it's in proper state
+            polls_motion_layout?.postDelayed({polls_motion_layout?.progress = 0.0f}, 500)
+        }
     }
     //end of region
 

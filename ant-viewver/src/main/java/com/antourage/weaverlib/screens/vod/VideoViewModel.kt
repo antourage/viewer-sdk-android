@@ -38,6 +38,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         private const val STOP_TIME_UPDATE_INTERVAL_MS = 2000L
         private const val FULLY_VIEWED_VIDEO_SEGMENT = 0.9
         private const val SKIP_VIDEO_TIME_MILLS = 10000
+        private const val CURTAIN_MARGIN_MILLS = 500
     }
 
     enum class AutoPlayState {
@@ -48,7 +49,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     private val roomRepository: RoomRepository = RoomRepository.getInstance(application)
 
-    private var videoChanged: Boolean = false
+    private var videoChanged: Boolean = true
     private var endOfCurtain = 0L //if not 0L - show skip Button
     private var stopWatchingTime: Long = 0
     private var chatStateLiveData = MutableLiveData<Boolean>()
@@ -59,6 +60,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val messagesHandler = Handler()
     private var vodId: Int? = null
     private var curtains : ArrayList<CurtainRangeMillis> = ArrayList()
+    private var vodResponseDuration : Long =0L
     private var user: User? = null
 
     private var isFetching: Boolean =
@@ -83,10 +85,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private val curtainShown: SingleLiveEvent<Long> = SingleLiveEvent()
     fun getCurtainShownLD(): LiveData<Long> = curtainShown
 
-    private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData<AutoPlayState>()
+    private val autoPlayStateLD: MutableLiveData<AutoPlayState> = MutableLiveData()
     fun getAutoPlayStateLD(): LiveData<AutoPlayState> = autoPlayStateLD
 
-    private val nextVideosFetchedLD: MutableLiveData<Boolean> = MutableLiveData<Boolean>()
+    private val nextVideosFetchedLD: MutableLiveData<Boolean> = MutableLiveData()
     fun getNextVideosFetchedLD(): LiveData<Boolean> = nextVideosFetchedLD
 
     //method used to check if last added message added by User, but in VOD we don't use this check
@@ -126,7 +128,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         messagesLiveData.postValue(shownMessages)
     }
 
-    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, isNewVod: Boolean = false) {
+    fun initUi(id: Int?, startTime: String?, curtains: List<CurtainRange>?, duration: String?,
+               isNewVod: Boolean = false) {
         this.startTime = startTime?.parseToDate()
         initUserAndFetchChat(id)
         id?.let {
@@ -136,6 +139,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         }
         this.vodId = id
         this.currentlyWatchedVideoId = id
+        vodResponseDuration = duration?.parseTimerToMills() ?: 0L
         updateCurtains(curtains)
         chatStateLiveData.postValue(true)
         markVODAsWatched()
@@ -283,6 +287,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun rewindVideoPlay() {
         stopAutoPlayState()
         rewindAndPlayTrack()
+        videoChanged = true
+        stopWatchingTime = 0
     }
 
     fun getCurrentCurtains(): ArrayList<CurtainRangeMillis> = curtains
@@ -315,6 +321,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 }
                 this@VideoViewModel.stopWatchingTime = roomRepository.getStopTimeById(this) ?: 0
                 getChatList(this)
+                vodResponseDuration = currentVod.duration?.parseTimerToMills() ?: 0L
                 updateCurtains(currentVod.curtainRangeModels)
             }
         }
@@ -521,15 +528,31 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             ?.stopTimeMillis = stopWatchingTime
     }
 
+    /**
+     * Changes the playback position depending on stop time and curtains.
+     * Calls when video changes in playlist or on the replay.
+     * Checks whether stop time is in the range of the curtain in the beginning.
+     * CURTAIN_MARGIN_MILLS - is the possible deviation of curtain from real curtain time, so the
+     * curtain assumed as in the beginning when it's start time less than 500 milliseconds.
+     * Also updates var endOfCurtain, as it marks whether SKIP button for curtain should be shown
+     * when stop time was in the middle of some not start curtain.
+     */
     fun seekToLastWatchingTime() {
         if (videoChanged) {
             var endOfCurtainOnBeginning = 0L
             curtains.forEach{
-                if (stopWatchingTime >= it.start && stopWatchingTime < it.end){
-                    if (stopWatchingTime == 0L) {
-                        endOfCurtainOnBeginning = it.end
+                if (stopWatchingTime + CURTAIN_MARGIN_MILLS >= it.start && stopWatchingTime < it.end){
+                    if (it.start <= CURTAIN_MARGIN_MILLS) {
+                        if (it.end + 1000 >= getDurationOnVideoStart()){
+                            //case curtain duration equals length of whole video
+                            endOfCurtain = alignTimeToDuration(it.end)
+                        } else {
+                            //case curtain on the beginning
+                            endOfCurtainOnBeginning = it.end
+                        }
                     } else {
-                        endOfCurtain =  it.end
+                        //case curtain in the middle
+                        endOfCurtain = alignTimeToDuration(it.end)
                     }
                     return@forEach
                 }
@@ -550,5 +573,25 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 endOfCurtain = 0L
             }
         }
+    }
+
+    /**
+     * @timeToSeek is aligned to not exceed duration of current video
+     */
+    private fun alignTimeToDuration(timeToSeek: Long) : Long {
+        var finalTimeToSeek  = timeToSeek
+        val duration = getDurationOnVideoStart()
+        if (duration in (CURTAIN_MARGIN_MILLS)..timeToSeek){
+            finalTimeToSeek = duration - CURTAIN_MARGIN_MILLS
+        }
+        return finalTimeToSeek
+    }
+
+    private fun getDurationOnVideoStart() : Long {
+        var duration = getVideoDuration() ?: 0L
+        if (duration < 0L){
+            duration = vodResponseDuration
+        }
+        return duration
     }
 }
