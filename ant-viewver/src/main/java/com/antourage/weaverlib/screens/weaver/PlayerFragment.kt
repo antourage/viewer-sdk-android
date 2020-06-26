@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.weaver
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -18,6 +19,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
@@ -34,6 +36,7 @@ import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
+import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
@@ -64,6 +67,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private var wasDrawerClosed = false
     private var userDialog: Dialog? = null
+    private var shouldDisconnectSocket: Boolean = true
 
     companion object {
         const val ARGS_STREAM = "args_stream"
@@ -281,6 +285,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(PlayerViewModel::class.java)
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                shouldDisconnectSocket = false
+                isEnabled = false
+                activity?.onBackPressed()
+            }
+        })
     }
 
     override fun subscribeToObservers() {
@@ -330,6 +341,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                             onFullScreenImgClicked()
                                         }else{
                                             onCloseClicked()
+                                            shouldDisconnectSocket = false
                                         }
                                     }
                                     result = true
@@ -488,16 +500,19 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
+        shouldDisconnectSocket = true
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+        viewModel.onPauseSocket(shouldDisconnectSocket)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.releasePlayer()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     override fun onShowKeyboard(keyboardHeight: Int) {
@@ -706,6 +721,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             .setOnClickListener {
                 it.isEnabled = false
                 onCloseClicked()
+                shouldDisconnectSocket = false
             }
     }
 

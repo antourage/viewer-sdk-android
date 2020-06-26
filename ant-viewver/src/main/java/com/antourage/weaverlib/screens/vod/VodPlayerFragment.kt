@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.vod
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -525,6 +526,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onDestroy() {
         super.onDestroy()
         viewModel.releasePlayer()
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 
     override fun onControlsVisible() {}

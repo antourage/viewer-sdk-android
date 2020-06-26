@@ -52,6 +52,14 @@
                 android:textColor="@android:color/white" />
 
         <RadioButton
+                android:id="@+id/rb_demo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white" />
+
+        <RadioButton
                 android:id="@+id/rb_prod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

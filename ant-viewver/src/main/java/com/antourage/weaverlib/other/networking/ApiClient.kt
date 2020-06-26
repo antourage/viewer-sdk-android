@@ -1,8 +1,14 @@
 package com.antourage.weaverlib.other.networking
 
+import android.annotation.SuppressLint
 import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.ListOfStreams
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
@@ -12,23 +18,22 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 internal object ApiClient {
 
-    lateinit var hubConnection: HubConnection
     var BASE_URL = ""
     private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/widget/"
 
-    const val SOCKET_LIVE = "LiveStreamStarted"
-    const val SOCKET_VOD = "NewVod"
-
     lateinit var webService: WebService
     private var retrofit: Retrofit? = null
     private var usingAuth = false
+
 
 //    private var shouldRebuild = false
 
@@ -110,43 +115,4 @@ internal object ApiClient {
         builder.addInterceptor(tokenInterceptor)
     }
     //endregion
-
-
-    fun connectToSockets(token: String, onSuccess: () -> Unit, onError: () -> Unit) {
-
-        class ConnectToSocketTask : AsyncTask<Any, Any, Any>() {
-            override fun doInBackground(vararg params: Any?) {
-                hubConnection.keepAliveInterval = 1000
-                hubConnection.start().blockingGet()
-                return
-            }
-
-            override fun onPostExecute(result: Any?) {
-                super.onPostExecute(result)
-                if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
-                    onError()
-                } else {
-                    onSuccess()
-                }
-            }
-        }
-
-        hubConnection = HubConnectionBuilder.create(
-            "${BASE_URL}hub?access_token=${token}"
-        ).build()
-
-        Log.e(AntourageFab.TAG, "${BASE_URL}hub?access_token=${token}" )
-
-
-        if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
-            ConnectToSocketTask().execute()
-        }
-    }
-
-
-    fun disconnectSocket() {
-        hubConnection.stop()
-    }
-
-
 }

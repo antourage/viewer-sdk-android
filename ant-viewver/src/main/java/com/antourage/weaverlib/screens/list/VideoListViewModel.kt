@@ -8,14 +8,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.TAG
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
-import com.antourage.weaverlib.other.networking.ApiClient
+import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -44,10 +48,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private var showCallResult = false
 
-    fun dataWasAlreadyLoaded(): Boolean {
-        return !vods.isNullOrEmpty() && !liveVideos.isNullOrEmpty()
-    }
-
     var liveVideosUpdated = false
     var vodsUpdated = false
     var vodsUpdatedWithoutError = false
@@ -59,28 +59,19 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     fun subscribeToLiveStreams() {
-//        fun onSocketSuccess() {
-//            Log.e("SOCKETS", "CONNECTED")
-//        }
-//
-//        fun onSocketError() {
-//            Log.e("SOCKETS", "ERROR")
-//            ReceivingVideosManager.setReceivingVideoCallback(this)
-//            ReceivingVideosManager.startReceivingLiveStreams()
-//        }
-//
-//        UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()?.let {
-//            ApiClient.connectToSockets(it, ::onSocketSuccess, ::onSocketError)
-//            initListeners()
-//        }
-
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingLiveStreams()
     }
 
-    private fun initListeners() {
-        ApiClient.hubConnection.on(ApiClient.SOCKET_LIVE, { newStreams ->
-            liveVideos = (newStreams as ArrayList<StreamResponse>).reversed().toMutableList()
+    private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
+       if (it == SocketConnector.SocketConnection.DISCONNECTED) {
+            if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams()
+        }
+    }
+
+    private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (newStreams != null) {
+            liveVideos = newStreams.reversed().toMutableList()
             liveVideos?.let { getChatPollInfoForLives(it) }
             liveVideos?.let {
                 for (i in 0 until (liveVideos?.size ?: 0)) {
@@ -88,18 +79,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 }
             }
             if (!vodsUpdatedWithoutError && vodsUpdated && vods.isNullOrEmpty()) {
-                refreshVODs(noLoadingPlaceholder = false)
+                runOnUi { refreshVODs(noLoadingPlaceholder = false) }
             }
-            Log.e(AntourageFab.TAG, "sockets live: $newStreams")
-        }, ListOfStreams::class.java )
-
-        ApiClient.hubConnection.on(ApiClient.SOCKET_VOD, { newStreams ->
-            Log.e(AntourageFab.TAG, "sockets vod: $newStreams")
-        }, ListOfStreams::class.java)
-
-
-        ApiClient.hubConnection.onClosed {
-            Log.e(AntourageFab.TAG, "socket closed")
         }
     }
 
@@ -109,16 +90,21 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-//        ApiClient.disconnectSocket()
+    private fun removeSocketListeners() {
+        SocketConnector.socketConnection.removeObserver(socketConnectionObserver)
+        SocketConnector.newLivesLiveData.removeObserver(liveFromSocketObserver)
     }
 
+    private fun initSocketListeners() {
+        SocketConnector.socketConnection.observeForever(socketConnectionObserver)
+        SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
+    }
 
     fun refreshVODs(
         count: Int = (vods?.size?.minus(1)) ?: 0,
         noLoadingPlaceholder: Boolean = false
     ) {
+        Log.e(TAG, "refreshVODs: ${vods?.size}" )
         var vodsCount = count
         if (vodsCount < VODS_COUNT) {
             vodsCount = 0
@@ -157,13 +143,23 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         canRefresh = true
     }
 
-    fun onPause() {
+    fun onPause(shouldDisconnectSocket: Boolean = true ) {
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
+        if(shouldDisconnectSocket) SocketConnector.disconnectSocket()
+        removeSocketListeners()
     }
 
     override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
+        if (ReceivingVideosManager.isFirstRequestVod) {
+            ReceivingVideosManager.isFirstRequestVod = false
+            ReceivingVideosManager.pauseReceivingVideos()
+            initSocketListeners()
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()?.let {
+                    ReceivingVideosManager.checkShouldUseSockets(it)
+            }
+        }
         when (resource.status) {
             is Status.Success -> {
                 liveVideos = (resource.status.data)?.reversed()?.toMutableList()
@@ -441,6 +437,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun onNetworkGained(isErrorShown: Boolean = false) {
         refreshVODs(noLoadingPlaceholder = !isErrorShown)
+    }
+
+    fun onNetworkChanged(isConnected: Boolean){
+       if(isConnected){
+           ReceivingVideosManager.startReceivingLiveStreams()
+       }else {
+           SocketConnector.disconnectSocket()
+           ReceivingVideosManager.pauseWhileNoNetwork()
+           SocketConnector.cancelReconnect()
+       }
     }
 
     fun handleUserAuthorization() {

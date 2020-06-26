@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.LiveOpenedRequest
@@ -17,6 +18,7 @@ import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
 import com.antourage.weaverlib.other.models.VideoOpenedRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
@@ -56,8 +58,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     var currentlyWatchedVideoId: Int? = null
     protected var streamUrl: String? = null
     private var playbackStateLiveData: MutableLiveData<Int> = MutableLiveData()
+
     //var to track whether opened video request was sent in order to send close
-    private var lastStatOpenedID : Int? = null
+    private var lastStatOpenedID: Int? = null
 
     //should be used for all kinds of error, which user should be informed with.
     //will always show same error message to user, that's why used Boolean
@@ -96,6 +99,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
+
     //should be used only in live
     open fun onUpdateBannerInfo(banner: AdBanner?) {}
 
@@ -109,7 +113,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
 
         if (this@BasePlayerViewModel is PlayerViewModel) {
-            this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+            checkShouldUseSockets()
         }
     }
 
@@ -118,6 +122,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         player?.playWhenReady = false
         stopwatch.stopIfRunning()
         stopUpdatingCurrentStreamInfo()
+    }
+
+    open fun onPauseSocket(shouldDisconnectSocket: Boolean = true) {
+        disconnectSocket(shouldDisconnectSocket)
     }
 
     fun getExoPlayer(streamUrl: String): SimpleExoPlayer? {
@@ -246,7 +254,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                             if (resource != null) {
                                 when (resource.status) {
                                     is Status.Failure -> {
-                                        Log.d("STAT_OPEN",
+                                        Log.d(
+                                            "STAT_OPEN",
                                             "Failed to send /open: ${resource.status.errorMessage}"
                                         )
                                         response.removeObserver(this)
@@ -271,7 +280,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                             if (resource != null) {
                                 when (resource.status) {
                                     is Status.Failure -> {
-                                        Log.d("STAT_OPEN",
+                                        Log.d(
+                                            "STAT_OPEN",
                                             "Failed to send /open: ${resource.status.errorMessage}"
                                         )
                                         response.removeObserver(this)
@@ -301,7 +311,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
-            if (id == lastStatOpenedID){
+            if (id == lastStatOpenedID) {
                 when (this) {
                     is VideoViewModel -> Repository.postVideoClosedInternalObserve(
                         VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
@@ -309,7 +319,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
                         LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
                     )
-                    else -> { }
+                    else -> {
+                    }
                 }
                 lastStatOpenedID = null
             }
@@ -362,7 +373,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 currentWindow = player?.currentWindowIndex ?: 0
-                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) errorLiveData.value = true
+                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) errorLiveData.value =
+                    true
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
             Log.d(
@@ -378,7 +390,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             if (err.cause is BehindLiveWindowException) {
                 player?.prepare(getMediaSource(streamUrl), false, true)
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
-                if (this@BasePlayerViewModel is PlayerViewModel){
+                if (this@BasePlayerViewModel is PlayerViewModel) {
                     player?.prepare(getMediaSource(streamUrl), false, true)
                 }
                 errorLiveData.value = true
@@ -393,7 +405,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             stopUpdatingCurrentStreamInfo()
             onVideoChanged()
             if (this@BasePlayerViewModel is PlayerViewModel) {
-                currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+                checkShouldUseSockets()
+//                currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
             }
         }
 
@@ -401,8 +414,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             trackGroups: TrackGroupArray,
             trackSelections: TrackSelectionArray
         ) {
-            if (player != null){
-                if (player!!.duration != C.TIME_UNSET){
+            if (player != null) {
+                if (player!!.duration != C.TIME_UNSET) {
                     player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
                         .setHandler(Handler())
                         .setPosition(
@@ -423,7 +436,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         curtainRangeMillis: CurtainRangeMillis,
         onAddStarted: (curtainEndTime: Long, windowIndex: Int) -> Unit
     ) {
-        player!!.createMessage { _, _ -> onAddStarted(curtainRangeMillis.end, windowIndex)}
+        player!!.createMessage { _, _ -> onAddStarted(curtainRangeMillis.end, windowIndex) }
             .setHandler(Handler())
             .setPosition(windowIndex, curtainRangeMillis.start)
             .setDeleteAfterDelivery(false)
@@ -466,6 +479,53 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private fun stopUpdatingCurrentStreamInfo() {
         requestingStreamInfoHandler.removeCallbacksAndMessages(null)
+    }
+
+    private fun disconnectSocket(shouldDisconnectSocket: Boolean = true) {
+        if (shouldDisconnectSocket) SocketConnector.disconnectSocket()
+        SocketConnector.socketConnection.removeObserver(socketConnectionObserver)
+        SocketConnector.newLivesLiveData.removeObserver(liveFromSocketObserver)
+    }
+
+    private fun checkShouldUseSockets() {
+        initSocketListeners()
+        if (ReceivingVideosManager.shouldUseSockets) {
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()
+                ?.let {
+                    SocketConnector.connectToSockets(it)
+                }
+        } else {
+            if (this@BasePlayerViewModel is PlayerViewModel) {
+                this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+            }
+        }
+    }
+
+    private val socketConnectionObserver =
+        Observer<SocketConnector.SocketConnection> { socketConnection ->
+            if (socketConnection == SocketConnector.SocketConnection.DISCONNECTED) {
+                if (Global.networkAvailable && this@BasePlayerViewModel is PlayerViewModel) this.currentlyWatchedVideoId?.let {
+                    subscribeToCurrentStreamInfo(
+                        it
+                    )
+                }
+            }
+        }
+
+    private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (!newStreams.isNullOrEmpty()) {
+            for (stream in newStreams) {
+                if(stream.id == this.currentlyWatchedVideoId){
+                    currentStreamViewsLiveData.postValue(stream.viewersCount)
+                    break
+                }
+            }
+        }
+    }
+
+    private fun initSocketListeners() {
+        SocketConnector.socketConnection.observeForever(socketConnectionObserver)
+        SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
     }
 
     open fun onLiveStreamEnded() {}

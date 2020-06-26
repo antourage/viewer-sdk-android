@@ -23,11 +23,14 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.networking.ApiClient
+import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
-import com.antourage.weaverlib.other.networking.ApiClient.SOCKET_LIVE
-import com.antourage.weaverlib.other.networking.ApiClient.SOCKET_VOD
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector.disconnectSocket
+import com.antourage.weaverlib.other.networking.SocketConnector.newLivesLiveData
+import com.antourage.weaverlib.other.networking.SocketConnector.newVodsLiveData
+import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.showBadge
 import com.antourage.weaverlib.screens.base.AntourageActivity
@@ -93,6 +96,7 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private var shouldDisconnectSocket: Boolean = true
     private var goingLiveToLive: Boolean = false
     private var currentlyDisplayedLiveStream: StreamResponse? = null
     private var currentAnimationDrawableId: Int = -1
@@ -130,12 +134,24 @@ class AntourageFab @JvmOverloads constructor(
         initPlayAnimation()
     }
 
-
     override fun onResume() {
+        internetStateLiveData.observeForever(networkStateObserver)
+        shouldDisconnectSocket = true
+
         ReceivingVideosManager.setReceivingVideoCallback(object :
             ReceivingVideosManager.ReceivingVideoCallback {
             override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
                 super.onVODForFabReceived(resource)
+
+                if (ReceivingVideosManager.isFirstRequestVod) {
+                    ReceivingVideosManager.isFirstRequestVod = false
+                    ReceivingVideosManager.pauseReceivingVideos()
+                    UserCache.getInstance(context)?.getToken()?.let {
+                        SocketConnector.connectToSockets(it)
+                        initSocketListeners()
+                    }
+                }
+
                 when (val status = resource.status) {
                     is Status.Success -> {
                         if (!status.data.isNullOrEmpty()) {
@@ -196,7 +212,7 @@ class AntourageFab @JvmOverloads constructor(
             if (userAuthorized()) {
                 startAntRequests()
             }
-        }, 1200)
+        }, 500)
     }
 
     private fun manageLiveStreams() {
@@ -421,7 +437,8 @@ class AntourageFab @JvmOverloads constructor(
     override fun onPause() {
         StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
-//        ApiClient.disconnectSocket()
+        if (shouldDisconnectSocket) disconnectSocket()
+        removeSocketListeners()
         currentPlayerState = 0
         isAnimationRunning = false
         goingLiveToLive = false
@@ -552,6 +569,8 @@ class AntourageFab @JvmOverloads constructor(
         }
         mLastClickTime = SystemClock.elapsedRealtime()
 
+        shouldDisconnectSocket = false
+
         when (currentFabState) {
             FabState.INACTIVE -> {
                 openAntActivity()
@@ -611,27 +630,40 @@ class AntourageFab @JvmOverloads constructor(
         shownLiveStreams.addAll(liveStreams)
     }
 
-    private fun startAntRequests() {
-//        fun onSocketSuccess() {
-//            Log.e("SOCKETS", "CONNECTED")
-//        }
-//
-//        fun onSocketError() {
-//            Log.e("SOCKETS", "ERROR")
-//            ReceivingVideosManager.startReceivingLiveStreams(true)
-//        }
-//
-//        UserCache.getInstance(context)?.getToken()?.let {
-//            ApiClient.connectToSockets(it, ::onSocketSuccess, ::onSocketError)
-//            initListeners()
-//        }
 
+    private fun startAntRequests() {
         ReceivingVideosManager.startReceivingLiveStreams(true)
 
+//        UserCache.getInstance(context)?.getToken()?.let {
+//            SocketConnector.getInitialInfo()
+//            SocketConnector.connectToSockets(it)
+//            initSocketListeners()
+//        }
     }
 
-    private fun initListeners() {
-        ApiClient.hubConnection.on(SOCKET_LIVE, { newStreams ->
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        when (networkState?.ordinal) {
+            NetworkConnectionState.LOST.ordinal -> {
+                if (!Global.networkAvailable) {
+                    disconnectSocket()
+                    ReceivingVideosManager.pauseWhileNoNetwork()
+                    SocketConnector.cancelReconnect()
+                }
+            }
+            NetworkConnectionState.AVAILABLE.ordinal -> {
+                ReceivingVideosManager.startReceivingLiveStreams(true)
+            }
+        }
+    }
+
+    private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
+        if (it == SocketConnector.SocketConnection.DISCONNECTED) {
+            if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams(true)
+        }
+    }
+
+    private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (newStreams != null) {
             val newLives = newStreams as ArrayList<StreamResponse>
             if (!newLives.isNullOrEmpty()) {
                 liveStreams.clear()
@@ -643,11 +675,11 @@ class AntourageFab @JvmOverloads constructor(
                 runOnUi { manageVODs(true) }
                 goingLiveToLive = false
             }
+        }
+    }
 
-            Log.e(TAG, "sockets live: $newStreams")
-        }, ListOfStreams::class.java )
-
-        ApiClient.hubConnection.on(SOCKET_VOD, { newStreams ->
+    private val vodsFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (newStreams != null) {
             val newVods = newStreams as ArrayList<StreamResponse>
 
             if (!newVods.isNullOrEmpty()) {
@@ -658,13 +690,20 @@ class AntourageFab @JvmOverloads constructor(
                 vods.clear()
                 runOnUi { manageVODs() }
             }
-
-            Log.e(TAG, "sockets vod: $newStreams")
-        }, ListOfStreams::class.java)
-
-        ApiClient.hubConnection.onClosed {
-            Log.e(TAG, "socket closed")
         }
+    }
+
+    private fun removeSocketListeners() {
+        internetStateLiveData.removeObserver(networkStateObserver)
+        socketConnection.removeObserver(socketConnectionObserver)
+        newVodsLiveData.removeObserver(vodsFromSocketObserver)
+        newLivesLiveData.removeObserver(liveFromSocketObserver)
+    }
+
+    private fun initSocketListeners() {
+        socketConnection.observeForever(socketConnectionObserver)
+        newVodsLiveData.observeForever(vodsFromSocketObserver)
+        newLivesLiveData.observeForever(liveFromSocketObserver)
     }
 
     private fun runOnUi(method: () -> Unit) {
