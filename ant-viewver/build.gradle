@@ -16,7 +16,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "0.2.43"
+        versionName "0.2.44"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     testOptions {
@@ -152,12 +152,6 @@ dependencies {
     //SignalR
     implementation 'com.microsoft.signalr:signalr:5.0.0-preview.5.20279.2'
     implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.7'
-
-//    implementation 'com.tinder.scarlet:scarlet:0.1.9'
-//    implementation "com.github.tinder.scarlet:scarlet-websocket-okhttp:0.1.9"
-//    implementation "com.github.tinder.scarlet:scarlet-stream-adapter-rxjava2:0.1.9"
-//    implementation "com.github.tinder.scarlet:scarlet-message-adapter-moshi:0.1.9"
-
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

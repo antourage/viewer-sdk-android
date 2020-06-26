@@ -171,7 +171,7 @@ internal class VideosAdapter(
                     }
                     REFRESH_LIVE -> {
                         if (holder is LiveVideoViewHolder) {
-                            holder.setViews(bundle.getInt(key).toString())
+                            holder.setViews(bundle.getLong(key).toString())
                         }
                     }
                     REFRESH_TIME -> {

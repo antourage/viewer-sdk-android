@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +30,7 @@ import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
 
@@ -45,6 +48,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private var isNewLiveButtonShown = false
     private var isInitialListSet = true
     private var newLivesList = mutableListOf<StreamResponse>()
+    private var shouldDisconnectSocket: Boolean = true
+
 
     private var canShowNewButton = false
 
@@ -123,11 +128,30 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(VideoListViewModel::class.java)
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                shouldDisconnectSocket = false
+                isEnabled = false
+                activity?.onBackPressed()
+            }
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
+        loadTeamImage()
+    }
+
+    private fun loadTeamImage() {
+        context?.let {
+            Picasso
+                .get()
+                .load(R.drawable.nordic_wellness)
+//                .resize(dp2px(it, 64f).toInt(), dp2px(it, 60f).toInt())
+//                .centerInside()
+                .into(ivTeamImage)
+        }
     }
 
     private fun subscribeToObservers() {
@@ -147,6 +171,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         initNewButtonCountdown()
         videosRV.resetVideoView()
+        shouldDisconnectSocket = true
         context?.let {
             viewModel.handleUserAuthorization()
             viewModel.refreshVODsLocally()
@@ -180,7 +205,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videosRV.onPause()
         triggerNewLiveButton(isVisible = false, isPause = true)
         canShowNewButton = false
-        viewModel.onPause()
+        viewModel.onPause(shouldDisconnectSocket)
         viewModel.errorLiveData.postValue(null)
     }
 
@@ -195,6 +220,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             when {
                 streamResponse.isLive -> {
                     videosRV.hideAutoPlayLayout()
+                    shouldDisconnectSocket = false
                     openLiveFragment(streamResponse)
                 }
                 streamResponse.id == -1 -> {
@@ -207,6 +233,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         }
                     }
                     videosRV.hideAutoPlayLayout()
+                    shouldDisconnectSocket = false
                     openVodFragment(streamResponse)
                 }
             }
@@ -300,7 +327,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         })
 
-        ivClose.setOnClickListener { activity?.finish() }
+        ivClose.setOnClickListener {
+            shouldDisconnectSocket = false
+            activity?.finish()
+        }
         viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
 
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
@@ -457,6 +487,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showLoadingLayout(showOnlyIfError: Boolean = false) {
+        resolveErrorSnackbar()
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
 
         if (showOnlyIfError) {
@@ -513,11 +544,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun showNoConnectionPlaceHolder() {
         showErrorSnackbar(R.string.ant_no_connection)
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
-//        if (placeholderRefreshLayout.alpha != 1f) {
-//            placeholderRefreshLayout.revealWithAnimation()
-//            placeHolderRV.revealWithAnimation()
-//        }
-
         if (videoRefreshLayout.alpha != 1f) {
             if (placeholderRefreshLayout.alpha != 1f) {
                 placeholderRefreshLayout.revealWithAnimation()
@@ -590,10 +616,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
                     }
                     showNoConnectionPlaceHolder()
+                    viewModel.onNetworkChanged(false)
 //                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
+                viewModel.onNetworkChanged(true)
                 resolveErrorSnackbar(R.string.ant_you_are_online)
                 if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.ERROR.value
                     || placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.NO_INTERNET.value && placeholderRefreshLayout.alpha == 1f

@@ -177,12 +177,11 @@
 
         <ImageView
                 android:id="@+id/ivTeamImage"
-                android:layout_width="wrap_content"
+                android:layout_width="64dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="12dp"
-                android:scaleType="fitXY"
+                android:scaleType="centerInside"
                 android:adjustViewBounds="true"
-                android:src="@drawable/nordic_wellness"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -208,6 +207,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/ant_white"
                 android:textSize="15sp"
+                android:maxLength="25"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"

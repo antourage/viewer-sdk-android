@@ -5,12 +5,15 @@ import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.ui.fab.AntourageFab
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
 
 /**
  * Added so that AntourageFab and VideoListFragment received data from the same source
@@ -26,23 +29,28 @@ internal class ReceivingVideosManager {
         private var liveVideos: Resource<List<StreamResponse>>? = null
         private var vods: Resource<List<StreamResponse>>? = null
         private var vodsForFab: Resource<List<StreamResponse>>? = null
+
         /**used to ensure that live list comes first*/
         private var isFirstRequest = true
+        var isFirstRequestVod = true
 
         fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
         }
 
-        fun loadVODs(count: Int,  roomRepository: RoomRepository) {
+        fun loadVODs(count: Int, roomRepository: RoomRepository) {
             Log.d(AntourageFab.TAG, "Trying to load VODs")
-            val response = Repository.getVODsWithLastCommentAndStopTime(count,roomRepository)
+            val response = Repository.getVODsWithLastCommentAndStopTime(count, roomRepository)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                     if (resource != null) {
                         when (resource.status) {
                             is Status.Failure -> {
-                                Log.d(AntourageFab.TAG, "Failed to load VODs: ${resource.status.errorMessage}")
+                                Log.d(
+                                    AntourageFab.TAG,
+                                    "Failed to load VODs: ${resource.status.errorMessage}"
+                                )
                                 callback?.onVODReceived(resource)
                                 response.removeObserver(this)
                             }
@@ -69,8 +77,17 @@ internal class ReceivingVideosManager {
         val handlerLiveVideos = Handler()
         private val handlerVODs = Handler()
 
+        fun checkShouldUseSockets(token: String) {
+            if (SocketConnector.isConnected() || SocketConnector.isSocketUsed) {
+                SocketConnector.connectToSockets(token)
+            } else {
+                startReceivingLiveStreams()
+            }
+        }
+
+        val shouldUseSockets: Boolean = SocketConnector.isConnected() || SocketConnector.isSocketUsed
+
         fun startReceivingLiveStreams(isForFab: Boolean = false) {
-            Log.d(AntourageFab.TAG, "Started videos list timer")
             handlerLiveVideos.postDelayed(object : Runnable {
                 override fun run() {
                     if (isForFab || Global.networkAvailable) {
@@ -80,20 +97,26 @@ internal class ReceivingVideosManager {
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                                 if (resource != null) {
-                                    if(isFirstRequest && isForFab) {
+                                    if (isFirstRequest && isForFab) {
                                         isFirstRequest = false
                                         Handler().postDelayed({
                                             startReceivingVODsForFab()
-                                        }, 2000)
+                                        }, 1200)
                                     }
                                     when (resource.status) {
                                         is Status.Failure -> {
                                             callback?.onLiveBroadcastReceived(resource)
-                                            Log.d(AntourageFab.TAG, "Get live video list request failed")
+                                            Log.d(
+                                                AntourageFab.TAG,
+                                                "Get live video list request failed"
+                                            )
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
-                                            Log.d(AntourageFab.TAG, "Successfully received live video list")
+                                            Log.d(
+                                                AntourageFab.TAG,
+                                                "Successfully received live video list"
+                                            )
                                             callback?.onLiveBroadcastReceived(resource)
                                             liveVideos = resource
                                             streamResponse.removeObserver(this)
@@ -108,7 +131,7 @@ internal class ReceivingVideosManager {
             }, 0)
         }
 
-        fun startReceivingVODsForFab(){
+        fun startReceivingVODsForFab() {
             handlerVODs.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
@@ -121,11 +144,17 @@ internal class ReceivingVideosManager {
                                     when (resource.status) {
                                         is Status.Failure -> {
                                             callback?.onVODForFabReceived(resource)
-                                            Log.d(AntourageFab.TAG, "Get vods list request failed for fab")
+                                            Log.d(
+                                                AntourageFab.TAG,
+                                                "Get vods list request failed for fab"
+                                            )
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
-                                            Log.d(AntourageFab.TAG, "Successfully received vods list for fab")
+                                            Log.d(
+                                                AntourageFab.TAG,
+                                                "Successfully received vods list for fab"
+                                            )
                                             callback?.onVODForFabReceived(resource)
                                             vodsForFab = resource
                                             streamResponse.removeObserver(this)
@@ -148,7 +177,22 @@ internal class ReceivingVideosManager {
             handlerVODs.removeCallbacksAndMessages(null)
             callback = null
             isFirstRequest = true
+            isFirstRequestVod = true
         }
+
+        fun pauseWhileNoNetwork() {
+            handlerLiveVideos.removeCallbacksAndMessages(null)
+            handlerVODs.removeCallbacksAndMessages(null)
+            isFirstRequest = true
+            isFirstRequestVod = true
+        }
+
+        fun pauseReceivingVideos() {
+            handlerLiveVideos.removeCallbacksAndMessages(null)
+            handlerVODs.removeCallbacksAndMessages(null)
+            isFirstRequest = true
+        }
+
     }
 
     @Keep
@@ -160,7 +204,5 @@ internal class ReceivingVideosManager {
         fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {}
 
         fun onVODReceivedInitial(resource: Resource<List<StreamResponse>>) {}
-
-        fun onNewVideosCount(resource: Resource<Int>) {}
     }
 }
