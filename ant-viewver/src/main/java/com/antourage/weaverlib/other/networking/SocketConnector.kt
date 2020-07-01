@@ -26,7 +26,7 @@ internal object SocketConnector {
 
     var isSocketUsed = true
 
-    const val SOCKET_LIVE = "NewLiveStreams"
+    const val SOCKET_LIVE = "LiveStreams"
     const val SOCKET_VOD = "NewVod"
     const val SOCKET_VIEWS = "LiveViewerCount"
 
