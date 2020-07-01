@@ -28,6 +28,7 @@ import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.DefaultTimeBar
+import com.google.android.exoplayer2.ui.TimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
@@ -67,6 +68,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private val updateProgressAction = Runnable { updateProgressBar() }
     private var playerOnTouchListener: View.OnTouchListener? = null
     private var autoPlayCountDownTimer: CountDownTimer? = null
+    private var isScrubberMoving: Boolean = false
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
@@ -347,11 +349,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initPortraitProgressListener() {
         controls.setProgressUpdateListener { pos, _ ->
-            if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
-                vod_player_progress.setProgress(pos.toInt())
-            } else {
-                vod_controls_progress.setProgress(pos.toInt())
+            if (!isScrubberMoving){
+                if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+                    vod_player_progress.setProgress(pos.toInt())
+                } else {
+                    vod_controls_progress.setProgress(pos.toInt())
+                }
             }
+
             vod_position.text = pos.formatTimeMillisToTimer()
             val duration = viewModel.getVideoDuration() ?: -1
             if (duration > 0) {
@@ -388,6 +393,23 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             viewModel.nextVideoPlay()
         }
         updatePrevNextVisibility()
+
+        controls.findViewById<DefaultTimeBar>(R.id.exo_progress).addListener(object :
+            TimeBar.OnScrubListener {
+            override fun onScrubMove(timeBar: TimeBar, position: Long) {
+                if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+                    vod_player_progress.setProgress(position.toInt())
+                } else {
+                    vod_controls_progress.setProgress(position.toInt())
+                }
+            }
+
+            override fun onScrubStart(timeBar: TimeBar, position: Long) { isScrubberMoving = true }
+
+            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+                isScrubberMoving = false
+            }
+        })
     }
 
     private fun initControlsVisibilityListener() {
