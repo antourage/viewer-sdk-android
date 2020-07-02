@@ -201,8 +201,8 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
+                playHandler.removeCallbacksAndMessages(null)
                 if (newState == SCROLL_STATE_IDLE) {
-                    playHandler.removeCallbacksAndMessages(null)
                     val position = getTargetPosition()
                     if (position != playPosition && !fullyViewedVods.contains(currentlyPlayingVideo)) {
                         hideAutoPlayLayout()
@@ -252,6 +252,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         vodId?.let {
             val stopWatchingTime = videoPlayer?.currentPosition ?: 0
             val duration = videoPlayer?.duration ?: 0L
+
             if (stopWatchingTime > 0) {
                 if (duration != 0L && duration * 0.9 - stopWatchingTime < 0) {
                     roomRepository.addStopTime(Video(vodId, 0, getExpirationDate(vodId)))

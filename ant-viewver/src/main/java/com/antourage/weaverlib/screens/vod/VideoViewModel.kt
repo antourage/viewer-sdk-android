@@ -198,8 +198,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     override fun onResume() {
         super.onResume()
-        startUpdatingStopWatchingTime()
         player?.seekTo(stopWatchingTime)
+        startUpdatingStopWatchingTime()
     }
 
     override fun onPause() {

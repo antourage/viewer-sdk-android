@@ -63,7 +63,7 @@
         <item quantity="other">%d år</item>
     </plurals>
 
-    <string name="ant_started_ago">%1$s ago</string>
+    <string name="ant_started_ago">%1$s sedan</string>
     <string name="ant_started_now">Alldeles nyss</string>
 
     <string name="choose_link">Välj länk</string>
