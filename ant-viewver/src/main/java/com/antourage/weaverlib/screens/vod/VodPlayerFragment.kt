@@ -46,7 +46,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         const val ARGS_IS_NEW = "args_new"
         const val MIN_PROGRESS_UPDATE_MILLIS = 50L
         const val MAX_PROGRESS_UPDATE_MILLIS = 500L
-        const val SKIP_CURTAIN_HIDE_DELAY_MILLIS = 5000L
+        const val SKIP_CURTAIN_HIDE_DELAY_MILLIS = 7000L
 
         private const val SWIPE_THRESHOLD = 100
         private const val SWIPE_VELOCITY_THRESHOLD = 100
