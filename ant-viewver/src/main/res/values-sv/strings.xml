@@ -11,7 +11,7 @@
 
     <plurals name="ant_number_new_comments">
         <item quantity="one">%d NY KOMMENTAR</item>
-        <item quantity="other">%d NY KOMMENTARER</item>
+        <item quantity="other">%d NYA KOMMENTARER</item>
     </plurals>
 
     <plurals name="ant_number_answers">
