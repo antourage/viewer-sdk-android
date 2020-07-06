@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -19,6 +18,7 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.models.FeedInfo
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
@@ -30,9 +30,13 @@ import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.squareup.picasso.Callback
+import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
+import java.lang.Exception
+
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun getLayoutId() = R.layout.fragment_videos_list
@@ -118,6 +122,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
+    private val feedInfoObserver: Observer<FeedInfo> = Observer { feedInfo ->
+       feedInfo?.let {
+           updateFeedInfo(feedInfo)
+       }
+    }
+
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
             context?.let { context -> DevSettingsDialog(context, viewModel).show() }
@@ -140,24 +150,47 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
-        loadTeamImage()
+        loadFeedInfo()
     }
 
-    private fun loadTeamImage() {
-        context?.let {
-            Picasso
-                .get()
-                .load(R.drawable.nordic_wellness)
+    private fun loadFeedInfo() {
+        viewModel.getSavedTagLine()?.let {
+            tvTitle.text = it
+        }
+
+        if(viewModel.getSavedFeedImageUrl()==null){
+            viewModel.getFeedInfo()
+        }else{
+            Picasso.get().load(viewModel.getSavedFeedImageUrl())
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(ivTeamImage, object : Callback {
+                    override fun onSuccess() {
+                        //image loaded from cache
+                        viewModel.getFeedInfo()
+                    }
+
+                    override fun onError(e: Exception?) {
+                        viewModel.getFeedInfo()
+                    }
+                })
+        }
+    }
+
+    private fun updateFeedInfo(feedInfo: FeedInfo) {
+        tvTitle.text = feedInfo.tagLine
+        Picasso
+            .get()
+            .load(feedInfo.imageUrl)
 //                .resize(dp2px(it, 64f).toInt(), dp2px(it, 60f).toInt())
 //                .centerInside()
-                .into(ivTeamImage)
-        }
+            .into(ivTeamImage)
     }
 
     private fun subscribeToObservers() {
         viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
         viewModel.errorLiveData.observe(this.viewLifecycleOwner, errorObserver)
         viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
+        viewModel.feedInfoLiveData.observe(this.viewLifecycleOwner, feedInfoObserver)
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,

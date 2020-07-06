@@ -28,6 +28,8 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_USER_ID = "sp_user_id"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
+        private const val SP_TAG_LINE = "sp_tag_line"
+        private const val SP_FEED_IMAGE_URL = "sp_feed_image"
         private const val SP_USER_REF_ID = "sp_user_ref_id"
         private const val SP_USER_NICKNAME = "sp_user_nickname"
         private var INSTANCE: UserCache? = null
@@ -133,6 +135,18 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveTagLine(tagline: String) {
+        prefs?.edit()
+            ?.putString(SP_TAG_LINE, tagline)
+            ?.apply()
+    }
+
+    fun saveFeedImageUrl(url: String) {
+        prefs?.edit()
+            ?.putString(SP_FEED_IMAGE_URL, url)
+            ?.apply()
+    }
+
     fun getCollapsedPollId(): String? {
         return prefs?.getString(SP_COLLAPSED_POLL, null)
     }
@@ -147,6 +161,14 @@ internal class UserCache private constructor(context: Context) {
 
     fun getApiKey(): String? {
         return prefs?.getString(SP_API_KEY, null)
+    }
+
+    fun getTagLine(): String? {
+        return prefs?.getString(SP_TAG_LINE, null)
+    }
+
+    fun getFeedImageUrl(): String? {
+        return prefs?.getString(SP_FEED_IMAGE_URL, null)
     }
 
     fun getUserRefId(): String? {

@@ -203,7 +203,6 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:text="@string/ant_demo_feed_title"
                 android:textAlignment="center"
                 android:textColor="@color/ant_white"
                 android:textSize="15sp"
