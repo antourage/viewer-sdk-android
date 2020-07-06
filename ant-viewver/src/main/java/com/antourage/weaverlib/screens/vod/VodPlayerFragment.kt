@@ -66,6 +66,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     private var skipBackwardVDrawable: AnimatedVectorDrawableCompat? = null
     private val progressHandler = Handler()
     private val updateProgressAction = Runnable { updateProgressBar() }
+    private var skipCurtainHandler = Handler()
     private var playerOnTouchListener: View.OnTouchListener? = null
     private var autoPlayCountDownTimer: CountDownTimer? = null
     private var isScrubberMoving: Boolean = false
@@ -141,14 +142,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         if (vod_skip_button.visibility != View.VISIBLE){
             vod_skip_button.revealWithAnimation()
             val timeToCurtainEnd = curtainEndTimeMillis - (viewModel.getVideoPosition() ?: 0)
-            vod_skip_button.postDelayed(
-                {
-                    if (vod_skip_button?.visibility == View.VISIBLE) {
-                        vod_skip_button.visibility = View.INVISIBLE
-                    }
-                },
-                minOf(timeToCurtainEnd, SKIP_CURTAIN_HIDE_DELAY_MILLIS)
-            )
+            skipCurtainHandler.postDelayed({
+                if (vod_skip_button?.visibility == View.VISIBLE) {
+                    vod_skip_button.visibility = View.INVISIBLE
+                }
+                skipCurtainHandler.removeCallbacksAndMessages(null)
+            }, minOf(timeToCurtainEnd, SKIP_CURTAIN_HIDE_DELAY_MILLIS))
         }
     }
 
@@ -542,6 +541,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+        skipCurtainHandler.removeCallbacksAndMessages(null)
         progressHandler.removeCallbacks(updateProgressAction)
         playerView.onPause()
     }
@@ -572,6 +572,15 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
         initSkipControls()
         viewModel.getPlaybackState().reObserve(this.viewLifecycleOwner, streamStateObserver)
+        showSkipButtonIfRequired()
+    }
+
+    private fun showSkipButtonIfRequired() {
+        if (skipCurtainHandler.hasMessages(0)) {
+            if (vod_skip_button.visibility != View.VISIBLE){
+                vod_skip_button.revealWithAnimation()
+            }
+        }
     }
 
     override fun onDrawerDoubleClick() {
