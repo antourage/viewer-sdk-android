@@ -112,6 +112,11 @@ data class Viewers(
     @field:SerializedName("viewers") val viewers : Long
 )
 
+data class FeedInfo(
+    @field:SerializedName("imageUrl") val imageUrl: String,
+    @field:SerializedName("tagLine") val tagLine : String
+)
+
 @Parcelize
 data class AdBanner(
     @field:SerializedName("imageUrl") val imageUrl : String?,

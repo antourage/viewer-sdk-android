@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.screens.list
 
 import android.app.Application
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -15,9 +14,7 @@ import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.UserRequest
-import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
-import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
@@ -27,9 +24,6 @@ import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.UserAuthResult
-import com.microsoft.signalr.HubConnection
-import com.microsoft.signalr.HubConnectionBuilder
-import com.microsoft.signalr.HubConnectionState
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -41,6 +35,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var listOfStreams: MutableLiveData<List<StreamResponse>> = MutableLiveData()
     var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
+    var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
@@ -64,7 +59,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
-       if (it == SocketConnector.SocketConnection.DISCONNECTED) {
+        if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams()
         }
     }
@@ -104,7 +99,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         count: Int = (vods?.size?.minus(1)) ?: 0,
         noLoadingPlaceholder: Boolean = false
     ) {
-        Log.e(TAG, "refreshVODs: ${vods?.size}" )
+        Log.e(TAG, "refreshVODs: ${vods?.size}")
         var vodsCount = count
         if (vodsCount < VODS_COUNT) {
             vodsCount = 0
@@ -143,11 +138,11 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         canRefresh = true
     }
 
-    fun onPause(shouldDisconnectSocket: Boolean = true ) {
+    fun onPause(shouldDisconnectSocket: Boolean = true) {
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
-        if(shouldDisconnectSocket) SocketConnector.disconnectSocket()
+        if (shouldDisconnectSocket) SocketConnector.disconnectSocket()
         removeSocketListeners()
     }
 
@@ -156,9 +151,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
             initSocketListeners()
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()?.let {
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()
+                ?.let {
                     ReceivingVideosManager.checkShouldUseSockets(it)
-            }
+                }
         }
         when (resource.status) {
             is Status.Success -> {
@@ -436,17 +432,18 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     //endregion
 
     fun onNetworkGained(isErrorShown: Boolean = false) {
+        if(feedInfoLiveData.value==null) getFeedInfo()
         refreshVODs(noLoadingPlaceholder = !isErrorShown)
     }
 
-    fun onNetworkChanged(isConnected: Boolean){
-       if(isConnected){
-           ReceivingVideosManager.startReceivingLiveStreams()
-       }else {
-           SocketConnector.disconnectSocket()
-           ReceivingVideosManager.pauseWhileNoNetwork()
-           SocketConnector.cancelReconnect()
-       }
+    fun onNetworkChanged(isConnected: Boolean) {
+        if (isConnected) {
+            ReceivingVideosManager.startReceivingLiveStreams()
+        } else {
+            SocketConnector.disconnectSocket()
+            ReceivingVideosManager.pauseWhileNoNetwork()
+            SocketConnector.cancelReconnect()
+        }
     }
 
     fun handleUserAuthorization() {
@@ -473,6 +470,37 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private fun getCachedApiKey(): String? {
         return UserCache.getInstance(getApplication())?.getApiKey()
+    }
+
+    fun getSavedTagLine(): String? {
+        return UserCache.getInstance(getApplication())?.getTagLine()
+    }
+
+    fun getSavedFeedImageUrl(): String? {
+        return UserCache.getInstance(getApplication())?.getFeedImageUrl()
+    }
+
+    fun getFeedInfo() {
+        val response = Repository.getFeedInfo()
+        response.observeForever(object : Observer<Resource<FeedInfo>> {
+            override fun onChanged(it: Resource<FeedInfo>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        val feedInfo = responseStatus.data as FeedInfo
+                        UserCache.getInstance(getApplication())?.saveTagLine(feedInfo.tagLine)
+                        UserCache.getInstance(getApplication())?.saveFeedImageUrl(feedInfo.imageUrl)
+                        feedInfoLiveData.postValue(feedInfo)
+                        Log.e(
+                            AntourageFab.TAG, "IMAGE INFO + url = ${feedInfo.imageUrl}"
+                        )
+                        response.removeObserver(this)
+                    }
+                    is Status.Failure -> {
+                        response.removeObserver(this)
+                    }
+                }
+            }
+        })
     }
 
     private fun authorizeUser(

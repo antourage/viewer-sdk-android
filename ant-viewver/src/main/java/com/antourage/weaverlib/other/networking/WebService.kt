@@ -39,6 +39,9 @@ internal interface WebService {
     @GET("users")
     fun getUser(): LiveData<ApiResponse<User>>
 
+    @GET("users/feed")
+    fun getFeedInfo(): LiveData<ApiResponse<FeedInfo>>
+
     @PUT("users")
     fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>
 
