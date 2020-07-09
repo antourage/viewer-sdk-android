@@ -1,24 +1,35 @@
 package com.antourage.weaverlib.screens.poll.rv
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.other.models.AnswersCombined
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_poll.view.*
+import kotlinx.android.synthetic.main.item_poll_banner.view.*
 import kotlin.math.roundToInt
 
 internal class PollAnswersAdapter(
     private var listOfAnswers: ArrayList<AnswersCombined>,
     private var isAnswered: Boolean,
-    private val callback: AnswerClickedCallback
-) : RecyclerView.Adapter<PollAnswersAdapter.PollViewHolder>() {
+    private var banner: AdBanner? = null,
+    private val answerClick: AnswerClickedCallback,
+    private val bannerClick: (String) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     //the marker to show animation transition in elements.
     // Should be used only if user has just voted.
     private var shouldShowAnimation: Boolean = false
+
+    companion object {
+        const val TYPE_ITEM = 0
+        const val TYPE_BANNER = 1
+    }
 
     interface AnswerClickedCallback {
         fun onAnswerChosen(position: Int)
@@ -48,27 +59,48 @@ internal class PollAnswersAdapter(
         }
     }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): PollViewHolder {
-        val inflater = LayoutInflater.from(viewGroup.context)
-        val itemView: View = inflater.inflate(R.layout.item_poll, viewGroup, false)
-        var itemHeight =  (viewGroup.height * 0.25).toInt() -
-                viewGroup.context.resources.getDimension(R.dimen.poll_divider_size).toInt()
-        val maxAnswerHeight = viewGroup.context.resources.getDimension(R.dimen.poll_answer_max_size).toInt()
-        if (itemHeight >= maxAnswerHeight){
-            itemHeight = maxAnswerHeight
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        if (viewType == TYPE_ITEM) {
+            val inflater = LayoutInflater.from(parent.context)
+            val itemView: View = inflater.inflate(R.layout.item_poll, parent, false)
+            val answerHeightSpace = parent.height - getBannerHeightWithPadding(parent.width, parent.context)
+
+            var itemHeight =  (answerHeightSpace * 0.25).toInt() -
+                    parent.context.resources.getDimension(R.dimen.poll_divider_size).toInt()
+            val maxAnswerHeight = parent.context.resources.getDimension(R.dimen.poll_answer_max_size).toInt()
+            if (itemHeight >= maxAnswerHeight){
+                itemHeight = maxAnswerHeight
+            }
+            val layoutParams = itemView.layoutParams
+            layoutParams.height = itemHeight
+            itemView.layoutParams = layoutParams
+
+            return PollViewHolder(itemView, itemHeight)
+        } else {
+            val itemView= LayoutInflater.from(parent.context).inflate(R.layout.item_poll_banner, parent, false)
+            val bannerWidth =  parent.width - ((parent.context.resources.getDimension(R.dimen.poll_banner_padding)) * 2)
+            return BannerHolder(itemView, bannerWidth.toInt())
         }
-        val layoutParams = itemView.layoutParams
-        layoutParams.height = itemHeight
-        itemView.layoutParams = layoutParams
-
-        return PollViewHolder(itemView, itemHeight)
     }
 
-    override fun onBindViewHolder(viewHolder: PollViewHolder, pos: Int) {
-        viewHolder.bind(listOfAnswers[pos], pos)
+    private fun getBannerHeightWithPadding(layoutWidth: Int, context : Context): Float{
+        val bannerWidth =  layoutWidth - ((context.resources.getDimension(R.dimen.poll_banner_padding)) * 2)
+        return ((bannerWidth/320)*50) + (context.resources.getDimension(R.dimen.poll_divider_size) * 2.5f)
     }
 
-    override fun getItemCount(): Int = listOfAnswers.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, pos: Int) {
+        if (holder is PollViewHolder) {
+            holder.bind(listOfAnswers[pos], pos)
+        } else {
+            (holder as BannerHolder).bind()
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == itemCount - 1)  TYPE_BANNER else TYPE_ITEM
+    }
+
+    override fun getItemCount(): Int = listOfAnswers.size + 1
 
     private fun getPercentage(pos: Int): Double {
         return listOfAnswers[pos].numberAnswered / calculateAllAnswers()
@@ -82,7 +114,7 @@ internal class PollAnswersAdapter(
         return sum.toDouble()
     }
 
-    inner class PollViewHolder(itemView: View, var itemHeight: Int) : RecyclerView.ViewHolder(itemView) {
+    inner class PollViewHolder(itemView: View, private var itemHeight: Int) : RecyclerView.ViewHolder(itemView) {
         fun bind(result: AnswersCombined, pos: Int) {
             itemView.apply {
                 item_poll_card.radius = itemHeight.toFloat() /2
@@ -98,7 +130,7 @@ internal class PollAnswersAdapter(
                         if (isAnswered) (getPercentage(pos) * 100).roundToInt()
                             .toString() + "%" else "")
                 if (!isAnswered) {
-                    item_poll_bg.setOnClickListener { if (!isAnswered) callback.onAnswerChosen(pos) }
+                    item_poll_bg.setOnClickListener { if (!isAnswered) answerClick.onAnswerChosen(pos) }
                 } else {
                     item_poll_bg.isClickable = false
                 }
@@ -130,6 +162,27 @@ internal class PollAnswersAdapter(
         private fun stopAnimatingItemsIfRequired(pos: Int) {
             if (pos == itemCount - 1) {
                 shouldShowAnimation = false
+            }
+        }
+    }
+
+    inner class BannerHolder(view: View, private var itemHeight: Int) : RecyclerView.ViewHolder(view) {
+
+        fun bind() {
+            itemView.apply {
+                if (banner?.imageUrl != null) {
+                    cardPollBanner.visibility = View.VISIBLE
+                    ivPollBanner.setOnClickListener {
+                        banner?.externalUrl?.let {
+                            if (it.startsWith("https://") || it.startsWith("http://")){
+                                bannerClick(it)
+                            }
+                        }
+                    }
+                    Picasso.get().load(banner!!.imageUrl) .resize(0, itemHeight).into(ivPollBanner)
+                } else{
+                    cardPollBanner.visibility = View.INVISIBLE
+                }
             }
         }
     }
