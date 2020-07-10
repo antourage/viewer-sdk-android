@@ -4,11 +4,17 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +41,6 @@ import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
-import java.lang.Exception
 
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
@@ -123,9 +128,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private val feedInfoObserver: Observer<FeedInfo> = Observer { feedInfo ->
-       feedInfo?.let {
-           updateFeedInfo(feedInfo)
-       }
+        feedInfo?.let {
+            updateFeedInfo(feedInfo)
+        }
     }
 
     private val beChoiceObserver: Observer<Boolean> = Observer {
@@ -154,22 +159,32 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun loadFeedInfo() {
-        viewModel.getSavedTagLine()?.let {
-            tvTitle.text = it
-        }
-
-        if(viewModel.getSavedFeedImageUrl()==null){
+        if (viewModel.getSavedFeedImageUrl().isNullOrEmpty()) {
             viewModel.getFeedInfo()
-        }else{
-            Picasso.get().load(viewModel.getSavedFeedImageUrl())
+        } else {
+            Picasso.get()
+                .load(viewModel.getSavedFeedImageUrl())
                 .networkPolicy(NetworkPolicy.OFFLINE)
                 .into(ivTeamImage, object : Callback {
                     override fun onSuccess() {
-                        //image loaded from cache
+                        val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
+                        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                            override fun onGlobalLayout() {
+                                ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                centerTitle()
+                                viewModel.getSavedTagLine()?.let {
+                                    setTitle(it)
+                                }
+
+                            }
+                        })
                         viewModel.getFeedInfo()
                     }
 
                     override fun onError(e: Exception?) {
+                        viewModel.getSavedTagLine()?.let {
+                            setTitle(it)
+                        }
                         viewModel.getFeedInfo()
                     }
                 })
@@ -177,13 +192,64 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun updateFeedInfo(feedInfo: FeedInfo) {
-        tvTitle.text = feedInfo.tagLine
-        Picasso
-            .get()
-            .load(feedInfo.imageUrl)
-//                .resize(dp2px(it, 64f).toInt(), dp2px(it, 60f).toInt())
-//                .centerInside()
-            .into(ivTeamImage)
+        if (feedInfo.imageUrl.isNullOrEmpty()) {
+            ivTeamImage.setImageDrawable(null)
+            setTitle(feedInfo.tagLine)
+        } else {
+            context?.let {
+                Picasso
+                    .get()
+                    .load(feedInfo.imageUrl)
+                    .into(ivTeamImage, object : Callback {
+                        override fun onSuccess() {
+                            val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
+                            vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                                override fun onGlobalLayout() {
+                                    ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                    centerTitle()
+                                    setTitle(feedInfo.tagLine)
+                                }
+                            })
+                        }
+
+                        override fun onError(e: Exception?) {
+                        }
+                    })
+            }
+        }
+    }
+
+    private fun setTitle(text: String?) {
+        if (text.isNullOrEmpty()) {
+            tvTitle.text = ""
+        } else {
+            tvTitle.text = text
+        }
+    }
+
+    private fun centerTitle() {
+        val width =
+            px2dp(context!!, ivTeamImage.measuredWidth.toFloat())
+
+        if (width > 24) {
+            val set = ConstraintSet()
+            set.clone(tvTitle.parent as ConstraintLayout)
+            set.clear(R.id.tvTitle, ConstraintSet.END)
+            set.clear(R.id.tvTitle, ConstraintSet.START)
+            set.connect(
+                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
+                    context!!,
+                    (width - 14.0).toFloat()
+                ).toInt()
+            )
+            set.connect(
+                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
+                    context!!,
+                    10.0f
+                ).toInt()
+            )
+            set.applyTo(tvTitle.parent as ConstraintLayout)
+        }
     }
 
     private fun subscribeToObservers() {

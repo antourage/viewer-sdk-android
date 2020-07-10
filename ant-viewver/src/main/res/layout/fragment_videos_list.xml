@@ -177,8 +177,10 @@
 
         <ImageView
                 android:id="@+id/ivTeamImage"
-                android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxHeight="32dp"
+                android:maxWidth="64dp"
                 android:layout_marginStart="12dp"
                 android:scaleType="centerInside"
                 android:adjustViewBounds="true"
@@ -198,8 +200,8 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
@@ -209,8 +211,8 @@
                 android:maxLength="25"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/ivTeamImage"
+                app:layout_constraintRight_toLeftOf="@+id/ivClose"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
