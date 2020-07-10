@@ -179,7 +179,8 @@ internal class PollAnswersAdapter(
                             }
                         }
                     }
-                    Picasso.get().load(banner!!.imageUrl) .resize(0, itemHeight).into(ivPollBanner)
+                    Picasso.get().load(banner!!.imageUrl).resize(0, itemHeight)
+                        .into(ivPollBanner)
                 } else{
                     cardPollBanner.visibility = View.INVISIBLE
                 }

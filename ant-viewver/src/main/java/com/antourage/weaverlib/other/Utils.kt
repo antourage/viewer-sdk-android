@@ -32,13 +32,9 @@ internal fun getScreenWidth(activity: Activity): Int {
 }
 
 internal fun convertUtcToLocal(utcTime: String): Date? {
-    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)
-    df.timeZone = TimeZone.getTimeZone("UTC")
-    val date: Date
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH)
     return try {
-        date = df.parse(utcTime)
-        df.timeZone = TimeZone.getDefault()
-        df.parse(df.format(date))
+       df.parse(utcTime)
     } catch (e: ParseException) {
         e.printStackTrace()
         null
