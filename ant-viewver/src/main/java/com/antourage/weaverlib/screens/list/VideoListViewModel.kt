@@ -486,13 +486,20 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             override fun onChanged(it: Resource<FeedInfo>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
-                        val feedInfo = responseStatus.data as FeedInfo
-                        UserCache.getInstance(getApplication())?.saveTagLine(feedInfo.tagLine)
-                        UserCache.getInstance(getApplication())?.saveFeedImageUrl(feedInfo.imageUrl)
-                        feedInfoLiveData.postValue(feedInfo)
-                        Log.e(
-                            AntourageFab.TAG, "IMAGE INFO + url = ${feedInfo.imageUrl}"
-                        )
+                        if(responseStatus.data!=null){
+                            val feedInfo = responseStatus.data as FeedInfo
+                            if(!feedInfo.tagLine.isNullOrEmpty()){
+                                UserCache.getInstance(getApplication())?.saveTagLine(feedInfo.tagLine)
+                            } else{
+                                UserCache.getInstance(getApplication())?.saveTagLine("")
+                            }
+                            if(!feedInfo.imageUrl.isNullOrEmpty()){
+                                UserCache.getInstance(getApplication())?.saveFeedImageUrl(feedInfo.imageUrl)
+                            } else{
+                                UserCache.getInstance(getApplication())?.saveFeedImageUrl("")
+                            }
+                            feedInfoLiveData.postValue(feedInfo)
+                        }
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {

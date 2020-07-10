@@ -113,8 +113,8 @@ data class Viewers(
 )
 
 data class FeedInfo(
-    @field:SerializedName("imageUrl") val imageUrl: String,
-    @field:SerializedName("tagLine") val tagLine : String
+    @field:SerializedName("imageUrl") val imageUrl: String?,
+    @field:SerializedName("tagLine") val tagLine : String?
 )
 
 @Parcelize
