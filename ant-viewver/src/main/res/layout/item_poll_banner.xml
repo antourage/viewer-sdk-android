@@ -26,6 +26,7 @@
                 android:layout_gravity="center_horizontal"
                 android:clickable="true"
                 android:focusable="true"
+                android:adjustViewBounds="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 tools:ignore="ContentDescription"
                 tools:src="@drawable/antourage_ic_poll" />
