@@ -194,6 +194,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun updateFeedInfo(feedInfo: FeedInfo) {
         if (feedInfo.imageUrl.isNullOrEmpty()) {
             ivTeamImage.setImageDrawable(null)
+            centerTitle()
             setTitle(feedInfo.tagLine)
         } else {
             context?.let {
@@ -230,6 +231,26 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun centerTitle() {
         val width =
             px2dp(context!!, ivTeamImage.measuredWidth.toFloat())
+
+        if(width == 0.0f){
+            val set = ConstraintSet()
+            set.clone(tvTitle.parent as ConstraintLayout)
+            set.clear(R.id.tvTitle, ConstraintSet.END)
+            set.clear(R.id.tvTitle, ConstraintSet.START)
+            set.connect(
+                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
+                    context!!,
+                    10f
+                ).toInt()
+            )
+            set.connect(
+                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
+                    context!!,
+                    34f
+                ).toInt()
+            )
+            set.applyTo(tvTitle.parent as ConstraintLayout)
+        }
 
         if (width > 24) {
             val set = ConstraintSet()

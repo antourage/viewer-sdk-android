@@ -125,7 +125,9 @@ internal object SocketConnector {
         shouldDisconnectSocket = false
         if(!this::hubConnection.isInitialized || hubConnection.connectionState == HubConnectionState.DISCONNECTED) hubConnection = HubConnectionBuilder.create(
             "${ApiClient.BASE_URL}hub?access_token=${token}"
-        ).build()
+        )
+            .shouldSkipNegotiate(true)
+            .build()
 
         if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
             try {
