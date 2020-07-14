@@ -16,6 +16,7 @@ import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import com.microsoft.signalr.HubConnectionState
+import com.microsoft.signalr.TransportEnum
 import java.lang.RuntimeException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -126,6 +127,7 @@ internal object SocketConnector {
         if(!this::hubConnection.isInitialized || hubConnection.connectionState == HubConnectionState.DISCONNECTED) hubConnection = HubConnectionBuilder.create(
             "${ApiClient.BASE_URL}hub?access_token=${token}"
         )
+            .withTransport(TransportEnum.WEBSOCKETS)
             .shouldSkipNegotiate(true)
             .build()
 
