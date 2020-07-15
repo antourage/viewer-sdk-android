@@ -14,8 +14,6 @@ internal abstract class ChatViewModel(application: Application) : BasePlayerView
         MutableLiveData<Int>().apply { postValue(0)}
     fun getNewUnseenComments() = newUnseenCommentsLD as LiveData<Int>
 
-    private var startTime: Long? = null
-
     abstract fun checkIfMessageByUser(userID: String?): Boolean
 
     fun addUnseenComments(numOfNew: Int){
@@ -31,8 +29,6 @@ internal abstract class ChatViewModel(application: Application) : BasePlayerView
     }
 
     fun getUnseenQuantity(): Int = newUnseenCommentsLD.value ?: 0
-    internal fun setStartTime(startTime: Long) { this.startTime = startTime }
-    internal fun getStartTime() =  this.startTime
 
     internal fun getMessagesLiveData(): LiveData<List<Message>> = messagesLiveData
 

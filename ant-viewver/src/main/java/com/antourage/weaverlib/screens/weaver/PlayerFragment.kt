@@ -694,7 +694,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
             txtNumberOfViewers.text = viewersCount?.formatQuantity() ?: "0"
             setWasLiveText(context?.let { startTime?.parseDateLong(it) })
-            if (startTime != null) { startTime.parseToDate()?.time?.let {setStartTime(it)} }
         }
     }
 
