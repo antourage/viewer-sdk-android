@@ -35,11 +35,13 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.BehindLiveWindowException
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.HttpDataSource
 import java.sql.Timestamp
 
 internal abstract class BasePlayerViewModel(application: Application) : BaseViewModel(application) {
@@ -96,6 +98,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     open fun registerCallbacks(windowIndex: Int) {}
 
     open fun onVideoChanged() {}
+
+    //should be used only in vod
+    open fun changeVideoAfterPlayerRestart() {}
 
     //should be used only in vod
     open fun onOpenStatisticUpdate(vodId: Int) {}
@@ -373,8 +378,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         override fun onPlayerError(err: ExoPlaybackException) {
             if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
                 currentWindow = player?.currentWindowIndex ?: 0
-                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) errorLiveData.value =
-                    true
+                if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) {
+                    errorLiveData.value = true
+                }
             }
             Log.d(TAG, "player error: ${err.cause.toString()}")
             Log.d(
@@ -387,8 +393,16 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     else -> err.message
                 } ?: ""
             )
+
             if (err.cause is BehindLiveWindowException) {
                 player?.prepare(getMediaSource(streamUrl), false, true)
+            } else if (
+                (err.cause is HttpDataSource.HttpDataSourceException ||
+                        err.cause is UnrecognizedInputFormatException)
+                && this@BasePlayerViewModel is VideoViewModel
+            ) {
+                //handles navigation to next(or prev) video, when exoplayer can't playback video due to broken URL
+                changeVideoAfterPlayerRestart()
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
                 if (this@BasePlayerViewModel is PlayerViewModel) {
                     player?.prepare(getMediaSource(streamUrl), false, true)
@@ -515,7 +529,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
         if (!newStreams.isNullOrEmpty()) {
             for (stream in newStreams) {
-                if(stream.id == this.currentlyWatchedVideoId){
+                if (stream.id == this.currentlyWatchedVideoId) {
                     currentStreamViewsLiveData.postValue(stream.viewersCount)
                     break
                 }
