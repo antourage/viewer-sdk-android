@@ -88,6 +88,7 @@ internal class ReceivingVideosManager {
         val shouldUseSockets: Boolean = SocketConnector.isConnected() || SocketConnector.isSocketUsed
 
         fun startReceivingLiveStreams(isForFab: Boolean = false) {
+            handlerLiveVideos.removeCallbacksAndMessages(null)
             handlerLiveVideos.postDelayed(object : Runnable {
                 override fun run() {
                     if (isForFab || Global.networkAvailable) {

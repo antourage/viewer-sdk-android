@@ -96,6 +96,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             playBtnPlaceholder.visibility = View.INVISIBLE
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
+                viewModel.onPauseSocket()
                 showErrorSnackBar(getString(R.string.ant_no_connection), false)
             }
         }
