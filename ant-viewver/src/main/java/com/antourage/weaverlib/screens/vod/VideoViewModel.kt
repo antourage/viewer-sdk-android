@@ -18,6 +18,7 @@ import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
@@ -388,7 +389,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         val list: List<StreamResponse>? = Repository.vods
         val mediaSources = ArrayList<MediaSource?>()
         for (i in 0 until (list?.size ?: 0)) {
-            mediaSources.add(list?.get(i)?.videoURL?.let { buildSimpleMediaSource(it) })
+            // url can be even null, as far as we handle errors when user start video playback
+            // can't exclude video with url null from playlist, as it breaks video changing logic on UI
+            mediaSources.add( buildSimpleMediaSource(list?.get(i)?.videoURL.toString()))
         }
         mediaSource.clear()
         mediaSource.addMediaSources(mediaSources)
@@ -398,11 +401,33 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private fun addToMediaSource(list: List<StreamResponse>) {
         val mediaSources = ArrayList<MediaSource?>()
         for (i in 0 until (list.size)) {
-            mediaSources.add(list[i].videoURL?.let { buildSimpleMediaSource(it) })
+            // url can be even null, as far as we handle errors when user start video playback
+            // can't exclude video with url null from playlist, as it breaks video changing logic on UI
+            mediaSources.add( buildSimpleMediaSource(list[i].videoURL.toString()))
         }
         if (mediaSources.isNotEmpty()) mediaSource.addMediaSources(mediaSources)
     }
 
+    /**
+     * Changes video to next or playbacks previous one, if it the last one.
+     * Does nothing, when there is only 1 video in playlist.
+     * Used when impossible to playback video and the exoplayer stacked.
+     */
+    override fun changeVideoAfterPlayerRestart(){
+        val currentIndex = player?.currentWindowIndex
+        currentIndex?.let { index ->
+            if (index in 0 until mediaSource.size && mediaSource.size != 1) {
+                val seekToIndex = if (index + 1 == mediaSource.size && index - 1 >= 0) {
+                    index - 1
+                } else {
+                    index + 1
+                }
+                player?.prepare(mediaSource)
+                player?.seekTo(seekToIndex, C.TIME_UNSET)
+                player?.playWhenReady = true
+            }
+        }
+    }
 
     /**
      * Checks whether current vods count divides on 15, as 15 is the batch of vods from back-end.

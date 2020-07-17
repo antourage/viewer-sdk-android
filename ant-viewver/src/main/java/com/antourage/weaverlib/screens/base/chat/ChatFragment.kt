@@ -28,6 +28,7 @@ import com.antourage.weaverlib.other.ui.MarginItemDecoration
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.rv.MessagesAdapter
 import com.antourage.weaverlib.screens.base.player.BasePlayerFragment
+import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 
@@ -129,7 +130,9 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         newCommentsButton?.setOnClickListener {
             wasNewButtonFocused = true
             it.postDelayed({wasNewButtonFocused = false}, 500)
-            rvMessages.adapter?.let {rvMessages.smoothScrollToPosition(it.itemCount - 1) }
+            rvMessages.adapter?.let {adapter ->
+                rvMessages.smoothScrollToPosition(adapter.itemCount - 1)
+            }
         }
     }
 
@@ -178,12 +181,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         }
     }
 
-    fun setStartTime(startTime: Long) {
-        viewModel.setStartTime(startTime)
-        rvMessages.adapter = MessagesAdapter(mutableListOf(), orientation(), viewModel.getStartTime())
-        viewModel.getMessagesLiveData().value?.let {updateMessagesList(it)}
-    }
-
     private fun initAndOpenNavigationDrawer() {
         drawerLayout.apply {
             setScrimColor(Color.TRANSPARENT)
@@ -230,7 +227,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             overScrollMode = View.OVER_SCROLL_NEVER
             isVerticalFadingEdgeEnabled = false
             layoutManager = linearLayoutManager
-            adapter = MessagesAdapter(mutableListOf(), Configuration.ORIENTATION_PORTRAIT, viewModel.getStartTime())
+            adapter = MessagesAdapter(
+                mutableListOf(),
+                Configuration.ORIENTATION_PORTRAIT,
+                this@ChatFragment is PlayerFragment
+            )
             initMessagesDivider(context, orientation() == Configuration.ORIENTATION_LANDSCAPE)
         }
     }

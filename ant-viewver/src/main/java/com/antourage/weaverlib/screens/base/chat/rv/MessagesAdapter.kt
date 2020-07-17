@@ -13,7 +13,7 @@ import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
 
 internal class MessagesAdapter(var list: MutableList<Message>, var orientation: Int = Configuration.ORIENTATION_PORTRAIT,
-                               private val startTimeLong : Long?) :
+                               private val isPlayerLive : Boolean) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
     companion object{
         private const val PORTRAIT_VIEW = 0
@@ -23,7 +23,6 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
     fun changeOrientation(newOrientation: Int){
         orientation = newOrientation
         notifyDataSetChanged()
-        //@imurashova: todo :possibly find the way to update only visible items
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -48,12 +47,14 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
             with(holder) {
                 txtMessage.text = text
                 txtUser.text = nickname
-                txtTimeAdded.text = when {
-                    pushTimeMills != null -> pushTimeMills?.millisToTime()
-                    startTimeLong != null -> {
-                        ( ((timestamp?.seconds ?: 0) * 1000) - startTimeLong).millisToTime()
+                if (isPlayerLive){
+                    txtTimeAdded.visibility = View.GONE
+                    txtAt.visibility = View.GONE
+                } else {
+                    txtTimeAdded.text = when {
+                        pushTimeMills != null -> pushTimeMills?.millisToTime()
+                        else -> txtTimeAdded.context.getString(R.string.ant_init_time)
                     }
-                    else -> txtTimeAdded.context.getString(R.string.ant_init_time)
                 }
             }
         }
@@ -80,5 +81,6 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
         val txtUser: TextView = itemView.findViewById(R.id.txtUser)
         val txtMessage: TextView = itemView.findViewById(R.id.txtMessage)
         val txtTimeAdded: TextView = itemView.findViewById(R.id.txtTimeAt)
+        val txtAt: TextView = itemView.findViewById(R.id.txtAt)
     }
 }
