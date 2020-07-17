@@ -97,7 +97,8 @@
 
     <string name="ant_server_error">Något gick fel. Vi jobbar på en lösning</string>
     <string name="ant_you_are_online">Du ha uppkoppling</string>
-    <string name="ant_most_recent">%s   •  senaste</string>
+    <string name="ant_most_recent">senaste</string>
+<!--    <string name="ant_most_recent">%s   •  senaste</string>-->
 
     <!--player-->
     <string name="ant_at">vid</string>

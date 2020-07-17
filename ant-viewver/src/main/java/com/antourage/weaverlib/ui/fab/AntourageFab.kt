@@ -59,7 +59,6 @@ class AntourageFab @JvmOverloads constructor(
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
 
-
         fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null

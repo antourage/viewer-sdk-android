@@ -130,6 +130,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     open fun onPauseSocket(shouldDisconnectSocket: Boolean = true) {
+        SocketConnector.cancelReconnect()
         disconnectSocket(shouldDisconnectSocket)
     }
 
@@ -155,6 +156,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     fun onNetworkGained() {
         player?.prepare(getMediaSource(streamUrl), false, true)
         player?.seekTo(currentWindow, player?.currentPosition ?: 0)
+        if (this@BasePlayerViewModel is PlayerViewModel) {
+            checkShouldUseSockets()
+        }
     }
 
     private fun initStatisticsListeners() {
@@ -510,7 +514,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 }
         } else {
             if (this@BasePlayerViewModel is PlayerViewModel) {
-                this.currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
+                this.currentlyWatchedVideoId?.let {
+                    stopUpdatingCurrentStreamInfo()
+                    subscribeToCurrentStreamInfo(it)
+                }
             }
         }
     }
@@ -518,11 +525,13 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private val socketConnectionObserver =
         Observer<SocketConnector.SocketConnection> { socketConnection ->
             if (socketConnection == SocketConnector.SocketConnection.DISCONNECTED) {
-                if (Global.networkAvailable && this@BasePlayerViewModel is PlayerViewModel) this.currentlyWatchedVideoId?.let {
-                    subscribeToCurrentStreamInfo(
-                        it
-                    )
-                }
+                if (Global.networkAvailable && this@BasePlayerViewModel is PlayerViewModel)
+                    this.currentlyWatchedVideoId?.let {
+                        stopUpdatingCurrentStreamInfo()
+                        subscribeToCurrentStreamInfo(
+                            it
+                        )
+                    }
             }
         }
 

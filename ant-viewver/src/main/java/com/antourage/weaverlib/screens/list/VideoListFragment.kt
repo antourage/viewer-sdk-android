@@ -98,7 +98,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
                 isInitialListSet = false
                 if (viewModel.vodsUpdated && viewModel.liveVideosUpdated) {
-                    resolveErrorSnackbar()
+                    if (Global.networkAvailable || !isNoConnectionSnackbarShowing()) {
+                        resolveErrorSnackbar()
+                    }
                     hidePlaceholder()
                 }
             }
@@ -664,7 +666,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun showNoConnectionPlaceHolder() {
         showErrorSnackbar(R.string.ant_no_connection)
         placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
-        if (videoRefreshLayout.alpha != 1f) {
+        if (videoRefreshLayout.alpha != 1f && noContentRefreshLayout.alpha != 1f) {
             if (placeholderRefreshLayout.alpha != 1f) {
                 placeholderRefreshLayout.revealWithAnimation()
                 placeHolderRV.revealWithAnimation()

@@ -221,6 +221,7 @@
                 android:text="Johan Junker  •  most recent"
                 android:textColor="@color/ant_streamer_name_color"
                 android:textSize="12sp"
+                android:breakStrategy="simple"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@id/txtComment_live"
