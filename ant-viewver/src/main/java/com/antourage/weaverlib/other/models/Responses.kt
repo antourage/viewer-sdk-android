@@ -61,7 +61,6 @@ data class StreamResponse(
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") val viewersCount: Long?,
     @field:SerializedName("isNew") var isNew: Boolean?,
-    @field:SerializedName("stopTime") var stopTime: String?, //todo:once implemented delete this
     var stopTimeMillis: Long = 0,
     var lastMessage: String? = null,
     var lastMessageAuthor: String? = null,
