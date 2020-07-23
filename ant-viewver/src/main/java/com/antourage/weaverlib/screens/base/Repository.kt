@@ -49,7 +49,7 @@ internal class Repository {
                     "Creator $index",
                     "https://djyokoo.com/wp-content/uploads/2018/06/blog-placeholder-800x400.jpg",
                     null, null, null, null, null,
-                    null, null, index.toLong(), null,true, index.toLong(), true, null
+                    null, null, index.toLong(), null,true, index.toLong(), true
                 )
             }
             return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
@@ -72,7 +72,7 @@ internal class Repository {
                     1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
                     adaptiveBitrateUrl, null, null, null, null,
                     null, null, 1, null, null, null,
-                    null, 0, null,true, 0, false, null
+                    null, 0, null,true, 0, false
                 )
             )
             mockedStreams.add(
@@ -80,7 +80,7 @@ internal class Repository {
                     1002, "bitrate_720p_1800", "bitrate_720p_1800",
                     bitrate_720p_1800, null, null, null, null,
                     null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false, null
+                    null, 0, null,false, 0, false
                 )
             )
             mockedStreams.add(
@@ -88,7 +88,7 @@ internal class Repository {
                     1003, "bitrate_480p_800", "bitrate_480p_800",
                     bitrate_480p_800, null, null, null, null,
                     null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false, null
+                    null, 0, null,false, 0, false
                 )
             )
             mockedStreams.add(
@@ -96,7 +96,7 @@ internal class Repository {
                     1004, "bitrate_360p_500", "bitrate_360p_500",
                     bitrate_360p_500, null, null, null, null,
                     null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false, null
+                    null, 0, null,false, 0, false
                 )
             )
             return mockedStreams

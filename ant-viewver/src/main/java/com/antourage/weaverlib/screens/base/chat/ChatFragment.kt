@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base.chat
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Handler
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.EditText
@@ -35,6 +36,12 @@ import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM>(),
     CustomDrawerLayout.DrawerTouchListener {
 
+    companion object {
+        const val LOW_UPDATE_FREQUENCY = 60_000L
+        const val MIDDLE_UPDATE_FREQUENCY = 10_000L
+        const val HIGH_UPDATE_FREQUENCY = 6_000L
+    }
+
     protected var isChatDismissed: Boolean = false
 
     private lateinit var rvMessages: RecyclerView
@@ -43,23 +50,43 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var newCommentsButton: LinearLayout? = null
     private var commentsLayout: ConstraintLayout? = null
     private var etMessage: EditText? = null
+    private var listUpdateCounter = 0
+    private var listUpdateHandler = Handler()
+    private var listUpdateRunnable = object : Runnable {
+        override fun run() {
+            rvMessages?.adapter?.notifyDataSetChanged()
+            val timeToUpdate = when {
+                listUpdateCounter > 6 -> LOW_UPDATE_FREQUENCY
+                listUpdateCounter >= 2 -> MIDDLE_UPDATE_FREQUENCY
+                else -> HIGH_UPDATE_FREQUENCY
+            }
+            listUpdateCounter++
+            listUpdateHandler.postDelayed(this, timeToUpdate)
+
+        }
+    }
 
     private val messagesObserver: Observer<List<Message>> = Observer { list ->
         val filteredList = list?.filter { it.type == MessageType.USER }
         if (filteredList != null) {
             (rvMessages.adapter as MessagesAdapter?)?.let { adapter ->
                 val numOfNew = adapter.amountOfNewMessagesWillBeAdd(filteredList)
-                val shouldScrollToBottom = (numOfNew > 0)  && userIsAtTheBottomOfTheChat()
+                val shouldScrollToBottom = (numOfNew > 0) && userIsAtTheBottomOfTheChat()
+                if ((numOfNew > 0) && this@ChatFragment is PlayerFragment) {
+                    listUpdateHandler.removeCallbacksAndMessages(null)
+                    listUpdateCounter = 1
+                    listUpdateHandler.postDelayed(listUpdateRunnable, HIGH_UPDATE_FREQUENCY)
+                }
 
                 adapter.setMessageList(filteredList, true)
                 if (shouldScrollToBottom) {
                     adapter.itemCount.let { rvMessages.scrollToPosition(it - 1) }
                     viewModel.setSeenComments(isAll = true)
                 }
-                if (filteredList.isNotEmpty()){
-                    if (viewModel.checkIfMessageByUser(filteredList.last().userID)){
+                if (filteredList.isNotEmpty()) {
+                    if (viewModel.checkIfMessageByUser(filteredList.last().userID)) {
                         viewModel.setSeenComments(isAll = true)
-                    } else if (!shouldScrollToBottom && numOfNew > 0){
+                    } else if (!shouldScrollToBottom && numOfNew > 0) {
                         viewModel.addUnseenComments(numOfNew)
                     }
                 }
@@ -68,7 +95,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     }
 
     private val unseenCommentsObserver: Observer<Int> = Observer { quantity ->
-        if ((quantity ?:0) == 0){
+        if ((quantity ?: 0) == 0) {
             switchNewCommentsVisibility(false)
         } else {
             updateNewCommentsQuantity(quantity)
@@ -129,8 +156,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         initAndOpenNavigationDrawer()
         newCommentsButton?.setOnClickListener {
             wasNewButtonFocused = true
-            it.postDelayed({wasNewButtonFocused = false}, 500)
-            rvMessages.adapter?.let {adapter ->
+            it.postDelayed({ wasNewButtonFocused = false }, 500)
+            rvMessages.adapter?.let { adapter ->
                 rvMessages.smoothScrollToPosition(adapter.itemCount - 1)
             }
         }
@@ -165,15 +192,16 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         commentsLayout?.let { parentLayout ->
             val set = ConstraintSet()
             set.clone(parentLayout)
-            if (isLandscape){
+            if (isLandscape) {
                 set.clear(R.id.bttn_new_comments, ConstraintSet.END)
             } else {
-                set.connect(R.id.bttn_new_comments, ConstraintSet.END, R.id.clNavView,
+                set.connect(
+                    R.id.bttn_new_comments, ConstraintSet.END, R.id.clNavView,
                     ConstraintSet.END, 0
                 )
             }
             set.applyTo(parentLayout)
-            if (isLandscape){
+            if (isLandscape) {
                 newCommentsButton?.marginDp(left = 4f, bottom = 6f)
             } else {
                 newCommentsButton?.marginDp(left = 0f, bottom = 40f)
@@ -245,7 +273,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                         viewModel.setSeenComments(isAll = true)
                     } else {
                         val newSeenComments = checkNumOfSeenComments()
-                        if (newSeenComments > 0){
+                        if (newSeenComments > 0) {
                             viewModel.setSeenComments(numOfSeen = newSeenComments)
                         }
                     }
@@ -254,7 +282,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         })
     }
 
-    private fun switchNewCommentsVisibility(shouldShow: Boolean){
+    private fun switchNewCommentsVisibility(shouldShow: Boolean) {
         newCommentsButton?.animateShowHideDown(shouldShow)
     }
 
@@ -273,7 +301,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             dp2px(context, 0f).toInt(),
             dp2px(context, 12f).toInt(),
             dp2px(context, 12f).toInt()
-        ) else MarginItemDecoration (
+        ) else MarginItemDecoration(
             dp2px(context, 16f).toInt()
         )
         rvMessages.apply {
@@ -288,6 +316,19 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             val recyclerViewState = layoutManager?.onSaveInstanceState()
             (adapter as MessagesAdapter).setMessageList(list)
             layoutManager?.onRestoreInstanceState(recyclerViewState)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        listUpdateHandler.removeCallbacksAndMessages(null)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if ((rvMessages?.adapter?.itemCount ?: 0) != 0 && this@ChatFragment is PlayerFragment) {
+            listUpdateCounter = 1
+            listUpdateHandler.postDelayed(listUpdateRunnable, HIGH_UPDATE_FREQUENCY)
         }
     }
 }

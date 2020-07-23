@@ -131,6 +131,41 @@ internal fun String.parseDateLong(context: Context): String {
     return localUTC?.parseToDisplayAgoTimeLong(context) ?: ""
 }
 
+internal fun Date.parseToDisplayMessagesAgoTimeLong(context: Context): String {
+    val diff = getSecondsDateDiff(this, Date())
+    val timeAgo: String
+    when {
+        diff > secInHour -> {
+            val hours = (diff / secInHour).toInt()
+            timeAgo = context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
+        }
+        diff > secInMin -> {
+            val minute = (diff / secInMin).toInt()
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+        }
+
+        diff > 30 -> {
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_seconds_long, 30, 30)
+        }
+
+        diff > 10 -> {
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_seconds_long, 10, 10)
+        }
+
+        diff > 5 -> {
+            timeAgo =
+                context.resources.getQuantityString(R.plurals.ant_seconds_long, 5, 5)
+        }
+        else -> {
+            return context.getString(R.string.ant_started_now)
+        }
+    }
+    return context.getString(R.string.ant_started_ago, timeAgo)
+}
+
 internal fun Date.parseToDisplayAgoTime(context: Context): String {
     val secondsInMinute = 60
     val minutesInHour = 60 * secondsInMinute

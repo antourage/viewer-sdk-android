@@ -11,6 +11,8 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
+import com.antourage.weaverlib.other.parseToDisplayMessagesAgoTimeLong
+import kotlin.collections.ArrayList
 
 internal class MessagesAdapter(var list: MutableList<Message>, var orientation: Int = Configuration.ORIENTATION_PORTRAIT,
                                private val isPlayerLive : Boolean) :
@@ -48,8 +50,12 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
                 txtMessage.text = text
                 txtUser.text = nickname
                 if (isPlayerLive){
-                    txtTimeAdded.visibility = View.GONE
                     txtAt.visibility = View.GONE
+                    txtTimeAdded.text = timestamp?.toDate()?.parseToDisplayMessagesAgoTimeLong(itemView.context)
+                   /* txtTimeAdded.postDelayed({
+                        txtTimeAdded?.text = timestamp?.toDate()?.parseToDisplayAgoTime(itemView.context)
+                    },5000)*/
+
                 } else {
                     txtTimeAdded.text = when {
                         pushTimeMills != null -> pushTimeMills?.millisToTime()

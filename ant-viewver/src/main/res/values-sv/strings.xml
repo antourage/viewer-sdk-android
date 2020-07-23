@@ -37,6 +37,12 @@
         <item quantity="other">%d d</item>
     </plurals>
 
+    <plurals name="ant_seconds_long">
+        <item quantity="one">%d sekund</item>
+        <item quantity="other">%d sekunder</item>
+    </plurals>
+
+
     <plurals name="ant_minutes_long">
         <item quantity="one">%d minut</item>
         <item quantity="other">%d minuter</item>
