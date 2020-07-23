@@ -12,7 +12,7 @@ The entry point for a user is the magnetic button that appears on the host app, 
 
 When a video is live, the button changes state and shows the title of the broadcast, and the name of the broadcaster. If the user taps the button at this point, they are taken directly to the live broadcast.
 
-<img src="/screenshots/widget_Live.jpeg" alt="Screenshots" width="200" />
+<img src="https://user-images.githubusercontent.com/52660451/72547997-75c02d00-3896-11ea-83e7-ccb1b7af69f0.jpg" width="200" />
 
 When no video is live, the button shows how many on-demand videos the viewer has not yet watched. If they tap the button at this point, they are taken to the main view:
 
