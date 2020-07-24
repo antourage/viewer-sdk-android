@@ -71,6 +71,7 @@
 
     <string name="ant_started_ago">%1$s sedan</string>
     <string name="ant_started_now">Alldeles nyss</string>
+    <string name="ant_recent">Senaste</string>
 
     <string name="choose_link">Välj länk</string>
     <string name="ant_set">Ställ in</string>

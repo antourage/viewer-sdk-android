@@ -76,6 +76,7 @@
 
     <string name="ant_started_ago">%1$s ago</string>
     <string name="ant_started_now">Just now</string>
+    <string name="ant_recent">Recent</string>
 
     <string name="choose_link">Choose link</string>
     <string name="ant_set">set</string>
