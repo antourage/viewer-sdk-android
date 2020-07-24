@@ -52,10 +52,6 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
                 if (isPlayerLive){
                     txtAt.visibility = View.GONE
                     txtTimeAdded.text = timestamp?.toDate()?.parseToDisplayMessagesAgoTimeLong(itemView.context)
-                   /* txtTimeAdded.postDelayed({
-                        txtTimeAdded?.text = timestamp?.toDate()?.parseToDisplayAgoTime(itemView.context)
-                    },5000)*/
-
                 } else {
                     txtTimeAdded.text = when {
                         pushTimeMills != null -> pushTimeMills?.millisToTime()

@@ -37,9 +37,8 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     CustomDrawerLayout.DrawerTouchListener {
 
     companion object {
-        const val LOW_UPDATE_FREQUENCY = 60_000L
-        const val MIDDLE_UPDATE_FREQUENCY = 10_000L
-        const val HIGH_UPDATE_FREQUENCY = 6_000L
+        const val LOW_UPDATE_FREQUENCY = 30_000L
+        const val HIGH_UPDATE_FREQUENCY = 5_000L
     }
 
     protected var isChatDismissed: Boolean = false
@@ -56,13 +55,11 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         override fun run() {
             rvMessages?.adapter?.notifyDataSetChanged()
             val timeToUpdate = when {
-                listUpdateCounter > 6 -> LOW_UPDATE_FREQUENCY
-                listUpdateCounter >= 2 -> MIDDLE_UPDATE_FREQUENCY
+                listUpdateCounter > 12 -> LOW_UPDATE_FREQUENCY
                 else -> HIGH_UPDATE_FREQUENCY
             }
             listUpdateCounter++
             listUpdateHandler.postDelayed(this, timeToUpdate)
-
         }
     }
 

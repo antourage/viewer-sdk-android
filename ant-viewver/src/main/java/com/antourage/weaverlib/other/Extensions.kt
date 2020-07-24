@@ -145,23 +145,9 @@ internal fun Date.parseToDisplayMessagesAgoTimeLong(context: Context): String {
                 context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
 
-        diff > 30 -> {
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_seconds_long, 30, 30)
-        }
+        diff > 10 -> { return context.getString(R.string.ant_recent) }
 
-        diff > 10 -> {
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_seconds_long, 10, 10)
-        }
-
-        diff > 5 -> {
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_seconds_long, 5, 5)
-        }
-        else -> {
-            return context.getString(R.string.ant_started_now)
-        }
+        else -> { return context.getString(R.string.ant_started_now) }
     }
     return context.getString(R.string.ant_started_ago, timeAgo)
 }
