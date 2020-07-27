@@ -121,7 +121,7 @@ and
 ```gradle
 dependencies {
     ...
-    implementation 'com.github.antourage:AntViewer-android:0.2.15'
+    implementation 'com.github.antourage:AntViewer-android:0.2.16'
 }
 ```
 
