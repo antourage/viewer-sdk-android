@@ -1,6 +1,12 @@
 package com.antourage.weaverlib.screens.base.player
 
-import android.content.pm.ActivityInfo
+import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo.*
 import android.content.res.Configuration
 import android.database.ContentObserver
 import android.graphics.Color
@@ -16,7 +22,9 @@ import android.view.Surface.*
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
@@ -31,42 +39,71 @@ import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import kotlin.math.abs
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import org.jetbrains.anko.backgroundColor
 
 /**
- * Handles mostly orientation change andplayer controls
+ * handles Loader, errors, screen rotation and player controls visibility;
  */
 internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragment<VM>() {
-    private lateinit var orientationEventListener: OrientationEventListener
-    private var loader: AnimatedVectorDrawableCompat? = null
-    private var isPortrait: Boolean? = null
-    private var isLoaderShowing = false
-    private var mCurrentOrientation: Int? = null
 
     companion object {
-        const val MIN_TIM_BAR_UPDATE_INTERVAL_MS = 16
+        /**
+         * this value is set in order to update video timeline frequently to avoid
+         * jumping timeline in case when duration of the video is relatively small
+         */
+        const val MIN_TIME_BAR_UPDATE_INTERVAL_MS = 16
     }
 
+    private lateinit var orientationEventListener: OrientationEventListener
+    private var loaderAnimatedDrawable: AnimatedVectorDrawableCompat? = null
+    private var isLoaderShowing = false
+    private var currentOrientation: Int? = null
+
+    private var snackBarBehaviour: BottomSheetBehavior<View>? = null
+    private var errorSnackBar: TextView? =null
+    private var snackBarLayout: CoordinatorLayout? =null
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
     private lateinit var ivScreenSize: ImageView
     private lateinit var ivClose: ImageView
     protected lateinit var playerControls: PlayerControlView
-    protected lateinit var playBtnPlaceholder: View
+    private lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
+    private var minuteUpdateReceiver: BroadcastReceiver? = null
+    protected var wasNewButtonFocused: Boolean = false
+    protected var wasEditTextFocused: Boolean = false
 
+    /**
+     * we need to know if user turns on screen auto rotation or locks
+     * it to portrait manually in the android expanding quick settings menu
+     */
     private val contentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean) {
             enableOrientationChangeListenerIfAutoRotationEnabled()
         }
     }
 
-    private val errorObserver =
-        Observer<String> { errorMessage -> errorMessage?.let { showWarningAlerter(it) } }
+    private val errorObserver = Observer<Boolean> { errorMessage ->
+        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_server_error)) } }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
+            resolveErrorSnackBar(R.string.ant_you_are_online)
+            showLoading()
+            viewModel.onNetworkGained()
+            playBtnPlaceholder.visibility = View.INVISIBLE
+        } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
+            if (!Global.networkAvailable) {
+                viewModel.onPauseSocket()
+                showErrorSnackBar(getString(R.string.ant_no_connection), false)
+            }
+        }
+    }
 
     abstract fun onControlsVisible()
+    abstract fun onMinuteChanged()
 
     abstract fun subscribeToObservers()
 
@@ -79,16 +116,31 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         viewModel.errorLiveData.observe(viewLifecycleOwner, errorObserver)
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
     }
 
     override fun onResume() {
         super.onResume()
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        startMinuteUpdater()
     }
 
     override fun onPause() {
         super.onPause()
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        requireActivity().unregisterReceiver(minuteUpdateReceiver)
+    }
+
+    private fun startMinuteUpdater() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_TIME_TICK)
+        minuteUpdateReceiver = object: BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) { onMinuteChanged() }
+        }
+        requireActivity().registerReceiver(minuteUpdateReceiver, intentFilter)
     }
 
     override fun initUi(view: View?) {
@@ -97,30 +149,39 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             playerView = findViewById(R.id.playerView)
             playerView.setShutterBackgroundColor(Color.TRANSPARENT)
             constraintLayoutParent = findViewById(R.id.constraintLayoutParent)
+
+            snackBarLayout = findViewById(R.id.bottom_coordinator)
+            errorSnackBar = findViewById(R.id.player_snack_bar)
+            initSnackBar()
+
             ivScreenSize = findViewById(R.id.ivScreenSize)
+            ivScreenSize.setOnClickListener { onFullScreenImgClicked() }
+
             playerControls = findViewById(R.id.controls)
-            playerControls.setTimeBarMinUpdateInterval(MIN_TIM_BAR_UPDATE_INTERVAL_MS)
+            playerControls.setTimeBarMinUpdateInterval(MIN_TIME_BAR_UPDATE_INTERVAL_MS)
             playBtnPlaceholder = findViewById(R.id.playBtnPlaceholder)
-            controllerHeaderLayout = findViewById(R.id.controllerHeaderLayout)
-            ivClose = findViewById(R.id.ivClose)
+            controllerHeaderLayout = findViewById(R.id.player_control_header)
+            //sets white tint for close button in player header
+            controllerHeaderLayout
+                .findViewById<ImageView>(R.id.play_header_iv_close).isActivated = true
+
+            //for portrait only
+            ivClose = findViewById(R.id.play_header_iv_close)
+            ivClose.setOnClickListener {
+                it.isEnabled = false
+                onCloseClicked()
+            }
 
             controllerHeaderLayout.visibility = View.GONE
 
-            initLoader()
+            initAndShowLoader()
             initOrientationHandling()
             setPlayerSizePortrait()
 
-            ivClose.setOnClickListener { onCloseClicked() }
-            ivScreenSize.setOnClickListener { onFullScreenImgClicked() }
             if (!Global.networkAvailable) {
                 playBtnPlaceholder.visibility = View.VISIBLE
             } else {
-                playBtnPlaceholder.visibility = View.GONE
-            }
-            playBtnPlaceholder.onClick {
-                if (!ConnectionStateMonitor.isNetworkAvailable(context) && playerControls.isVisible) {
-                    showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
-                }
+                playBtnPlaceholder.visibility = View.INVISIBLE
             }
         }
     }
@@ -162,22 +223,86 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
             }
         }
+        if (!Global.networkAvailable) {
+            showErrorSnackBar(getString(R.string.ant_no_connection), false)
+        }
         playerControls.hide()
         if (isLoaderShowing)
-            initLoader()
+            initAndShowLoader()
     }
 
-    protected fun handleControlsVisibility() {
-        if (playerControls.isVisible)
+    protected fun toggleControlsVisibility() {
+        if (playerControls.isVisible) {
             playerControls.hide()
-        else {
+        } else if (!wasNewButtonFocused && !wasEditTextFocused){
             onControlsVisible()
             playerControls.show()
         }
     }
 
+    private fun initSnackBar() {
+        errorSnackBar.let { snackBar ->
+            snackBarBehaviour = BottomSheetBehavior.from(snackBar as View)
+            snackBarBehaviour?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                        //to disable user swipe
+                        snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+            })
+        }
+    }
+
+    override fun showNoInternetMessage() {
+        super.showNoInternetMessage()
+        showErrorSnackBar(getString(R.string.ant_no_connection), false)
+    }
+
+    fun showErrorSnackBar(message: String, isAutoCloseable: Boolean = true) {
+        errorSnackBar?.text = message
+        snackBarLayout?.visibility = View.VISIBLE
+        if (snackBarBehaviour?.state != BottomSheetBehavior.STATE_EXPANDED) {
+            context?.let {
+                errorSnackBar?.backgroundColor =
+                    ContextCompat.getColor(it, R.color.ant_error_bg_color)
+            }
+            snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        if (isAutoCloseable){
+            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
+        }
+    }
+
+    fun hideErrorSnackBar(){
+        snackBarBehaviour?.state = BottomSheetBehavior.STATE_COLLAPSED
+        snackBarLayout?.visibility = View.INVISIBLE
+    }
+
+    private fun resolveErrorSnackBar(messageId: Int) {
+        if (snackBarBehaviour?.state == BottomSheetBehavior.STATE_EXPANDED) {
+            context?.resources?.getString(messageId)
+                ?.let { messageToDisplay ->
+                    errorSnackBar?.text = messageToDisplay
+                    errorSnackBar?.let { snackBar ->
+                        val colorFrom: Int =  ContextCompat.getColor(requireContext(), R.color.ant_error_bg_color)
+                        val colorTo: Int =
+                            ContextCompat.getColor(requireContext(), R.color.ant_error_resolved_bg_color)
+                        val duration = 500L
+                        ObjectAnimator.ofObject(snackBar, "backgroundColor",
+                            ArgbEvaluator(), colorFrom, colorTo)
+                            .setDuration(duration)
+                            .start()
+                    }
+                }
+            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
+        }
+    }
+
     protected fun showLoading() {
-        loader?.apply {
+        loaderAnimatedDrawable?.apply {
             if (!isRunning) {
                 registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                     override fun onAnimationEnd(drawable: Drawable?) {
@@ -193,7 +318,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     protected fun hideLoading() {
-        loader?.apply {
+        loaderAnimatedDrawable?.apply {
             if (ivLoader.visibility == View.VISIBLE && isRunning) {
                 ivLoader.visibility = View.INVISIBLE
                 clearAnimationCallbacks()
@@ -204,56 +329,37 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private fun initOrientationHandling() {
-        //check HR-92. It is still not fixed
         activity?.contentResolver?.registerContentObserver(
             Settings.System.getUriFor
                 (Settings.System.ACCELEROMETER_ROTATION),
             true, contentObserver
         )
 
-        mCurrentOrientation = getScreenOrientation()
+        currentOrientation = getScreenOrientation()
         orientationEventListener =
             object : OrientationEventListener(this.context, SensorManager.SENSOR_DELAY_NORMAL) {
                 override fun onOrientationChanged(orientation: Int) {
-                    var nextOrientation = 0
                     if (orientation < 0) return
 
-                    if (orientation in 315..359 || orientation < 45) {
-                        nextOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    } else if (orientation in 45..134) {
-                        nextOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-                    } else if (orientation in 135..224) {
-                        nextOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
-                    } else if (orientation in 225..314) {
-                        nextOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    val nextOrientation = when {
+                        orientation in 315..359 || orientation < 45 -> SCREEN_ORIENTATION_PORTRAIT
+                        orientation in 45..134 -> SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                        orientation in 135..224 -> SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                        orientation in 225..314 -> SCREEN_ORIENTATION_LANDSCAPE
+                        else -> SCREEN_ORIENTATION_LANDSCAPE
                     }
 
-                    if (mCurrentOrientation != nextOrientation) {
-                        if (nextOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-//                            if (mVrVideoView.isFullscreen())
-//                                mVrVideoView.toggleFullscreen(false)
-
-                            setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                    if (currentOrientation != nextOrientation) {
+                        if (nextOrientation in listOf(
+                                SCREEN_ORIENTATION_PORTRAIT,
+                                SCREEN_ORIENTATION_LANDSCAPE,
+                                SCREEN_ORIENTATION_REVERSE_PORTRAIT,
+                                SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                            )
+                        ) {
+                            setOrientation(nextOrientation)
                         }
-                        if (nextOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-//                            if (!mVrVideoView.isFullscreen())
-//                                mVrVideoView.toggleFullscreen(false)
-
-                            setOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                        }
-                        if (nextOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
-//                            if (mVrVideoView.isFullscreen())
-//                                mVrVideoView.toggleFullscreen(false)
-
-                            setOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT)
-                        }
-                        if (nextOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-//                            if (!mVrVideoView.isFullscreen())
-//                                mVrVideoView.toggleFullscreen(false)
-
-                            setOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
-                        }
-                        mCurrentOrientation = nextOrientation
+                        currentOrientation = nextOrientation
                     }
                 }
             }
@@ -261,10 +367,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         enableOrientationChangeListenerIfAutoRotationEnabled()
     }
 
-    private fun isRotationOn(): Boolean {
+    private fun isAutoRotationEnabled(): Boolean {
         activity?.contentResolver?.apply {
             return Settings.System.getInt(
-                activity?.contentResolver,
+                this,
                 Settings.System.ACCELEROMETER_ROTATION,
                 0
             ) == 1
@@ -272,37 +378,38 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         return false
     }
 
-    private fun onFullScreenImgClicked() {
+    fun onFullScreenImgClicked() {
         enableOrientationChangeListenerIfAutoRotationEnabled()
-        val currentOrientation = activity?.resources?.configuration?.orientation
-        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            isPortrait = false
-            if (orientation() != ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
-                setOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
-        } else {
-            isPortrait = true
-            if (orientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        }
+        toggleScreenOrientation()
     }
 
-    private fun initLoader() {
-        loader = context?.let {
-            AnimatedVectorDrawableCompat.create(
-                it,
-                R.drawable.antourage_loader_logo
-            )
-        }
-        ivLoader.setImageDrawable(loader)
-        showLoading()
+    private fun toggleScreenOrientation() {
+        setOrientation(
+            if (orientation() == Configuration.ORIENTATION_PORTRAIT)
+                SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            else SCREEN_ORIENTATION_PORTRAIT
+        )
     }
+
+    private fun orientation() = resources.configuration.orientation
 
     private fun setOrientation(orientation: Int) {
         activity?.requestedOrientation = orientation
     }
 
+    private fun initAndShowLoader() {
+        loaderAnimatedDrawable = context?.let {
+            AnimatedVectorDrawableCompat.create(
+                it,
+                R.drawable.antourage_loader_logo
+            )
+        }
+        ivLoader.setImageDrawable(loaderAnimatedDrawable)
+        showLoading()
+    }
+
     protected fun onCloseClicked() {
-        fragmentManager?.let { fragmentManager ->
+        parentFragmentManager.let { fragmentManager ->
             if (fragmentManager.backStackEntryCount > 0) {
                 fragmentManager.popBackStack()
             } else {
@@ -311,22 +418,21 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         }
     }
 
-    //TODO 31/07/2019 get rid of this method and use ConstraintLayout aspect ratio
     private fun setPlayerSizePortrait() {
         val params = playerView.layoutParams
         params.height = activity?.let { calculatePlayerHeight(it).toInt() } ?: 0
         playerView.layoutParams = params
     }
 
-    private fun orientation() = resources.configuration.orientation
-
     private fun enableOrientationChangeListenerIfAutoRotationEnabled() {
-        if (isRotationOn()) {
+        if (isAutoRotationEnabled()) {
             orientationEventListener.enable()
         } else {
             orientationEventListener.disable()
         }
     }
+
+    fun disableOrientationChange() = orientationEventListener.disable()
 
     private fun getScreenOrientation(): Int {
         val rotation = activity?.windowManager?.defaultDisplay?.rotation
@@ -335,30 +441,27 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         val width = dm.widthPixels
         val height = dm.heightPixels
         val orientation: Int
-        // if the device's natural orientation is portrait:
         if ((rotation == ROTATION_0 || rotation == ROTATION_180) && height > width || (rotation == ROTATION_90 || rotation == ROTATION_270) && width > height) {
             orientation = when (rotation) {
-                ROTATION_0 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                ROTATION_90 -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                ROTATION_180 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
-                ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                ROTATION_0 -> SCREEN_ORIENTATION_PORTRAIT
+                ROTATION_90 -> SCREEN_ORIENTATION_LANDSCAPE
+                ROTATION_180 -> SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                ROTATION_270 -> SCREEN_ORIENTATION_REVERSE_LANDSCAPE
                 else -> {
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    SCREEN_ORIENTATION_PORTRAIT
                 }
             }
         } else {
             orientation = when (rotation) {
-                ROTATION_0 -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                ROTATION_90 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                ROTATION_180 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-                ROTATION_270 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                ROTATION_0 -> SCREEN_ORIENTATION_LANDSCAPE
+                ROTATION_90 -> SCREEN_ORIENTATION_PORTRAIT
+                ROTATION_180 -> SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                ROTATION_270 -> SCREEN_ORIENTATION_REVERSE_PORTRAIT
                 else -> {
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    SCREEN_ORIENTATION_LANDSCAPE
                 }
             }
-        }// if the device's natural orientation is landscape or if the device
-        // is square:
-
+        }
         return orientation
     }
 }

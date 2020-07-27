@@ -2,15 +2,13 @@ package com.antourage.weaverlib.other.ui
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.core.view.GestureDetectorCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-
-/**
- * had to create custom, crush thrown in onMeasure method with default
- */
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.GravityCompat
+import androidx.customview.widget.ViewDragHelper
+import androidx.drawerlayout.widget.DrawerLayout
 
 internal class CustomDrawerLayout : DrawerLayout {
 
@@ -27,6 +25,8 @@ internal class CustomDrawerLayout : DrawerLayout {
         defStyle
     )
 
+    fun isOpened() = isDrawerOpen(GravityCompat.START)
+
     private val gestureDetector =
         GestureDetectorCompat(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
@@ -40,18 +40,6 @@ internal class CustomDrawerLayout : DrawerLayout {
             }
         })
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var widthMeasureSpec = widthMeasureSpec
-        var heightMeasureSpec = heightMeasureSpec
-        widthMeasureSpec = MeasureSpec.makeMeasureSpec(
-            MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY
-        )
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-            MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY
-        )
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
-
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         val orientation = context.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -64,6 +52,35 @@ internal class CustomDrawerLayout : DrawerLayout {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             gestureDetector.onTouchEvent(ev)
         return super.onTouchEvent(ev)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthMeasure = MeasureSpec.makeMeasureSpec(
+            MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY
+        )
+        val heightMeasure = MeasureSpec.makeMeasureSpec(
+            MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY
+        )
+        super.onMeasure(widthMeasure, heightMeasure)
+    }
+
+    /*
+    * Increases drawer edge area to swipe using reflection
+    */
+    fun increaseDrawerEdges() {
+        try {
+            val mDragger = DrawerLayout::class.java.getDeclaredField("mLeftDragger")
+            mDragger.isAccessible = true
+            val draggerObj = mDragger.get(this) as ViewDragHelper
+
+            val mEdgeSize = draggerObj.javaClass.getDeclaredField("mEdgeSize")
+            mEdgeSize.isAccessible = true
+            val edge: Int = mEdgeSize.getInt(draggerObj)
+            mEdgeSize.setInt(draggerObj, edge * 3)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     interface DrawerTouchListener {

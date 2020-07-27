@@ -57,7 +57,7 @@ class MyNestedScrollView extends NestedScrollView {
     }
 
     private OverScroller getOverScroller() {
-        Field fs = null;
+        Field fs;
         try {
             fs = this.getClass().getSuperclass().getDeclaredField("mScroller");
             fs.setAccessible(true);

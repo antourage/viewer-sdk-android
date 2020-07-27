@@ -10,4 +10,17 @@
             <enum name="RightBottom" value="3" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="AntRefreshLayout">
+        <attr name="offsetTop" format="integer"/>
+        <attr name="customBar" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="SegmentedProgressBar">
+        <attr name="progressColor" format="color"/>
+        <attr name="segmentColor" format="color"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="barHeight" format="dimension"/>
+    </declare-styleable>
+
 </resources>

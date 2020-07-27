@@ -6,12 +6,16 @@ import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTIO
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTION_PATH_MESSAGES
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTION_PATH_POLLS
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.COLLECTION_PATH_STREAMS
+import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_DEFAULT
+import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_DEMO
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_DEV
-import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_LOCAL
+import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_LOAD
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_PROD
 import com.antourage.weaverlib.other.firebase.FirebaseConfig.Companion.DOCUMENT_PATH_STAGING
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEMO
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_DEV
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_LOAD
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_PROD
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.BASE_URL_STAGING
 import com.google.firebase.FirebaseApp
@@ -28,8 +32,10 @@ internal class FirestoreDatabase {
         return when (BASE_URL) {
             BASE_URL_DEV -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
             BASE_URL_STAGING -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_STAGING)
+            BASE_URL_DEMO -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEMO)
+            BASE_URL_LOAD -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_LOAD)
             BASE_URL_PROD -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_PROD)
-            else -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEV)
+            else -> db.collection(COLLECTION_PATH).document(DOCUMENT_PATH_DEFAULT)
         }
     }
 

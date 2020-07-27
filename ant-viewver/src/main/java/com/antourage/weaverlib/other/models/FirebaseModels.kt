@@ -1,10 +1,12 @@
 package com.antourage.weaverlib.other.models
 
 import androidx.annotation.Keep
+import androidx.room.Ignore
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.IgnoreExtraProperties
 import com.google.firebase.firestore.PropertyName
+import com.google.firebase.firestore.ServerTimestamp
 
 @Keep
 internal class MessageType {
@@ -15,7 +17,7 @@ internal class MessageType {
 }
 
 @Keep
-internal open class FirestoreModel(@get:Exclude var id: String = "")
+internal open class FirestoreModel(@get:Exclude var id: String? = null)
 
 @Keep
 internal data class Message(
@@ -24,6 +26,8 @@ internal data class Message(
     var nickname: String? = null,
     var text: String? = null,
     var type: Int? = null,
+    @ServerTimestamp
+    @Ignore
     var timestamp: Timestamp? = null,
     var userID: String? = null,
     var pushTimeMills: Long? = null
@@ -73,11 +77,16 @@ internal class Poll : FirestoreModel() {
 @Keep
 internal data class AnsweredUser(
     var chosenAnswer: Int? = null,
+    @ServerTimestamp
     var timestamp: Timestamp? = null
 ) : FirestoreModel()
 
 @Keep
-internal data class AnswersCombined(val answerText: String, var numberAnswered: Int)
+internal data class AnswersCombined(
+    val answerText: String,
+    var numberAnswered: Int = 0,
+    var isAnsweredByUser: Boolean = false
+)
 
 @Keep
 @IgnoreExtraProperties

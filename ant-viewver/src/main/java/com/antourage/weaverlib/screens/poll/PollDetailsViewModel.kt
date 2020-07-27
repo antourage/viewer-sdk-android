@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.BuildConfig
+import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.other.models.AnsweredUser
 import com.antourage.weaverlib.other.models.AnswersCombined
 import com.antourage.weaverlib.other.models.Poll
@@ -12,34 +13,34 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.google.firebase.FirebaseApp
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import java.util.*
-import javax.inject.Inject
 
-internal class PollDetailsViewModel @Inject constructor(
-    application: Application
-) : BaseViewModel(application) {
+internal class PollDetailsViewModel constructor(application: Application)
+    : BaseViewModel(application){
 
+    internal var userId: Int? = null
     private val pollLiveData = MutableLiveData<Poll>()
     private var answersLiveData: MutableLiveData<List<AnswersCombined>> = MutableLiveData()
     private var streamId: Int = -1
     private var pollId: String = ""
+    private var banner: AdBanner? = null
+    fun getBanner() = banner
     var isAnswered: Boolean = false
-    private var repository = Repository()
 
     internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
     internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
 
-    fun initPollDetails(streamId: Int, pollId: String) {
+    fun initPollDetails(streamId: Int, pollId: String, userId: Int, banner: AdBanner?) {
         this.streamId = streamId
         this.pollId = pollId
-        repository.getPollDetails(streamId, pollId).observeForever { resource ->
+        this.userId = userId
+        this.banner = banner
+        Repository.getPollDetails(streamId, pollId).observeForever { resource ->
             resource?.status?.let { status ->
                 if (status is Status.Success) {
                     val poll = status.data
                     pollLiveData.postValue(poll)
-                    repository.getAnsweredUsers(streamId, pollId)
+                    Repository.getAnsweredUsers(streamId, pollId)
                         .observeForever { answeredUsersResource ->
                             answeredUsersResource?.apply { manageAnswers(this, poll) }
                         }
@@ -57,14 +58,13 @@ internal class PollDetailsViewModel @Inject constructor(
         return sum
     }
 
-    fun onAnswerChosen(pos: Int) {
+    fun onAnswerChosen(pos: Int, userId: Int) {
         FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
             .currentUser?.let {
             val userAnswer = AnsweredUser()
             userAnswer.chosenAnswer = pos
-            userAnswer.timestamp = Timestamp(Date())
-            userAnswer.id = it.uid
-            repository.vote(streamId, pollId, userAnswer)
+            userAnswer.id = userId.toString()
+            Repository.vote(streamId, pollId, userAnswer)
             isAnswered = true
         }
     }
@@ -76,19 +76,20 @@ internal class PollDetailsViewModel @Inject constructor(
             if (poll?.answers != null && answeredUsers != null)
                 for (i in 0 until (poll.answers?.size ?: 0)) {
                     var counter = 0
-                    for (j in 0 until answeredUsers.size) {
-                        if (answeredUsers[j].id == FirebaseAuth.getInstance(
-                                FirebaseApp.getInstance(
-                                    BuildConfig.FirebaseName
-                                )
-                            ).uid
-                        ) {
+                    var isAnsweredByUser = false
+                    for (j in answeredUsers.indices) {
+                        if (answeredUsers[j].id == userId.toString()) {
                             isAnswered = true
                         }
-                        if (answeredUsers[j].chosenAnswer == i)
+                        if (answeredUsers[j].chosenAnswer == i) {
                             counter++
+                            if (!isAnsweredByUser){
+                                isAnsweredByUser = answeredUsers[j].id == userId.toString()
+                            }
+                        }
                     }
-                    val combinedAns = AnswersCombined(poll.answers?.get(i) ?: "", counter)
+                    val combinedAns = AnswersCombined(
+                        poll.answers?.get(i) ?: "", counter, isAnsweredByUser)
                     answers.add(combinedAns)
                 }
             answersLiveData.postValue(answers)

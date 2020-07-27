@@ -3,8 +3,6 @@ package com.antourage.weaverlib.ui.keyboard
 import android.app.Activity
 import android.os.Build
 import android.view.ViewTreeObserver
-import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
-import com.antourage.weaverlib.ui.keyboard.Unregistrar
 import java.lang.ref.WeakReference
 
 /**

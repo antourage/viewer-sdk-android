@@ -7,12 +7,12 @@ import com.google.firebase.firestore.*
 
 /**
  * This classes create abstraction over Firebase requests
- * Allow handling of errors in consitent way(not in current scope)
+ * Allow handling of errors in consistent way(not in current scope)
  *
  */
 internal class QuerySnapshotLiveData<T : FirestoreModel>(
     private val query: Query,
-    val typeParameterClass: Class<T>? = null
+    private val typeParameterClass: Class<T>? = null
 ) :
     LiveData<Resource<List<T>>>(),
     EventListener<QuerySnapshot> {
@@ -21,13 +21,18 @@ internal class QuerySnapshotLiveData<T : FirestoreModel>(
 
     override fun onEvent(snapshots: QuerySnapshot?, e: FirebaseFirestoreException?) {
         value = if (e != null) {
-            Resource.failure(e.localizedMessage)
+            Resource.failure(e.localizedMessage ?: "")
         } else {
             val data: MutableList<T> = mutableListOf()
-            for (i in 0 until snapshots!!.documents.size) {
-                if (snapshots.documents[i].toObject(typeParameterClass!!) != null) {
-                    data.add(snapshots.documents[i].toObject(typeParameterClass)!!)
-                    data[i].id = snapshots.documents[i].id
+            for (i in 0 until (snapshots?.documents?.size ?: 0)) {
+                val document = snapshots?.documents?.get(i)
+                document?.apply {
+                    if (typeParameterClass != null){
+                        this.toObject(typeParameterClass)?.let {
+                            data.add(it)
+                        }
+                        data[i].id = id
+                    }
                 }
             }
             Resource.success(data.toList())
@@ -51,7 +56,7 @@ internal class QuerySnapshotLiveData<T : FirestoreModel>(
 
 internal class QuerySnapshotValueLiveData<T>(
     private val query: DocumentReference,
-    val typeParameterClass: Class<T>? = null
+    private val typeParameterClass: Class<T>? = null
 ) :
     LiveData<Resource<T>>(),
     EventListener<DocumentSnapshot> {
@@ -60,9 +65,9 @@ internal class QuerySnapshotValueLiveData<T>(
 
     override fun onEvent(snapshot: DocumentSnapshot?, e: FirebaseFirestoreException?) {
         value = if (e != null) {
-            Resource.failure(e.localizedMessage)
+            Resource.failure(e.localizedMessage ?: "")
         } else {
-            val data: T? = snapshot?.toObject(typeParameterClass!!)
+            val data: T? = typeParameterClass?.let { snapshot?.toObject(it) }
             Resource.success(data)
         }
     }

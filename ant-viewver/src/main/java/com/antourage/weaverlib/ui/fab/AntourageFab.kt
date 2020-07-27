@@ -2,58 +2,70 @@ package com.antourage.weaverlib.ui.fab
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.Keep
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.OnSingleClickListener
+import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector.disconnectSocket
+import com.antourage.weaverlib.other.networking.SocketConnector.newLivesLiveData
+import com.antourage.weaverlib.other.networking.SocketConnector.newVodsLiveData
+import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.showBadge
 import com.antourage.weaverlib.screens.base.AntourageActivity
-import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
-import kotlinx.android.synthetic.main.layout_motion_fab.view.*
+import org.jetbrains.anko.sdk27.coroutines.onClick
+
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
  * so it would know that it is subclass of View
  */
-@Suppress("IMPLICIT_CAST_TO_ANY") //TODO 6/17/2019 handle this
+
 @Keep
 class AntourageFab @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler,
-    MotionOverlayView.FabExpansionListener {
+) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler {
 
     companion object {
-        internal const val SHOWING_DURABILITY = 5000L
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
+        internal var mLastClickTime: Long = 0
 
-        public fun registerNotifications(
+        fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
             Log.d(TAG, "Trying to register ant push notifications...")
             val response =
-                Repository().subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
+                Repository.subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
             response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
                 override fun onChanged(it: Resource<NotificationSubscriptionResponse>?) {
                     when (val responseStatus = it?.status) {
@@ -83,214 +95,417 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private lateinit var currentlyDisplayedStream: StreamResponse
-    private var listOfStreams: List<StreamResponse>? = null
-    internal val handlerFab: Handler = Handler(Looper.getMainLooper())
-    private val setOfDismissed = mutableListOf<Int>()
-    internal var isSwipeInProgress = false
-
-    private var repo: Repository = Repository()
-
-    internal var counter = 0
-
-    private var newVideosCount = 0
-
-    private val transitionListener = object : MotionLayout.TransitionListener {
-        override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {}
-
-//        override fun allowsTransition(p0: MotionScene.Transition?): Boolean {
-//            return true
-//        }
-
-        override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {}
-
-        override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {}
-
-        override fun onTransitionCompleted(p0: MotionLayout?, currentId: Int) {
-            if (currentId == R.id.start) {
-                expandableLayout.visibility = View.INVISIBLE
-                if (isSwipeInProgress) {
-                    listOfStreams?.let { listOfStreams ->
-                        for (stream in listOfStreams) {
-                            stream.streamId?.let { setOfDismissed.add(it) }
-                        }
-                    }
-                    handlerFab.removeCallbacksAndMessages(null)
-                }
+    private var shouldDisconnectSocket: Boolean = true
+    private var goingLiveToLive: Boolean = false
+    private var currentlyDisplayedLiveStream: StreamResponse? = null
+    private var currentAnimationDrawableId: Int = -1
+    private val liveStreams = arrayListOf<StreamResponse>()
+    private val vods = arrayListOf<StreamResponse>()
+    private val shownLiveStreams = linkedSetOf<StreamResponse>()
+    private var currentFabState: FabState = FabState.INACTIVE
+    private var nextFabState: FabState? = null
+    private var isAnimationRunning = false
+    private var circleAnimatedDrawable: AnimatedVectorDrawableCompat? = null
+    private var playIconAnimatedDrawable: AnimatedVectorDrawableCompat? = null
+    private var playIconAlphaHandler: Handler = Handler()
+    private var playIconStartHandler: Handler = Handler()
+    private var bounceHandler: Handler = Handler()
+    private var currentPlayerState: Int = 0
+    private var isShowingLive: Boolean = false
+    private var badgeColor: Drawable? = null
+    private var textBadge: String = ""
+        set(value) {
+            if (value == badgeView.text) return
+            if (value.isNotEmpty()) badgeView.text = value
+            updateBadgeColor(value)
+            if (ViewCompat.isLaidOut(this)) {
+                invalidateBadge(value)
             }
-            isSwipeInProgress = false
         }
-    }
 
     init {
-        if (BASE_URL.isEmptyTrimmed())
-            BASE_URL =
-                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
-
+        if (BASE_URL.isEmptyTrimmed()) BASE_URL =
+            UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
         View.inflate(context, R.layout.antourage_fab_layout, this)
-        motionOverlayView.setFabListener(this)
-
-        val intent = Intent(context, AntourageActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        floatingActionButton.setOnClickListener(object : OnSingleClickListener() {
-            override fun onSingleClick(v: View) {
-                context.startActivity(intent)
-            }
-        })
-        floatingActionButton.scaleType = ImageView.ScaleType.CENTER
+        fabContainer.onClick { checkWhatToOpen() }
         AntourageFabLifecycleObserver.registerActionHandler(this)
+        clearStreams()
+        initPlayAnimation()
     }
 
     override fun onResume() {
-        expandableLayout.setTransitionListener(transitionListener)
+        internetStateLiveData.observeForever(networkStateObserver)
+        shouldDisconnectSocket = true
+
         ReceivingVideosManager.setReceivingVideoCallback(object :
             ReceivingVideosManager.ReceivingVideoCallback {
-            override fun onNewVideosCount(resource: Resource<Int>) {
-                super.onNewVideosCount(resource)
+            override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
+                super.onVODForFabReceived(resource)
+
+                if (ReceivingVideosManager.isFirstRequestVod) {
+                    ReceivingVideosManager.isFirstRequestVod = false
+                    ReceivingVideosManager.pauseReceivingVideos()
+                    UserCache.getInstance(context)?.getToken()?.let {
+                        SocketConnector.connectToSockets(it)
+                        initSocketListeners()
+                    }
+                }
+
                 when (val status = resource.status) {
                     is Status.Success -> {
-                        newVideosCount = status.data ?: 0
-                        manageVideos(status.data ?: 0)
+                        if (!status.data.isNullOrEmpty()) {
+                            vods.clear()
+                            vods.addAll(status.data)
+                            manageVODs()
+                        } else {
+                            vods.clear()
+                            manageVODs()
+                        }
+                    }
+                    is Status.Failure -> {
+                        vods.clear()
+                        manageVODs()
                     }
                 }
             }
 
             override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
-                when (resource.status) {
+                when (val status = resource.status) {
                     is Status.Success -> {
-                        val list = (resource.status.data)?.toMutableList()
-                        if (list != null && list.size > 0) {
-                            listOfStreams = list
-                            changeBadgeStatus(WidgetStatus.ActiveLiveStream(list))
-                        } else {
-//                            ReceivingVideosManager.getNewVODsCount()
-                            if (floatingActionButton.isLiveBadgeShown()) {
-                                changeBadgeStatus(WidgetStatus.Inactive)
+                        if (!status.data.isNullOrEmpty()) {
+                            liveStreams.clear()
+                            liveStreams.addAll(status.data.reversed())
+                            if (!goingLiveToLive) {
+                                manageLiveStreams()
                             }
+                        } else {
+                            manageVODs(true)
+                            goingLiveToLive = false
                         }
                     }
                     is Status.Failure -> {
-//                        ReceivingVideosManager.getNewVODsCount()
-                        BaseViewModel.error.postValue(resource.status.errorMessage)
+                        manageVODs(true)
+                        goingLiveToLive = false
                     }
                 }
             }
         })
-        if (userAuthorized()) {
-            startAntRequests()
+
+        StreamPreviewManager.setStreamManager(object : StreamPreviewManager.StreamCallback {
+            override fun onNewState(playbackState: Int) {
+                super.onNewState(playbackState)
+                currentPlayerState = playbackState
+                if (playbackState == Player.STATE_READY) {
+                    bounceHandler.removeCallbacksAndMessages(null)
+                    setIncomingWidgetStatus(FabState.LIVE)
+                }
+            }
+
+            override fun onError() {
+                super.onError()
+                manageVODs(true)
+            }
+        })
+
+        Handler().postDelayed({
+            if (userAuthorized()) {
+                startAntRequests()
+            }
+        }, 500)
+    }
+
+    private fun manageLiveStreams() {
+        if (!newestStreamWasShown() && !goingLiveToLive) {
+            if (isShowingLive) {
+                setLiveToLiveState()
+            } else {
+                setLiveState()
+            }
         }
     }
 
-    private fun startAntRequests() {
-        ReceivingVideosManager.startReceivingVideos()
-        ReceivingVideosManager.startReceivingVODsCount()
+    private fun manageVODs(liveEnded: Boolean = false) {
+        if (Global.networkAvailable) {
+            if (liveEnded || !isShowingLive) {
+                setVodState()
+            }
+        } else {
+            setIncomingWidgetStatus(FabState.INACTIVE)
+        }
     }
 
-    private fun userAuthorized(): Boolean {
-        return !(UserCache.getInstance(context)?.getToken().isNullOrBlank())
+    private fun setLiveState() {
+        setIncomingWidgetStatus(FabState.PRE_LIVE)
+    }
+
+    private fun setLiveToLiveState() {
+        goingLiveToLive = true
+        setIncomingWidgetStatus(FabState.INACTIVE)
+    }
+
+    private fun setVodState() {
+        if (vods.isNotEmpty()) {
+            if (currentFabState != FabState.PRE_VOD && currentFabState != FabState.VOD && nextFabState != FabState.PRE_VOD && nextFabState != FabState.VOD) {
+                setIncomingWidgetStatus(FabState.PRE_VOD)
+                return
+            }
+        } else {
+            setIncomingWidgetStatus(FabState.INACTIVE)
+        }
+    }
+
+    private fun setIncomingWidgetStatus(status: FabState?) {
+        nextFabState = if (!isAnimationRunning && status != null && status != currentFabState) {
+            changeFabState(status)
+            null
+        } else {
+            status
+        }
+    }
+
+    private fun changeFabState(state: FabState) {
+        currentFabState = state
+        hideStreamPreview(state)
+        when (state) {
+            FabState.INACTIVE -> {
+                hideBadge()
+                circleAnimatedDrawable?.clearAnimationCallbacks()
+                if (goingLiveToLive) {
+                    Handler().postDelayed({
+                        setIncomingWidgetStatus(FabState.PRE_LIVE)
+                    }, 1200)
+                }
+            }
+            FabState.PRE_LIVE -> {
+                isShowingLive = true
+                val streamToDisplay = getNextStreamToDisplay()
+                streamToDisplay?.let {
+                    currentlyDisplayedLiveStream = streamToDisplay
+                    startPlayingStream(streamToDisplay)
+                    shownLiveStreams.add(streamToDisplay)
+                }
+                setTextToBadge(context.getString(R.string.ant_live))
+                startAnimation(state)
+            }
+            FabState.LIVE -> {
+                if (goingLiveToLive) goingLiveToLive = false
+                showPlayer()
+                startAnimation(state)
+            }
+            FabState.PRE_VOD -> {
+                setTextToBadge(context.getString(R.string.ant_new_vod))
+                startAnimation(state)
+            }
+            FabState.VOD -> {
+                startAnimation(state)
+            }
+        }
+    }
+
+    private fun startAnimation(animation: FabState) {
+        setAnimatedDrawable(animation.animationDrawableId)
+        circleAnimatedDrawable?.clearAnimationCallbacks()
+        circleAnimatedDrawable?.apply {
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationStart(drawable: Drawable?) {
+                    super.onAnimationStart(drawable)
+                    isAnimationRunning = true
+                }
+
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    isAnimationRunning = false
+                    if (nextFabState != null) {
+                        changeFabState(nextFabState!!)
+                        nextFabState = null
+                        return
+                    }
+                    when (animation) {
+                        FabState.PRE_LIVE -> {
+                            currentPlayerState.let {
+                                if (it != Player.STATE_READY) {
+                                    bounceHandler.postDelayed({
+                                        startAnimation(FabState.PRE_LIVE)
+                                    }, 800)
+                                }
+                            }
+                        }
+                        FabState.LIVE -> {
+                            currentPlayerState.let {
+//                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true || it == Player.STATE_BUFFERING)
+                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true)
+                                    startAnimation(
+                                        FabState.LIVE
+                                    )
+                            }
+                        }
+                        FabState.PRE_VOD -> {
+                            setIncomingWidgetStatus(FabState.VOD)
+                        }
+                        FabState.VOD -> {
+                            startAnimation(FabState.VOD)
+                        }
+                        FabState.INACTIVE -> {
+                        }
+                    }
+                }
+            })
+            start()
+        }
+    }
+
+    private fun hideStreamPreview(state: FabState) {
+        if (state != FabState.LIVE && state != FabState.PRE_LIVE) {
+            releasePlayer()
+        }
+    }
+
+    private fun showPlayer() {
+        playerView.alpha = 0f
+        playerView.visibility = View.VISIBLE
+        playerView.animate().alpha(1f).setDuration(300).start()
+        logoView.animate().alpha(0f).setDuration(300).start()
+        playIconStartHandler.postDelayed({
+            showPlayAnimation()
+        }, 1200)
+    }
+
+    private fun releasePlayer() {
+        isShowingLive = false
+        clearStreams()
+        StreamPreviewManager.releasePlayer()
+        playerView.animate().alpha(0f).setDuration(300).start()
+        logoView.animate().alpha(1f).setDuration(300).start()
+        playIconView.alpha = 0f
+        playIconAlphaHandler.removeCallbacksAndMessages(null)
+        playIconStartHandler.removeCallbacksAndMessages(null)
+        playIconAnimatedDrawable?.clearAnimationCallbacks()
+        playIconAnimatedDrawable?.stop()
+        playIconView.animation?.cancel()
+        playIconView.animation?.reset()
+        playIconView.clearAnimation()
+    }
+
+    private fun showPlayAnimation() {
+        /** play animation doesn't repeat without this on some lower M devices*/
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            initPlayAnimation()
+        }
+        playIconView.alpha = 0f
+        playIconView.visibility = View.VISIBLE
+        playIconView.animate().alpha(1f).setDuration(100).start()
+        playIconAnimatedDrawable?.apply {
+            clearAnimationCallbacks()
+            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    if (isShowingLive) {
+                        showPlayAnimation()
+                    }
+                }
+            })
+            start()
+            playIconAlphaHandler.postDelayed({
+                playIconView.animate().alpha(0f).setDuration(200).start()
+            }, 3800)
+        }
+    }
+
+    private fun initPlayAnimation() {
+        playIconAnimatedDrawable = context?.let {
+            AnimatedVectorDrawableCompat.create(
+                it,
+                R.drawable.antourage_fab_play_animation
+            )
+        }
+        playIconView.setImageDrawable(playIconAnimatedDrawable)
+    }
+
+    private fun setAnimatedDrawable(drawableId: Int) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M || currentAnimationDrawableId != drawableId) {
+            currentAnimationDrawableId = drawableId
+            circleAnimatedDrawable = context?.let {
+                AnimatedVectorDrawableCompat.create(
+                    it,
+                    drawableId
+                )
+            }
+            circleView.setImageDrawable(circleAnimatedDrawable)
+            circleView.background = null
+        }
     }
 
     override fun onPause() {
-        expandableLayout.visibility = View.INVISIBLE
-        expandableLayout.setTransitionListener(null)
+        StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
+        if (shouldDisconnectSocket) disconnectSocket()
+        removeSocketListeners()
+        currentPlayerState = 0
+        isAnimationRunning = false
+        goingLiveToLive = false
+        vods.clear()
+        currentFabState = FabState.INACTIVE
+        setIncomingWidgetStatus(null)
+        bounceHandler.removeCallbacksAndMessages(null)
+        Handler().postDelayed({
+            circleAnimatedDrawable?.apply {
+                clearAnimationCallbacks()
+            }
+            circleAnimatedDrawable?.stop()
+            textBadge = ""
+            releasePlayer()
+        }, 100)
     }
 
-    override fun onFabExpansionClicked() {
-        val intent = Intent(context, AntourageActivity::class.java)
-        intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedStream)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        context.applicationContext.startActivity(intent)
-    }
 
-    override fun onSwipeStarted() {
-        isSwipeInProgress = true
-    }
-
-    private fun manageVideos(newVideosCount: Int) {
-        if (!floatingActionButton.isLiveBadgeShown()) {
-            changeBadgeStatus(
-                if (newVideosCount > 0) WidgetStatus.ActiveUnseenVideos(newVideosCount)
-                else WidgetStatus.Inactive
+    private fun startPlayingStream(stream: StreamResponse) {
+        playerView.player = stream.hlsUrl?.get(0)?.let {
+            StreamPreviewManager.getExoPlayer(
+                it, context
             )
         }
     }
 
-    private fun changeBadgeStatus(status: WidgetStatus) {
-        when (status) {
-            is WidgetStatus.Inactive -> {
-                handlerFab.removeCallbacksAndMessages(null)
-                listOfStreams = null
-                counter = 0
-                floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
-                floatingActionButton.setTextToBadge("")
-            }
-            is WidgetStatus.ActiveLiveStream -> {
-                if (floatingActionButton != null)
-                    floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
-                if (!handlerFab.hasMessages(0))
-                    handlerFab.postDelayed(object : Runnable {
-                        override fun run() {
-                            listOfStreams?.let { listOfStreams ->
-                                if (counter > (listOfStreams.size - 1)) {
-                                    handlerFab.removeCallbacksAndMessages(null)
-                                } else {
-                                    if (!setOfDismissed.contains(listOfStreams[counter].streamId)) {
-                                        currentlyDisplayedStream = listOfStreams[counter]
-                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                            R.id.tvStreamTitle
-                                        ).text = listOfStreams[counter].streamTitle
-                                        findViewById<MotionOverlayView>(R.id.motionOverlayView).findViewById<TextView>(
-                                            R.id.tvViewers
-                                        ).text = resources.getQuantityString(
-                                            R.plurals.ant_number_of_viewers,
-                                            currentlyDisplayedStream.viewersCount ?: 0,
-                                            currentlyDisplayedStream.viewersCount
-                                        )
-                                        expandableLayout.visibility = View.VISIBLE
-                                        expandableLayout.transitionToEnd()
-                                        tvStreamTitle.text = listOfStreams[counter].streamTitle
-                                        tvViewers.text = resources.getQuantityString(
-                                            R.plurals.ant_number_of_viewers,
-                                            currentlyDisplayedStream.viewersCount ?: 0,
-                                            currentlyDisplayedStream.viewersCount
-                                        )
-                                        Handler(Looper.getMainLooper()).postDelayed({
-                                            expandableLayout.transitionToStart()
-                                        }, SHOWING_DURABILITY)
-                                        handlerFab.postDelayed(
-                                            this,
-                                            2 * SHOWING_DURABILITY
-                                        )
-                                        counter++
-                                    } else {
-                                        counter++
-                                        handlerFab.postDelayed(
-                                            this,
-                                            0
-                                        )
-
-                                    }
-                                }
-                            }
-                        }
-                    }, 0)
-                floatingActionButton.setTextToBadge(context.getString(R.string.ant_live))
-            }
-            is WidgetStatus.ActiveUnseenVideos -> {
-                if (floatingActionButton != null) {
-                    floatingActionButton.setImageResource(R.drawable.antourage_fab_icon_color)
-//                    floatingActionButton.setTextToBadge(status.numberOfVideos.toString())
-                    floatingActionButton.setTextToBadge(" ")
-                }
-                handlerFab.removeCallbacksAndMessages(null)
-                listOfStreams = null
-                counter = 0
-            }
+    private fun invalidateBadge(value: String) {
+        if (value == context.getString(R.string.ant_live) || value == context.getString(R.string.ant_new_vod)) {
+            showBadge()
+        } else {
+            hideBadge()
         }
     }
 
-    public fun authWith(
+    private fun showBadge() {
+        badgeView.background = badgeColor
+        badgeView.showBadge()
+    }
+
+    private fun hideBadge() {
+        badgeView.hideBadge()
+    }
+
+    private fun updateBadgeColor(value: String) {
+        val backgroundDrawableId =
+            if (value == context.getString(R.string.ant_live)) R.drawable.antourage_fab_badge_rounded_background_live else R.drawable.antourage_fab_badge_rounded_background_vod
+        badgeColor =
+            ContextCompat.getDrawable(
+                context,
+                backgroundDrawableId
+            )
+    }
+
+    private fun getNextStreamToDisplay(): StreamResponse? {
+        for (element in liveStreams) {
+            if (shownLiveStreams.none { it.id == element.id }) {
+                return element
+            }
+        }
+        return null
+    }
+
+    private fun newestStreamWasShown(): Boolean {
+        return if (liveStreams.isNotEmpty()) shownLiveStreams.contains(liveStreams[0])
+        else false
+    }
+
+    fun authWith(
         apiKey: String,
         refUserId: String? = null,
         nickname: String? = null,
@@ -316,7 +531,7 @@ class AntourageFab @JvmOverloads constructor(
         nickname?.let { UserCache.getInstance(context)?.saveUserNickName(it) }
         UserCache.getInstance(context)?.saveApiKey(apiKey)
 
-        val response = repo.generateUser(UserRequest(apiKey, refUserId, nickname))
+        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
         response.observeForever(object : Observer<Resource<User>> {
             override fun onChanged(it: Resource<User>?) {
                 when (val responseStatus = it?.status) {
@@ -344,5 +559,171 @@ class AntourageFab @JvmOverloads constructor(
                 }
             }
         })
+    }
+
+    private fun checkWhatToOpen() {
+        //to prevent quick multiple taps
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return
+        }
+        mLastClickTime = SystemClock.elapsedRealtime()
+
+        shouldDisconnectSocket = false
+
+        when (currentFabState) {
+            FabState.INACTIVE -> {
+                openAntActivity()
+            }
+            FabState.LIVE -> {
+                openLiveStreamActivity()
+            }
+            FabState.PRE_LIVE -> {
+                openLiveStreamActivity()
+            }
+            FabState.PRE_VOD -> {
+                openVodActivity()
+            }
+            FabState.VOD -> {
+                openVodActivity()
+            }
+        }
+    }
+
+    private fun clearStreams() {
+        currentlyDisplayedLiveStream = null
+        shownLiveStreams.clear()
+    }
+
+    private fun openLiveStreamActivity() {
+        if (currentlyDisplayedLiveStream != null) {
+            val intent = Intent(context, AntourageActivity::class.java)
+            currentlyDisplayedLiveStream?.isLive = true
+            intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedLiveStream)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        }
+    }
+
+    private fun openVodActivity() {
+        if (vods.isNotEmpty()) {
+            Repository.vods = vods.toMutableList()
+            val intent = Intent(context, AntourageActivity::class.java)
+            intent.putExtra(ARGS_STREAM_SELECTED, vods[0])
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        }
+    }
+
+    private fun openAntActivity() {
+        setAllLiveStreamsAsSeen()
+        val intent = Intent(context, AntourageActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
+    }
+
+    /**
+    if user goes to videos list screen, he will see all live videos anyway
+    so no need to show them in fab expansion
+     */
+    private fun setAllLiveStreamsAsSeen() {
+        shownLiveStreams.addAll(liveStreams)
+    }
+
+
+    private fun startAntRequests() {
+        ReceivingVideosManager.startReceivingLiveStreams(true)
+
+//        UserCache.getInstance(context)?.getToken()?.let {
+//            SocketConnector.getInitialInfo()
+//            SocketConnector.connectToSockets(it)
+//            initSocketListeners()
+//        }
+    }
+
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        when (networkState?.ordinal) {
+            NetworkConnectionState.LOST.ordinal -> {
+                if (!Global.networkAvailable) {
+                    disconnectSocket()
+                    ReceivingVideosManager.pauseWhileNoNetwork()
+                    SocketConnector.cancelReconnect()
+                }
+            }
+            NetworkConnectionState.AVAILABLE.ordinal -> {
+                ReceivingVideosManager.startReceivingLiveStreams(true)
+            }
+        }
+    }
+
+    private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
+        if (it == SocketConnector.SocketConnection.DISCONNECTED) {
+            if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams(true)
+        }
+    }
+
+    private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (newStreams != null) {
+            val newLives = newStreams as ArrayList<StreamResponse>
+            if (!newLives.isNullOrEmpty()) {
+                liveStreams.clear()
+                liveStreams.addAll(newLives.reversed())
+                if (!goingLiveToLive) {
+                    runOnUi { manageLiveStreams() }
+                }
+            } else {
+                runOnUi { manageVODs(true) }
+                goingLiveToLive = false
+            }
+        }
+    }
+
+    private val vodsFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
+        if (newStreams != null) {
+            val newVods = newStreams as ArrayList<StreamResponse>
+
+            if (!newVods.isNullOrEmpty()) {
+                vods.clear()
+                vods.addAll(newVods)
+                runOnUi { manageVODs() }
+            } else {
+                vods.clear()
+                runOnUi { manageVODs() }
+            }
+        }
+    }
+
+    private fun removeSocketListeners() {
+        internetStateLiveData.removeObserver(networkStateObserver)
+        socketConnection.removeObserver(socketConnectionObserver)
+        newVodsLiveData.removeObserver(vodsFromSocketObserver)
+        newLivesLiveData.removeObserver(liveFromSocketObserver)
+    }
+
+    private fun initSocketListeners() {
+        socketConnection.observeForever(socketConnectionObserver)
+        newVodsLiveData.observeForever(vodsFromSocketObserver)
+        newLivesLiveData.observeForever(liveFromSocketObserver)
+    }
+
+    private fun runOnUi(method: () -> Unit) {
+        Handler(Looper.getMainLooper()).post {
+            method()
+        }
+    }
+
+    private fun userAuthorized(): Boolean {
+        return !(UserCache.getInstance(context)?.getToken().isNullOrBlank())
+    }
+
+    private fun setTextToBadge(text: String) {
+        textBadge = text
+    }
+
+    internal enum class FabState(val animationDrawableId: Int) {
+        INACTIVE(0),
+        PRE_LIVE(R.drawable.antourage_fab_bounce_once_animation),
+        LIVE(R.drawable.antourage_fab_rotation_animation),
+        PRE_VOD(R.drawable.antourage_fab_bounce_animation),
+        VOD(R.drawable.antourage_fab_rotation_animation)
     }
 }

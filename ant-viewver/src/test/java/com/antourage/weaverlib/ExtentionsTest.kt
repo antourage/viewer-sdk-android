@@ -4,17 +4,13 @@ import android.content.Context
 import android.content.res.Resources
 import com.antourage.weaverlib.other.parseDate
 import junit.framework.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.reflect.KClass
 
 @RunWith(MockitoJUnitRunner::class)
 class ExtentionsUnitTest {

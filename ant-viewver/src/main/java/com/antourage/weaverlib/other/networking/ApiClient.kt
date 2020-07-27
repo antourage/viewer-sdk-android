@@ -1,29 +1,48 @@
 package com.antourage.weaverlib.other.networking
 
+import android.annotation.SuppressLint
+import android.os.AsyncTask
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.ListOfStreams
+import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.ui.fab.AntourageFab
+import com.microsoft.signalr.HubConnection
+import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.HubConnectionState
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
+
 
 internal object ApiClient {
 
     var BASE_URL = ""
-    private const val HEADER_TOKEN = "token"
+    private const val HEADER_TOKEN = "Authorization"
     private const val HEADER_LANGUAGE = "Accept-Language"
-    private const val VERSION_SUFFIX = "api/v1/"
+    private const val VERSION_SUFFIX = "api/v1/widget/"
 
     lateinit var webService: WebService
     private var retrofit: Retrofit? = null
     private var usingAuth = false
 
-    fun getWebClient(useAuth: Boolean = true): ApiClient {
+
+//    private var shouldRebuild = false
+
+    fun getWebClient(useAuth: Boolean = true, v2: Boolean = false): ApiClient {
         if (retrofit == null
             || usingAuth != useAuth
             || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)
         ) {
-            rebuildRetrofit(useAuth)
+            rebuildRetrofit(useAuth, v2)
         }
         return this
     }
@@ -36,10 +55,12 @@ internal object ApiClient {
         } ?: ""
     }
 
-    private fun rebuildRetrofit(useAuth: Boolean) {
+    private fun rebuildRetrofit(useAuth: Boolean, v2: Boolean = false) {
         val client = buildOkHttpClient(useAuth)
         retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL + VERSION_SUFFIX)
+            .baseUrl(
+                (BASE_URL + VERSION_SUFFIX)
+            )
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
@@ -48,6 +69,10 @@ internal object ApiClient {
     }
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
+        //TODO delete before release
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+
         usingAuth = useAuth
         val builder = OkHttpClient.Builder()
         if (useAuth) {
@@ -56,7 +81,8 @@ internal object ApiClient {
             addDefaultInterceptor(builder)
         }
         builder
-            .connectTimeout(1, TimeUnit.MINUTES)
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
         return builder.build()
@@ -81,7 +107,7 @@ internal object ApiClient {
             val request = chain.request()
             var newRequest = request
             newRequest = newRequest.newBuilder()
-                .addHeader(HEADER_TOKEN, getTokenForRequest())
+                .addHeader(HEADER_TOKEN, "Bearer ${getTokenForRequest()}")
                 .addHeader(HEADER_LANGUAGE, "en")
                 .build()
             chain.proceed(newRequest)

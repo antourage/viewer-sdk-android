@@ -3,44 +3,50 @@ package com.antourage.weaverlib.screens.base
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
-public class AntourageActivity : AppCompatActivity() {
+class AntourageActivity : AppCompatActivity() {
     internal var keyboardIsVisible = false
         private set
 
-    /**
-     * Determines if need to trigger keyborad event callback, when keyboard was shown or hidden via
-     * [hideKeyborad] or [showKeyboard] methods
-     */
     private var triggerKeyboardCallback = true
+    private var shouldGoBackToList = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
-        BASE_URL = UserCache.getInstance(applicationContext)?.getBeChoice()
-            ?: DevSettingsDialog.DEFAULT_URL
+        if (BASE_URL.isEmptyTrimmed()) BASE_URL =
+            UserCache.getInstance(applicationContext)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
+        shouldGoBackToList = streamToWatch != null
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.mainContent,
-                if (streamToWatch != null)
-                    PlayerFragment.newInstance(streamToWatch)
+                if (streamToWatch != null){
+                    if(streamToWatch.isLive){
+                        PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
+                    }
+                    else{
+                        VodPlayerFragment.newInstance(streamToWatch, isNewVod = true)
+                    }
+                }
                 else VideoListFragment.newInstance()
             )
             .commit()
@@ -104,4 +110,25 @@ public class AntourageActivity : AppCompatActivity() {
             doStuff(currentFragment as BaseFragment<BaseViewModel>)
         }
     }
+
+    // used in case video was open from FAB
+    // to open initial list of streams
+    private fun replaceListFragment(){
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.mainContent,
+                VideoListFragment.newInstance()
+            )
+            .commit()
+        shouldGoBackToList = false
+    }
+
+    override fun onBackPressed() {
+        if(shouldGoBackToList){
+            replaceListFragment()
+        }else{
+            super.onBackPressed()
+        }
+    }
+
 }

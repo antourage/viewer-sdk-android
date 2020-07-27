@@ -4,12 +4,10 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
+import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
-import com.google.gson.Gson
 import java.lang.ref.WeakReference
 import java.util.*
-
 
 internal class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
@@ -25,11 +23,13 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
         private const val SP_BE_CHOICE = "sp_be_choice"
         private const val SP_TOKEN = "sp_token"
+        private const val SP_BANNER_IMAGE = "sp_banner_image"
+        private const val SP_BANNER_URL = "sp_banner_url"
         private const val SP_USER_ID = "sp_user_id"
-        private const val SP_VOD_WATCHING_TIME = "sp_vod_watching_time"
-        private const val SP_LIVE_STREAM_WATCHING_TIME = "sp_live_stream_watching_time"
         private const val SP_COLLAPSED_POLL = "sp_collapsed_poll"
         private const val SP_API_KEY = "sp_api_key"
+        private const val SP_TAG_LINE = "sp_tag_line"
+        private const val SP_FEED_IMAGE_URL = "sp_feed_image"
         private const val SP_USER_REF_ID = "sp_user_ref_id"
         private const val SP_USER_NICKNAME = "sp_user_nickname"
         private var INSTANCE: UserCache? = null
@@ -71,6 +71,20 @@ internal class UserCache private constructor(context: Context) {
         return savedList.toHashSet()
     }
 
+    fun saveBanner(ad: AdBanner?){
+        prefs?.edit()
+            ?.putString(SP_BANNER_IMAGE, ad?.imageUrl)
+            ?.putString(SP_BANNER_URL, ad?.externalUrl)
+            ?.apply()
+    }
+
+    fun getBanner(): AdBanner? {
+        return AdBanner(
+            prefs?.getString(SP_BANNER_IMAGE, null),
+            prefs?.getString(SP_BANNER_URL, null)
+        )
+    }
+
     fun getBeChoice(): String? {
         contextRef?.get()?.applicationContext?.let {
             val sharedPref = PreferenceManager.getDefaultSharedPreferences(it)
@@ -79,11 +93,15 @@ internal class UserCache private constructor(context: Context) {
     }
 
     fun updateBEChoice(link: String) {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(contextRef?.get())
-        val editor = sharedPref.edit()
-        editor.putString(SP_BE_CHOICE, link)
-        editor.apply()
-        clearUserData()
+        contextRef?.get()?.apply {
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+            val editor = sharedPref?.edit()
+            editor?.putString(SP_BE_CHOICE, link)
+            editor?.apply()
+            editor?.apply {
+                clearUserData()
+            }
+        }
     }
 
     fun saveUserAuthInfo(token: String, userId: Int) {
@@ -117,6 +135,18 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveTagLine(tagline: String) {
+        prefs?.edit()
+            ?.putString(SP_TAG_LINE, tagline)
+            ?.apply()
+    }
+
+    fun saveFeedImageUrl(url: String) {
+        prefs?.edit()
+            ?.putString(SP_FEED_IMAGE_URL, url)
+            ?.apply()
+    }
+
     fun getCollapsedPollId(): String? {
         return prefs?.getString(SP_COLLAPSED_POLL, null)
     }
@@ -133,33 +163,20 @@ internal class UserCache private constructor(context: Context) {
         return prefs?.getString(SP_API_KEY, null)
     }
 
+    fun getTagLine(): String? {
+        return prefs?.getString(SP_TAG_LINE, null)
+    }
+
+    fun getFeedImageUrl(): String? {
+        return prefs?.getString(SP_FEED_IMAGE_URL, null)
+    }
+
     fun getUserRefId(): String? {
         return prefs?.getString(SP_USER_REF_ID, null)
     }
 
     fun getUserNickName(): String? {
         return prefs?.getString(SP_USER_NICKNAME, null)
-    }
-
-    internal fun updateVODWatchingTime(watchingTimeStat: StatisticWatchVideoRequest?) {
-        val json = if (watchingTimeStat == null) null else Gson().toJson(watchingTimeStat)
-        prefs?.edit()
-            ?.putString(SP_VOD_WATCHING_TIME, json)
-            ?.apply()
-    }
-
-    internal fun getVODSWatchingTimeStat(): StatisticWatchVideoRequest? {
-        val json = prefs?.getString("SP_VOD_WATCHING_TIME", null)
-        return if (json == null) null else Gson().fromJson(
-            json,
-            StatisticWatchVideoRequest::class.java
-        )
-    }
-
-    fun updateLiveStreamWatchingTime(watchingTimeSpan: String?) {
-        prefs?.edit()
-            ?.putString(SP_LIVE_STREAM_WATCHING_TIME, watchingTimeSpan)
-            ?.apply()
     }
 
     private fun clearUserData() {

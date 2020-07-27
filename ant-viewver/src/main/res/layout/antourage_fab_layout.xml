@@ -1,35 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fabContainer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clipChildren="false"
-        android:clipToPadding="false"
-        android:paddingBottom="20dp">
+        android:clipToPadding="false">
 
-    <com.antourage.weaverlib.ui.fab.BadgeFab
-            android:id="@+id/floatingActionButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_margin="20dp"
-            android:background="@color/ant_bg_fab"
-            android:backgroundTint="@color/ant_bg_fab"
-            android:src="@drawable/antourage_fab_icon_color"
-            app:badgeBackgroundColor="@color/ant_pink"
-            app:badgePosition="RightTop"
-            app:badgeTextColor="@android:color/white"
-            app:borderWidth="0dp"
-            app:fabSize="normal"
-            app:layout_constraintLeft_toRightOf="@+id/motionOverlayView"
-            app:layout_constraintRight_toRightOf="@+id/motionOverlayView"
-            app:layout_constraintTop_toTopOf="@+id/motionOverlayView" />
+    <ImageView
+            android:id="@+id/circleView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/antourage_fab_circle_bg"
+            app:layout_constraintBottom_toBottomOf="@+id/logoView"
+            app:layout_constraintEnd_toEndOf="@+id/logoView"
+            app:layout_constraintStart_toStartOf="@+id/logoView"
+            app:layout_constraintTop_toTopOf="@+id/logoView"
+            tools:ignore="ContentDescription" />
 
-    <com.antourage.weaverlib.ui.fab.MotionOverlayView
-            android:id="@+id/motionOverlayView"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginRight="54dp"
+    <com.antourage.weaverlib.ui.fab.RoundFrameLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="19dp"
+            android:layout_marginRight="19dp"
+            android:layout_marginTop="19dp"
+            android:layout_marginBottom="18dp"
+            app:layout_constraintBottom_toBottomOf="@+id/logoView"
+            app:layout_constraintEnd_toEndOf="@+id/logoView"
+            app:layout_constraintStart_toStartOf="@+id/logoView"
+            app:layout_constraintTop_toTopOf="@+id/logoView">
+
+        <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/playerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"
+                app:auto_show="false"
+                app:resize_mode="zoom"
+                app:show_buffering="never"
+                app:surface_type="texture_view"
+                app:use_controller="false" />
+
+    </com.antourage.weaverlib.ui.fab.RoundFrameLayout>
+
+    <ImageView
+            android:id="@+id/playIconView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/logoView"
+            app:layout_constraintEnd_toEndOf="@+id/logoView"
+            app:layout_constraintStart_toStartOf="@+id/logoView"
+            app:layout_constraintTop_toTopOf="@+id/logoView"
+            tools:ignore="ContentDescription" />
+
+
+    <ImageView
+            android:id="@+id/logoView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@drawable/antourage_fab_icon_color"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/badgeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.02"
+            android:textColor="@color/ant_white"
+            android:textSize="8sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/logoView"
+            app:layout_constraintTop_toTopOf="@+id/logoView"
+            tools:ignore="SmallSp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

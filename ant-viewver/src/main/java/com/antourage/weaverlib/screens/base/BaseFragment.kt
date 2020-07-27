@@ -9,11 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.R
-import com.tapadoo.alerter.Alerter
+import com.antourage.weaverlib.screens.list.VideoListFragment
 
 internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
@@ -28,7 +27,9 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            showWarningAlerter(context.resources.getString(R.string.ant_no_internet))
+            if(this@BaseFragment !is VideoListFragment){
+                showNoInternetMessage()
+            }
         }
     }
 
@@ -92,13 +93,5 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
     open fun onShowKeyboard(keyboardHeight: Int) {}
     open fun onHideKeyboard(keyboardHeight: Int) {}
 
-    protected fun showWarningAlerter(alerterText: String) {
-        Alerter.create(this.activity, R.layout.alerter_container)
-            .setBackgroundColorRes(R.color.ant_pink)
-            .also { alerter ->
-                val tvCustomView: TextView = alerter.getLayoutContainer() as TextView
-                tvCustomView.text = alerterText
-            }
-            .show()
-    }
+    open fun showNoInternetMessage(){}
 }

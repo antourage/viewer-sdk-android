@@ -1,12 +1,18 @@
 <resources>
     <public />
-    <string name="ant_live">Live</string>
-    <string name="ant_say_something">Say something</string>
+    <string name="ant_live">LIVE</string>
+    <string name="ant_new_vod">NEW</string>
+    <string name="ant_hint_chat">Chat</string>
+    <string name="ant_hint_disabled">Chat disabled</string>
 
+    <!--polls-->
     <string name="ant_new_poll">New poll!</string>
-    <string name="ant_total_answers">Total answers</string>
-    <string name="ant_new_stream">New stream</string>
-    <string name="ant_chat_not_available">Chat is unavailable</string>
+    <string name="ant_poll_vote">VOTE</string>
+
+    <plurals name="ant_number_new_comments">
+        <item quantity="one">%d NEW COMMENT</item>
+        <item quantity="other">%d NEW COMMENTS</item>
+    </plurals>
 
     <plurals name="ant_number_answers">
         <item quantity="one">%d poll answer</item>
@@ -17,8 +23,7 @@
         <item quantity="one">%d viewer</item>
         <item quantity="other">%d viewers</item>
     </plurals>
-    <string name="ant_no_comments_yet">There are no comments yet</string>
-    <string name="ant_commenting_off">Commenting is turned off for now</string>
+
     <plurals name="ant_seconds">
         <item quantity="one">%d s</item>
         <item quantity="other">%d s</item>
@@ -33,28 +38,90 @@
         <item quantity="other">%d h</item>
     </plurals>
     <plurals name="ant_days">
+        <item quantity="one">%d d</item>
+        <item quantity="other">%d d</item>
+    </plurals>
+
+
+    <plurals name="ant_seconds_long">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
+    <plurals name="ant_minutes_long">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="ant_hours_long">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="ant_days_long">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <plurals name="ant_weeks_long">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="ant_months_long">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="ant_years_long">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
 
     <string name="ant_started_ago">%1$s ago</string>
+    <string name="ant_started_now">Just now</string>
+    <string name="ant_recent">Recent</string>
 
+    <string name="choose_link">Choose link</string>
     <string name="ant_set">set</string>
-    <string name="ant_main_title">Latest videos</string>
 
+    <string name="ant_thanks_for_watching">THANKS FOR WATCHING</string>
+
+    <!--dialog chat name-->
     <string name="ant_cancel">Cancel</string>
-    <string name="ant_confirm">Confirm</string>
-    <string name="ant_type_your_display_name">Type your display name</string>
+    <string name="ant_save">Save</string>
+    <!--todo:  translate properly in sweden. Was "Type your display name"-->
+    <string name="ant_type_your_display_name">Start typing</string>
+    <string name="ant_your_chat_name">Your chat name</string>
 
+    <!--avatar chooser - to be deleted-->
     <string name="ant_choose_image_source">Add image</string>
     <string name="ant_delete_image">Delete image</string>
     <string name="ant_from_gallery">From gallery</string>
     <string name="ant_from_camera">From camera</string>
-    <string name="ant_new">New</string>
-    <string name="ant_videos_empty_list_placeholder_text">New videos are coming soon</string>
+
+
     <string name="ant_version_name">Version %1$s</string>
-    <string name="ant_no_internet">No internet connection available</string>
-    <string name="ant_no_internet_action">No_internet_connection_available</string>
-    <string name="ant_failed_to_load_video">Failed to load video</string>
+    <string name="ant_no_internet_action" translatable="false">No_internet_connection_available</string>
     <string name="invalid_toke_error_message">Unable to load. Please reopen widget</string>
+
+    <!--feed-->
+    <string name="ant_jump_to_top">JUMP TO THE TOP</string>
+    <string name="ant_demo_feed_title">Studio Häcken</string>
+    <string name="ant_join_conversation">Join conversation</string>
+    <string name="ant_new">New</string>
+    <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>
+    <string name="ant_no_connection">no connection</string>
+    <string name="ant_server_error">Something is not right. We are working to get this fixed</string>
+    <string name="ant_you_are_online">you are online</string>
+<!--    <string name="ant_most_recent">%s   •  most recent</string>-->
+    <string name="ant_most_recent">most recent</string>
+
+    <!--player-->
+    <string name="ant_at">at</string>
+    <string name="ant_send">SEND</string>
+    <string name="ant_ten_seconds">10 seconds</string>
+    <string name="ant_skip_curtain">skip curtain</string>
+
+
+    <string name="ant_delimiter" translatable="false">•</string>
+    <string name="ant_slash" translatable="false">/</string>
+    <string name="ant_init_time_doubled" translatable="false">00:00</string>
+    <string name="ant_init_time" translatable="false">0:00</string>
 </resources>

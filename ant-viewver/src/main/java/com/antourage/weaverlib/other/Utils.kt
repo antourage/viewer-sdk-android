@@ -32,20 +32,16 @@ internal fun getScreenWidth(activity: Activity): Int {
 }
 
 internal fun convertUtcToLocal(utcTime: String): Date? {
-    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS", Locale.ENGLISH)
-    df.timeZone = TimeZone.getTimeZone("UTC")
-    val date: Date
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH)
     return try {
-        date = df.parse(utcTime)
-        df.timeZone = TimeZone.getDefault()
-        df.parse(df.format(date))
+       df.parse(utcTime)
     } catch (e: ParseException) {
         e.printStackTrace()
         null
     }
 }
 
-internal fun getDateDiff(date1: Date, date2: Date): Long {
+internal fun getSecondsDateDiff(date1: Date, date2: Date): Long {
     val diffInMillies = date2.time - date1.time
     return TimeUnit.SECONDS.convert(diffInMillies, TimeUnit.MILLISECONDS)
 }

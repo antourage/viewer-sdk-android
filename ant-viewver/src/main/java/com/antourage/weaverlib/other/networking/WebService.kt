@@ -9,23 +9,38 @@ internal interface WebService {
     @GET("live")
     fun getLiveStreams(): LiveData<ApiResponse<List<StreamResponse>>>
 
-    @GET("live/{id}")
-    fun getLiveStreamById(@Path("id") id: Int): LiveData<ApiResponse<StreamResponse>>
+    @GET("live/{id}/viewers")
+    fun getLiveViewers(@Path("id") id: Int): LiveData<ApiResponse<Viewers>>
+
+    @POST("live/open")
+    fun postLiveOpen(@Body body: LiveOpenedRequest): LiveData<ApiResponse<AdBanner>>
+
+    @POST("live/close")
+    fun postLiveClose(@Body body: LiveClosedRequest): LiveData<ApiResponse<SimpleResponse>>
 
     @GET("vod")
     fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
 
-    @GET("vod/{id}")
-    fun getVODById(@Path("id") id: Int): LiveData<ApiResponse<StreamResponse>>
+    @GET("vod/new")
+    fun getVODsForFab(): LiveData<ApiResponse<List<StreamResponse>>>
 
     @GET("vod/new")
     fun getNewVODsCount(): LiveData<ApiResponse<Int>>
 
+    @POST("vod/open")
+    fun postVODOpen(@Body body: VideoOpenedRequest): LiveData<ApiResponse<SimpleResponse>>
+
+    @POST("vod/close")
+    fun postVODClose(@Body body: VideoClosedRequest): LiveData<ApiResponse<SimpleResponse>>
+
     @POST("users")
     fun generateUser(@Body body: UserRequest): LiveData<ApiResponse<User>>
 
-    @GET("users/{id}")
-    fun getUser(@Path("id") id: Int, @Query("apiKey") apiKey: String): LiveData<ApiResponse<User>>
+    @GET("users")
+    fun getUser(): LiveData<ApiResponse<User>>
+
+    @GET("users/feed")
+    fun getFeedInfo(): LiveData<ApiResponse<FeedInfo>>
 
     @PUT("users")
     fun updateDisplayName(@Body body: UpdateDisplayNameRequest): LiveData<ApiResponse<SimpleResponse>>
@@ -35,9 +50,6 @@ internal interface WebService {
 
     @POST("statistic/vod")
     fun statisticWatchVOD(@Body body: StatisticWatchVideoRequest): LiveData<ApiResponse<SimpleResponse>>
-
-    @POST("vod/stopTime")
-    fun stopWatchingVOD(@Body body: StopWatchVodRequest): LiveData<ApiResponse<SimpleResponse>>
 
     @Multipart
     @POST("users/uploadimage")

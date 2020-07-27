@@ -37,10 +37,11 @@ class NotificationSubscriptionResponse : SimpleResponse() {
     var topic: String? = null
 }
 
+class ListOfStreams : ArrayList<StreamResponse>()
+
 @Parcelize
 data class StreamResponse(
     @field:SerializedName("id") val id: Int?,
-    @field:SerializedName("streamId") val streamId: Int?,
     @field:SerializedName("name") val streamTitle: String?,
     @field:SerializedName("videoName") val videoName: String?,
     @field:SerializedName("videoURL") val videoURL: String?,
@@ -55,11 +56,16 @@ data class StreamResponse(
     @field:SerializedName("channelId") val channelId: Int?,
     @field:SerializedName("duration") val duration: String?,
     @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
-    @field:SerializedName("viewsCount") val viewsCount: Int?,
+    @field:SerializedName("viewsCount") var viewsCount: Long?,
+    @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
-    @field:SerializedName("viewersCount") val viewersCount: Int?,
+    @field:SerializedName("viewersCount") val viewersCount: Long?,
     @field:SerializedName("isNew") var isNew: Boolean?,
-    @field:SerializedName("stopTime") var stopTime: String?
+    var stopTimeMillis: Long = 0,
+    var lastMessage: String? = null,
+    var lastMessageAuthor: String? = null,
+    var isChatEnabled: Boolean? = null,
+    var arePollsEnabled: Boolean? = null
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -83,8 +89,36 @@ data class User(
     @field:SerializedName("imageUrl") var imageUrl: String?
 )
 
+@Parcelize
+data class CurtainRange(
+    @field:SerializedName("start") val start: String?,
+    @field:SerializedName("end") val end: String?
+) : Parcelable
+
+@Parcelize
+data class CurtainRangeMillis(
+    @field:SerializedName("start") val start: Long,
+    @field:SerializedName("end") val end: Long
+) : Parcelable
+
 data class UpdateImageResponse(
     @field:SerializedName("imageUrl") val imageUrl: String?,
     @field:SerializedName("success") val success: Boolean?
 )
+
+data class Viewers(
+    @field:SerializedName("liveStreamId") val liveStreamId : Int,
+    @field:SerializedName("viewers") val viewers : Long
+)
+
+data class FeedInfo(
+    @field:SerializedName("imageUrl") val imageUrl: String?,
+    @field:SerializedName("tagLine") val tagLine : String?
+)
+
+@Parcelize
+data class AdBanner(
+    @field:SerializedName("imageUrl") val imageUrl : String?,
+    @field:SerializedName("externalUrl") val externalUrl : String?
+) : Parcelable
 

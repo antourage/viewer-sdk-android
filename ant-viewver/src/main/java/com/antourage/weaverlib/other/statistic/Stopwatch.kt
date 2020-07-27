@@ -20,12 +20,13 @@ internal class Stopwatch {
         this.running = true
     }
 
-    fun stop() {
-        this.stopTime = System.currentTimeMillis()
-        this.running = false
-        this.currentDuration += getElapsedTime()
+    fun stopIfRunning() {
+        if (running) {
+            this.stopTime = System.currentTimeMillis()
+            this.running = false
+            this.currentDuration += getElapsedTime()
+        }
     }
-
 
     private fun getElapsedTime(): Long {
         return if (running) {

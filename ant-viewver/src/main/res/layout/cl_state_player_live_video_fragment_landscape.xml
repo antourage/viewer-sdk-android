@@ -7,6 +7,15 @@
         android:layout_height="match_parent"
         android:background="#000000">
 
+    <include android:id="@+id/live_header_layout"
+            layout="@layout/player_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
+
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
@@ -16,6 +25,34 @@
             app:layout_constraintTop_toTopOf="parent"
             app:resize_mode="fit"
             app:use_controller="false" />
+
+    <ImageView
+            android:id="@+id/ivFirstFrame"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:animateLayoutChanges="true"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/ivThanksForWatching"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/ant_dark_transparent"
+            android:text="@string/ant_thanks_for_watching"
+            android:textAllCaps="true"
+            android:gravity="center"
+            android:textColor="@color/ant_white"
+            android:fontFamily="@font/roboto_bold"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/live_header_layout" />
 
     <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/controls"
@@ -31,6 +68,49 @@
             app:show_buffering="never"
             app:show_timeout="2000" />
 
+    <TextView
+            android:id="@+id/txtLabelLive"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_pink"
+            android:elevation="10dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:text="@string/ant_live"
+            android:textAllCaps="true"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/playerView" />
+
+    <TextView
+            android:id="@+id/txtNumberOfViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_dark_gray_3_a80"
+            android:drawableStart="@drawable/antourage_ic_watcher_16dp"
+            android:drawablePadding="4dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@+id/txtLabelLive"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:text="6,385" />
+
     <ImageView
             android:id="@+id/ivLoader"
             android:layout_width="70dp"
@@ -41,162 +121,271 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@+id/playerView" />
 
-    <include
-            layout="@layout/layout_poll_suggestion"
-            android:layout_width="280dp"
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_half"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:importantForAccessibility="yes"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
-            android:layout_width="300dp"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/antourage_rounded_gray_bg"
+            android:background="@color/ant_transparent"
             android:elevation="5dp"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/guideline_half"
             app:layout_constraintTop_toTopOf="parent" />
 
     <com.antourage.weaverlib.other.ui.CustomDrawerLayout
             android:id="@+id/drawerLayout"
-            android:layout_width="300dp"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="50dp"
             android:background="@android:color/transparent"
             android:clickable="false"
-            android:elevation="3dp"
             android:focusable="false"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_half"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:layout_marginRight="-64dp"
                 android:background="@android:color/transparent">
 
-            <com.antourage.weaverlib.other.ui.FadingRecyclerView
-                    android:id="@+id/rvMessages"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clNavView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="20dp"
-                    android:clickable="false"
-                    android:clipToPadding="false"
-                    android:fadingEdge="horizontal"
-                    android:fadingEdgeLength="130dp"
-                    android:fillViewport="false"
-                    android:focusable="false"
-                    android:paddingBottom="6dp"
-                    android:requiresFadingEdge="vertical" />
+                    android:layout_height="match_parent">
 
+                <com.antourage.weaverlib.other.ui.FadingRecyclerView
+                        android:id="@+id/rvMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="20dp"
+                        android:clickable="false"
+                        android:clipToPadding="false"
+                        android:fadingEdge="horizontal"
+                        android:fadingEdgeLength="130dp"
+                        android:fillViewport="false"
+                        android:focusable="false"
+                        android:paddingBottom="6dp"
+                        android:requiresFadingEdge="vertical" />
+
+                <include
+                        android:id="@+id/bttn_new_comments"
+                        layout="@layout/item_new_comments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
 
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
-    <View
-            android:id="@+id/dividerChat"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:background="@color/ant_light_gray_transparent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
+    <!--For constraint Sets changes made in child ConstraintLayout isn't applicable
+    If you'd like to change children of this element - change them in Portrait-->
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ll_wrapper"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/antourage_rounded_semitransparent_bg"
-            android:orientation="horizontal"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@id/playerView"
-            app:layout_constraintStart_toStartOf="@id/playerView">
-
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_rect_gradient_semidark"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
         <EditText
                 android:id="@+id/etMessage"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:layout_weight="10"
-                android:background="@android:color/transparent"
-                android:hint="@string/ant_say_something"
+                android:background="@drawable/state_enabled_bg_edit_text"
+                android:focusable="false"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="@string/ant_hint_chat"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:maxLength="@integer/ant_max_length_message_input"
-                android:paddingStart="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="60dp"
                 android:textColor="@android:color/white"
-                android:textColorHint="@color/ant_light_gray_transparent"
+                android:textColorHint="@color/state_enabled_grey_d_grey"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/btnUserSettings"
                 tools:ignore="RtlSymmetry" />
 
-        <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.2"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_send"
-                tools:ignore="ContentDescription" />
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/llPollStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="12dp"
-            android:animateLayoutChanges="true"
-            android:background="@drawable/antourage_rounded_green_bg"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-                android:id="@+id/ivPollIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:src="@drawable/antourage_ic_poll_white_transparent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
-
         <TextView
-                android:id="@+id/txtPollStatus"
+                android:id="@+id/btnSend"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:gravity="center_vertical"
-                android:paddingLeft="4dp"
-                android:paddingRight="8dp"
-                android:text="@string/ant_confirm"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivPollIcon"
-                app:layout_constraintLeft_toRightOf="@+id/ivPollIcon"
-                app:layout_constraintTop_toTopOf="@+id/ivPollIcon" />
+                android:layout_height="36dp"
+                android:layout_marginEnd="14dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/roboto_bold"
+                android:gravity="center"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:text="@string/ant_send"
+                android:textColor="@color/ant_green_2"
+                android:textSize="12sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/etMessage"
+                tools:ignore="ContentDescription"
+                tools:visibility="visible" />
 
+        <ImageButton
+                android:id="@+id/btnUserSettings"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/state_enabled_bg_circle_button"
+                android:tint="@color/state_enabled_white_grey"
+                android:src="@drawable/antourage_ic_user_settings"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnShare"
+                tools:ignore="ContentDescription" />
+
+        <ImageButton
+                android:id="@+id/btnShare"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/state_enabled_bg_circle_button"
+                android:src="@drawable/antourage_ic_share"
+                android:tint="@color/state_enabled_white_grey"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                tools:ignore="ContentDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.motion.widget.MotionLayout
+            android:id="@+id/polls_motion_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            app:layoutDescription="@xml/scene_poll_expand"
+            app:layout_constraintStart_toEndOf="@+id/guideline_half"
+            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+                android:id="@+id/poll_bg"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:elevation="0dp"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:cardPreventCornerOverlap="false"
+                app:cardBackgroundColor="@color/ant_light_gray_2"
+                app:cardCornerRadius="23dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" >
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="11dp"
+                    android:orientation="horizontal">
+
+                <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:src="@drawable/antourage_ic_poll"
+                        android:scaleType="centerCrop"
+                        tools:ignore="ContentDescription" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+                android:id="@+id/poll_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:elevation="5dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="start"
+                android:textColor="@color/ant_dark_gray_4"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/poll_vote"
+                app:layout_constraintStart_toStartOf="@+id/poll_bg"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Who is the best?" />
+
+        <TextView
+                android:id="@+id/poll_vote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="28dp"
+                android:elevation="5dp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/ant_pink"
+                android:textSize="12sp"
+                android:text="@string/ant_poll_vote"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/bottom_coordinator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+        <TextView
+                android:id="@+id/player_snack_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/ant_error_bg_color"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:padding="5dp"
+                android:elevation="10dp"
+                android:text="@string/ant_no_connection"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="@color/ant_white"
+                android:textSize="11sp"
+                app:behavior_hideable="false"
+                app:behavior_peekHeight="0dp"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

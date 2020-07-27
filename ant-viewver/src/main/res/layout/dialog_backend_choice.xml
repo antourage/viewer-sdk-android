@@ -15,7 +15,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="100dp"
             android:paddingBottom="8dp"
-            android:text="Choose link"
+            android:text="@string/choose_link"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +36,23 @@
                 android:textColor="@android:color/white" />
 
         <RadioButton
+                android:id="@+id/rb_load"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white" />
+
+        <RadioButton
                 android:id="@+id/rb_staging"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="@android:color/white" />
+
+        <RadioButton
+                android:id="@+id/rb_demo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"

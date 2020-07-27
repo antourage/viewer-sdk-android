@@ -7,23 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.ModuleResourcesProvider
-import java.util.*
 
 internal abstract class NetworkBoundResource<ResultType>
 @MainThread constructor() {
 
     private val result = MutableLiveData<Resource<ResultType>>()
-    private var start: Long? = null
-    private var end: Long? = null
 
     init {
         val context = ModuleResourcesProvider.getContext()
-        start = Date().time
-        end = Date().time
-//        Timer().schedule(1000) {
-//            if ((end ?: 0) - (start ?: 0) > 1000)
-//                result.value = Resource.loading()
-//        }
         result.value = Resource.loading()
         context?.let {
             if (ConnectionStateMonitor.isNetworkAvailable(it)) {
@@ -33,7 +24,7 @@ internal abstract class NetworkBoundResource<ResultType>
                     Intent(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
                 result.value =
-                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet))
+                    Resource.failure(context.resources.getString(com.antourage.weaverlib.R.string.ant_no_internet_action))
             }
         }
     }
@@ -50,7 +41,6 @@ internal abstract class NetworkBoundResource<ResultType>
         apiResponse.observeForever { response ->
             when (response) {
                 is ApiSuccessResponse -> {
-                    end = Date().time
                     AppExecutors.diskIO().execute {
                         AppExecutors.mainThread().execute {
                             result.setValue(
@@ -61,7 +51,7 @@ internal abstract class NetworkBoundResource<ResultType>
                 }
                 is ApiEmptyResponse -> {
                     AppExecutors.mainThread().execute {
-                        //TODO: handle empty response
+                        //TODO: handle empty response in scope of error handling implementation
                         //Got empty response
                     }
                 }

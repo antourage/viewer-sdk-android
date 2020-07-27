@@ -4,46 +4,80 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        tools:background="@color/ant_grayed_text"
         android:background="@android:color/transparent">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/ivAvatar"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/antourage_ic_default_user"
-            app:layout_constraintBottom_toBottomOf="@+id/txtUser"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/txtUser" />
-
-    <TextView
-            android:id="@+id/txtUser"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:ellipsize="end"
-            android:fontFamily="@font/roboto_condensed_light"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:textColor="@color/ant_gray_text"
-            android:textSize="16sp"
-            app:layout_constraintLeft_toRightOf="@+id/ivAvatar"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="fan_number_one" />
 
     <TextView
             android:id="@+id/txtMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/roboto_condensed_regular"
             android:includeFontPadding="false"
+            android:lineSpacingExtra="4sp"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Hey, it'll be a great game game game game game game game to remember" />
+
+    <TableLayout
+            android:id="@+id/i_name_time_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:shrinkColumns="0"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="@+id/txtUser"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtUser"
-            tools:text="Hey, it'll be a great game game game game game game game to remember"
-            tools:textColor="@android:color/black" />
+            app:layout_constraintEnd_toEndOf="@id/txtMessage"
+            app:layout_constraintStart_toStartOf="@id/txtMessage"
+            app:layout_constraintTop_toBottomOf="@id/txtMessage">
+
+        <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                tools:ignore="UselessParent">
+
+            <TextView
+                    android:id="@+id/txtUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_regular"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/ant_streamer_name_color"
+                    android:textSize="14sp"
+                    tools:text="Fan_number_one" />
+
+            <TextView
+                    android:id="@+id/txtAt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="none"
+                    android:fontFamily="@font/roboto_regular"
+                    android:includeFontPadding="false"
+                    android:text="@string/ant_at"
+                    android:textColor="@color/ant_streamer_name_color"
+                    android:textSize="14sp" />
+
+            <TextView
+                    android:id="@+id/txtTimeAt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="none"
+                    android:fontFamily="@font/roboto_regular"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/ant_streamer_name_color"
+                    android:textSize="14sp"
+                    tools:text="1:34" />
+        </TableRow>
+    </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

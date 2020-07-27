@@ -6,25 +6,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/ant_bg_color">
+        android:background="@color/ant_feed_bg_color">
 
-    <View
-            android:id="@+id/fastForward"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
-            app:layout_constraintLeft_toRightOf="@+id/rewind"
-            app:layout_constraintRight_toRightOf="@+id/playerView"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
-
-    <View
-            android:id="@+id/rewind"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
-            app:layout_constraintLeft_toLeftOf="@+id/playerView"
-            app:layout_constraintRight_toLeftOf="@+id/fastForward"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+    <include
+            android:id="@+id/vod_header_layout"
+            layout="@layout/player_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
@@ -33,9 +25,17 @@
             android:layout_gravity="top"
             android:animateLayoutChanges="true"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vod_header_layout"
             app:resize_mode="fit"
             app:use_controller="false" />
+    <View
+            android:id="@+id/viewHelper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/control_bottom_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playerView" />
 
     <ImageView
             android:id="@+id/ivFirstFrame"
@@ -59,35 +59,97 @@
             app:auto_show="true"
             app:controller_layout_id="@layout/player_custom_controls_vod"
             app:hide_on_touch="true"
-            app:layout_constraintBottom_toBottomOf="@+id/playerView"
+            app:layout_constraintBottom_toTopOf="@+id/viewHelper"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@id/playerView"
             app:show_buffering="never"
             app:show_timeout="2000" />
 
+    <com.antourage.weaverlib.other.ui.SegmentedProgressBar
+            android:id="@+id/vod_player_progress"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:visibility="visible"
+            app:barHeight="4.5dp"
+            app:backgroundColor="@color/ant_white_a60"
+            app:segmentColor="@color/ant_yellow"
+            app:progressColor="@color/ant_pink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/playerView" />
+
+    <TextView
+            android:id="@+id/txtNumberOfViewers"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
+            android:elevation="10dp"
+            android:background="@drawable/bg_rect_round_3"
+            android:backgroundTint="@color/ant_dark_gray_3_a80"
+            android:drawableStart="@drawable/antourage_ic_watcher_16dp"
+            android:drawablePadding="4dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingEnd="6dp"
+            android:paddingStart="6dp"
+            android:textColor="@color/ant_white"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:text="6,385" />
 
     <ImageView
             android:id="@+id/skipForward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="200dp"
+            android:layout_marginStart="200dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/skipForwardTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/ant_ten_seconds"
+            android:textColor="@color/ant_white"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="@+id/skipForward"
+            app:layout_constraintTop_toBottomOf="@+id/skipForward" />
 
     <ImageView
             android:id="@+id/skipBackward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="200dp"
+            android:layout_marginEnd="200dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/playerView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
+
+    <TextView
+            android:id="@+id/skipBackwardTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/roboto_regular"
+            android:text="@string/ant_ten_seconds"
+            android:textColor="@color/ant_white"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/skipBackward"
+            app:layout_constraintTop_toBottomOf="@+id/skipBackward" />
 
     <ImageView
             android:id="@+id/ivLoader"
@@ -97,69 +159,26 @@
             app:layout_constraintBottom_toBottomOf="@id/playerView"
             app:layout_constraintEnd_toEndOf="@id/playerView"
             app:layout_constraintStart_toStartOf="@id/playerView"
-            app:layout_constraintTop_toTopOf="@+id/playerView" />
+            app:layout_constraintTop_toTopOf="@+id/playerView"
+            tools:ignore="ContentDescription" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/headerLayout"
-            android:layout_width="match_parent"
+    <include
+            android:id="@+id/vod_skip_button"
+            layout="@layout/item_skip_curtain"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/vod_player_progress"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playerView">
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/ivUserPhoto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/antourage_ic_default_user"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-                android:id="@+id/tvStreamName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:includeFontPadding="false"
-                android:maxLines="2"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                app:layout_constraintBottom_toTopOf="@+id/tvBroadcastedBy"
-                app:layout_constraintLeft_toRightOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ivUserPhoto"
-                tools:text="Olena Soluk" />
-
-        <TextView
-                android:id="@+id/tvBroadcastedBy"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_condensed_light"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivUserPhoto"
-                app:layout_constraintLeft_toRightOf="@+id/ivUserPhoto"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvStreamName"
-                tools:text=" change often or at alll" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout" />
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_half_vod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottomLayout"
@@ -176,43 +195,27 @@
             android:layout_height="0dp"
             android:background="@android:color/transparent"
             android:clickable="false"
-            android:elevation="3dp"
             android:focusable="false"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/headerLayout">
+            app:layout_constraintTop_toBottomOf="@+id/vod_player_progress">
 
         <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="start"
-                android:layout_marginRight="-64dp"
+                android:layout_gravity="left"
+                android:layout_marginEnd="-65dp"
+                android:layout_marginRight="-65dp"
                 android:background="@android:color/transparent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clNavView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/llNoChat"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent">
-
-                    <include
-                            layout="@layout/layout_empty_chat_placeholder"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.antourage.weaverlib.other.ui.FadingRecyclerView
                         android:id="@+id/rvMessages"
@@ -224,54 +227,48 @@
                         android:fillViewport="false"
                         android:requiresFadingEdge="vertical"
                         tools:listitem="@layout/item_message_portrait" />
+
+                <include
+                        android:id="@+id/bttn_new_comments"
+                        layout="@layout/item_new_comments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="40dp"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.navigation.NavigationView>
-
     </com.antourage.weaverlib.other.ui.CustomDrawerLayout>
 
-    <View
-            android:id="@+id/dividerChat"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/ant_light_gray_transparent"
-            app:layout_constraintBottom_toTopOf="@+id/ll_wrapper"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
-            android:id="@+id/ll_wrapper"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/bottom_coordinator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/ant_bg_color"
-            android:orientation="horizontal"
             android:visibility="invisible"
+            android:elevation="10dp"
+            android:isScrollContainer="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-        <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_weight="10"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/roboto_condensed_regular"
-                android:hint="@string/ant_say_something"
-                android:imeOptions="flagNoExtractUi"
-                android:paddingLeft="20dp"
-                android:textColor="@android:color/white"
-                android:textColorHint="@color/ant_light_gray_transparent"
-                android:textSize="16sp"
-                tools:ignore="RtlSymmetry" />
-
-        <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_send"
-                tools:ignore="ContentDescription" />
-    </LinearLayout>
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+        <TextView
+                android:id="@+id/player_snack_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/ant_error_bg_color"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:isScrollContainer="false"
+                android:padding="5dp"
+                android:elevation="10dp"
+                android:text="@string/ant_no_connection"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="@color/ant_white"
+                android:textSize="11sp"
+                app:behavior_hideable="false"
+                app:behavior_peekHeight="0dp"
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
