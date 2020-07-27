@@ -135,7 +135,7 @@ Add antourage widget view to the layout:
             android:id="@+id/antfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 ```
