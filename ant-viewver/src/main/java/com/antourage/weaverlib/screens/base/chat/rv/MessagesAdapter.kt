@@ -50,7 +50,7 @@ internal class MessagesAdapter(var list: MutableList<Message>, var orientation: 
                 txtMessage.text = text
                 txtUser.text = nickname
                 if (isPlayerLive){
-                    txtAt.visibility = View.GONE
+                    txtAt.text = itemView.context.getString(R.string.ant_pipe)
                     txtTimeAdded.text = timestamp?.toDate()?.parseToDisplayMessagesAgoTimeLong(itemView.context)
                 } else {
                     txtTimeAdded.text = when {

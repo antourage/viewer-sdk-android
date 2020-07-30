@@ -4,6 +4,7 @@
     <string name="ant_new_vod">NEW</string>
     <string name="ant_hint_chat">Chat</string>
     <string name="ant_hint_disabled">Chat disabled</string>
+    <string name="ant_pipe" translatable="false">|</string>
 
     <!--polls-->
     <string name="ant_new_poll">New poll!</string>
