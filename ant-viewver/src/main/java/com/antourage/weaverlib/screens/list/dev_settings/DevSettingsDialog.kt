@@ -22,7 +22,7 @@ internal class DevSettingsDialog(
         const val BASE_URL_LOAD = "https://api.load-staging.antourage.com/"
         const val BASE_URL_STAGING = "https://api.staging.antourage.com/"
         const val BASE_URL_DEMO = "https://api.demo.antourage.com/"
-        const val BASE_URL_PROD = "https://app.antourage.com/"
+        const val BASE_URL_PROD = "https://api.antourage.com/"
         const val DEFAULT_URL = BASE_URL_PROD
     }
 
