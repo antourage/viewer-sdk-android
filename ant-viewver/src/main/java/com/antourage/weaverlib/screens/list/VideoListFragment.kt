@@ -208,7 +208,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                             val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
                             vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
                                 override fun onGlobalLayout() {
-                                    ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                    ivTeamImage?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
                                     centerTitle()
                                     setTitle(feedInfo.tagLine)
                                 }

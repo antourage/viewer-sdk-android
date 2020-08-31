@@ -15,10 +15,7 @@ import android.view.*
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
@@ -594,7 +591,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
      */
     private fun changeButtonsSize(isEnlarge: Boolean) {
         val constraintSet = ConstraintSet()
-        constraintSet.clone(live_controls)
+        constraintSet.clone(live_buttons_layout)
         updateIconSize(
             R.id.exo_play, constraintSet,
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
@@ -604,7 +601,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (isEnlarge) R.dimen.large_play_pause_size else R.dimen.small_play_pause_size
         )
 
-        constraintSet.applyTo(live_controls)
+        constraintSet.applyTo(live_buttons_layout)
     }
 
     private fun updateIconSize(iconId: Int, constraintSet: ConstraintSet, dimenId: Int) {
