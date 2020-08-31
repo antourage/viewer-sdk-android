@@ -261,7 +261,7 @@ internal class VideosAdapter(
         var parent: View = itemView
 
         fun setViews(views: String) {
-            itemView.txtViewersCount_live.text = views
+            itemView.txtViewersCount_live.text = views.toLong().formatQuantity()
         }
 
         fun setTime(startTime: String?, creatorNickname: String?) {
