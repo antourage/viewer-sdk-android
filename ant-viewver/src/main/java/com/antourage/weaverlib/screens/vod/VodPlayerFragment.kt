@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Lifecycle
@@ -36,6 +37,7 @@ import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
@@ -215,7 +217,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     //STATE END OF NOT LAST VIDEO IN PLAYLIST
                     autoPlayCountDownTimer = object : CountDownTimer(5000, 20) {
                         override fun onTick(millisUntilFinished: Long) {
-                            vod_progress_bar?.progress = millisUntilFinished.toInt()
+                            vod_progress_bar?.progress = (millisUntilFinished.toInt()-5000).absoluteValue
                         }
 
                         override fun onFinish() {
