@@ -647,6 +647,7 @@ class AntourageFab @JvmOverloads constructor(
                     disconnectSocket()
                     ReceivingVideosManager.pauseWhileNoNetwork()
                     SocketConnector.cancelReconnect()
+                    setIncomingWidgetStatus(FabState.INACTIVE)
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
