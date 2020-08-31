@@ -86,22 +86,16 @@ internal class UserCache private constructor(context: Context) {
     }
 
     fun getBeChoice(): String? {
-        contextRef?.get()?.applicationContext?.let {
-            val sharedPref = PreferenceManager.getDefaultSharedPreferences(it)
-            return sharedPref.getString(SP_BE_CHOICE, DEFAULT_URL)
-        } ?: return null
+        return prefs?.getString(SP_BE_CHOICE, DEFAULT_URL)
     }
 
     fun updateBEChoice(link: String) {
-        contextRef?.get()?.apply {
-            val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-            val editor = sharedPref?.edit()
-            editor?.putString(SP_BE_CHOICE, link)
-            editor?.apply()
-            editor?.apply {
+        prefs?.edit()
+            ?.putString(SP_BE_CHOICE, link)
+            ?.apply()
+            ?.apply {
                 clearUserData()
             }
-        }
     }
 
     fun saveUserAuthInfo(token: String, userId: Int) {
