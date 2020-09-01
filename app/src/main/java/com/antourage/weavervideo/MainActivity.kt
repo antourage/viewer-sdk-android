@@ -13,12 +13,17 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
+
 class MainActivity : AppCompatActivity() {
+
+//    lateinit var antfab: AntourageFab
 
     companion object {
         const val TAG = "Antourage_testing_tag"
-//        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
+
+        //        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
         const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
+//        const val TEST_API_KEY = "49D7E915-549B-4B79-9D61-FF5E5C85D2C2"
 //        const val TEST_API_KEY = "472EC909-BB20-4B86-A192-3A78C35DD3BA"
     }
 
@@ -33,6 +38,16 @@ class MainActivity : AppCompatActivity() {
 
         Picasso.get().load(R.drawable.hacken_background).into(mainContent)
 
+//        antfab = AntourageFab(this)
+
+//        antfab.onResume()
+
+//        if(antfab.parent == null){
+//            antfab.setPosition("topLeft")
+//            antfab.showFab(this)
+//            antfab.setMargins(0,20000)
+//        }
+
         //region Antourage authorization
         antfab.authWith(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
             when (userAuthResult) {
@@ -44,7 +59,8 @@ class MainActivity : AppCompatActivity() {
                         try {
                             //Get firebase cloud messaging token
                             val fcmToken =
-                                FirebaseInstanceId.getInstance().getToken(getString(R.string.SENDER_ID), "FCM")
+                                FirebaseInstanceId.getInstance()
+                                    .getToken(getString(R.string.SENDER_ID), "FCM")
                             runOnUiThread {
                                 fcmToken?.let { fcmToken ->
                                     AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
@@ -68,7 +84,10 @@ class MainActivity : AppCompatActivity() {
                                                     }
                                             }
                                             is RegisterPushNotificationsResult.Failure -> {
-                                                Log.d(TAG, "Subscription failed: ${subscriptionResult.cause}")
+                                                Log.d(
+                                                    TAG,
+                                                    "Subscription failed: ${subscriptionResult.cause}"
+                                                )
                                             }
                                         }
                                     }

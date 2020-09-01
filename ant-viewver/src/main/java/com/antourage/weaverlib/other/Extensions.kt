@@ -473,3 +473,21 @@ internal fun Long.formatQuantity(): String {
         (truncated / 10).toString() + suffix
     }
 }
+
+/** checks if values are in range and converts it to pixels*/
+internal fun Int.validateHorizontalMarginForFab(context: Context): Int {
+    return when {
+        this<0 -> 0
+        this>50 -> dp2px(context, 50f).toInt()
+        else -> dp2px(context, this.toFloat()).toInt()
+    }
+}
+
+/** checks if values are in range and converts it to pixels*/
+internal fun Int.validateVerticalMarginForFab(context: Context): Int {
+    return when {
+        this<0 -> 0
+        this>200 -> dp2px(context, 200f).toInt()
+        else -> dp2px(context, this.toFloat()).toInt()
+    }
+}

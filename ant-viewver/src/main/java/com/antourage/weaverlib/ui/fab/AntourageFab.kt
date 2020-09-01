@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.ui.fab
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
@@ -9,9 +10,12 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.AttributeSet
 import android.util.Log
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
@@ -20,6 +24,7 @@ import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
@@ -53,6 +58,10 @@ class AntourageFab @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler {
+
+    enum class WidgetPosition {
+        topLeft, midLeft, bottomLeft, topMid, bottomMid, topRight, midRight, bottomRight
+    }
 
     companion object {
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
@@ -95,6 +104,10 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private var horizontalMargin: Int = 0
+    private var verticalMargin: Int = 0
+    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
+    private lateinit var widgetPosition: WidgetPosition
     private var shouldDisconnectSocket: Boolean = true
     private var goingLiveToLive: Boolean = false
     private var currentlyDisplayedLiveStream: StreamResponse? = null
@@ -131,6 +144,109 @@ class AntourageFab @JvmOverloads constructor(
         AntourageFabLifecycleObserver.registerActionHandler(this)
         clearStreams()
         initPlayAnimation()
+        initDefaultFabLocation()
+    }
+
+    private fun initDefaultFabLocation() {
+        widgetPosition = WidgetPosition.bottomRight
+        fabLayoutParams =
+            CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
+            )
+        fabLayoutParams.gravity = Gravity.BOTTOM or Gravity.END
+        this.layoutParams = fabLayoutParams
+    }
+
+    /**
+     * Method to show fab for non native apps
+     * In native apps you can just add fab in XML (no need to call this)
+     */
+    fun showFab(activity: Activity) {
+        val viewGroup =
+            (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
+        viewGroup.addView(this)
+    }
+
+    /**
+     * Method to set margins for non native apps
+     * In native apps you can set margins in XML as you'd like (no need to call this)
+     * */
+    fun setMargins(horizontal: Int, vertical: Int){
+        horizontalMargin = horizontal.validateHorizontalMarginForFab(context)
+        verticalMargin = vertical.validateVerticalMarginForFab(context)
+        applyMargins()
+    }
+
+    private fun applyMargins(){
+        when(widgetPosition){
+            WidgetPosition.topLeft -> {
+                fabLayoutParams.marginStart = horizontalMargin
+                fabLayoutParams.topMargin = verticalMargin
+            }
+            WidgetPosition.topMid -> {
+                fabLayoutParams.topMargin = verticalMargin
+            }
+            WidgetPosition.topRight -> {
+                fabLayoutParams.marginEnd = horizontalMargin
+                fabLayoutParams.topMargin = verticalMargin
+            }
+            WidgetPosition.midLeft -> {
+                fabLayoutParams.marginStart = horizontalMargin
+            }
+            WidgetPosition.midRight -> {
+                fabLayoutParams.marginEnd = horizontalMargin
+            }
+            WidgetPosition.bottomLeft -> {
+                fabLayoutParams.marginStart = horizontalMargin
+                fabLayoutParams.bottomMargin = verticalMargin
+            }
+            WidgetPosition.bottomMid -> {
+                fabLayoutParams.bottomMargin = verticalMargin
+            }
+            WidgetPosition.bottomRight -> {
+                fabLayoutParams.marginEnd = horizontalMargin
+                fabLayoutParams.bottomMargin = verticalMargin
+            }
+        }
+    }
+
+    /**
+     * Method to move fab to predefined positions for non native apps
+     * In native apps you can move fab in XML as you'd like (no need to call this)
+     * */
+    fun setPosition(widgetPosition: String) {
+        fabLayoutParams =
+            CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
+            )
+
+        try {
+            this.widgetPosition = WidgetPosition.valueOf(widgetPosition)
+        } catch(e: IllegalArgumentException) {
+            Log.e(TAG, "INVALID position value: $widgetPosition | $e")
+        }
+
+        when (widgetPosition) {
+            WidgetPosition.bottomLeft.name -> fabLayoutParams.gravity =
+                Gravity.BOTTOM or Gravity.START
+            WidgetPosition.bottomMid.name -> fabLayoutParams.gravity =
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            WidgetPosition.bottomRight.name -> fabLayoutParams.gravity =
+                Gravity.BOTTOM or Gravity.END
+            WidgetPosition.midLeft.name -> fabLayoutParams.gravity =
+                Gravity.CENTER_VERTICAL or Gravity.START
+            WidgetPosition.midRight.name -> fabLayoutParams.gravity =
+                Gravity.CENTER_VERTICAL or Gravity.END
+            WidgetPosition.topLeft.name -> fabLayoutParams.gravity = Gravity.TOP or Gravity.START
+            WidgetPosition.topMid.name -> fabLayoutParams.gravity =
+                Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            WidgetPosition.topRight.name -> fabLayoutParams.gravity = Gravity.TOP or Gravity.END
+            else -> fabLayoutParams.gravity = Gravity.BOTTOM or Gravity.END
+        }
+        this.layoutParams = fabLayoutParams
+        applyMargins()
     }
 
     override fun onResume() {
