@@ -64,7 +64,7 @@ internal object SocketConnector {
             super.onPostExecute(result)
             isConnectTaskRunning = false
             if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
-                Log.e(TAG, "Didn't connect")
+//                Log.e(TAG, "Didn't connect")
             } else {
                 socketConnection.postValue(SocketConnection.CONNECTED)
                 isSocketUsed = true
@@ -73,7 +73,7 @@ internal object SocketConnector {
     }
 
     private fun reconnectWithDelay(delay: Long) {
-        Log.e(TAG, "reconnectWithDelay: $delay")
+//        Log.e(TAG, "reconnectWithDelay: $delay")
         try {
             connectToSocketTask = ConnectToSocketTask()
             connectToSocketTask.execute(delay)
@@ -102,7 +102,7 @@ internal object SocketConnector {
         if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
             try {
                 if (!isConnectTaskRunning) {
-                    Log.e(TAG, "Connecting")
+//                    Log.e(TAG, "Connecting")
                     nextReconnectDelay = INITIAL_RECONNECT
                     connectToSocketTask = ConnectToSocketTask()
                     connectToSocketTask.execute(nextReconnectDelay)
@@ -119,20 +119,20 @@ internal object SocketConnector {
             if (newStreams != null) {
                 val newLives = newStreams as ArrayList<StreamResponse>
                 newLivesLiveData.postValue(newLives)
-                Log.e(
-                    TAG,
-                    "live: $newStreams "
-                )
+//                Log.e(
+//                    TAG,
+//                    "live: $newStreams "
+//                )
             }
         }, ListOfStreams::class.java)
 
         hubConnection.on(SOCKET_VOD, { newStreams ->
             val newVods = newStreams as ArrayList<StreamResponse>
             newVodsLiveData.postValue(newVods)
-            Log.e(
-                TAG,
-                "vod:  $newStreams"
-            )
+//            Log.e(
+//                TAG,
+//                "vod:  $newStreams"
+//            )
         }, ListOfStreams::class.java)
 
         hubConnection.onClosed {
@@ -166,15 +166,15 @@ internal object SocketConnector {
 
             if (!shouldDisconnectSocket) {
                 if (Global.networkAvailable) {
-                    Log.e(
-                        TAG,
-                        "Starting reconnect"
-                    )
+//                    Log.e(
+//                        TAG,
+//                        "Starting reconnect"
+//                    )
                     reconnectWithDelay(nextReconnectDelay)
                     isConnectTaskRunning = true
                 }
             } else {
-                Log.e(TAG, "Disconnected")
+//                Log.e(TAG, "Disconnected")
             }
         }
     }
