@@ -61,8 +61,8 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private var currentOrientation: Int? = null
 
     private var snackBarBehaviour: BottomSheetBehavior<View>? = null
-    private var errorSnackBar: TextView? =null
-    private var snackBarLayout: CoordinatorLayout? =null
+    private var errorSnackBar: TextView? = null
+    private var snackBarLayout: CoordinatorLayout? = null
     private lateinit var ivLoader: ImageView
     private lateinit var constraintLayoutParent: ConstraintLayout
     private lateinit var playerView: PlayerView
@@ -86,7 +86,8 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private val errorObserver = Observer<Boolean> { errorMessage ->
-        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_server_error)) } }
+        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_server_error)) }
+    }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
@@ -124,6 +125,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
 
     override fun onResume() {
         super.onResume()
+        resumeIfWasOffline()
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         startMinuteUpdater()
     }
@@ -137,8 +139,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private fun startMinuteUpdater() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(Intent.ACTION_TIME_TICK)
-        minuteUpdateReceiver = object: BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) { onMinuteChanged() }
+        minuteUpdateReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                onMinuteChanged()
+            }
         }
         requireActivity().registerReceiver(minuteUpdateReceiver, intentFilter)
     }
@@ -234,7 +238,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     protected fun toggleControlsVisibility() {
         if (playerControls.isVisible) {
             playerControls.hide()
-        } else if (!wasNewButtonFocused && !wasEditTextFocused){
+        } else if (!wasNewButtonFocused && !wasEditTextFocused) {
             onControlsVisible()
             playerControls.show()
         }
@@ -243,7 +247,8 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private fun initSnackBar() {
         errorSnackBar.let { snackBar ->
             snackBarBehaviour = BottomSheetBehavior.from(snackBar as View)
-            snackBarBehaviour?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+            snackBarBehaviour?.addBottomSheetCallback(object :
+                BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {}
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -271,14 +276,28 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             }
             snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
         }
-        if (isAutoCloseable){
+        if (isAutoCloseable) {
             Handler().postDelayed({ hideErrorSnackBar() }, 2000)
         }
     }
 
-    fun hideErrorSnackBar(){
+    fun hideErrorSnackBar() {
         snackBarBehaviour?.state = BottomSheetBehavior.STATE_COLLAPSED
         snackBarLayout?.visibility = View.INVISIBLE
+    }
+
+    private fun resumeIfWasOffline() {
+        if (ConnectionStateMonitor.isNetworkAvailable(context!!)) {
+            if (snackBarBehaviour?.state == BottomSheetBehavior.STATE_EXPANDED && errorSnackBar?.text == context?.resources?.getString(
+                    R.string.ant_no_connection
+                )
+            ) {
+                resolveErrorSnackBar(R.string.ant_you_are_online)
+                showLoading()
+                viewModel.onNetworkGained()
+                playBtnPlaceholder.visibility = View.INVISIBLE
+            }
+        }
     }
 
     private fun resolveErrorSnackBar(messageId: Int) {
@@ -287,12 +306,18 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 ?.let { messageToDisplay ->
                     errorSnackBar?.text = messageToDisplay
                     errorSnackBar?.let { snackBar ->
-                        val colorFrom: Int =  ContextCompat.getColor(requireContext(), R.color.ant_error_bg_color)
+                        val colorFrom: Int =
+                            ContextCompat.getColor(requireContext(), R.color.ant_error_bg_color)
                         val colorTo: Int =
-                            ContextCompat.getColor(requireContext(), R.color.ant_error_resolved_bg_color)
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.ant_error_resolved_bg_color
+                            )
                         val duration = 500L
-                        ObjectAnimator.ofObject(snackBar, "backgroundColor",
-                            ArgbEvaluator(), colorFrom, colorTo)
+                        ObjectAnimator.ofObject(
+                            snackBar, "backgroundColor",
+                            ArgbEvaluator(), colorFrom, colorTo
+                        )
                             .setDuration(duration)
                             .start()
                     }
