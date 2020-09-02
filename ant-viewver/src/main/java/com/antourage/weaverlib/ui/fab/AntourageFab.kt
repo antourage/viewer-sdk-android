@@ -211,6 +211,7 @@ class AntourageFab @JvmOverloads constructor(
                 fabLayoutParams.bottomMargin = verticalMargin
             }
         }
+        this.layoutParams = fabLayoutParams
     }
 
     /**

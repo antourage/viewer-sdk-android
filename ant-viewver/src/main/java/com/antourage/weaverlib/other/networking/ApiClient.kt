@@ -70,8 +70,8 @@ internal object ApiClient {
 
     private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
         //TODO delete before release
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+//        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
         usingAuth = useAuth
         val builder = OkHttpClient.Builder()
@@ -81,7 +81,7 @@ internal object ApiClient {
             addDefaultInterceptor(builder)
         }
         builder
-            .addInterceptor(loggingInterceptor)
+//            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
