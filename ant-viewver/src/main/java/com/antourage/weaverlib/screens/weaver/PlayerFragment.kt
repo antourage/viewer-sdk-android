@@ -15,11 +15,15 @@ import android.view.*
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.antourage.weaverlib.Global
@@ -33,25 +37,12 @@ import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.poll.PollDetailsFragment
-import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivFirstFrame
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
-import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.ivScreenSize
-import kotlinx.android.synthetic.main.player_custom_controls_live_video.player_control_header
 import kotlinx.android.synthetic.main.player_header.*
 import java.lang.Math.abs
 
@@ -183,18 +174,29 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    private fun unlockDrawer(){
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    }
+
+    private fun lockDrawer(){
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
             when (state) {
                 is PollStatus.NoPoll -> {
+                    unlockDrawer()
                     hidePollStatusLayout()
                     if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility = View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
+                    unlockDrawer()
                     poll_name?.text = state.poll.question
                     showPollStatusLayout(state.poll.id)
                 }
                 is PollStatus.ActivePollDismissed -> {
+                    unlockDrawer()
                     if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
                 }
                 is PollStatus.PollDetails -> {
@@ -205,6 +207,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
                         removeMessageInput()
                     } else {
+                        lockDrawer()
                         if (drawerLayout.isDrawerOpen(navView)) {
                             drawerLayout.closeDrawer(navView)
                         }
@@ -329,19 +332,24 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             var result = false
                             try {
                                 val diffY = e2.y - e1.y
-                                if (abs(diffY) > SWIPE_THRESHOLD && abs(
+                                if (kotlin.math.abs(diffY) > SWIPE_THRESHOLD && abs(
                                         velocityY
                                     ) > SWIPE_VELOCITY_THRESHOLD
                                 ) {
-                                    if (diffY > 0) {
+                                    result = if (diffY > 0) {
                                         if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
                                             onFullScreenImgClicked()
                                         }else{
                                             onCloseClicked()
-                                            shouldDisconnectSocket = false
                                         }
+                                        true
+                                    }else{
+                                        toggleControlsVisibility()
+                                        false
                                     }
-                                    result = true
+                                }else{
+                                    toggleControlsVisibility()
+                                    result = false
                                 }
                             } catch (exception: Exception) {
                                 exception.printStackTrace()

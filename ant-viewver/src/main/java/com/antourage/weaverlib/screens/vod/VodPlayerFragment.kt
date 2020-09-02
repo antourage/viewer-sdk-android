@@ -449,14 +449,20 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                                     velocityY
                                 ) > SWIPE_VELOCITY_THRESHOLD
                             ) {
-                                if (diffY > 0) {
+                                result = if (diffY > 0) {
                                     if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
                                         onFullScreenImgClicked()
                                     }else{
                                         onCloseClicked()
                                     }
+                                    true
+                                }else{
+                                    toggleControlsVisibility()
+                                    false
                                 }
-                                result = true
+                            }else{
+                                toggleControlsVisibility()
+                                result = false
                             }
                         } catch (exception: Exception) {
                             exception.printStackTrace()
