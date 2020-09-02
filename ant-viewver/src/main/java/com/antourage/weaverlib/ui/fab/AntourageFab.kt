@@ -64,6 +64,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     companion object {
+        const val MAX_HORIZONTAL_MARGIN= 50
+        const val MAX_VERTICAL_MARGIN: Int = 220
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
@@ -104,8 +106,8 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private var horizontalMargin: Int = 0
-    private var verticalMargin: Int = 0
+    private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
+    private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
     private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
     private lateinit var widgetPosition: WidgetPosition
     private var shouldDisconnectSocket: Boolean = true

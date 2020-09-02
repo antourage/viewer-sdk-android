@@ -34,6 +34,8 @@ import com.antourage.weaverlib.other.Constants.suffixes
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.MAX_HORIZONTAL_MARGIN
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.MAX_VERTICAL_MARGIN
 import com.google.android.exoplayer2.C
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -478,7 +480,7 @@ internal fun Long.formatQuantity(): String {
 internal fun Int.validateHorizontalMarginForFab(context: Context): Int {
     return when {
         this<0 -> 0
-        this>50 -> dp2px(context, 50f).toInt()
+        this>MAX_HORIZONTAL_MARGIN -> dp2px(context, MAX_HORIZONTAL_MARGIN.toFloat()).toInt()
         else -> dp2px(context, this.toFloat()).toInt()
     }
 }
@@ -487,7 +489,7 @@ internal fun Int.validateHorizontalMarginForFab(context: Context): Int {
 internal fun Int.validateVerticalMarginForFab(context: Context): Int {
     return when {
         this<0 -> 0
-        this>200 -> dp2px(context, 200f).toInt()
+        this>MAX_VERTICAL_MARGIN -> dp2px(context, MAX_VERTICAL_MARGIN.toFloat()).toInt()
         else -> dp2px(context, this.toFloat()).toInt()
     }
 }
