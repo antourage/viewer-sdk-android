@@ -313,7 +313,13 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                             it.isChatEnabled = isChatEnabled
                             it.arePollsEnabled = isPollEnabled
                             it.lastMessage = comment?.text ?: ""
-                            it.lastMessageAuthor = comment?.nickname ?: ""
+
+                            if(comment?.userID ==  UserCache.getInstance()?.getUserId().toString()){
+                                it.lastMessageAuthor = UserCache.getInstance()?.getUserNickName() ?: message.nickname
+                                        ?: ""
+                            }else{
+                                it.lastMessageAuthor  = comment?.nickname ?: ""
+                            }
                         }
                     }
                     if (areAllChatPollDataLoaded()) {

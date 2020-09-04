@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Handler
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -295,6 +296,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     fun changeUserDisplayName(newDisplayName: String) {
         if (newDisplayName != user?.displayName) {
             changeDisplayNameForAllMessagesLocally(newDisplayName)
+            UserCache.getInstance(getApplication())?.saveUserNickName(newDisplayName)
             val response = Repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
             response.observeForever(object : Observer<Resource<SimpleResponse>> {
                 override fun onChanged(it: Resource<SimpleResponse>?) {

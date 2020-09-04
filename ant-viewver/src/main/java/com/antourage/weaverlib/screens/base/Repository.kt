@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
@@ -265,7 +266,12 @@ internal class Repository {
                 }
 
                 video.text = message?.text ?: ""
-                video.nickname = message?.nickname ?: ""
+                if(message?.userID ==  UserCache.getInstance()?.getUserId().toString()){
+                    video.nickname = UserCache.getInstance()?.getUserNickName() ?: message.nickname
+                            ?: ""
+                }else{
+                    video.nickname = message?.nickname ?: ""
+                }
                 onFinish(video)
             }
 
