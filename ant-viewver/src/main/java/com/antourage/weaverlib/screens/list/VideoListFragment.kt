@@ -53,6 +53,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private lateinit var rvLayoutManager: LinearLayoutManager
     private lateinit var placeholderLayoutManager: LinearLayoutManager
     private var refreshVODs = true
+    private var dontRefreshWhileInit = true
     private var isLoadingMoreVideos = false
     private var isNewLiveButtonShown = false
     private var isInitialListSet = true
@@ -234,7 +235,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         val width =
             px2dp(context!!, ivTeamImage.measuredWidth.toFloat())
 
-        if(width == 0.0f){
+        if (width == 0.0f) {
             val set = ConstraintSet()
             set.clone(tvTitle.parent as ConstraintLayout)
             set.clear(R.id.tvTitle, ConstraintSet.END)
@@ -303,7 +304,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
                 showLoadingLayout()
-                viewModel.refreshVODs(0)
+                if (!dontRefreshWhileInit) {
+                    viewModel.refreshVODs(0)
+                }
             }
 
             if (ConnectionStateMonitor.isNetworkAvailable(it) && isNoConnectionSnackbarShowing()) {
@@ -458,6 +461,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
         if (refreshVODs && viewModel.userAuthorized()) {
             viewModel.refreshVODs()
+            //needed for onResume to not refreshVods too
+            Handler().postDelayed({
+                dontRefreshWhileInit = false
+            },300)
             refreshVODs = false
         }
     }
