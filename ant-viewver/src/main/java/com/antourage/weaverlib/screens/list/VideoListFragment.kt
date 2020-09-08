@@ -159,6 +159,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         loadFeedInfo()
+        btnNewLive.isEnabled = false
     }
 
     private fun loadFeedInfo() {
@@ -687,6 +688,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             isNewLiveButtonShown = true
             if (btnNewLive != null) {
                 btnNewLive.alpha = 1f
+                btnNewLive.isEnabled = true
                 btnNewLive.animate().translationYBy(150f).setDuration(300).start()
             }
         } else if (!isVisible) {
@@ -695,6 +697,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
             if (isNewLiveButtonShown) {
                 isNewLiveButtonShown = false
+                btnNewLive.isEnabled = false
                 if (btnNewLive != null) {
                     btnNewLive.animate().translationY(0f).setDuration(300)
                         .withEndAction { btnNewLive.alpha = 0f }.start()
