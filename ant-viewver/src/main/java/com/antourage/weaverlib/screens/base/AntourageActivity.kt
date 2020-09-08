@@ -2,14 +2,17 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.ContextWrapper
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
@@ -32,22 +35,24 @@ class AntourageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
         if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-            UserCache.getInstance(applicationContext)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
+            UserCache.getInstance(applicationContext)?.getBeChoice()
+                ?: DevSettingsDialog.DEFAULT_URL
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.mainContent,
-                if (streamToWatch != null){
-                    if(streamToWatch.isLive){
-                        PlayerFragment.newInstance(streamToWatch, UserCache.getInstance(applicationContext)?.getUserId() ?: -1)
-                    }
-                    else{
+                if (streamToWatch != null) {
+                    if (streamToWatch.isLive) {
+                        PlayerFragment.newInstance(
+                            streamToWatch,
+                            UserCache.getInstance(applicationContext)?.getUserId() ?: -1
+                        )
+                    } else {
                         VodPlayerFragment.newInstance(streamToWatch, isNewVod = true)
                     }
-                }
-                else VideoListFragment.newInstance()
+                } else VideoListFragment.newInstance()
             )
             .commit()
 
@@ -113,7 +118,7 @@ class AntourageActivity : AppCompatActivity() {
 
     // used in case video was open from FAB
     // to open initial list of streams
-    private fun replaceListFragment(){
+    private fun replaceListFragment() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.mainContent,
@@ -124,11 +129,19 @@ class AntourageActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if(shouldGoBackToList){
+        if (shouldGoBackToList) {
             replaceListFragment()
-        }else{
+        } else {
             super.onBackPressed()
         }
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val newLocale = Global.currentLocale
+        if(newLocale!=null){
+            super.attachBaseContext(ContextWrapper.wrap(newBase, newLocale))
+        }else{
+            super.attachBaseContext(newBase)
+        }
+    }
 }

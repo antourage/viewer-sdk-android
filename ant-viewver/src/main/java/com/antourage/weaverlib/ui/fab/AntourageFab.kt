@@ -1,8 +1,10 @@
 package com.antourage.weaverlib.ui.fab
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
@@ -25,26 +27,26 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
-import com.antourage.weaverlib.other.hideBadge
-import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.networking.*
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
+import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.SocketConnector.disconnectSocket
 import com.antourage.weaverlib.other.networking.SocketConnector.newLivesLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.newVodsLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
-import com.antourage.weaverlib.other.showBadge
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.google.android.exoplayer2.Player
+import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.util.*
 
 
 /**
@@ -64,7 +66,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     companion object {
-        const val MAX_HORIZONTAL_MARGIN= 50
+        const val MAX_HORIZONTAL_MARGIN = 50
         const val MAX_VERTICAL_MARGIN: Int = 220
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
@@ -161,6 +163,31 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     /**
+     * Method to force set locale (currently default or Swedish)
+     */
+    fun setLocale(lang: String? = null) {
+        if (lang != null) {
+            forceLocale(Locale(lang))
+        } else if (Global.currentLocale != null) {
+            forceLocale(Global.currentLocale!!)
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun forceLocale(locale: Locale){
+        val config =
+            Configuration(getActivity(context)!!.resources.configuration)
+        Locale.setDefault(locale)
+        config.setLocale(locale)
+        Global.currentLocale = locale
+        getActivity(context)?.baseContext?.resources?.updateConfiguration(
+            config,
+            getActivity(context)?.baseContext?.resources?.displayMetrics
+        )
+    }
+
+
+    /**
      * Method to show fab for non native apps
      * In native apps you can just add fab in XML (no need to call this)
      */
@@ -174,14 +201,14 @@ class AntourageFab @JvmOverloads constructor(
      * Method to set margins for non native apps
      * In native apps you can set margins in XML as you'd like (no need to call this)
      * */
-    fun setMargins(horizontal: Int, vertical: Int){
+    fun setMargins(horizontal: Int, vertical: Int) {
         horizontalMargin = horizontal.validateHorizontalMarginForFab(context)
         verticalMargin = vertical.validateVerticalMarginForFab(context)
         applyMargins()
     }
 
-    private fun applyMargins(){
-        when(widgetPosition){
+    private fun applyMargins() {
+        when (widgetPosition) {
             WidgetPosition.topLeft -> {
                 fabLayoutParams.marginStart = horizontalMargin
                 fabLayoutParams.topMargin = verticalMargin
@@ -227,7 +254,7 @@ class AntourageFab @JvmOverloads constructor(
 
         try {
             this.widgetPosition = WidgetPosition.valueOf(widgetPosition)
-        } catch(e: IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             Log.e(TAG, "INVALID position value: $widgetPosition | $e")
         }
 
@@ -253,6 +280,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onResume() {
+        setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
 
@@ -331,6 +359,28 @@ class AntourageFab @JvmOverloads constructor(
                 startAntRequests()
             }
         }, 500)
+    }
+
+    override fun onPause() {
+        StreamPreviewManager.removeEventListener()
+        ReceivingVideosManager.stopReceivingVideos()
+        if (shouldDisconnectSocket) disconnectSocket()
+        removeSocketListeners()
+        currentPlayerState = 0
+        isAnimationRunning = false
+        goingLiveToLive = false
+        vods.clear()
+        currentFabState = FabState.INACTIVE
+        setIncomingWidgetStatus(null)
+        bounceHandler.removeCallbacksAndMessages(null)
+        Handler().postDelayed({
+            circleAnimatedDrawable?.apply {
+                clearAnimationCallbacks()
+            }
+            circleAnimatedDrawable?.stop()
+            textBadge = ""
+            releasePlayer()
+        }, 100)
     }
 
     private fun manageLiveStreams() {
@@ -552,29 +602,6 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    override fun onPause() {
-        StreamPreviewManager.removeEventListener()
-        ReceivingVideosManager.stopReceivingVideos()
-        if (shouldDisconnectSocket) disconnectSocket()
-        removeSocketListeners()
-        currentPlayerState = 0
-        isAnimationRunning = false
-        goingLiveToLive = false
-        vods.clear()
-        currentFabState = FabState.INACTIVE
-        setIncomingWidgetStatus(null)
-        bounceHandler.removeCallbacksAndMessages(null)
-        Handler().postDelayed({
-            circleAnimatedDrawable?.apply {
-                clearAnimationCallbacks()
-            }
-            circleAnimatedDrawable?.stop()
-            textBadge = ""
-            releasePlayer()
-        }, 100)
-    }
-
-
     private fun startPlayingStream(stream: StreamResponse) {
         playerView.player = stream.hlsUrl?.get(0)?.let {
             StreamPreviewManager.getExoPlayer(
@@ -751,12 +778,6 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun startAntRequests() {
         ReceivingVideosManager.startReceivingLiveStreams(true)
-
-//        UserCache.getInstance(context)?.getToken()?.let {
-//            SocketConnector.getInitialInfo()
-//            SocketConnector.connectToSockets(it)
-//            initSocketListeners()
-//        }
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->

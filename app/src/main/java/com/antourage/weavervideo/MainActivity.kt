@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "Antourage_testing_tag"
 
-//        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
+        //        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
         const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
 //        const val TEST_API_KEY = "49D7E915-549B-4B79-9D61-FF5E5C85D2C2"
 //        const val TEST_API_KEY = "472EC909-BB20-4B86-A192-3A78C35DD3BA"
@@ -39,13 +39,12 @@ class MainActivity : AppCompatActivity() {
         Picasso.get().load(R.drawable.hacken_background).into(mainContent)
 
 //        antfab = AntourageFab(this)
-//        antfab.onResume()
 //        if(antfab.parent == null){
 //            antfab.setPosition("bottomRight")
 //            antfab.showFab(this)
+//            antfab.setLocale("sv")
 //            antfab.setMargins(0,0)
 //        }
-
 
         //region Antourage authorization
         antfab.authWith(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
