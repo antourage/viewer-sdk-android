@@ -35,6 +35,7 @@ import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.google.android.exoplayer2.ui.PlayerControlView
@@ -438,6 +439,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             if (fragmentManager.backStackEntryCount > 0) {
                 fragmentManager.popBackStack()
             } else {
+                (activity as AntourageActivity).shouldGoBackToList = false
                 replaceFragment(VideoListFragment.newInstance(), R.id.mainContent)
             }
         }

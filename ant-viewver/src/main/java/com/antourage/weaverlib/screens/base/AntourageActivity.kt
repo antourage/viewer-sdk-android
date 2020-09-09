@@ -16,6 +16,7 @@ import com.antourage.weaverlib.other.ContextWrapper
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
@@ -28,7 +29,7 @@ class AntourageActivity : AppCompatActivity() {
         private set
 
     private var triggerKeyboardCallback = true
-    private var shouldGoBackToList = false
+    var shouldGoBackToList = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,12 +120,7 @@ class AntourageActivity : AppCompatActivity() {
     // used in case video was open from FAB
     // to open initial list of streams
     private fun replaceListFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.mainContent,
-                VideoListFragment.newInstance()
-            )
-            .commit()
+        replaceFragment(VideoListFragment.newInstance(), R.id.mainContent)
         shouldGoBackToList = false
     }
 
