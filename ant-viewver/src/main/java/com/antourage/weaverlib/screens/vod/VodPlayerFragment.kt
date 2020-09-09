@@ -12,7 +12,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Lifecycle
@@ -20,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
@@ -75,57 +75,59 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
-            when (state) {
-                Player.STATE_BUFFERING -> showLoading()
-                Player.STATE_READY -> {
-                    hideLoading()
-                    vod_player_progress.setListOfCurtainsAndMax(
-                        viewModel.getCurrentCurtains(),
-                        viewModel.getVideoDuration()?.toInt() ?: 1
+        when (state) {
+            Player.STATE_BUFFERING -> showLoading()
+            Player.STATE_READY -> {
+                hideLoading()
+                vod_player_progress.setListOfCurtainsAndMax(
+                    viewModel.getCurrentCurtains(),
+                    viewModel.getVideoDuration()?.toInt() ?: 1
+                )
+                vod_controls_progress.setListOfCurtainsAndMax(
+                    viewModel.getCurrentCurtains(),
+                    viewModel.getVideoDuration()?.toInt() ?: 1
+                )
+                if (!playerControls.isVisible) {
+                    progressHandler.postDelayed(
+                        updateProgressAction,
+                        MIN_PROGRESS_UPDATE_MILLIS
                     )
-                    vod_controls_progress.setListOfCurtainsAndMax(
-                        viewModel.getCurrentCurtains(),
-                        viewModel.getVideoDuration()?.toInt() ?: 1
-                    )
-                    if (!playerControls.isVisible) {
-                        progressHandler.postDelayed(
-                            updateProgressAction,
-                            MIN_PROGRESS_UPDATE_MILLIS
-                        )
-                    }
-                    viewModel.currentVideo.value?.apply {
-                        if (!broadcasterPicUrl.isNullOrEmpty()) {
-                            Picasso.get().load(broadcasterPicUrl)
-                                .placeholder(R.drawable.antourage_ic_default_user)
-                                .error(R.drawable.antourage_ic_default_user)
-                                .into(play_header_iv_photo)
-
-                            Picasso.get().load(broadcasterPicUrl)
-                                .placeholder(R.drawable.antourage_ic_default_user)
-                                .error(R.drawable.antourage_ic_default_user)
-                                .into(
-                                    player_control_header
-                                        .findViewById(R.id.play_header_iv_photo) as ImageView
-                                )
-                        }
-
-                    }
-                    ivFirstFrame.visibility = View.INVISIBLE
-                    updatePrevNextVisibility()
-                    if (viewModel.isPlaybackPaused()) {
-                        playerControls.show()
-                        viewModel.onVideoPausedOrStopped()
-                    } else {
-                        viewModel.onVideoStarted()
-                    }
                 }
-                Player.STATE_IDLE -> hideLoading()
-                Player.STATE_ENDED -> {
-                    viewModel.removeStatisticsListeners()
+                viewModel.currentVideo.value?.apply {
+                    if (!broadcasterPicUrl.isNullOrEmpty()) {
+                        Picasso.get().load(broadcasterPicUrl)
+                            .placeholder(R.drawable.antourage_ic_default_user)
+                            .error(R.drawable.antourage_ic_default_user)
+                            .into(play_header_iv_photo)
+
+                        Picasso.get().load(broadcasterPicUrl)
+                            .placeholder(R.drawable.antourage_ic_default_user)
+                            .error(R.drawable.antourage_ic_default_user)
+                            .into(
+                                player_control_header
+                                    .findViewById(R.id.play_header_iv_photo) as ImageView
+                            )
+                    }
+
+                }
+                ivFirstFrame.visibility = View.INVISIBLE
+                updatePrevNextVisibility()
+                if (viewModel.isPlaybackPaused()) {
+                    playerControls.show()
                     viewModel.onVideoPausedOrStopped()
-                    hideLoading()
+                } else {
+                    viewModel.onVideoStarted()
                 }
             }
+            Player.STATE_IDLE -> {
+                if(Global.networkAvailable) hideLoading()
+            }
+            Player.STATE_ENDED -> {
+                viewModel.removeStatisticsListeners()
+                viewModel.onVideoPausedOrStopped()
+                hideLoading()
+            }
+        }
     }
 
     private val viewersChangeObserver: Observer<Pair<Int, Long>> = Observer { viewInfo ->
@@ -141,7 +143,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             vod_skip_button.visibility = View.INVISIBLE
             viewModel.seekPlayerTo(curtainEndTimeMillis)
         }
-        if (vod_skip_button.visibility != View.VISIBLE){
+        if (vod_skip_button.visibility != View.VISIBLE) {
             vod_skip_button.revealWithAnimation()
             val timeToCurtainEnd = curtainEndTimeMillis - (viewModel.getVideoPosition() ?: 0)
             skipCurtainHandler.postDelayed({
@@ -194,7 +196,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                             .findViewById(R.id.play_header_iv_photo) as ImageView
                     )
             }
-            if (vod_skip_button.visibility == View.VISIBLE && !viewModel.shouldShowSkipButton() ) {
+            if (vod_skip_button.visibility == View.VISIBLE && !viewModel.shouldShowSkipButton()) {
                 vod_skip_button.visibility = View.INVISIBLE
             }
             viewModel.seekToLastWatchingTime()
@@ -217,7 +219,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     //STATE END OF NOT LAST VIDEO IN PLAYLIST
                     autoPlayCountDownTimer = object : CountDownTimer(5000, 20) {
                         override fun onTick(millisUntilFinished: Long) {
-                            vod_progress_bar?.progress = (millisUntilFinished.toInt()-5000).absoluteValue
+                            vod_progress_bar?.progress =
+                                (millisUntilFinished.toInt() - 5000).absoluteValue
                         }
 
                         override fun onFinish() {
@@ -350,7 +353,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun initPortraitProgressListener() {
         controls.setProgressUpdateListener { pos, _ ->
-            if (!isScrubberMoving){
+            if (!isScrubberMoving) {
                 if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
                     vod_player_progress.setProgress(pos.toInt())
                 } else {
@@ -405,7 +408,9 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 }
             }
 
-            override fun onScrubStart(timeBar: TimeBar, position: Long) { isScrubberMoving = true }
+            override fun onScrubStart(timeBar: TimeBar, position: Long) {
+                isScrubberMoving = true
+            }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
                 isScrubberMoving = false
@@ -450,17 +455,17 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                                 ) > SWIPE_VELOCITY_THRESHOLD
                             ) {
                                 result = if (diffY > 0) {
-                                    if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                                    if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                                         onFullScreenImgClicked()
-                                    }else{
+                                    } else {
                                         onCloseClicked()
                                     }
                                     true
-                                }else{
+                                } else {
                                     toggleControlsVisibility()
                                     false
                                 }
-                            }else{
+                            } else {
                                 toggleControlsVisibility()
                                 result = false
                             }
@@ -585,7 +590,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun showSkipButtonIfRequired() {
         if (skipCurtainHandler.hasMessages(0)) {
-            if (vod_skip_button.visibility != View.VISIBLE){
+            if (vod_skip_button.visibility != View.VISIBLE) {
                 vod_skip_button.revealWithAnimation()
             }
         }
@@ -655,8 +660,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
             id?.let { viewModel.setCurrentPlayerPosition(it) }
-            if (videoURL != null){
-                playerView.player =  viewModel.getExoPlayer(videoURL)
+            if (videoURL != null) {
+                playerView.player = viewModel.getExoPlayer(videoURL)
             } else {
                 viewModel.errorLiveData.value = true
             }

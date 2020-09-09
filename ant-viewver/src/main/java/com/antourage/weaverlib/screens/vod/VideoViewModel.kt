@@ -541,7 +541,6 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun markVODAsWatched() {
-        Log.e("WATCHED", "setting false to ${Repository.vods?.find { it.id?.equals(vodId) ?: false }?.videoName}")
         Repository.vods?.find { it.id?.equals(vodId) ?: false }?.isNew = false
     }
 

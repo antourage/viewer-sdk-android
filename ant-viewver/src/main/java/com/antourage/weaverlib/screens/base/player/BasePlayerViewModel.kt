@@ -406,7 +406,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 && this@BasePlayerViewModel is VideoViewModel
             ) {
                 //handles navigation to next(or prev) video, when exoplayer can't playback video due to broken URL
-                changeVideoAfterPlayerRestart()
+                if (Global.networkAvailable) {
+                    changeVideoAfterPlayerRestart()
+                }
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
                 if (this@BasePlayerViewModel is PlayerViewModel) {
                     player?.prepare(getMediaSource(streamUrl), false, true)
