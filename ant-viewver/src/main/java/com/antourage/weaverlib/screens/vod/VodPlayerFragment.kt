@@ -75,59 +75,59 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private val streamStateObserver: Observer<Int> = Observer { state ->
         if (ivLoader != null)
-        when (state) {
-            Player.STATE_BUFFERING -> showLoading()
-            Player.STATE_READY -> {
-                hideLoading()
-                vod_player_progress.setListOfCurtainsAndMax(
-                    viewModel.getCurrentCurtains(),
-                    viewModel.getVideoDuration()?.toInt() ?: 1
-                )
-                vod_controls_progress.setListOfCurtainsAndMax(
-                    viewModel.getCurrentCurtains(),
-                    viewModel.getVideoDuration()?.toInt() ?: 1
-                )
-                if (!playerControls.isVisible) {
-                    progressHandler.postDelayed(
-                        updateProgressAction,
-                        MIN_PROGRESS_UPDATE_MILLIS
+            when (state) {
+                Player.STATE_BUFFERING -> showLoading()
+                Player.STATE_READY -> {
+                    hideLoading()
+                    vod_player_progress.setListOfCurtainsAndMax(
+                        viewModel.getCurrentCurtains(),
+                        viewModel.getVideoDuration()?.toInt() ?: 1
                     )
-                }
-                viewModel.currentVideo.value?.apply {
-                    if (!broadcasterPicUrl.isNullOrEmpty()) {
-                        Picasso.get().load(broadcasterPicUrl)
-                            .placeholder(R.drawable.antourage_ic_default_user)
-                            .error(R.drawable.antourage_ic_default_user)
-                            .into(play_header_iv_photo)
-
-                        Picasso.get().load(broadcasterPicUrl)
-                            .placeholder(R.drawable.antourage_ic_default_user)
-                            .error(R.drawable.antourage_ic_default_user)
-                            .into(
-                                player_control_header
-                                    .findViewById(R.id.play_header_iv_photo) as ImageView
-                            )
+                    vod_controls_progress.setListOfCurtainsAndMax(
+                        viewModel.getCurrentCurtains(),
+                        viewModel.getVideoDuration()?.toInt() ?: 1
+                    )
+                    if (!playerControls.isVisible) {
+                        progressHandler.postDelayed(
+                            updateProgressAction,
+                            MIN_PROGRESS_UPDATE_MILLIS
+                        )
                     }
+                    viewModel.currentVideo.value?.apply {
+                        if (!broadcasterPicUrl.isNullOrEmpty()) {
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(play_header_iv_photo)
 
+                            Picasso.get().load(broadcasterPicUrl)
+                                .placeholder(R.drawable.antourage_ic_default_user)
+                                .error(R.drawable.antourage_ic_default_user)
+                                .into(
+                                    player_control_header
+                                        .findViewById(R.id.play_header_iv_photo) as ImageView
+                                )
+                        }
+
+                    }
+                    ivFirstFrame.visibility = View.INVISIBLE
+                    updatePrevNextVisibility()
+                    if (viewModel.isPlaybackPaused()) {
+                        playerControls.show()
+                        viewModel.onVideoPausedOrStopped()
+                    } else {
+                        viewModel.onVideoStarted()
+                    }
                 }
-                ivFirstFrame.visibility = View.INVISIBLE
-                updatePrevNextVisibility()
-                if (viewModel.isPlaybackPaused()) {
-                    playerControls.show()
+                Player.STATE_IDLE -> {
+                    if (Global.networkAvailable) hideLoading()
+                }
+                Player.STATE_ENDED -> {
+                    viewModel.removeStatisticsListeners()
                     viewModel.onVideoPausedOrStopped()
-                } else {
-                    viewModel.onVideoStarted()
+                    hideLoading()
                 }
             }
-            Player.STATE_IDLE -> {
-                if(Global.networkAvailable) hideLoading()
-            }
-            Player.STATE_ENDED -> {
-                viewModel.removeStatisticsListeners()
-                viewModel.onVideoPausedOrStopped()
-                hideLoading()
-            }
-        }
     }
 
     private val viewersChangeObserver: Observer<Pair<Int, Long>> = Observer { viewInfo ->

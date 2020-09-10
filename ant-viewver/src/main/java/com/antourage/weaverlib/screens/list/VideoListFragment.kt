@@ -218,6 +218,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         }
                     })
             }
+            context?.let {
+                Picasso
+                    .get()
+                    .load(feedInfo.imageUrl)
+                    .into(ivNoContent)
+            }
         }
     }
 
