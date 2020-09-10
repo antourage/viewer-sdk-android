@@ -4,14 +4,11 @@ import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -323,7 +320,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         canShowNewButton = false
         Handler().postDelayed({
             canShowNewButton = true
-        }, 1500)
+        }, 800)
     }
 
     override fun onPause() {
@@ -465,7 +462,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             //needed for onResume to not refreshVods too
             Handler().postDelayed({
                 dontRefreshWhileInit = false
-            },300)
+            }, 300)
             refreshVODs = false
         }
     }
@@ -609,7 +606,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     ) {
                         viewModel.refreshVODs(noLoadingPlaceholder = true)
                         isLoadingMoreVideos = true
-                        Log.d("REFRESH_VODS", "onBottomReached")
                     }
                 }
             }
@@ -683,7 +679,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun triggerNewLiveButton(isVisible: Boolean, isPause: Boolean = false) {
-
         if (isVisible && !isNewLiveButtonShown) {
             isNewLiveButtonShown = true
             if (btnNewLive != null) {
@@ -726,7 +721,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             for (stream in newStreams) {
                 if (stream.isLive && oldStreams.none { it.id == stream.id }) {
                     if (videoAdapter.getStreams()
-                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
+                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
                     ) {
                         newLivesList.add(stream)
                         break
@@ -749,7 +744,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     }
                     showNoConnectionPlaceHolder()
                     viewModel.onNetworkChanged(false)
-//                    showErrorSnackbar(R.string.ant_no_connection)
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
@@ -760,8 +754,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 ) {
                     viewModel.onNetworkGained(true)
                     placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
-                } else {
-                    viewModel.onNetworkGained()
                 }
             }
         }

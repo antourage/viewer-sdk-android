@@ -66,6 +66,8 @@ internal object SocketConnector {
             if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
 //                Log.e(TAG, "Didn't connect")
             } else {
+//                Log.e(TAG, "Connected")
+                nextReconnectDelay = INITIAL_RECONNECT
                 socketConnection.postValue(SocketConnection.CONNECTED)
                 isSocketUsed = true
             }
@@ -143,19 +145,15 @@ internal object SocketConnector {
                 }
                 FIRST_RECONNECT -> {
                     nextReconnectDelay = SECOND_RECONNECT
-//                    Log.e(TAG, "setting delay on taskfinish: $nextReconnectDelay")
                 }
                 SECOND_RECONNECT -> {
                     nextReconnectDelay = THIRD_RECONNECT
-//                    Log.e(TAG, "setting delay on taskfinish: $nextReconnectDelay")
                 }
                 THIRD_RECONNECT -> {
                     nextReconnectDelay = FOURTH_RECONNECT
-//                    Log.e(TAG, "setting delay on taskfinish: $nextReconnectDelay")
                 }
                 FOURTH_RECONNECT -> {
                     nextReconnectDelay = INITIAL_RECONNECT
-//                    Log.e(TAG, "setting delay on taskfinish: $nextReconnectDelay")
                     if (Global.networkAvailable) {
                         isSocketUsed = false
                         shouldDisconnectSocket = true
