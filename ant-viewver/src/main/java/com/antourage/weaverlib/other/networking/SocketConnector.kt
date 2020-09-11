@@ -64,7 +64,7 @@ internal object SocketConnector {
             super.onPostExecute(result)
             isConnectTaskRunning = false
             if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
-//                Log.e(TAG, "Didn't connect")
+                Log.e(TAG, "Didn't connect")
             } else {
 //                Log.e(TAG, "Connected")
                 nextReconnectDelay = INITIAL_RECONNECT

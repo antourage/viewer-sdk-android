@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -664,13 +665,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showEmptyListPlaceholder() {
-        if (noContentRefreshLayout.visibility != View.VISIBLE) {
-            placeholderRefreshLayout.hideWithAnimation()
-            videoRefreshLayout.hideWithAnimation()
-            videosRV.onPause()
-            noContentRefreshLayout.revealWithAnimation()
-            noContentContainer.revealWithAnimation()
-        }
+        Handler().postDelayed({
+            if (noContentRefreshLayout.visibility != View.VISIBLE) {
+                placeholderRefreshLayout.hideWithAnimation()
+                videoRefreshLayout.hideWithAnimation()
+                videosRV.onPause()
+                noContentRefreshLayout.revealWithAnimation()
+                noContentContainer.revealWithAnimation()
+            }
+        }, 310)
     }
 
     private fun showNoConnectionPlaceHolder() {
