@@ -99,7 +99,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         count: Int = (vods?.size?.minus(1)) ?: 0,
         noLoadingPlaceholder: Boolean = false
     ) {
-        Log.e(TAG, "refreshVODs: ${vods?.size}")
         var vodsCount = count
         if (vodsCount < VODS_COUNT) {
             vodsCount = 0

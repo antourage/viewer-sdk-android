@@ -1,5 +1,11 @@
 package com.antourage.weavervideo
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -11,19 +17,22 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
 
-//    lateinit var antfab: AntourageFab
+    //    lateinit var antfab: AntourageFab
+    private var isUserAuthorized = false
+    private lateinit var connectivityManager: ConnectivityManager
 
     companion object {
         const val TAG = "Antourage_testing_tag"
-
-        //        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
         const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
 //        const val TEST_API_KEY = "49D7E915-549B-4B79-9D61-FF5E5C85D2C2"
+//        const val TEST_API_KEY = "4ec7cb01-a379-4362-a3a4-89699c17dc32"
 //        const val TEST_API_KEY = "472EC909-BB20-4B86-A192-3A78C35DD3BA"
     }
 
@@ -35,9 +44,14 @@ class MainActivity : AppCompatActivity() {
         Picasso.get().load(R.drawable.hacken_header).into(header)
         Picasso.get().load(R.drawable.hacken_header_overlay).into(header_overlay)
         Picasso.get().load(R.drawable.hacken_footer).into(footer)
-
         Picasso.get().load(R.drawable.hacken_background).into(mainContent)
 
+        connectivityManager =
+            this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
+                    as ConnectivityManager
+
+
+        /** To add widget programatically*/
 //        antfab = AntourageFab(this)
 //        if(antfab.parent == null){
 //            antfab.setPosition("bottomRight")
@@ -46,10 +60,15 @@ class MainActivity : AppCompatActivity() {
 //            antfab.setMargins(0,0)
 //        }
 
+        authWidget()
+    }
+
+    private fun authWidget() {
         //region Antourage authorization
         antfab.authWith(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
             when (userAuthResult) {
                 is UserAuthResult.Success -> {
+                    isUserAuthorized = true
                     Log.d(TAG, "Ant authorization successful!")
 
                     //region Antourage push notification subscription
@@ -99,6 +118,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 is UserAuthResult.Failure -> {
+                    isUserAuthorized = false
                     Log.e(TAG, "Ant authorization failed because: ${userAuthResult.cause}")
                 }
             }
@@ -106,13 +126,36 @@ class MainActivity : AppCompatActivity() {
         //endregion
     }
 
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network?) {
+            runOnUiThread {
+                if (!isUserAuthorized) authWidget()
+            }
+        }
+
+        override fun onLost(network: Network?) {
+        }
+    }
+
+    private fun subscribeToNetworkChanges() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        } else {
+            val request = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
+            connectivityManager.registerNetworkCallback(request, networkCallback)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         antfab.onResume()
+        subscribeToNetworkChanges()
     }
 
     override fun onPause() {
         super.onPause()
         antfab.onPause()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 }

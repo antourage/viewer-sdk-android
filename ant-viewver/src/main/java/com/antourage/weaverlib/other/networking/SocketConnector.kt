@@ -55,7 +55,7 @@ internal object SocketConnector {
                 return
             }
 
-            if(delay[0]!= INITIAL_RECONNECT) Thread.sleep(delay[0]!!)
+            if (delay[0] != INITIAL_RECONNECT) Thread.sleep(delay[0]!!)
             hubConnection.start().blockingGet()
             return
         }
@@ -64,9 +64,9 @@ internal object SocketConnector {
             super.onPostExecute(result)
             isConnectTaskRunning = false
             if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
-                Log.e(TAG, "Didn't connect")
+                Log.d(TAG, "Didn't connect")
             } else {
-//                Log.e(TAG, "Connected")
+                Log.d(TAG, "Connected")
                 nextReconnectDelay = INITIAL_RECONNECT
                 socketConnection.postValue(SocketConnection.CONNECTED)
                 isSocketUsed = true
@@ -75,7 +75,7 @@ internal object SocketConnector {
     }
 
     private fun reconnectWithDelay(delay: Long) {
-//        Log.e(TAG, "reconnectWithDelay: $delay")
+        Log.d(TAG, "reconnectWithDelay: $delay")
         try {
             connectToSocketTask = ConnectToSocketTask()
             connectToSocketTask.execute(delay)
@@ -104,7 +104,7 @@ internal object SocketConnector {
         if (hubConnection.connectionState == HubConnectionState.DISCONNECTED) {
             try {
                 if (!isConnectTaskRunning) {
-//                    Log.e(TAG, "Connecting")
+                    Log.d(TAG, "Connecting")
                     nextReconnectDelay = INITIAL_RECONNECT
                     connectToSocketTask = ConnectToSocketTask()
                     connectToSocketTask.execute(nextReconnectDelay)
@@ -121,27 +121,21 @@ internal object SocketConnector {
             if (newStreams != null) {
                 val newLives = newStreams as ArrayList<StreamResponse>
                 newLivesLiveData.postValue(newLives)
-//                Log.e(
-//                    TAG,
-//                    "live: $newStreams "
-//                )
+                Log.d(TAG, "live: $newStreams ")
             }
         }, ListOfStreams::class.java)
 
         hubConnection.on(SOCKET_VOD, { newStreams ->
             val newVods = newStreams as ArrayList<StreamResponse>
             newVodsLiveData.postValue(newVods)
-//            Log.e(
-//                TAG,
-//                "vod:  $newStreams"
-//            )
+            Log.d(TAG, "vod:  $newStreams")
         }, ListOfStreams::class.java)
 
         hubConnection.onClosed {
             when (nextReconnectDelay) {
                 INITIAL_RECONNECT -> {
                     nextReconnectDelay = FIRST_RECONNECT
-//                    Log.e(TAG, "setting delay on taskfinish: $nextReconnectDelay")
+//                    Log.d(TAG, "setting delay on taskfinish: $nextReconnectDelay")
                 }
                 FIRST_RECONNECT -> {
                     nextReconnectDelay = SECOND_RECONNECT
@@ -164,15 +158,12 @@ internal object SocketConnector {
 
             if (!shouldDisconnectSocket) {
                 if (Global.networkAvailable) {
-//                    Log.e(
-//                        TAG,
-//                        "Starting reconnect"
-//                    )
+                    Log.d(TAG, "Starting reconnect")
                     reconnectWithDelay(nextReconnectDelay)
                     isConnectTaskRunning = true
                 }
             } else {
-//                Log.e(TAG, "Disconnected")
+                Log.d(TAG, "Disconnected")
             }
         }
     }

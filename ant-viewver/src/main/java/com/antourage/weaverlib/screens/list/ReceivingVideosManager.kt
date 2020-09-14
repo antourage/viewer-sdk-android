@@ -98,7 +98,7 @@ internal class ReceivingVideosManager {
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                                 if (resource != null) {
-                                    if (isFirstRequest && isForFab) {
+                                    if (isFirstRequest && isForFab && Global.networkAvailable) {
                                         isFirstRequest = false
                                         Handler().postDelayed({
                                             startReceivingVODsForFab()

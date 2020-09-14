@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.Lifecycle
@@ -52,6 +53,8 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
         private const val SWIPE_THRESHOLD = 100
         private const val SWIPE_VELOCITY_THRESHOLD = 100
+
+        private var shouldDisconnectSocket: Boolean = true
 
         fun newInstance(stream: StreamResponse, isNewVod: Boolean = false): VodPlayerFragment {
             val fragment = VodPlayerFragment()
@@ -302,6 +305,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(VideoViewModel::class.java)
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                shouldDisconnectSocket = false
+                isEnabled = false
+                activity?.onBackPressed()
+            }
+        })
     }
 
     override fun subscribeToObservers() {
@@ -543,6 +553,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
+        shouldDisconnectSocket = true
         if (viewModel.isPlaybackPaused()) {
             playerControls.show()
         } else if (playerControls.visibility == View.INVISIBLE && orientation() == Configuration.ORIENTATION_PORTRAIT) {
@@ -557,6 +568,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         skipCurtainHandler.removeCallbacksAndMessages(null)
         progressHandler.removeCallbacks(updateProgressAction)
         playerView.onPause()
+        viewModel.onPauseSocket(shouldDisconnectSocket)
     }
 
     override fun onDestroy() {
