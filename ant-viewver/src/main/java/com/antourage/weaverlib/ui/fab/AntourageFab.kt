@@ -71,6 +71,8 @@ class AntourageFab @JvmOverloads constructor(
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
+        /** added to prevent multiple calls of onResume breaking widget logic*/
+        internal var wasPaused = true
 
         fun registerNotifications(
             fcmToken: String,
@@ -280,6 +282,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onResume() {
+        if(!wasPaused) return
+        wasPaused = false
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
@@ -362,6 +366,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onPause() {
+        wasPaused = true
         StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
         if (shouldDisconnectSocket) disconnectSocket()

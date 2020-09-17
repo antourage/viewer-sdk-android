@@ -17,14 +17,12 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
 
-    //    lateinit var antfab: AntourageFab
+//        lateinit var antfab: AntourageFab
     private var isUserAuthorized = false
     private lateinit var connectivityManager: ConnectivityManager
 
@@ -51,13 +49,13 @@ class MainActivity : AppCompatActivity() {
                     as ConnectivityManager
 
 
-        /** To add widget programatically*/
+//        /** To add widget programatically*/
 //        antfab = AntourageFab(this)
 //        if(antfab.parent == null){
 //            antfab.setPosition("bottomRight")
 //            antfab.showFab(this)
 //            antfab.setLocale("sv")
-//            antfab.setMargins(0,0)
+//            antfab.setMargins(0, 0)
 //        }
 
         authWidget()
