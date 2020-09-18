@@ -32,6 +32,9 @@ internal interface VideoStopTimeDao {
     @Query("UPDATE videos SET nickname = :nickname, text = :text WHERE id == :vodId")
     suspend fun updateLastMessage(vodId:Int, nickname: String, text: String)
 
+    @Query("DELETE FROM videos")
+    suspend fun clearVideos()
+
     /**
      * Insert a record in the database.
      *  @return The SQLite row id

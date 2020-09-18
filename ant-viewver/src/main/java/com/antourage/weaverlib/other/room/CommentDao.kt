@@ -3,6 +3,7 @@ package com.antourage.weaverlib.other.room
 import androidx.room.*
 import com.antourage.weaverlib.other.models.Comment
 import com.antourage.weaverlib.other.models.Message
+import retrofit2.http.DELETE
 
 @Dao
 internal interface CommentDao {
@@ -12,4 +13,7 @@ internal interface CommentDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComments(vararg comments: Comment)
+
+    @Query("DELETE FROM comments")
+    suspend fun clearComments()
 }
