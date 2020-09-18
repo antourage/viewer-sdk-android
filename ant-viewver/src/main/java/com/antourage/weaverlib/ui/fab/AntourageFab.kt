@@ -48,7 +48,6 @@ import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
-
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
  * so it would know that it is subclass of View
@@ -65,12 +64,20 @@ class AntourageFab @JvmOverloads constructor(
         topLeft, midLeft, bottomLeft, topMid, bottomMid, topRight, midRight, bottomRight
     }
 
+    private var apiKey: String = ""
+    private var refUserId: String? = null
+    private var nickname: String? = null
+    private val authorizeHandler = Handler()
+    private var authorizeRunning = false
+
     companion object {
+        const val AUTH_RETRY = 10000L
         const val MAX_HORIZONTAL_MARGIN = 50
         const val MAX_VERTICAL_MARGIN: Int = 220
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
+
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
 
@@ -176,7 +183,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     @SuppressLint("RestrictedApi")
-    private fun forceLocale(locale: Locale){
+    private fun forceLocale(locale: Locale) {
         val config =
             Configuration(getActivity(context)!!.resources.configuration)
         Locale.setDefault(locale)
@@ -282,8 +289,9 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     override fun onResume() {
-        if(!wasPaused) return
+        if (!wasPaused) return
         wasPaused = false
+        if (!userAuthorized() && apiKey.isNotEmpty() && !authorizeRunning) authWith(apiKey, refUserId, nickname)
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
@@ -367,6 +375,7 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onPause() {
         wasPaused = true
+        stopAuthHandler()
         StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
         if (shouldDisconnectSocket) disconnectSocket()
@@ -656,28 +665,46 @@ class AntourageFab @JvmOverloads constructor(
         else false
     }
 
+    private fun startAuthHandler() {
+        if (!authorizeRunning) {
+            authorizeHandler.removeCallbacksAndMessages(null)
+            authorizeHandler.postDelayed({
+                if (!userAuthorized() && !wasPaused && apiKey.isNotEmpty()) authWith(
+                    apiKey,
+                    refUserId,
+                    nickname
+                )
+            }, AUTH_RETRY)
+        }
+    }
+
+    private fun stopAuthHandler() {
+        authorizeHandler.removeCallbacksAndMessages(null)
+    }
+
     fun authWith(
         apiKey: String,
         refUserId: String? = null,
-        nickname: String? = null,
-        callback: ((result: UserAuthResult) -> Unit)? = null
+        nickname: String? = null
     ) {
+        this.apiKey = apiKey
+        this.refUserId = refUserId
+        this.nickname = nickname
+
         val userCache = UserCache.getInstance(context)
         val token = userCache?.getToken()
         if (token == null || token.isEmptyTrimmed()) {
-            authorizeUser(apiKey, refUserId, nickname, callback)
-        } else {
-            callback?.invoke(UserAuthResult.Success)
+            authorizeUser(apiKey, refUserId, nickname)
         }
     }
 
     private fun authorizeUser(
         apiKey: String,
         refUserId: String? = null,
-        nickname: String? = null,
-        callback: ((result: UserAuthResult) -> Unit)? = null
+        nickname: String? = null
     ) {
         Log.d(TAG, "Trying to authorize ant user...")
+        authorizeRunning = true
         refUserId?.let { UserCache.getInstance(context)?.saveUserRefId(it) }
         nickname?.let { UserCache.getInstance(context)?.saveUserNickName(it) }
         UserCache.getInstance(context)?.saveApiKey(apiKey)
@@ -691,6 +718,8 @@ class AntourageFab @JvmOverloads constructor(
                         Log.d(TAG, "Ant authorization successful")
                         user?.apply {
                             if (token != null && id != null) {
+                                stopAuthHandler()
+                                authorizeRunning = false
                                 Log.d(
                                     TAG,
                                     "Ant token and ant userId != null, started live video timer"
@@ -699,12 +728,12 @@ class AntourageFab @JvmOverloads constructor(
                                 startAntRequests()
                             }
                         }
-                        callback?.invoke(UserAuthResult.Success)
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
                         Log.d(TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
-                        callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
+                        authorizeRunning = false
+                        startAuthHandler()
                         response.removeObserver(this)
                     }
                 }

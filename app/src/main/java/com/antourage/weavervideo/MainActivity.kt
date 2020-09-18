@@ -22,7 +22,7 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
-//        lateinit var antfab: AntourageFab
+    //        lateinit var antfab: AntourageFab
     private var isUserAuthorized = false
     private lateinit var connectivityManager: ConnectivityManager
 
@@ -63,97 +63,85 @@ class MainActivity : AppCompatActivity() {
 
     private fun authWidget() {
         //region Antourage authorization
-        antfab.authWith(TEST_API_KEY.toUpperCase(), callback = { userAuthResult ->
-            when (userAuthResult) {
-                is UserAuthResult.Success -> {
-                    isUserAuthorized = true
-                    Log.d(TAG, "Ant authorization successful!")
+        antfab.authWith(TEST_API_KEY.toUpperCase())
 
-                    //region Antourage push notification subscription
-                    Thread(Runnable {
-                        try {
-                            //Get firebase cloud messaging token
-                            val fcmToken =
-                                FirebaseInstanceId.getInstance()
-                                    .getToken(getString(R.string.SENDER_ID), "FCM")
-                            runOnUiThread {
-                                fcmToken?.let { fcmToken ->
-                                    AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
-                                        //Handle subscription result
-                                        when (subscriptionResult) {
-                                            //If result is successful, subscribe to the topic with
-                                            //topic name from result.
-                                            is RegisterPushNotificationsResult.Success -> {
-                                                Log.d(
-                                                    TAG,
-                                                    "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
-                                                )
-                                                FirebaseMessaging.getInstance()
-                                                    .subscribeToTopic(subscriptionResult.topicName)
-                                                    .addOnCompleteListener { task ->
-                                                        if (task.isSuccessful) {
-                                                            Log.d(TAG, "Subscribed successfully!")
-                                                        } else {
-                                                            Log.d(TAG, "Subscription failed(")
-                                                        }
-                                                    }
-                                            }
-                                            is RegisterPushNotificationsResult.Failure -> {
-                                                Log.d(
-                                                    TAG,
-                                                    "Subscription failed: ${subscriptionResult.cause}"
-                                                )
+        //region Antourage push notification subscription
+        Thread {
+            try {
+                //Get firebase cloud messaging token
+                val fcmToken =
+                    FirebaseInstanceId.getInstance()
+                        .getToken(getString(R.string.SENDER_ID), "FCM")
+                runOnUiThread {
+                    fcmToken?.let { fcmToken ->
+                        AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
+                            //Handle subscription result
+                            when (subscriptionResult) {
+                                //If result is successful, subscribe to the topic with
+                                //topic name from result.
+                                is RegisterPushNotificationsResult.Success -> {
+                                    Log.d(
+                                        TAG,
+                                        "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
+                                    )
+                                    FirebaseMessaging.getInstance()
+                                        .subscribeToTopic(subscriptionResult.topicName)
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                Log.d(TAG, "Subscribed successfully!")
+                                            } else {
+                                                Log.d(TAG, "Subscription failed(")
                                             }
                                         }
-                                    }
+                                }
+                                is RegisterPushNotificationsResult.Failure -> {
+                                    Log.d(
+                                        TAG,
+                                        "Subscription failed: ${subscriptionResult.cause}"
+                                    )
                                 }
                             }
-                        } catch (e: IOException) {
-                            e.printStackTrace()
                         }
-                    }).start()
-                    //endregion
-
+                    }
                 }
-                is UserAuthResult.Failure -> {
-                    isUserAuthorized = false
-                    Log.e(TAG, "Ant authorization failed because: ${userAuthResult.cause}")
-                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        })
+        }.start()
         //endregion
     }
+    //endregion
 
-    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network?) {
-            runOnUiThread {
-                if (!isUserAuthorized) authWidget()
-            }
-        }
+//    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+//        override fun onAvailable(network: Network?) {
+//            runOnUiThread {
+//                if (!isUserAuthorized) authWidget()
+//            }
+//        }
+//
+//        override fun onLost(network: Network?) {
+//        }
+//    }
 
-        override fun onLost(network: Network?) {
-        }
-    }
-
-    private fun subscribeToNetworkChanges() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(networkCallback)
-        } else {
-            val request = NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
-            connectivityManager.registerNetworkCallback(request, networkCallback)
-        }
-    }
+//    private fun subscribeToNetworkChanges() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            connectivityManager.registerDefaultNetworkCallback(networkCallback)
+//        } else {
+//            val request = NetworkRequest.Builder()
+//                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
+//            connectivityManager.registerNetworkCallback(request, networkCallback)
+//        }
+//    }
 
     override fun onResume() {
         super.onResume()
         antfab.onResume()
-        subscribeToNetworkChanges()
+//        subscribeToNetworkChanges()
     }
 
     override fun onPause() {
         super.onPause()
         antfab.onPause()
-        connectivityManager.unregisterNetworkCallback(networkCallback)
+//        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 }
