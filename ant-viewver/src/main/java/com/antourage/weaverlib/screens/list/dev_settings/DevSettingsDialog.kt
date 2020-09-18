@@ -3,7 +3,6 @@ package com.antourage.weaverlib.screens.list.dev_settings
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Window
 import android.widget.RadioButton
 import com.antourage.weaverlib.BuildConfig
@@ -11,7 +10,6 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.room.AppDatabase
-import com.antourage.weaverlib.other.room.CommentDao
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

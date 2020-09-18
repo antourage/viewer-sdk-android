@@ -1,9 +1,11 @@
 package com.antourage.weaverlib.other.room
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.antourage.weaverlib.other.models.Comment
 import com.antourage.weaverlib.other.models.Message
-import retrofit2.http.DELETE
 
 @Dao
 internal interface CommentDao {
