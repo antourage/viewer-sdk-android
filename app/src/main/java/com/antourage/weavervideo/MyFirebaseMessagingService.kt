@@ -53,42 +53,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
      */
+
+
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
         sendRegistrationToServer(token)
-        Handler(Looper.getMainLooper()).post {
-            AntourageFab.registerNotifications(token) { subscriptionResult ->
-                //Handle subscription result
-                when (subscriptionResult) {
-                    //If result is successful, subscribe to the topic with
-                    //topic name from result.
-                    is RegisterPushNotificationsResult.Success -> {
-                        Log.d(
-                            MainActivity.TAG,
-                            "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
-                        )
-                        FirebaseMessaging.getInstance()
-                            .subscribeToTopic(subscriptionResult.topicName)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Log.d(MainActivity.TAG, "Subscribed successfully!")
-                                } else {
-                                    Log.d(MainActivity.TAG, "Subscription failed(")
-                                }
-                            }
-                    }
-                    is RegisterPushNotificationsResult.Failure -> {
-                        Log.d(
-                            MainActivity.TAG,
-                            "Subscription failed: ${subscriptionResult.cause}"
-                        )
-                    }
-                }
-            }
-        }
+        AntourageFab.retryRegisterNotifications(token)
     }
     // [END on_new_token]
 

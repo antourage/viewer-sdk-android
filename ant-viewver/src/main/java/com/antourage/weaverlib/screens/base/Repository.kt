@@ -384,7 +384,9 @@ internal class Repository {
             FirestoreDatabase().getStreamsCollection().document(streamId.toString()).get()
                 .addOnSuccessListener { documentSnapshot ->
                     documentSnapshot.toObject(Stream::class.java).let {
-                        chatEnabled = it?.isChatActive!!
+                        if(it?.isChatActive!=null){
+                            chatEnabled = it.isChatActive
+                        }
                         if (pollEnabled != null && message != null) {
                             callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
                         }

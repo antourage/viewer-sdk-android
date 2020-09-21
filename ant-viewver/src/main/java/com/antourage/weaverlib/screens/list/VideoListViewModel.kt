@@ -570,8 +570,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                                     AntourageFab.TAG,
                                     "Ant token and ant userId != null, started live video timer"
                                 )
-                                if(!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
                                 UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
+                                if(!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
                                 subscribeToLiveStreams()
                                 refreshVODs()
                             }

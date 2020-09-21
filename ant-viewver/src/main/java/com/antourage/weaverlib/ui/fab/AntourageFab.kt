@@ -85,23 +85,35 @@ class AntourageFab @JvmOverloads constructor(
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
 
-        fun retryRegisterNotifications() {
+        fun retryRegisterNotifications(firebaseToken: String? = null) {
+            if (pushRegistrationCallback == null) return
+            if (firebaseToken != null) cachedFcmToken = firebaseToken
+            if (UserCache.getInstance() != null && UserCache.getInstance()!!.getToken()
+                    .isNullOrBlank()
+            ) {
+                return
+            }
             if (cachedFcmToken.isNotEmpty() && pushRegistrationCallback != null) {
-                registerNotifications(cachedFcmToken, pushRegistrationCallback)
+                Handler(Looper.getMainLooper()).post {
+                    registerNotifications(cachedFcmToken, pushRegistrationCallback)
+                }
             }
         }
 
+
         fun registerNotifications(
-            fcmToken: String,
+            fcmToken: String?,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
             Log.d(TAG, "Trying to register ant push notifications...")
-            cachedFcmToken = fcmToken
             pushRegistrationCallback = callback
+            if (fcmToken.isNullOrEmpty()) return
+            cachedFcmToken = fcmToken
             val response =
                 Repository.subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
             response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
                 override fun onChanged(it: Resource<NotificationSubscriptionResponse>?) {
+//                            subscriptionRunning = false
                     when (val responseStatus = it?.status) {
                         is Status.Success -> {
                             responseStatus.data?.topic?.let { topicName ->
@@ -746,11 +758,11 @@ class AntourageFab @JvmOverloads constructor(
                                     "Ant token and ant userId != null, started live video timer"
                                 )
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
+                                if (!mIsSubscribedToPushes) retryRegisterNotifications()
 //                                Log.e(TAG, "starting after aauth success")
                                 startAntRequests()
                             }
                         }
-                        if (!mIsSubscribedToPushes) retryRegisterNotifications()
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
