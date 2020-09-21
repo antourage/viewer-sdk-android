@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.TAG
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
@@ -23,7 +22,6 @@ import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import com.antourage.weaverlib.ui.fab.AntourageFab
-import com.antourage.weaverlib.ui.fab.UserAuthResult
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -38,6 +36,9 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
+    private val authorizeHandler = Handler()
+    private var authorizeRunning = false
+
 
     private var livesToFetchInfo: MutableList<StreamResponse> = mutableListOf()
 
@@ -60,7 +61,11 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
-            if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams()
+            if (Global.networkAvailable) {
+                if (userAuthorized()) {
+                    subscribeToLiveStreams()
+                }
+            }
         }
     }
 
@@ -138,6 +143,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     fun onPause(shouldDisconnectSocket: Boolean = true) {
+        stopAuthHandler()
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
@@ -313,11 +319,14 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                             it.arePollsEnabled = isPollEnabled
                             it.lastMessage = comment?.text ?: ""
 
-                            if(comment?.userID ==  UserCache.getInstance()?.getUserId().toString()){
-                                it.lastMessageAuthor = UserCache.getInstance()?.getUserNickName() ?: message.nickname
-                                        ?: ""
-                            }else{
-                                it.lastMessageAuthor  = comment?.nickname ?: ""
+                            if (comment?.userID == UserCache.getInstance()?.getUserId()
+                                    .toString()
+                            ) {
+                                it.lastMessageAuthor =
+                                    UserCache.getInstance()?.getUserNickName() ?: message.nickname
+                                            ?: ""
+                            } else {
+                                it.lastMessageAuthor = comment?.nickname ?: ""
                             }
                         }
                     }
@@ -437,13 +446,15 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     //endregion
 
     fun onNetworkGained(isErrorShown: Boolean = false) {
-        if(feedInfoLiveData.value==null) getFeedInfo()
+        if (feedInfoLiveData.value == null) getFeedInfo()
         refreshVODs(noLoadingPlaceholder = !isErrorShown)
     }
 
     fun onNetworkChanged(isConnected: Boolean) {
         if (isConnected) {
-            ReceivingVideosManager.startReceivingLiveStreams()
+            if (userAuthorized()) {
+                    subscribeToLiveStreams()
+            }
         } else {
             SocketConnector.disconnectSocket()
             ReceivingVideosManager.pauseWhileNoNetwork()
@@ -456,7 +467,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             subscribeToLiveStreams()
         } else {
             getCachedApiKey()?.let { apiKey ->
-                authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname(), null)
+                authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname())
             }
         }
     }
@@ -491,16 +502,18 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             override fun onChanged(it: Resource<FeedInfo>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
-                        if(responseStatus.data!=null){
+                        if (responseStatus.data != null) {
                             val feedInfo = responseStatus.data as FeedInfo
-                            if(!feedInfo.tagLine.isNullOrEmpty()){
-                                UserCache.getInstance(getApplication())?.saveTagLine(feedInfo.tagLine)
-                            } else{
+                            if (!feedInfo.tagLine.isNullOrEmpty()) {
+                                UserCache.getInstance(getApplication())
+                                    ?.saveTagLine(feedInfo.tagLine)
+                            } else {
                                 UserCache.getInstance(getApplication())?.saveTagLine("")
                             }
-                            if(!feedInfo.imageUrl.isNullOrEmpty()){
-                                UserCache.getInstance(getApplication())?.saveFeedImageUrl(feedInfo.imageUrl)
-                            } else{
+                            if (!feedInfo.imageUrl.isNullOrEmpty()) {
+                                UserCache.getInstance(getApplication())
+                                    ?.saveFeedImageUrl(feedInfo.imageUrl)
+                            } else {
                                 UserCache.getInstance(getApplication())?.saveFeedImageUrl("")
                             }
                             feedInfoLiveData.postValue(feedInfo)
@@ -515,11 +528,27 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         })
     }
 
+    private fun startAuthHandler() {
+        if (!authorizeRunning) {
+            authorizeHandler.removeCallbacksAndMessages(null)
+            authorizeHandler.postDelayed({
+                if (!userAuthorized()) {
+                    getCachedApiKey()?.let { apiKey ->
+                        authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname())
+                    }
+                }
+            }, AntourageFab.AUTH_RETRY)
+        }
+    }
+
+    private fun stopAuthHandler() {
+        authorizeHandler.removeCallbacksAndMessages(null)
+    }
+
     private fun authorizeUser(
         apiKey: String,
         refUserId: String? = null,
-        nickname: String? = null,
-        callback: ((result: UserAuthResult) -> Unit)? = null
+        nickname: String? = null
     ) {
         Log.d(AntourageFab.TAG, "Trying to authorize ant user...")
         refUserId?.let { UserCache.getInstance(getApplication())?.saveUserRefId(it) }
@@ -535,24 +564,27 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                         Log.d(AntourageFab.TAG, "Ant authorization successful")
                         user?.apply {
                             if (token != null && id != null) {
+                                stopAuthHandler()
+                                authorizeRunning = false
                                 Log.d(
                                     AntourageFab.TAG,
                                     "Ant token and ant userId != null, started live video timer"
                                 )
+                                if(!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
                                 UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
                                 subscribeToLiveStreams()
                                 refreshVODs()
                             }
                         }
-                        callback?.invoke(UserAuthResult.Success)
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
+                        authorizeRunning = false
+                        startAuthHandler()
                         Log.d(
                             AntourageFab.TAG,
                             "Ant authorization failed: ${responseStatus.errorMessage}"
                         )
-                        callback?.invoke(UserAuthResult.Failure(responseStatus.errorMessage))
                         errorLiveData.postValue(responseStatus.errorMessage)
                         response.removeObserver(this)
                     }

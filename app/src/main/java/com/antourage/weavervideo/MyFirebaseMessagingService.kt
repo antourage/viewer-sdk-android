@@ -7,9 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.antourage.weaverlib.screens.base.AntourageActivity
+import com.antourage.weaverlib.ui.fab.AntourageFab
+import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONArray
@@ -50,11 +55,40 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      */
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
-
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
         sendRegistrationToServer(token)
+        Handler(Looper.getMainLooper()).post {
+            AntourageFab.registerNotifications(token) { subscriptionResult ->
+                //Handle subscription result
+                when (subscriptionResult) {
+                    //If result is successful, subscribe to the topic with
+                    //topic name from result.
+                    is RegisterPushNotificationsResult.Success -> {
+                        Log.d(
+                            MainActivity.TAG,
+                            "Subscribed successfully; Topic name= ${subscriptionResult.topicName}"
+                        )
+                        FirebaseMessaging.getInstance()
+                            .subscribeToTopic(subscriptionResult.topicName)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d(MainActivity.TAG, "Subscribed successfully!")
+                                } else {
+                                    Log.d(MainActivity.TAG, "Subscription failed(")
+                                }
+                            }
+                    }
+                    is RegisterPushNotificationsResult.Failure -> {
+                        Log.d(
+                            MainActivity.TAG,
+                            "Subscription failed: ${subscriptionResult.cause}"
+                        )
+                    }
+                }
+            }
+        }
     }
     // [END on_new_token]
 

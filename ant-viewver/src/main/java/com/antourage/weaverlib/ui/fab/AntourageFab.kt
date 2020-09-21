@@ -71,6 +71,10 @@ class AntourageFab @JvmOverloads constructor(
     private var authorizeRunning = false
 
     companion object {
+        private var cachedFcmToken: String = ""
+        var isSubscribedToPushes = false
+        private var pushRegistrationCallback: ((result: RegisterPushNotificationsResult) -> Unit)? =
+            null
         const val AUTH_RETRY = 10000L
         const val MAX_HORIZONTAL_MARGIN = 50
         const val MAX_VERTICAL_MARGIN: Int = 220
@@ -81,11 +85,19 @@ class AntourageFab @JvmOverloads constructor(
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
 
+        fun retryRegisterNotifications() {
+            if (cachedFcmToken.isNotEmpty() && pushRegistrationCallback != null) {
+                registerNotifications(cachedFcmToken, pushRegistrationCallback)
+            }
+        }
+
         fun registerNotifications(
             fcmToken: String,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
             Log.d(TAG, "Trying to register ant push notifications...")
+            cachedFcmToken = fcmToken
+            pushRegistrationCallback = callback
             val response =
                 Repository.subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
             response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
@@ -97,6 +109,7 @@ class AntourageFab @JvmOverloads constructor(
                                     topicName
                                 )
                             }?.let { result -> callback?.invoke(result) }
+                            isSubscribedToPushes = true
                             Log.d(TAG, "Push notification registration successful")
                             responseStatus.data?.topic?.let {
                                 Log.d(TAG, "Topic name: $it")
@@ -116,6 +129,9 @@ class AntourageFab @JvmOverloads constructor(
             })
         }
     }
+
+    private val mIsSubscribedToPushes: Boolean
+        get() = isSubscribedToPushes
 
     private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
     private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
@@ -291,7 +307,11 @@ class AntourageFab @JvmOverloads constructor(
     override fun onResume() {
         if (!wasPaused) return
         wasPaused = false
-        if (!userAuthorized() && apiKey.isNotEmpty() && !authorizeRunning) authWith(apiKey, refUserId, nickname)
+        if (!userAuthorized() && apiKey.isNotEmpty() && !authorizeRunning) authWith(
+            apiKey,
+            refUserId,
+            nickname
+        )
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
@@ -368,6 +388,7 @@ class AntourageFab @JvmOverloads constructor(
 
         Handler().postDelayed({
             if (userAuthorized()) {
+//                Log.e(TAG, "onResume starting getting lives")
                 startAntRequests()
             }
         }, 500)
@@ -725,9 +746,11 @@ class AntourageFab @JvmOverloads constructor(
                                     "Ant token and ant userId != null, started live video timer"
                                 )
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
+//                                Log.e(TAG, "starting after aauth success")
                                 startAntRequests()
                             }
                         }
+                        if (!mIsSubscribedToPushes) retryRegisterNotifications()
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
@@ -825,14 +848,22 @@ class AntourageFab @JvmOverloads constructor(
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
-                ReceivingVideosManager.startReceivingLiveStreams(true)
+                if (userAuthorized()) {
+//                    Log.e(TAG, "network start Lives")
+                    startAntRequests()
+                }
             }
         }
     }
 
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
-            if (Global.networkAvailable) ReceivingVideosManager.startReceivingLiveStreams(true)
+            if (Global.networkAvailable) {
+                if (userAuthorized()) {
+//                    Log.e(TAG, "fail socket")
+                    startAntRequests()
+                }
+            }
         }
     }
 
