@@ -867,7 +867,6 @@ class AntourageFab @JvmOverloads constructor(
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
                 if (userAuthorized()) {
-//                    Log.e(TAG, "network start Lives")
                     startAntRequests()
                 }
             }

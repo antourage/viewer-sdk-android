@@ -55,17 +55,19 @@ internal class ConnectionStateMonitor(val context: Context) :
 
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
-        handler.removeCallbacks(finalNetworkCheck);
-        if (internetStateLiveData.value != NetworkConnectionState.AVAILABLE)
-            internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
-        Global.networkAvailable = true
+        handler.removeCallbacks(finalNetworkCheck)
+        if(!Global.networkAvailable){
+            Global.networkAvailable = true
+            if (internetStateLiveData.value != NetworkConnectionState.AVAILABLE)
+                internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
+        }
         Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
     }
 
     /** means that no network is available for sure */
     private val finalNetworkCheck = Runnable {
         Global.networkAvailable = isNetworkAvailable(context)
-        internetStateLiveData.postValue(NetworkConnectionState.LOST)
+        if(!Global.networkAvailable) internetStateLiveData.postValue(NetworkConnectionState.LOST)
         /**
          * Need this post(null) in order to ignore cached live data value and
          * show alerter only in case when the value is set and not when the
