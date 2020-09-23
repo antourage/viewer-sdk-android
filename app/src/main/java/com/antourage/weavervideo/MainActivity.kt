@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity() {
 //        /** To add widget programatically*/
 //        antfab = AntourageFab(this)
 //        if(antfab.parent == null){
+//            antfab.setLocale("sv")
 //            antfab.setPosition("bottomRight")
 //            antfab.showFab(this)
-//            antfab.setLocale("sv")
 //            antfab.setMargins(0, 0)
 //        }
 

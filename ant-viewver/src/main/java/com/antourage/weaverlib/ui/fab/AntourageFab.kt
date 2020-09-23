@@ -203,6 +203,7 @@ class AntourageFab @JvmOverloads constructor(
      * Method to force set locale (currently default or Swedish)
      */
     fun setLocale(lang: String? = null) {
+        Log.d(TAG, "setLocale called with lang = $lang")
         if (lang != null) {
             forceLocale(Locale(lang))
         } else if (Global.currentLocale != null) {
@@ -212,15 +213,20 @@ class AntourageFab @JvmOverloads constructor(
 
     @SuppressLint("RestrictedApi")
     private fun forceLocale(locale: Locale) {
-        val config =
-            Configuration(getActivity(context)!!.resources.configuration)
-        Locale.setDefault(locale)
-        config.setLocale(locale)
-        Global.currentLocale = locale
-        getActivity(context)?.baseContext?.resources?.updateConfiguration(
-            config,
-            getActivity(context)?.baseContext?.resources?.displayMetrics
-        )
+        if(getActivity(context)!=null){
+            val config =
+                Configuration(getActivity(context)!!.resources.configuration)
+            Locale.setDefault(locale)
+            config.setLocale(locale)
+            Global.currentLocale = locale
+            getActivity(context)?.baseContext?.resources?.updateConfiguration(
+                config,
+                getActivity(context)?.baseContext?.resources?.displayMetrics
+            )
+            Log.d(TAG, "setLocale passed")
+        }else{
+            Log.d(TAG, "setLocale failed")
+        }
     }
 
 
