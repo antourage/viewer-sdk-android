@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -18,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -57,6 +57,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private var isInitialListSet = true
     private var newLivesList = mutableListOf<StreamResponse>()
     private var shouldDisconnectSocket: Boolean = true
+    private var isSnackBarScrollActive: Boolean = false
 
 
     private var canShowNewButton = false
@@ -379,6 +380,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
 
         videoAdapter = VideosAdapter(onClick, onJoinedClick, videosRV)
+        //to trigger autoplay when autoplaying live and it dissapears
+        videoAdapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                if (videosRV.playPosition == positionStart) {
+                    videosRV.forceRestartAutoPlayOnChange()
+                }
+            }
+        })
         placeholdersAdapter = VideoPlaceholdersAdapter()
 
         initRecyclerView(videoAdapter, videosRV)
@@ -485,10 +495,18 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 if (canScroll) {
                     canScroll = if (lastOffset > offset) {
                         if (videoRefreshLayout.alpha == 1f && videosRV.canScrollVertically(-1)) {
+                            isSnackBarScrollActive = true
+                            Handler().postDelayed({
+                                isSnackBarScrollActive = false
+                            }, 1500)
                             videosRV.smoothScrollBy(0, (bottomSheet.height))
                         }
                         false
                     } else {
+                        isSnackBarScrollActive = true
+                        Handler().postDelayed({
+                            isSnackBarScrollActive = false
+                        }, 1500)
                         videosRV.smoothScrollBy(0, -(bottomSheet.height))
                         false
                     }
@@ -733,15 +751,34 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                             .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
                     ) {
                         newLivesList.add(stream)
-                        break
                     }
                 }
             }
 
             if (newLivesList.isNotEmpty() && oldStreams.isNotEmpty()) {
-                triggerNewLiveButton(true)
+                videosRV.afterMeasured {
+                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newLivesList.size) {
+                        newLivesList.clear()
+                        if (isSnackBarScrollActive) {
+                            Handler().postDelayed({
+                                scrollRvAndTriggerAutoplay()
+                            }, 1500)
+                        } else {
+                            scrollRvAndTriggerAutoplay()
+                        }
+                    } else {
+                        triggerNewLiveButton(true)
+                    }
+                }
             }
         }
+    }
+
+    private fun scrollRvAndTriggerAutoplay() {
+        videosRV.smoothScrollToPosition(0)
+        Handler().postDelayed({
+            videosRV.forceRestartAutoPlayOnChange()
+        }, 1000)
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->

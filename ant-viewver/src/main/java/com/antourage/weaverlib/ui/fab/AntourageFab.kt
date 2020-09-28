@@ -203,7 +203,6 @@ class AntourageFab @JvmOverloads constructor(
      * Method to force set locale (currently default or Swedish)
      */
     fun setLocale(lang: String? = null) {
-        Log.d(TAG, "setLocale called with lang = $lang")
         if (lang != null) {
             forceLocale(Locale(lang))
         } else if (Global.currentLocale != null) {
@@ -213,7 +212,7 @@ class AntourageFab @JvmOverloads constructor(
 
     @SuppressLint("RestrictedApi")
     private fun forceLocale(locale: Locale) {
-        if(getActivity(context)!=null){
+        if (getActivity(context) != null) {
             val config =
                 Configuration(getActivity(context)!!.resources.configuration)
             Locale.setDefault(locale)
@@ -223,9 +222,6 @@ class AntourageFab @JvmOverloads constructor(
                 config,
                 getActivity(context)?.baseContext?.resources?.displayMetrics
             )
-            Log.d(TAG, "setLocale passed")
-        }else{
-            Log.d(TAG, "setLocale failed")
         }
     }
 
@@ -406,7 +402,6 @@ class AntourageFab @JvmOverloads constructor(
 
         Handler().postDelayed({
             if (userAuthorized()) {
-//                Log.e(TAG, "onResume starting getting lives")
                 startAntRequests()
             }
         }, 500)
@@ -765,7 +760,6 @@ class AntourageFab @JvmOverloads constructor(
                                 )
                                 UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
                                 if (!mIsSubscribedToPushes) retryRegisterNotifications()
-//                                Log.e(TAG, "starting after aauth success")
                                 startAntRequests()
                             }
                         }
@@ -820,7 +814,7 @@ class AntourageFab @JvmOverloads constructor(
             val intent = Intent(context, AntourageActivity::class.java)
             currentlyDisplayedLiveStream?.isLive = true
             intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedLiveStream)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             context.startActivity(intent)
         }
     }
@@ -830,7 +824,7 @@ class AntourageFab @JvmOverloads constructor(
             Repository.vods = vods.toMutableList()
             val intent = Intent(context, AntourageActivity::class.java)
             intent.putExtra(ARGS_STREAM_SELECTED, vods[0])
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             context.startActivity(intent)
         }
     }
@@ -839,6 +833,7 @@ class AntourageFab @JvmOverloads constructor(
         setAllLiveStreamsAsSeen()
         val intent = Intent(context, AntourageActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         context.startActivity(intent)
     }
 
@@ -877,7 +872,6 @@ class AntourageFab @JvmOverloads constructor(
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) {
                 if (userAuthorized()) {
-//                    Log.e(TAG, "fail socket")
                     startAntRequests()
                 }
             }

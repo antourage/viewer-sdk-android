@@ -68,11 +68,10 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     private var watchingProgress: ProgressBar? = null
     private var autoPlayAnimatedDrawable: AnimatedVectorDrawableCompat? = null
 
-
     private lateinit var roomRepository: RoomRepository
 
     // vars
-    private var streams: ArrayList<StreamResponse> = ArrayList<StreamResponse>()
+    private var streams: ArrayList<StreamResponse> = ArrayList()
     private var videoSurfaceDefaultHeight = 0
     private var screenDefaultHeight = 0
     var playPosition = -1
@@ -230,6 +229,13 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         })
 
         initAutoPlayAnimation()
+    }
+
+    fun forceRestartAutoPlayOnChange() {
+        hideAutoPlayLayout()
+        playHandler.postDelayed({
+            playVideo()
+        }, AUTO_PLAY_DEBOUNCE)
     }
 
     //todo: test whether correctly parsed

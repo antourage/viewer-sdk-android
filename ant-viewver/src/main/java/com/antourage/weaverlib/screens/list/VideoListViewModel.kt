@@ -71,7 +71,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
         if (newStreams != null) {
-            liveVideos = newStreams.reversed().toMutableList()
+            liveVideos = newStreams.toMutableList()
             liveVideos?.let { getChatPollInfoForLives(it) }
             liveVideos?.let {
                 for (i in 0 until (liveVideos?.size ?: 0)) {
@@ -163,7 +163,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
         when (resource.status) {
             is Status.Success -> {
-                liveVideos = (resource.status.data)?.reversed()?.toMutableList()
+                liveVideos = (resource.status.data)?.toMutableList()
                 liveVideos?.let { getChatPollInfoForLives(it) }
                 liveVideos?.let {
                     for (i in 0 until (liveVideos?.size ?: 0)) {

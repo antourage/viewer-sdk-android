@@ -15,7 +15,6 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
@@ -55,12 +54,12 @@ internal class VideosAdapter(
     }
 
     /**format {most recent} in the way it doesn't get split in different lines*/
-    private fun formatAuthor(lastMessageAuthor: String, resources: Resources): Spanned{
+    private fun formatAuthor(lastMessageAuthor: String, resources: Resources): Spanned {
         val transparentSpace = "<font color='#191919'>_</font>"
         val mostRecentWords = resources.getString(R.string.ant_most_recent).split(" ")
-        return if(mostRecentWords.size==1){
+        return if (mostRecentWords.size == 1) {
             (Html.fromHtml("$lastMessageAuthor&nbsp; &nbsp; •$transparentSpace$transparentSpace${mostRecentWords[0]}"))
-        }else{
+        } else {
             (Html.fromHtml("$lastMessageAuthor&nbsp; &nbsp; •$transparentSpace$transparentSpace${mostRecentWords[0]}$transparentSpace${mostRecentWords[1]}"))
         }
     }
@@ -191,9 +190,16 @@ internal class VideosAdapter(
                     }
                     REFRESH_TIME -> {
                         if (holder is LiveVideoViewHolder) {
-                            holder.setTime(bundle.getString(key), bundle.getString(REFRESH_NICKNAME))
-                        }else if(holder is VODViewHolder){
-                            holder.setTime(bundle.getString(key), bundle.getString(REFRESH_NICKNAME), bundle.getString(REFRESH_DURATION))
+                            holder.setTime(
+                                bundle.getString(key),
+                                bundle.getString(REFRESH_NICKNAME)
+                            )
+                        } else if (holder is VODViewHolder) {
+                            holder.setTime(
+                                bundle.getString(key),
+                                bundle.getString(REFRESH_NICKNAME),
+                                bundle.getString(REFRESH_DURATION)
+                            )
                         }
                     }
                 }
@@ -317,7 +323,8 @@ internal class VideosAdapter(
                     txtComment_live.gone(lastMessage.isNullOrEmpty())
                     txtCommentAuthor_live.gone(lastMessage.isNullOrEmpty())
                     txtComment_live.text = lastMessage
-                    txtCommentAuthor_live.text = lastMessageAuthor?.let { formatAuthor(it, resources) }
+                    txtCommentAuthor_live.text =
+                        lastMessageAuthor?.let { formatAuthor(it, resources) }
 
                     btnJoinConversation.setOnClickListener {
                         if (adapterPosition >= 0
@@ -411,7 +418,8 @@ internal class VideosAdapter(
                     txtCommentAuthor_vod.gone(lastMessage.isNullOrEmpty())
                     btnChat_vod.gone(lastMessage.isNullOrEmpty())
                     txtComment_vod.text = lastMessage
-                    txtCommentAuthor_vod.text = lastMessageAuthor?.let { formatAuthor(it, resources) }
+                    txtCommentAuthor_vod.text =
+                        lastMessageAuthor?.let { formatAuthor(it, resources) }
 
                     val formattedStartTime =
                         duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
