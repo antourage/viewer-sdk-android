@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.SingleLiveEvent
+import com.antourage.weaverlib.other.getUtcTime
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.LiveOpenedRequest
 import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
@@ -250,7 +251,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun postVideoIsOpen(
-        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+        timestamp: String = System.currentTimeMillis().getUtcTime().toString()
     ) {
         streamId?.let { id ->
             when (this) {
@@ -316,7 +317,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     protected fun postVideoIsClosed(
         videoId: Int? = null,
-        timestamp: String = Timestamp(System.currentTimeMillis()).toString()
+        timestamp: String = System.currentTimeMillis().getUtcTime().toString()
     ) {
         val currentId = videoId ?: streamId
         currentId?.let { id ->
