@@ -50,7 +50,7 @@
             app:layout_constraintStart_toStartOf="@id/playerView"
             app:layout_constraintTop_toTopOf="@id/playerView" />
 
-    <com.google.android.exoplayer2.ui.PlayerControlView
+    <com.antourage.weaverlib.ui.CustomPlayerControlView
             android:id="@+id/controls"
             android:layout_width="0dp"
             android:layout_height="0dp"

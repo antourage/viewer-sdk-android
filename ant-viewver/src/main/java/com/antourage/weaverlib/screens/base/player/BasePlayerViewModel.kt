@@ -77,6 +77,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private var batteryStatus: Intent? = null
 
+    var shouldForceResetLiveStream: Boolean = false
+
     val requestingStreamInfoHandler = Handler()
     val currentStreamViewsLiveData: MutableLiveData<Long> = MutableLiveData()
 
@@ -350,11 +352,16 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
+    fun forceResetPlaying() {
+        player?.prepare(getMediaSource(streamUrl), false, true)
+    }
+
     private val playerEventListener = object : Player.EventListener {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when (playbackState) {
                 Player.STATE_READY -> {
+                    shouldForceResetLiveStream = false
                     if (isPlaybackPaused()) {
                         stopwatch.stopIfRunning()
                     } else {
@@ -411,11 +418,10 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                     changeVideoAfterPlayerRestart()
                 }
             } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException) {
-                if (this@BasePlayerViewModel is PlayerViewModel) {
-                    player?.prepare(getMediaSource(streamUrl), false, true)
-                }
-                errorLiveData.value = true
+                /** handling case when there was bad connectivity on broadcaster */
+                shouldForceResetLiveStream = true
                 error.postValue(err.toString())
+                errorLiveData.postValue(true)
             } else {
                 error.postValue(err.toString())
             }

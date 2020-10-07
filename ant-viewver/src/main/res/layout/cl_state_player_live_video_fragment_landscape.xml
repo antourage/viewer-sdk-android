@@ -54,7 +54,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/live_header_layout" />
 
-    <com.google.android.exoplayer2.ui.PlayerControlView
+    <com.antourage.weaverlib.ui.CustomPlayerControlView
             android:id="@+id/controls"
             android:layout_width="0dp"
             android:layout_height="0dp"

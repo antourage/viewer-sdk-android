@@ -26,7 +26,7 @@
             app:resize_mode="fit"
             app:use_controller="false" />
 
-    <com.google.android.exoplayer2.ui.PlayerControlView
+    <com.antourage.weaverlib.ui.CustomPlayerControlView
             android:id="@+id/controls"
             android:layout_width="0dp"
             android:layout_height="0dp"

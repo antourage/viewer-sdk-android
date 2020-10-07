@@ -17,6 +17,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.OrientationEventListener
 import android.view.Surface.*
 import android.view.View
@@ -37,8 +38,10 @@ import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
+import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import com.google.android.exoplayer2.ui.PlayerControlView
+import com.antourage.weaverlib.screens.weaver.PlayerFragment
+import com.antourage.weaverlib.ui.CustomPlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.jetbrains.anko.backgroundColor
@@ -69,7 +72,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     private lateinit var playerView: PlayerView
     private lateinit var ivScreenSize: ImageView
     private lateinit var ivClose: ImageView
-    protected lateinit var playerControls: PlayerControlView
+    protected lateinit var playerControls: CustomPlayerControlView
     private lateinit var playBtnPlaceholder: View
     private lateinit var controllerHeaderLayout: ConstraintLayout
     private var minuteUpdateReceiver: BroadcastReceiver? = null
@@ -87,7 +90,16 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     }
 
     private val errorObserver = Observer<Boolean> { errorMessage ->
-        errorMessage?.let { showErrorSnackBar(getString(R.string.ant_server_error)) }
+        errorMessage?.let {
+            /** handling case when there was bad connectivity on broadcaster */
+            BaseViewModel.error.value?.let {
+                if (this@BasePlayerFragment is PlayerFragment && it.contains("PlaylistStuckException")) {
+                    playerControls.showTimeoutMs = 0
+                    playerControls.show()
+                }
+            }
+            showErrorSnackBar(getString(R.string.ant_server_error))
+        }
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->

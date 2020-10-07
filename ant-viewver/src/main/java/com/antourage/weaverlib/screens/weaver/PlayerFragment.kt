@@ -65,9 +65,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         private const val SWIPE_THRESHOLD = 100
         private const val SWIPE_VELOCITY_THRESHOLD = 100
 
-        fun newInstance(stream: StreamResponse,
-                        userId: Int,
-                        isRequiredToStartChat: Boolean = false): PlayerFragment {
+        fun newInstance(
+            stream: StreamResponse,
+            userId: Int,
+            isRequiredToStartChat: Boolean = false
+        ): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
@@ -174,11 +176,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
-    private fun unlockDrawer(){
+    private fun unlockDrawer() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
     }
 
-    private fun lockDrawer(){
+    private fun lockDrawer() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
@@ -188,7 +190,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 is PollStatus.NoPoll -> {
                     unlockDrawer()
                     hidePollStatusLayout()
-                    if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility = View.INVISIBLE
+                    if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility =
+                        View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
                     unlockDrawer()
@@ -228,7 +231,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     childFragmentManager.addOnBackStackChangedListener {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
-                            if (orientation() == Configuration.ORIENTATION_PORTRAIT){
+                            if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
                                 ll_wrapper.visibility = View.VISIBLE
                             }
                             if (viewModel.currentPoll != null) {
@@ -262,12 +265,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.addMessage(message, id)
         }
         etMessage.setText("")
-        if (btnUserSettings.visibility == View.VISIBLE) { btnSend.visibility = View.INVISIBLE }
+        if (btnUserSettings.visibility == View.VISIBLE) {
+            btnSend.visibility = View.INVISIBLE
+        }
         rvMessages?.apply {
             adapter?.itemCount?.minus(0)?.let { adapterPosition ->
-                post { Handler().postDelayed({
-                    layoutManager?.scrollToPosition(adapterPosition)
-                }, 300) }
+                post {
+                    Handler().postDelayed({
+                        layoutManager?.scrollToPosition(adapterPosition)
+                    }, 300)
+                }
             }
         }
     }
@@ -314,6 +321,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         constraintLayoutParent.loadLayoutDescription(R.xml.cl_states_player_live_video)
         startPlayingStream()
 
+        /** needed to force live player to force reset playing is there was bad connectivity on broadcaster*/
+        playerControls.initOnPlayClickListener {
+            if (viewModel.shouldForceResetLiveStream) {
+                playerControls.showTimeoutMs = 2000
+                viewModel.forceResetPlaying()
+            }
+        }
+
         playerView.setOnTouchListener(object : View.OnTouchListener {
             private val gestureDetector =
                 GestureDetectorCompat(
@@ -323,6 +338,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             toggleControlsVisibility()
                             return super.onSingleTapConfirmed(e)
                         }
+
                         override fun onFling(
                             e1: MotionEvent,
                             e2: MotionEvent,
@@ -337,17 +353,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                     ) > SWIPE_VELOCITY_THRESHOLD
                                 ) {
                                     result = if (diffY > 0) {
-                                        if (orientation() == Configuration.ORIENTATION_LANDSCAPE){
+                                        if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                                             onFullScreenImgClicked()
-                                        }else{
+                                        } else {
                                             onCloseClicked()
                                         }
                                         true
-                                    }else{
+                                    } else {
                                         toggleControlsVisibility()
                                         false
                                     }
-                                }else{
+                                } else {
                                     toggleControlsVisibility()
                                     result = false
                                 }
@@ -382,8 +398,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun startUserInputIfRequesting() {
-        val isStartChat = arguments?.getBoolean(ARGS_START_CHAT)?: false
-        if (!isStartChat){
+        val isStartChat = arguments?.getBoolean(ARGS_START_CHAT) ?: false
+        if (!isStartChat) {
             return
         } else if (viewModel.noDisplayNameSet()) {
             showUserNameDialog()
@@ -416,7 +432,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //works only in landscape
     private fun initKeyboardListener() {
-        KeyboardEventListener(activity as AppCompatActivity) {isOpen ->
+        KeyboardEventListener(activity as AppCompatActivity) { isOpen ->
             try {
                 if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                     if (isOpen) {
@@ -445,7 +461,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             etMessage.text.isNullOrBlank() -> View.INVISIBLE
             else -> View.VISIBLE
         }
-        if (!shouldActivate) { etMessage.clearFocus() } else { etMessage.requestFocus() }
+        if (!shouldActivate) {
+            etMessage.clearFocus()
+        } else {
+            etMessage.requestFocus()
+        }
         changeInputBarConstraints(shouldActivate)
         if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
             animatePlayerHeader(!shouldActivate)
@@ -469,16 +489,18 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         set.applyTo(constraintLayoutParent)
     }
 
-    private fun changeInputBarConstraints(isKeyboardOpened: Boolean){
+    private fun changeInputBarConstraints(isKeyboardOpened: Boolean) {
         val constraintSet = ConstraintSet()
         constraintSet.clone(ll_wrapper)
-        if (isKeyboardOpened){
-            constraintSet.connect(R.id.etMessage, ConstraintSet.START, R.id.ll_wrapper,
-                ConstraintSet.START, dp2px(requireContext(),12f).toInt()
+        if (isKeyboardOpened) {
+            constraintSet.connect(
+                R.id.etMessage, ConstraintSet.START, R.id.ll_wrapper,
+                ConstraintSet.START, dp2px(requireContext(), 12f).toInt()
             )
         } else {
-            constraintSet.connect(R.id.etMessage, ConstraintSet.START, R.id.btnUserSettings,
-                ConstraintSet.END, dp2px(requireContext(),12f).toInt()
+            constraintSet.connect(
+                R.id.etMessage, ConstraintSet.START, R.id.btnUserSettings,
+                ConstraintSet.END, dp2px(requireContext(), 12f).toInt()
             )
         }
         constraintSet.applyTo(ll_wrapper)
@@ -583,7 +605,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
         }
 
-        if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll){
+        if (viewModel.getPollStatusLiveData().value is PollStatus.ActivePoll) {
             polls_motion_layout?.transitionToStart()
             viewModel.markActivePollDismissed()
         }
@@ -646,20 +668,23 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun enableChatUI() {
         enableMessageInput(true)
-        if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()){ showMessageInput() }
+        if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()) {
+            showMessageInput()
+        }
     }
     //end of region
 
     //region poll UI helper func
     private fun showPollStatusLayout(pollIdForAnimation: String? = null) {
         polls_motion_layout.visibility = View.VISIBLE
-        if (pollIdForAnimation != null){
+        if (pollIdForAnimation != null) {
             polls_motion_layout.transitionToEnd()
             //callback to collapse extended poll layout in 6 sec
-            Handler().postDelayed({
-                val pollStatus =  viewModel.getPollStatusLiveData().value
-                if (polls_motion_layout != null && pollStatus is PollStatus.ActivePoll){
-                        if (pollStatus.poll.id == pollIdForAnimation){
+            Handler().postDelayed(
+                {
+                    val pollStatus = viewModel.getPollStatusLiveData().value
+                    if (polls_motion_layout != null && pollStatus is PollStatus.ActivePoll) {
+                        if (pollStatus.poll.id == pollIdForAnimation) {
                             polls_motion_layout?.transitionToStart()
                             viewModel.markActivePollDismissed()
                         }
@@ -671,9 +696,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun hidePollStatusLayout() {
         polls_motion_layout.visibility = View.INVISIBLE
-        if (polls_motion_layout?.currentState == polls_motion_layout.endState){
+        if (polls_motion_layout?.currentState == polls_motion_layout.endState) {
             //to be sure, that it's in proper state
-            polls_motion_layout?.postDelayed({polls_motion_layout?.progress = 0.0f}, 500)
+            polls_motion_layout?.postDelayed({ polls_motion_layout?.progress = 0.0f }, 500)
         }
     }
     //end of region
@@ -706,9 +731,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         btnSend.setOnClickListener(onBtnSendClicked)
         etMessage.setOnClickListener(onMessageETClicked)
         etMessage?.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus){
+            if (!hasFocus) {
                 wasEditTextFocused = true
-                v.postDelayed({wasEditTextFocused = false}, 500)
+                v.postDelayed({ wasEditTextFocused = false }, 500)
             } else {
                 wasEditTextFocused = true
                 controls.hide()
@@ -882,21 +907,22 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //callback from drawer in landscape
     override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
-        if (!shouldShow && ll_wrapper.visibility == View.VISIBLE){
+        if (!shouldShow && ll_wrapper.visibility == View.VISIBLE) {
             ll_wrapper.visibility = View.GONE
-        } else if (shouldShow  && ll_wrapper.visibility != View.VISIBLE){
+        } else if (shouldShow && ll_wrapper.visibility != View.VISIBLE) {
             ll_wrapper.visibility = View.VISIBLE
         }
     }
 
-    private fun animatePollBadgeIfRequired(marginBottomDp: Float){
-        val params: ViewGroup.MarginLayoutParams? = polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
-        val initBottomMargin = params?.bottomMargin ?:0
-        val endBottomMargin =  polls_motion_layout?.dpToPx(marginBottomDp) ?: 0
+    private fun animatePollBadgeIfRequired(marginBottomDp: Float) {
+        val params: ViewGroup.MarginLayoutParams? =
+            polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
+        val initBottomMargin = params?.bottomMargin ?: 0
+        val endBottomMargin = polls_motion_layout?.dpToPx(marginBottomDp) ?: 0
         val a = object : Animation() {
             override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-                val marginParams: ViewGroup.MarginLayoutParams?
-                        = polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
+                val marginParams: ViewGroup.MarginLayoutParams? =
+                    polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
                 marginParams?.bottomMargin = initBottomMargin +
                         ((endBottomMargin - initBottomMargin) * interpolatedTime).toInt()
                 polls_motion_layout?.layoutParams = params
