@@ -326,6 +326,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (viewModel.shouldForceResetLiveStream) {
                 playerControls.showTimeoutMs = 2000
                 viewModel.forceResetPlaying()
+                if(getSnackBarErrorText() == getString(R.string.ant_live_error)){
+                    hideErrorSnackBar()
+                }
             }
         }
 

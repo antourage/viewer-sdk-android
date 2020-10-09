@@ -93,12 +93,14 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         errorMessage?.let {
             /** handling case when there was bad connectivity on broadcaster */
             BaseViewModel.error.value?.let {
-                if (this@BasePlayerFragment is PlayerFragment && it.contains("PlaylistStuckException")) {
+                if (this@BasePlayerFragment is PlayerFragment && it.contains("PlaylistStuckException") || it.contains("IllegalStateException")) {
                     playerControls.showTimeoutMs = 0
                     playerControls.show()
+                    showErrorSnackBar(getString(R.string.ant_live_error), false)
+                }else{
+                    showErrorSnackBar(getString(R.string.ant_server_error))
                 }
             }
-            showErrorSnackBar(getString(R.string.ant_server_error))
         }
     }
 
@@ -277,6 +279,10 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
     override fun showNoInternetMessage() {
         super.showNoInternetMessage()
         showErrorSnackBar(getString(R.string.ant_no_connection), false)
+    }
+
+    fun getSnackBarErrorText(): String?{
+        return errorSnackBar?.text.toString()
     }
 
     fun showErrorSnackBar(message: String, isAutoCloseable: Boolean = true) {
