@@ -54,7 +54,11 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         private const val BE_CHOICE_CLICKS = 4
     }
 
-    fun subscribeToLiveStreams() {
+    fun subscribeToLiveStreams(isInitial: Boolean = true) {
+        if (isInitial) {
+            ReceivingVideosManager.isFirstRequestVod = true
+            ReceivingVideosManager.isFirstRequest = true
+        }
         ReceivingVideosManager.setReceivingVideoCallback(this)
         ReceivingVideosManager.startReceivingLiveStreams()
     }
@@ -453,7 +457,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     fun onNetworkChanged(isConnected: Boolean) {
         if (isConnected) {
             if (userAuthorized()) {
-                    subscribeToLiveStreams()
+                    subscribeToLiveStreams(true)
             }
         } else {
             SocketConnector.disconnectSocket()
@@ -464,7 +468,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun handleUserAuthorization() {
         if (userAuthorized()) {
-            subscribeToLiveStreams()
+            subscribeToLiveStreams(true)
         } else {
             getCachedApiKey()?.let { apiKey ->
                 authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname())
@@ -572,7 +576,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                                 )
                                 UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
                                 if(!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
-                                subscribeToLiveStreams()
+                                subscribeToLiveStreams(true)
                                 refreshVODs()
                             }
                         }

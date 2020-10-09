@@ -846,7 +846,11 @@ class AntourageFab @JvmOverloads constructor(
     }
 
 
-    private fun startAntRequests() {
+    private fun startAntRequests(isInitial: Boolean = true) {
+        if (isInitial) {
+            ReceivingVideosManager.isFirstRequestVod = true
+            ReceivingVideosManager.isFirstRequest = true
+        }
         ReceivingVideosManager.startReceivingLiveStreams(true)
     }
 
@@ -872,7 +876,7 @@ class AntourageFab @JvmOverloads constructor(
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) {
                 if (userAuthorized()) {
-                    startAntRequests()
+                    startAntRequests(false)
                 }
             }
         }

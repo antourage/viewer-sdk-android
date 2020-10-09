@@ -31,7 +31,7 @@ internal class ReceivingVideosManager {
         private var vodsForFab: Resource<List<StreamResponse>>? = null
 
         /**used to ensure that live list comes first*/
-        private var isFirstRequest = true
+        var isFirstRequest = true
         var isFirstRequestVod = true
 
         fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {

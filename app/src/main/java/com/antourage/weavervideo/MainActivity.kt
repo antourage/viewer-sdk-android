@@ -18,7 +18,6 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
 
 //    lateinit var antfab: AntourageFab
-    private var isUserAuthorized = false
     private lateinit var connectivityManager: ConnectivityManager
 
     companion object {
