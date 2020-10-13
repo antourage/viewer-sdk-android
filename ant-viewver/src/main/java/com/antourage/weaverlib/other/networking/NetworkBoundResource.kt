@@ -17,7 +17,7 @@ internal abstract class NetworkBoundResource<ResultType>
         val context = ModuleResourcesProvider.getContext()
         result.value = Resource.loading()
         context?.let {
-            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+            if (ConnectionStateMonitor.isNetworkAvailable()) {
                 fetchFromNetwork()
             } else {
                 val intent =

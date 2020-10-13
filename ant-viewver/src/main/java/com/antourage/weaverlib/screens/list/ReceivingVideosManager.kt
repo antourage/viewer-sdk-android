@@ -39,7 +39,7 @@ internal class ReceivingVideosManager {
         }
 
         fun loadVODs(count: Int, roomRepository: RoomRepository) {
-            Log.d(AntourageFab.TAG, "Trying to load VODs")
+            Log.d(TAG, "Trying to load VODs")
             val response = Repository.getVODsWithLastCommentAndStopTime(count, roomRepository)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
@@ -48,7 +48,7 @@ internal class ReceivingVideosManager {
                         when (resource.status) {
                             is Status.Failure -> {
                                 Log.d(
-                                    AntourageFab.TAG,
+                                    TAG,
                                     "Failed to load VODs: ${resource.status.errorMessage}"
                                 )
                                 callback?.onVODReceived(resource)
@@ -61,7 +61,7 @@ internal class ReceivingVideosManager {
                                     callback?.onVODReceived(resource)
                                 }
                                 vods = resource
-                                Log.d(AntourageFab.TAG, "Successfully received VOD list")
+                                Log.d(TAG, "Successfully received VOD list")
                                 response.removeObserver(this)
                             }
                             is Status.Loading -> {
@@ -85,7 +85,8 @@ internal class ReceivingVideosManager {
             }
         }
 
-        val shouldUseSockets: Boolean = SocketConnector.isConnected() || SocketConnector.isSocketUsed
+        val shouldUseSockets: Boolean =
+            SocketConnector.isConnected() || SocketConnector.isSocketUsed
 
         fun startReceivingLiveStreams(isForFab: Boolean = false) {
             handlerLiveVideos.removeCallbacksAndMessages(null)
@@ -98,26 +99,31 @@ internal class ReceivingVideosManager {
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                                 if (resource != null) {
-                                    if (isFirstRequest && isForFab && Global.networkAvailable) {
-                                        isFirstRequest = false
-                                        Handler().postDelayed({
-                                            startReceivingVODsForFab()
-                                        }, 1200)
-                                    }
                                     when (resource.status) {
                                         is Status.Failure -> {
+                                            handlerLiveVideos.postDelayed({
+                                                if (isFirstRequest && Global.networkAvailable) {
+                                                    startReceivingLiveStreams(isForFab)
+                                                }
+                                            }, 2000)
                                             callback?.onLiveBroadcastReceived(resource)
                                             Log.d(
-                                                AntourageFab.TAG,
+                                                TAG,
                                                 "Get live video list request failed"
                                             )
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
                                             Log.d(
-                                                AntourageFab.TAG,
+                                                TAG,
                                                 "Successfully received live video list"
                                             )
+                                            if (isFirstRequest && isForFab && Global.networkAvailable) {
+                                                isFirstRequest = false
+                                                Handler().postDelayed({
+                                                    startReceivingVODsForFab()
+                                                }, 1200)
+                                            }
                                             callback?.onLiveBroadcastReceived(resource)
                                             liveVideos = resource
                                             streamResponse.removeObserver(this)
@@ -146,14 +152,14 @@ internal class ReceivingVideosManager {
                                         is Status.Failure -> {
                                             callback?.onVODForFabReceived(resource)
                                             Log.d(
-                                                AntourageFab.TAG,
+                                                TAG,
                                                 "Get vods list request failed for fab"
                                             )
                                             streamResponse.removeObserver(this)
                                         }
                                         is Status.Success -> {
                                             Log.d(
-                                                AntourageFab.TAG,
+                                                TAG,
                                                 "Successfully received vods list for fab"
                                             )
                                             callback?.onVODForFabReceived(resource)
@@ -171,9 +177,9 @@ internal class ReceivingVideosManager {
         }
 
         fun stopReceivingVideos() {
-            Log.d(AntourageFab.TAG, "Cancelled videos list timer")
-            Log.d(AntourageFab.TAG, "Cancelled VODs count timer")
-            Log.d(AntourageFab.TAG, "Cancelled VODs list timer")
+            Log.d(TAG, "Cancelled videos list timer")
+            Log.d(TAG, "Cancelled VODs count timer")
+            Log.d(TAG, "Cancelled VODs list timer")
             handlerLiveVideos.removeCallbacksAndMessages(null)
             handlerVODs.removeCallbacksAndMessages(null)
             callback = null

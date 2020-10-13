@@ -388,8 +388,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
 
         override fun onPlayerError(err: ExoPlaybackException) {
-            Log.e("SHIT", "player error: ${err.cause.toString()}")
-            if (ConnectionStateMonitor.isNetworkAvailable(application.baseContext)) {
+            if (ConnectionStateMonitor.isNetworkAvailable()) {
                 currentWindow = player?.currentWindowIndex ?: 0
                 if (err.cause !is HlsPlaylistTracker.PlaylistStuckException) {
                     errorLiveData.value = true
@@ -418,7 +417,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 if (Global.networkAvailable) {
                     changeVideoAfterPlayerRestart()
                 }
-            } else if (err.cause is HlsPlaylistTracker.PlaylistStuckException ||  err.cause is IllegalStateException) {
+            } else if (this@BasePlayerViewModel is PlayerViewModel) {
                 /** handling case when there was bad connectivity on broadcaster */
                 shouldForceResetLiveStream = true
                 error.postValue(err.toString())
@@ -434,7 +433,6 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             onVideoChanged()
             if (this@BasePlayerViewModel is PlayerViewModel || this@BasePlayerViewModel is VideoViewModel) {
                 checkShouldUseSockets()
-//                currentlyWatchedVideoId?.let { subscribeToCurrentStreamInfo(it) }
             }
         }
 

@@ -20,7 +20,7 @@ internal abstract class MockedNetworkBoundResource<ResultType>
         val context = ModuleResourcesProvider.getContext()
         result.value = Resource.loading()
         context?.let {
-            if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+            if (ConnectionStateMonitor.isNetworkAvailable()) {
                 fetchFromNetwork(mockResponse)
             } else {
                 val intent =

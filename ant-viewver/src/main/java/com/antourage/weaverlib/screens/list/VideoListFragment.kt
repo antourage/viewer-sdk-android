@@ -304,9 +304,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         context?.let {
             viewModel.handleUserAuthorization()
             viewModel.refreshVODsLocally()
-            if (!ConnectionStateMonitor.isNetworkAvailable(it)) {
+            if (!ConnectionStateMonitor.isNetworkAvailable()) {
                 showNoConnectionPlaceHolder()
-            } else if (ConnectionStateMonitor.isNetworkAvailable(it) &&
+            } else if (ConnectionStateMonitor.isNetworkAvailable() &&
                 viewModel.listOfStreams.value.isNullOrEmpty()
             ) {
                 showLoadingLayout()
@@ -315,7 +315,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
 
-            if (ConnectionStateMonitor.isNetworkAvailable(it) && isNoConnectionSnackbarShowing()) {
+            if (ConnectionStateMonitor.isNetworkAvailable() && isNoConnectionSnackbarShowing()) {
                 resolveErrorSnackbar(R.string.ant_you_are_online)
             }
             if (videoRefreshLayout.alpha == 1f) videosRV.onResume()
@@ -413,7 +413,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             override fun onRefresh() {
                 videosRV.hideAutoPlayLayout()
                 context?.let {
-                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                    if (ConnectionStateMonitor.isNetworkAvailable()) {
                         if (viewModel.userAuthorized()) {
                             viewModel.refreshVODs(0, true)
                         } else {
@@ -432,7 +432,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 context?.let {
-                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                    if (ConnectionStateMonitor.isNetworkAvailable()) {
                         if (viewModel.userAuthorized()) {
                             viewModel.refreshVODs(0, true)
                             showLoadingLayout(true)
@@ -452,7 +452,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 context?.let {
-                    if (ConnectionStateMonitor.isNetworkAvailable(it)) {
+                    if (ConnectionStateMonitor.isNetworkAvailable()) {
                         if (viewModel.userAuthorized()) {
                             viewModel.refreshVODs(0, true)
                         } else {

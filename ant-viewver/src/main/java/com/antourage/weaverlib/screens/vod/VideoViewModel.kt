@@ -402,7 +402,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      */
     override fun getMediaSource(streamUrl: String?): MediaSource {
         val list: List<StreamResponse>? = Repository.vods
-        val mediaSources = ArrayList<MediaSource?>()
+        val mediaSources = ArrayList<MediaSource>()
         for (i in 0 until (list?.size ?: 0)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI
@@ -414,7 +414,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun addToMediaSource(list: List<StreamResponse>) {
-        val mediaSources = ArrayList<MediaSource?>()
+        val mediaSources = ArrayList<MediaSource>()
         for (i in 0 until (list.size)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI

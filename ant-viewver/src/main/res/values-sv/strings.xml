@@ -112,5 +112,6 @@
     <string name="ant_send">SKICKA</string>
     <string name="ant_ten_seconds">10 sekunder</string>
     <string name="ant_skip_curtain">skippa ridå</string>
+    <string name="ant_live_error">Livesändningen blev avbruten. Tryck på play för att fortsätta</string>
 
 </resources>
