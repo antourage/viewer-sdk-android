@@ -113,67 +113,20 @@ internal class Repository {
                 override fun createCall() = ApiClient.getWebClient().webService.postVODOpen(body)
             }.asLiveData()
 
-        private fun postVideoClosed(body: VideoClosedRequest): LiveData<Resource<SimpleResponse>> =
+        fun postVideoClosed(body: VideoClosedRequest): LiveData<Resource<SimpleResponse>> =
             object : NetworkBoundResource<SimpleResponse>() {
                 override fun createCall() = ApiClient.getWebClient().webService.postVODClose(body)
             }.asLiveData()
-
-        fun postVideoClosedInternalObserve(body: VideoClosedRequest) {
-            val response = postVideoClosed(body)
-
-            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-                override fun onChanged(resource: Resource<SimpleResponse>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d("STAT_CLOSE",
-                                    "Failed to send vod/close: ${resource.status.errorMessage}"
-                                )
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                Log.d("STAT_CLOSE", "Successfully send vod/close: ${body.span}")
-                                response.removeObserver(this)
-                            }
-                        }
-                    }
-                }
-            })
-        }
 
         fun postLiveOpened(body: LiveOpenedRequest): LiveData<Resource<AdBanner>> =
             object : NetworkBoundResource<AdBanner>() {
                 override fun createCall() = ApiClient.getWebClient().webService.postLiveOpen(body)
             }.asLiveData()
 
-        private fun postLiveClosed(body: LiveClosedRequest): LiveData<Resource<SimpleResponse>> =
+        fun postLiveClosed(body: LiveClosedRequest): LiveData<Resource<SimpleResponse>> =
             object : NetworkBoundResource<SimpleResponse>() {
                 override fun createCall() = ApiClient.getWebClient().webService.postLiveClose(body)
             }.asLiveData()
-
-        fun postLiveClosedInternalObserve(body: LiveClosedRequest) {
-            val response = postLiveClosed(body)
-
-            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-                override fun onChanged(resource: Resource<SimpleResponse>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d(
-                                    "STAT_CLOSE",
-                                    "Failed to send live/close: ${resource.status.errorMessage}"
-                                )
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                Log.d("STAT_CLOSE", "Successfully sent live/close: ${body.span}")
-                                response.removeObserver(this)
-                            }
-                        }
-                    }
-                }
-            })
-        }
 
         private fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {

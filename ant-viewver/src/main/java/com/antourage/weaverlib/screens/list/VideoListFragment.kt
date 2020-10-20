@@ -26,6 +26,7 @@ import com.antourage.weaverlib.other.models.FeedInfo
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
+import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
@@ -239,7 +240,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun centerTitle() {
         val width =
-            px2dp(context!!, ivTeamImage.measuredWidth.toFloat())
+            px2dp(requireContext(), ivTeamImage.measuredWidth.toFloat())
 
         if (width == 0.0f) {
             val set = ConstraintSet()
@@ -248,13 +249,13 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             set.clear(R.id.tvTitle, ConstraintSet.START)
             set.connect(
                 R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    context!!,
+                    requireContext(),
                     10f
                 ).toInt()
             )
             set.connect(
                 R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    context!!,
+                    requireContext(),
                     34f
                 ).toInt()
             )
@@ -268,13 +269,13 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             set.clear(R.id.tvTitle, ConstraintSet.START)
             set.connect(
                 R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    context!!,
+                    requireContext(),
                     (width - 14.0).toFloat()
                 ).toInt()
             )
             set.connect(
                 R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    context!!,
+                    requireContext(),
                     10.0f
                 ).toInt()
             )
@@ -343,6 +344,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onDestroyView() {
         super.onDestroyView()
         videosRV.adapter = null
+        VideoCloseBackUp.sendBackUps()
     }
 
     override fun initUi(view: View?) {
@@ -603,7 +605,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     ) {
         recyclerView.adapter = adapter
         val dividerItemDecoration = VerticalSpaceItemDecorator(
-            dp2px(context!!, 32f).toInt()
+            dp2px(requireContext(), 32f).toInt()
         )
         recyclerView.addItemDecoration(dividerItemDecoration)
     }

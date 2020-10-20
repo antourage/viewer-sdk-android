@@ -17,7 +17,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.OrientationEventListener
 import android.view.Surface.*
 import android.view.View
@@ -35,13 +34,14 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.calculatePlayerHeight
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
+import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.other.ui.CustomPlayerControlView
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
-import com.antourage.weaverlib.ui.CustomPlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.jetbrains.anko.backgroundColor
@@ -137,6 +137,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             this.viewLifecycleOwner,
             networkStateObserver
         )
+        VideoCloseBackUp.sendBackUps()
     }
 
     override fun onResume() {

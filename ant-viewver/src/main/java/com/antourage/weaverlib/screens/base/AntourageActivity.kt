@@ -2,7 +2,9 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,7 @@ import com.antourage.weaverlib.other.ContextWrapper
 import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
+import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
@@ -23,6 +26,7 @@ import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
+
 
 class AntourageActivity : AppCompatActivity() {
     internal var keyboardIsVisible = false
@@ -35,6 +39,12 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
+        VideoCloseBackUp.init(
+            applicationContext.getSharedPreferences(
+                "backUpPrefs",
+                Context.MODE_PRIVATE
+            )
+        )
         if (BASE_URL.isEmptyTrimmed()) BASE_URL =
             UserCache.getInstance(applicationContext)?.getBeChoice()
                 ?: DevSettingsDialog.DEFAULT_URL
@@ -134,9 +144,9 @@ class AntourageActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         val newLocale = Global.currentLocale
-        if(newLocale!=null){
+        if (newLocale != null) {
             super.attachBaseContext(ContextWrapper.wrap(newBase, newLocale))
-        }else{
+        } else {
             super.attachBaseContext(newBase)
         }
     }

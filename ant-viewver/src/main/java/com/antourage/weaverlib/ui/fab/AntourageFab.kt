@@ -367,7 +367,7 @@ class AntourageFab @JvmOverloads constructor(
                     is Status.Success -> {
                         if (!status.data.isNullOrEmpty()) {
                             liveStreams.clear()
-                            liveStreams.addAll(status.data.reversed())
+                            liveStreams.addAll(status.data)
                             if (!goingLiveToLive) {
                                 manageLiveStreams()
                             }
@@ -887,7 +887,7 @@ class AntourageFab @JvmOverloads constructor(
             val newLives = newStreams as ArrayList<StreamResponse>
             if (!newLives.isNullOrEmpty()) {
                 liveStreams.clear()
-                liveStreams.addAll(newLives.reversed())
+                liveStreams.addAll(newLives)
                 if (!goingLiveToLive) {
                     runOnUi { manageLiveStreams() }
                 }

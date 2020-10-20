@@ -3,11 +3,13 @@ package com.antourage.weaverlib.screens.list.dev_settings
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.widget.RadioButton
 import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.isAppInstalledFromGooglePlay
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.room.AppDatabase
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
@@ -35,30 +37,36 @@ internal class DevSettingsDialog(
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
-        initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
-        rb_dev.text = "dev: $BASE_URL_DEV"
-        rb_load.text = "load: $BASE_URL_LOAD"
-        rb_staging.text = "stage: $BASE_URL_STAGING"
-        rb_demo.text = "demo: $BASE_URL_DEMO"
-        rb_prod.text = "prod: $BASE_URL_PROD"
-        setTxt.setOnClickListener { _ ->
-            val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
-            val backEndUrl = when {
-                radioButton.text.contains("dev") -> BASE_URL_DEV
-                radioButton.text.contains("load") -> BASE_URL_LOAD
-                radioButton.text.contains("stage") -> BASE_URL_STAGING
-                radioButton.text.contains("demo") -> BASE_URL_DEMO
-                radioButton.text.contains("prod") -> BASE_URL_PROD
-                else -> BASE_URL_PROD
-            }
-            if (backEndUrl != ApiClient.BASE_URL) {
-                GlobalScope.launch(Dispatchers.IO) {
-                    AppDatabase.getInstance(context).commentDao().clearComments()
-                    AppDatabase.getInstance(context).videoStopTimeDao().clearVideos()
+        if(!isAppInstalledFromGooglePlay(context)){
+            initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
+            rb_dev.text = "dev: $BASE_URL_DEV"
+            rb_load.text = "load: $BASE_URL_LOAD"
+            rb_staging.text = "stage: $BASE_URL_STAGING"
+            rb_demo.text = "demo: $BASE_URL_DEMO"
+            rb_prod.text = "prod: $BASE_URL_PROD"
+            setTxt.setOnClickListener { _ ->
+                val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
+                val backEndUrl = when {
+                    radioButton.text.contains("dev") -> BASE_URL_DEV
+                    radioButton.text.contains("load") -> BASE_URL_LOAD
+                    radioButton.text.contains("stage") -> BASE_URL_STAGING
+                    radioButton.text.contains("demo") -> BASE_URL_DEMO
+                    radioButton.text.contains("prod") -> BASE_URL_PROD
+                    else -> BASE_URL_PROD
                 }
+                if (backEndUrl != ApiClient.BASE_URL) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        AppDatabase.getInstance(context).commentDao().clearComments()
+                        AppDatabase.getInstance(context).videoStopTimeDao().clearVideos()
+                    }
+                }
+                listener.onBeChanged(backEndUrl)
+                this.dismiss()
             }
-            listener.onBeChanged(backEndUrl)
-            this.dismiss()
+        }else{
+            tv_title_dialog.visibility = View.GONE
+            rg_links.visibility = View.GONE
+            setTxt.visibility = View.GONE
         }
         setCanceledOnTouchOutside(false)
 

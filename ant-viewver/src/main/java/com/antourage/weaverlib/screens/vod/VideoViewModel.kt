@@ -327,6 +327,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             if (this != vodId) {
                 videoChanged = true
                 resetChronometer = true
+                stopwatch.stopIfRunning()
                 vodId?.let {
                     postVideoIsClosed(it)
                 }

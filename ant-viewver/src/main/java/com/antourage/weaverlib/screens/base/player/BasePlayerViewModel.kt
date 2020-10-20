@@ -14,13 +14,12 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.getUtcTime
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.models.LiveOpenedRequest
-import com.antourage.weaverlib.other.models.StatisticWatchVideoRequest
-import com.antourage.weaverlib.other.models.VideoOpenedRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.VideoCloseBackUp.Companion.backUpLiveStopInfo
+import com.antourage.weaverlib.other.networking.VideoCloseBackUp.Companion.backUpVodStopInfo
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -69,7 +68,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     //will always show same error message to user, that's why used Boolean
     var errorLiveData: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
-    private var stopwatch = Stopwatch()
+     var stopwatch = Stopwatch()
     protected var resetChronometer = true
 
     protected var player: SimpleExoPlayer? = null
@@ -84,6 +83,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     init {
         currentWindow = 0
+
     }
 
     fun setStreamId(streamId: Int) {
@@ -130,6 +130,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         player?.playWhenReady = false
         stopwatch.stopIfRunning()
         stopUpdatingCurrentStreamInfo()
+        backUpStopInfo()
     }
 
     open fun onPauseSocket(shouldDisconnectSocket: Boolean = true) {
@@ -325,12 +326,78 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         currentId?.let { id ->
             if (id == lastStatOpenedID) {
                 when (this) {
-                    is VideoViewModel -> Repository.postVideoClosedInternalObserve(
-                        VideoClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                    )
-                    is PlayerViewModel -> Repository.postLiveClosedInternalObserve(
-                        LiveClosedRequest(id, getBatteryLevel(), timestamp, stopwatch.toString())
-                    )
+                    is VideoViewModel -> {
+                        val body = VideoClosedRequest(
+                            id,
+                            getBatteryLevel(),
+                            timestamp,
+                            stopwatch.toString()
+                        )
+                        val response = Repository.postVideoClosed(body)
+                        backUpVodStopInfo(body, justRemove = true)
+                        response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                            override fun onChanged(resource: Resource<SimpleResponse>?) {
+                                if (resource != null) {
+                                    when (resource.status) {
+                                        is Status.Failure -> {
+                                            Log.d(
+                                                "STAT_CLOSE",
+                                                "Failed to send vod/close: ${resource.status.errorMessage}"
+                                            )
+                                            backUpVodStopInfo(body)
+                                            response.removeObserver(this)
+                                        }
+                                        is Status.Success -> {
+                                            Log.d(
+                                                "STAT_CLOSE",
+                                                "Successfully send vod/close: ${body.span}"
+                                            )
+                                            response.removeObserver(this)
+                                        }
+                                        else -> {
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }
+
+                    is PlayerViewModel -> {
+                        val body = LiveClosedRequest(
+                            id,
+                            getBatteryLevel(),
+                            timestamp,
+                            stopwatch.toString()
+                        )
+                        val response = Repository.postLiveClosed(body)
+                        backUpLiveStopInfo(body, justRemove = true)
+                        response.observeForever(object : Observer<Resource<SimpleResponse>> {
+                            override fun onChanged(resource: Resource<SimpleResponse>?) {
+                                if (resource != null) {
+                                    when (resource.status) {
+                                        is Status.Failure -> {
+                                            Log.d(
+                                                "STAT_CLOSE",
+                                                "Failed to send live/close: ${resource.status.errorMessage}"
+                                            )
+                                            backUpLiveStopInfo(body)
+                                            response.removeObserver(this)
+                                        }
+                                        is Status.Success -> {
+                                            Log.d(
+                                                "STAT_CLOSE",
+                                                "Successfully sent live/close: ${body.span}"
+                                            )
+                                            response.removeObserver(this)
+                                        }
+                                        else -> {
+                                        }
+                                    }
+                                }
+                            }
+                        })
+
+                    }
                     else -> {
                     }
                 }
@@ -339,6 +406,40 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         }
     }
 
+
+    private fun backUpStopInfo() {
+        val currentId = streamId
+        val timestamp: String = System.currentTimeMillis().getUtcTime().toString()
+        currentId?.let { id ->
+            if (id == lastStatOpenedID) {
+                when (this) {
+                    is VideoViewModel -> {
+                        backUpVodStopInfo(
+                            VideoClosedRequest(
+                                id,
+                                getBatteryLevel(),
+                                timestamp,
+                                stopwatch.toString()
+                            )
+                        )
+                    }
+
+                    is PlayerViewModel -> {
+                        backUpLiveStopInfo(
+                            LiveClosedRequest(
+                                id,
+                                getBatteryLevel(),
+                                timestamp,
+                                stopwatch.toString()
+                            )
+                        )
+                    }
+                    else -> {
+                    }
+                }
+            }
+        }
+    }
 
     //region Listeners
 
@@ -373,6 +474,9 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                             stopwatch.resume()
                         }
                     }
+                }
+                Player.STATE_BUFFERING ->{
+                    stopwatch.stopIfRunning()
                 }
                 Player.STATE_ENDED -> {
                     stopwatch.stopIfRunning()
@@ -415,10 +519,12 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             ) {
                 //handles navigation to next(or prev) video, when exoplayer can't playback video due to broken URL
                 if (Global.networkAvailable) {
+                    stopwatch.stopIfRunning()
                     changeVideoAfterPlayerRestart()
                 }
             } else if (this@BasePlayerViewModel is PlayerViewModel) {
                 /** handling case when there was bad connectivity on broadcaster */
+                stopwatch.stopIfRunning()
                 shouldForceResetLiveStream = true
                 error.postValue(err.toString())
                 errorLiveData.postValue(true)

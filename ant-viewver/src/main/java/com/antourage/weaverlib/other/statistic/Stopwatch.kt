@@ -20,6 +20,8 @@ internal class Stopwatch {
         this.running = true
     }
 
+
+
     fun stopIfRunning() {
         if (running) {
             this.stopTime = System.currentTimeMillis()
