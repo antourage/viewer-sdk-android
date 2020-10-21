@@ -93,13 +93,20 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         errorMessage?.let {
             /** handling case when there was bad connectivity on broadcaster */
             BaseViewModel.error.value?.let {
-//                if (this@BasePlayerFragment is PlayerFragment && it.contains("Source error") || it.contains("MediaCodecVideoDecoderException") || it.contains("PlaylistStuckException") || it.contains("IllegalStateException")) {
                 if (this@BasePlayerFragment is PlayerFragment) {
                     playerControls.showTimeoutMs = 0
                     playerControls.show()
-                    showErrorSnackBar(getString(R.string.ant_live_error), false)
+                    if (Global.networkAvailable) {
+                        showErrorSnackBar(getString(R.string.ant_live_error), false)
+                    }else{
+                        showErrorSnackBar(getString(R.string.ant_no_connection), false)
+                    }
                 }else{
-                    showErrorSnackBar(getString(R.string.ant_server_error))
+                    if (Global.networkAvailable) {
+                        showErrorSnackBar(getString(R.string.ant_server_error))
+                    }else{
+                        showErrorSnackBar(getString(R.string.ant_no_connection), false)
+                    }
                 }
             }
         }

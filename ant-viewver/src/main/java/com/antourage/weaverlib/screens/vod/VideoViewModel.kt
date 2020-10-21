@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
@@ -430,6 +431,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      * Used when impossible to playback video and the exoplayer stacked.
      */
     override fun changeVideoAfterPlayerRestart() {
+        if(!Global.networkAvailable) return
         val currentIndex = player?.currentWindowIndex
         currentIndex?.let { index ->
             if (index in 0 until mediaSource.size && mediaSource.size != 1) {
