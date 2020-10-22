@@ -520,7 +520,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                 //handles navigation to next(or prev) video, when exoplayer can't playback video due to broken URL
                 if (Global.networkAvailable) {
                     stopwatch.stopIfRunning()
-                    changeVideoAfterPlayerRestart()
+//                        changeVideoAfterPlayerRestart()
                 }
             } else if (this@BasePlayerViewModel is PlayerViewModel) {
                 /** handling case when there was bad connectivity on broadcaster */

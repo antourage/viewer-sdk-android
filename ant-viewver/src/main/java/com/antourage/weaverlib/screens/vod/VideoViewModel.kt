@@ -114,16 +114,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         if (userProcessedMessages.isNotEmpty()) {
             for (message in userProcessedMessages) {
                 message.pushTimeMills?.let { pushedTimeMills ->
-                    when {
-                        player?.currentPosition ?: 0 >= pushedTimeMills -> {
+                    if(player?.currentPosition ?: 0 >= pushedTimeMills){
+                        shownMessages.add(message)
+                    }else if(getVideoDuration()!=null && getVideoDuration()!! >0){
+                        if((getVideoDuration() ?: 0) - (player?.currentPosition ?: 0) <= 1000){
                             shownMessages.add(message)
-                        }
-                        (getVideoDuration() ?: 0) - (player?.currentPosition ?: 0) <= 1000 -> {
-                            shownMessages.add(message)
-                        }
-                        else -> {
-                        }
-                    }
+                        }else{}
+                    }else{}
                 }
             }
         }
