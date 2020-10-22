@@ -64,26 +64,118 @@ class AntourageFab @JvmOverloads constructor(
         topLeft, midLeft, bottomLeft, topMid, bottomMid, topRight, midRight, bottomRight
     }
 
-    private var apiKey: String = ""
-    private var refUserId: String? = null
-    private var nickname: String? = null
-    private val authorizeHandler = Handler()
-    private var authorizeRunning = false
-
     companion object {
         private var cachedFcmToken: String = ""
-        var isSubscribedToPushes = false
+        internal var isSubscribedToPushes = false
         private var pushRegistrationCallback: ((result: RegisterPushNotificationsResult) -> Unit)? =
             null
-        const val AUTH_RETRY = 10000L
-        const val MAX_HORIZONTAL_MARGIN = 50
-        const val MAX_VERTICAL_MARGIN: Int = 220
+        internal const val AUTH_RETRY = 10000L
+        internal const val MAX_HORIZONTAL_MARGIN = 50
+        internal const val MAX_VERTICAL_MARGIN: Int = 220
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
 
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
+
+        private var apiKey: String = ""
+        private var refUserId: String? = null
+        private var nickname: String? = null
+        private val authorizeHandler = Handler()
+        private var authorizeRunning = false
+
+        fun authWith(
+            apiKey: String,
+            refUserId: String? = null,
+            nickname: String? = null,
+            context: Context
+        ) {
+            this.apiKey = apiKey
+            this.refUserId = refUserId
+            this.nickname = nickname
+
+            val userCache = UserCache.getInstance(context)
+            val token = userCache?.getToken()
+            if (token == null || token.isEmptyTrimmed()) {
+                authorizeUser(apiKey, refUserId, nickname, context)
+            }
+        }
+
+        private fun authorizeUser(
+            apiKey: String,
+            refUserId: String? = null,
+            nickname: String? = null,
+            context: Context
+        ) {
+            Log.d(TAG, "Trying to authorize ant user...")
+            authorizeRunning = true
+            refUserId?.let { UserCache.getInstance(context)?.saveUserRefId(it) }
+            nickname?.let { UserCache.getInstance(context)?.saveUserNickName(it) }
+            UserCache.getInstance(context)?.saveApiKey(apiKey)
+
+            val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
+            response.observeForever(object : Observer<Resource<User>> {
+                override fun onChanged(it: Resource<User>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            val user = responseStatus.data
+                            Log.d(TAG, "Ant authorization successful")
+                            user?.apply {
+                                if (token != null && id != null) {
+                                    stopAuthHandler()
+                                    authorizeRunning = false
+                                    Log.d(
+                                        TAG,
+                                        "Ant token and ant userId != null, started live video timer"
+                                    )
+                                    UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
+                                    if (!isSubscribedToPushes) retryRegisterNotifications()
+                                    startAntRequests()
+                                }
+                            }
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            Log.d(TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
+                            authorizeRunning = false
+                            startAuthHandler(context)
+                            response.removeObserver(this)
+                        }
+                    }
+                }
+            })
+        }
+
+        private fun startAuthHandler(context: Context) {
+            if (!authorizeRunning) {
+                authorizeHandler.removeCallbacksAndMessages(null)
+                authorizeHandler.postDelayed({
+                    if (!userAuthorized(context) && !wasPaused && apiKey.isNotEmpty()) authWith(
+                        apiKey,
+                        refUserId,
+                        nickname,
+                        context
+                    )
+                }, AUTH_RETRY)
+            }
+        }
+
+        private fun stopAuthHandler() {
+            authorizeHandler.removeCallbacksAndMessages(null)
+        }
+
+        private fun startAntRequests(isInitial: Boolean = true) {
+            if (isInitial) {
+                ReceivingVideosManager.isFirstRequestVod = true
+                ReceivingVideosManager.isFirstRequest = true
+            }
+            ReceivingVideosManager.startReceivingLiveStreams(true)
+        }
+
+        private fun userAuthorized(context: Context): Boolean {
+            return !(UserCache.getInstance(context)?.getToken().isNullOrBlank())
+        }
 
         fun retryRegisterNotifications(firebaseToken: String? = null) {
             if (pushRegistrationCallback == null) return
@@ -99,7 +191,6 @@ class AntourageFab @JvmOverloads constructor(
                 }
             }
         }
-
 
         fun registerNotifications(
             fcmToken: String?,
@@ -141,9 +232,6 @@ class AntourageFab @JvmOverloads constructor(
             })
         }
     }
-
-    private val mIsSubscribedToPushes: Boolean
-        get() = isSubscribedToPushes
 
     private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
     private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
@@ -200,6 +288,16 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     /**
+     * Method to show fab for non native apps
+     * In native apps you can just add fab in XML (no need to call this)
+     */
+    fun showFab(activity: Activity) {
+        val viewGroup =
+            (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
+        viewGroup.addView(this)
+    }
+
+    /**
      * Method to force set locale (currently default or Swedish)
      */
     fun setLocale(lang: String? = null) {
@@ -225,16 +323,6 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-
-    /**
-     * Method to show fab for non native apps
-     * In native apps you can just add fab in XML (no need to call this)
-     */
-    fun showFab(activity: Activity) {
-        val viewGroup =
-            (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
-        viewGroup.addView(this)
-    }
 
     /**
      * Method to set margins for non native apps
@@ -321,10 +409,11 @@ class AntourageFab @JvmOverloads constructor(
     override fun onResume() {
         if (!wasPaused) return
         wasPaused = false
-        if (!userAuthorized() && apiKey.isNotEmpty() && !authorizeRunning) authWith(
+        if (!userAuthorized(context) && apiKey.isNotEmpty() && !authorizeRunning) authWith(
             apiKey,
             refUserId,
-            nickname
+            nickname,
+            context
         )
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
@@ -401,7 +490,7 @@ class AntourageFab @JvmOverloads constructor(
         })
 
         Handler().postDelayed({
-            if (userAuthorized()) {
+            if (userAuthorized(context)) {
                 startAntRequests()
             }
         }, 500)
@@ -699,83 +788,6 @@ class AntourageFab @JvmOverloads constructor(
         else false
     }
 
-    private fun startAuthHandler() {
-        if (!authorizeRunning) {
-            authorizeHandler.removeCallbacksAndMessages(null)
-            authorizeHandler.postDelayed({
-                if (!userAuthorized() && !wasPaused && apiKey.isNotEmpty()) authWith(
-                    apiKey,
-                    refUserId,
-                    nickname
-                )
-            }, AUTH_RETRY)
-        }
-    }
-
-    private fun stopAuthHandler() {
-        authorizeHandler.removeCallbacksAndMessages(null)
-    }
-
-    fun authWith(
-        apiKey: String,
-        refUserId: String? = null,
-        nickname: String? = null
-    ) {
-        this.apiKey = apiKey
-        this.refUserId = refUserId
-        this.nickname = nickname
-
-        val userCache = UserCache.getInstance(context)
-        val token = userCache?.getToken()
-        if (token == null || token.isEmptyTrimmed()) {
-            authorizeUser(apiKey, refUserId, nickname)
-        }
-    }
-
-    private fun authorizeUser(
-        apiKey: String,
-        refUserId: String? = null,
-        nickname: String? = null
-    ) {
-        Log.d(TAG, "Trying to authorize ant user...")
-        authorizeRunning = true
-        refUserId?.let { UserCache.getInstance(context)?.saveUserRefId(it) }
-        nickname?.let { UserCache.getInstance(context)?.saveUserNickName(it) }
-        UserCache.getInstance(context)?.saveApiKey(apiKey)
-
-        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
-        response.observeForever(object : Observer<Resource<User>> {
-            override fun onChanged(it: Resource<User>?) {
-                when (val responseStatus = it?.status) {
-                    is Status.Success -> {
-                        val user = responseStatus.data
-                        Log.d(TAG, "Ant authorization successful")
-                        user?.apply {
-                            if (token != null && id != null) {
-                                stopAuthHandler()
-                                authorizeRunning = false
-                                Log.d(
-                                    TAG,
-                                    "Ant token and ant userId != null, started live video timer"
-                                )
-                                UserCache.getInstance(context)?.saveUserAuthInfo(token, id)
-                                if (!mIsSubscribedToPushes) retryRegisterNotifications()
-                                startAntRequests()
-                            }
-                        }
-                        response.removeObserver(this)
-                    }
-                    is Status.Failure -> {
-                        Log.d(TAG, "Ant authorization failed: ${responseStatus.errorMessage}")
-                        authorizeRunning = false
-                        startAuthHandler()
-                        response.removeObserver(this)
-                    }
-                }
-            }
-        })
-    }
-
     private fun checkWhatToOpen() {
         //to prevent quick multiple taps
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -846,14 +858,6 @@ class AntourageFab @JvmOverloads constructor(
     }
 
 
-    private fun startAntRequests(isInitial: Boolean = true) {
-        if (isInitial) {
-            ReceivingVideosManager.isFirstRequestVod = true
-            ReceivingVideosManager.isFirstRequest = true
-        }
-        ReceivingVideosManager.startReceivingLiveStreams(true)
-    }
-
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         when (networkState?.ordinal) {
             NetworkConnectionState.LOST.ordinal -> {
@@ -865,7 +869,7 @@ class AntourageFab @JvmOverloads constructor(
                 }
             }
             NetworkConnectionState.AVAILABLE.ordinal -> {
-                if (userAuthorized()) {
+                if (userAuthorized(context)) {
                     startAntRequests()
                 }
             }
@@ -875,7 +879,7 @@ class AntourageFab @JvmOverloads constructor(
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) {
-                if (userAuthorized()) {
+                if (userAuthorized(context)) {
                     startAntRequests(false)
                 }
             }
@@ -930,10 +934,6 @@ class AntourageFab @JvmOverloads constructor(
         Handler(Looper.getMainLooper()).post {
             method()
         }
-    }
-
-    private fun userAuthorized(): Boolean {
-        return !(UserCache.getInstance(context)?.getToken().isNullOrBlank())
     }
 
     private fun setTextToBadge(text: String) {
