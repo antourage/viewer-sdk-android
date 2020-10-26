@@ -1,13 +1,11 @@
 package com.antourage.weaverlib.other.networking
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
+import android.net.*
 import android.os.Build
 import android.os.Handler
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 
@@ -28,28 +26,9 @@ internal class ConnectionStateMonitor(val context: Context) :
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build()
 
         fun isNetworkAvailable(): Boolean {
-            var result = false
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val networkCapabilities = connectivityManager.activeNetwork ?: return false
-                val actNw =
-                    connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-                result = when {
-                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                    else -> false
-                }
-            } else {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI -> true
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        ConnectivityManager.TYPE_ETHERNET -> true
-                        else -> false
-                    }
-                }
-            }
-            return result
+            val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+            val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
+            return isConnected
         }
 
         private fun initManager(context: Context) {
@@ -60,6 +39,7 @@ internal class ConnectionStateMonitor(val context: Context) :
 
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
+                    Toast.makeText(context, "onAvailable", Toast.LENGTH_SHORT).show()
                     handler.removeCallbacks(finalNetworkCheck)
                     if (isNetworkAvailable()) {
                         Global.networkAvailable = true
@@ -70,35 +50,41 @@ internal class ConnectionStateMonitor(val context: Context) :
                     Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
                 }
 
-                /** means that no network is available for sure */
-                private val finalNetworkCheck = Runnable {
-                    if (!isNetworkAvailable()) {
-                        Global.networkAvailable = false
-                        internetStateLiveData.postValue(NetworkConnectionState.LOST)
-                        /**
-                         * Need this post(null) in order to ignore cached live data value and
-                         * show alerter only in case when the value is set and not when the
-                         * live data is subscribed;
-                         * Without this thing, alerter could be shown twice in a row sometimes;
-                         */
-                        Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
-                    } else {
-                        Global.networkAvailable = true
-                        internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
-                        Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
-                    }
-                }
-
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    if (!isNetworkAvailable()) {
-                        Global.networkAvailable = false
-                        internetStateLiveData.postValue(NetworkConnectionState.LOST)
-                        Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
-                        handler.postDelayed(finalNetworkCheck, 1000);
-                    }
+                    Toast.makeText(context, "onLost", Toast.LENGTH_SHORT).show()
+                    onNetworkLost()
                 }
+
             })
+        }
+
+        /** means that no network is available for sure */
+        private val finalNetworkCheck = Runnable {
+            if (!isNetworkAvailable()) {
+                Global.networkAvailable = false
+                internetStateLiveData.postValue(NetworkConnectionState.LOST)
+                /**
+                 * Need this post(null) in order to ignore cached live data value and
+                 * show alerter only in case when the value is set and not when the
+                 * live data is subscribed;
+                 * Without this thing, alerter could be shown twice in a row sometimes;
+                 */
+                Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
+            } else {
+                Global.networkAvailable = true
+                internetStateLiveData.postValue(NetworkConnectionState.AVAILABLE)
+                Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
+            }
+        }
+
+        fun onNetworkLost() {
+            Global.networkAvailable = false
+            if (!isNetworkAvailable()) {
+                internetStateLiveData.postValue(NetworkConnectionState.LOST)
+                Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
+                handler.postDelayed(finalNetworkCheck, 1000);
+            }
         }
     }
 }

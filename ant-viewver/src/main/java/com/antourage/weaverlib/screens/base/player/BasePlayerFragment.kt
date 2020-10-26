@@ -98,13 +98,13 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                     playerControls.show()
                     if (Global.networkAvailable) {
                         showErrorSnackBar(getString(R.string.ant_live_error), false)
-                    }else{
+                    } else {
                         showErrorSnackBar(getString(R.string.ant_no_connection), false)
                     }
-                }else{
+                } else {
                     if (Global.networkAvailable) {
                         showErrorSnackBar(getString(R.string.ant_server_error))
-                    }else{
+                    } else {
                         showErrorSnackBar(getString(R.string.ant_no_connection), false)
                     }
                 }
@@ -290,7 +290,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
         showErrorSnackBar(getString(R.string.ant_no_connection), false)
     }
 
-    fun getSnackBarErrorText(): String?{
+    fun getSnackBarErrorText(): String? {
         return errorSnackBar?.text.toString()
     }
 

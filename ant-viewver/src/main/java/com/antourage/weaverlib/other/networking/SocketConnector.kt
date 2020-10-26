@@ -181,7 +181,7 @@ internal object SocketConnector {
         reconnectHandler.removeCallbacksAndMessages(null)
         if (this::hubConnection.isInitialized) {
             if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
-                hubConnection.stop()
+                hubConnection?.stop()
             }
         }
     }
