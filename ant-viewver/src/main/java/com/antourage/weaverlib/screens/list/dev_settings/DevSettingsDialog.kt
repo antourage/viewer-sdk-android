@@ -37,7 +37,7 @@ internal class DevSettingsDialog(
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
-        if(!isAppInstalledFromGooglePlay(context)){
+        if (!isAppInstalledFromGooglePlay(context)) {
             initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
             rb_dev.text = "dev: $BASE_URL_DEV"
             rb_load.text = "load: $BASE_URL_LOAD"
@@ -63,12 +63,12 @@ internal class DevSettingsDialog(
                 listener.onBeChanged(backEndUrl)
                 this.dismiss()
             }
-        }else{
+        } else {
             tv_title_dialog.visibility = View.GONE
             rg_links.visibility = View.GONE
             setTxt.visibility = View.GONE
         }
-        setCanceledOnTouchOutside(false)
+        setCanceledOnTouchOutside(true)
 
         val versionName = BuildConfig.VERSION_NAME
         txtModuleVersion.text = context.resources.getString(R.string.ant_version_name, versionName)
