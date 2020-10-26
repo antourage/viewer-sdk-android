@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.list.dev_settings
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.view.Window
 import android.widget.RadioButton
@@ -68,10 +69,17 @@ internal class DevSettingsDialog(
             rg_links.visibility = View.GONE
             setTxt.visibility = View.GONE
         }
-        setCanceledOnTouchOutside(true)
 
         val versionName = BuildConfig.VERSION_NAME
         txtModuleVersion.text = context.resources.getString(R.string.ant_version_name, versionName)
+
+        /*
+        handler is used here to prevent immediate dialog closing in case user made more clicks
+         than needed to open it.
+         */
+        Handler().postDelayed({
+            setCanceledOnTouchOutside(true)
+        }, 1500)
     }
 
     private fun initBECheckedBtn(beChoice: String?) {
