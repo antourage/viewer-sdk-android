@@ -39,7 +39,6 @@ internal class ConnectionStateMonitor(val context: Context) :
 
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    Toast.makeText(context, "onAvailable", Toast.LENGTH_SHORT).show()
                     handler.removeCallbacks(finalNetworkCheck)
                     if (isNetworkAvailable()) {
                         Global.networkAvailable = true
@@ -52,7 +51,6 @@ internal class ConnectionStateMonitor(val context: Context) :
 
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    Toast.makeText(context, "onLost", Toast.LENGTH_SHORT).show()
                     onNetworkLost()
                 }
 
