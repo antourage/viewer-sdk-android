@@ -77,6 +77,7 @@ internal class DevSettingsDialog(
         handler is used here to prevent immediate dialog closing in case user made more clicks
          than needed to open it.
          */
+        setCanceledOnTouchOutside(false)
         Handler().postDelayed({
             setCanceledOnTouchOutside(true)
         }, 1500)
