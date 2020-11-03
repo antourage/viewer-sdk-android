@@ -24,23 +24,25 @@ internal class RoomRepository private constructor(context: Context) {
         GlobalScope.launch(Dispatchers.IO) { videoDao.upsertStopTime(video) }
     }
 
-    suspend fun addVideo(video: Video) { videoDao.insertVideoIfNotExists(video) }
+    suspend fun addVideo(video: Video) {
+        videoDao.insertVideoIfNotExists(video)
+    }
 
     //used blocking due to Room doesn't works on main thread
     fun getStopTimeById(vodId: Int): Long? {
-        return runBlocking{
+        return runBlocking {
             return@runBlocking withContext(Dispatchers.IO) { videoDao.getStopTimeById(vodId) }
         }
     }
 
-    suspend fun getVideoById(vodId: Int): Video?  = videoDao.getVideoById(vodId)
+    suspend fun getVideoById(vodId: Int): Video? = videoDao.getVideoById(vodId)
 
-    fun insertAllComments(video: Video, message: List<Message> ){
+    fun insertAllComments(video: Video, message: List<Message>) {
         GlobalScope.launch(Dispatchers.IO) {
 
             val result = videoDao.insertVideoIfNotExists(video)
             val comments = transformMessages(message, video.id)
-            with(result){
+            with(result) {
                 commentDao.insertComments(*comments)
             }
         }
@@ -48,28 +50,30 @@ internal class RoomRepository private constructor(context: Context) {
 
     suspend fun getFirebaseMessagesById(vodId: Int) = commentDao.getFirebaseMessagesByVideoId(vodId)
 
-    private fun transformMessages(messages: List<Message>, vodId:Int): Array<Comment> {
+    private fun transformMessages(messages: List<Message>, vodId: Int): Array<Comment> {
         val listOfComments = ArrayList<Comment>()
 
         messages.forEach {
-            listOfComments.add(Comment(
-                it.id ?: System.currentTimeMillis().toString(),
-                vodId,
-                it.avatarUrl,
-                it.email,
-                it.nickname,
-                it.text,
-                it.type,
-                it.userID,
-                it.pushTimeMills
-            ))
+            listOfComments.add(
+                Comment(
+                    it.id ?: System.currentTimeMillis().toString(),
+                    vodId,
+                    it.avatarUrl,
+                    it.email,
+                    it.nickname,
+                    it.text,
+                    it.type,
+                    it.userID,
+                    it.pushTimeMills
+                )
+            )
         }
         return listOfComments.toTypedArray()
     }
 
     /**
-    *  Deletes all records which startDate more than month ago;
-    */
+     *  Deletes all records which startDate more than month ago;
+     */
     private fun deleteAllExpired() {
         GlobalScope.launch(Dispatchers.IO) {
             val calendar: Calendar = Calendar.getInstance()

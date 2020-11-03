@@ -142,6 +142,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
             vods?.let { resultList.addAll(it.toList()) }
             listOfStreams.postValue(resultList.toList())
+            updateVideosList(shouldUpdateStopTimeFromDB = true)
         }
         canRefresh = true
     }
@@ -383,15 +384,15 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             liveVideos?.let { resultList.addAll(it) }
             vods?.let { resultList.addAll(it.toList()) }
 
-            if (shouldUpdateStopTimeFromDB) {
-                vods?.forEach { video ->
-                    video.stopTimeMillis = video.id?.let { roomRepository.getStopTimeById(it) } ?: 0
-                }
-            }
-
             loaderLiveData.postValue(false)
             listOfStreams.postValue(resultList.toList())
             showCallResult = false
+        }
+
+        if (shouldUpdateStopTimeFromDB) {
+            vods?.forEach { video ->
+                video.stopTimeMillis = video.id?.let { roomRepository.getStopTimeById(it) } ?: 0
+            }
         }
     }
 
@@ -457,7 +458,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     fun onNetworkChanged(isConnected: Boolean) {
         if (isConnected) {
             if (userAuthorized()) {
-                    subscribeToLiveStreams(true)
+                subscribeToLiveStreams(true)
             }
         } else {
             SocketConnector.disconnectSocket()
@@ -575,7 +576,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                                     "Ant token and ant userId != null, started live video timer"
                                 )
                                 UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
-                                if(!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
+                                if (!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
                                 subscribeToLiveStreams(true)
                                 refreshVODs()
                             }
