@@ -50,8 +50,6 @@ import com.google.android.exoplayer2.Player
 import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.lang.Exception
-import java.lang.RuntimeException
 import java.util.*
 
 /**
@@ -825,17 +823,18 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun onViewerAppear() {
+        Log.e("onViewerAppear", "onViewerAppear: id is $id")
         try {
             val event: WritableMap = Arguments.createMap()
             event.putString("message", "MyMessage")
-            val reactContext: ReactContext = context as ReactContext
+            val reactContext: ReactContext = this.context as ReactContext
             reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
                 id,
-                "onViewerAppear",
+                "topChange",
                 event
             )
-        }catch (e: Throwable ){
-            Log.e("onViewerAppear", "onViewerAppear: id is $id and e is $e" )
+        }catch (e: Throwable){
+            Log.e("onViewerAppear", "onViewerAppear: id is $id and e is $e")
         }
     }
 
