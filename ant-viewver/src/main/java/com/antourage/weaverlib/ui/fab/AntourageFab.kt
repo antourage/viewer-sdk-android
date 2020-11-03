@@ -42,6 +42,10 @@ import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.google.android.exoplayer2.Player
 import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
@@ -797,6 +801,8 @@ class AntourageFab @JvmOverloads constructor(
 
         shouldDisconnectSocket = false
 
+        onViewerAppear()
+
         when (currentFabState) {
             FabState.INACTIVE -> {
                 openAntActivity()
@@ -814,6 +820,21 @@ class AntourageFab @JvmOverloads constructor(
                 openVodActivity()
             }
         }
+    }
+
+    private fun onViewerAppear() {
+        val event: WritableMap = Arguments.createMap()
+        event.putString("message", "MyMessage")
+        val reactContext: ReactContext = context as ReactContext
+        reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
+            id,
+            "onViewerAppear",
+            event
+        )
+    }
+
+    private fun onViewerDisappear() {
+
     }
 
     private fun clearStreams() {
