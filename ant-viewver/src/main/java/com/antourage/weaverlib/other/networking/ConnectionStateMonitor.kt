@@ -77,8 +77,8 @@ internal class ConnectionStateMonitor(val context: Context) :
         }
 
         fun onNetworkLost() {
-            Global.networkAvailable = false
             if (!isNetworkAvailable()) {
+                Global.networkAvailable = false
                 internetStateLiveData.postValue(NetworkConnectionState.LOST)
                 Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
                 handler.postDelayed(finalNetworkCheck, 1000);
