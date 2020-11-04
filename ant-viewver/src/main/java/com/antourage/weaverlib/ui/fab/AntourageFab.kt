@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -239,7 +240,8 @@ class AntourageFab @JvmOverloads constructor(
 
     private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
     private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
-    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
+//    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
+    private lateinit var fabLayoutParams: FrameLayout.LayoutParams
     private lateinit var widgetPosition: WidgetPosition
     private var shouldDisconnectSocket: Boolean = true
     private var goingLiveToLive: Boolean = false
@@ -283,7 +285,7 @@ class AntourageFab @JvmOverloads constructor(
     private fun initDefaultFabLocation() {
         widgetPosition = WidgetPosition.bottomRight
         fabLayoutParams =
-            CoordinatorLayout.LayoutParams(
+            FrameLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT
             )
@@ -378,7 +380,7 @@ class AntourageFab @JvmOverloads constructor(
      * */
     fun setPosition(widgetPosition: String) {
         fabLayoutParams =
-            CoordinatorLayout.LayoutParams(
+            FrameLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT
             )
@@ -919,7 +921,6 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun requestLayout() {
         super.requestLayout()
-        Log.e(TAG, "requestLayout: ")
         post(measureAndLayout)
     }
 
