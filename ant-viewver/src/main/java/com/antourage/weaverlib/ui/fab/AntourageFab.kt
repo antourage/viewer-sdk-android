@@ -917,6 +917,20 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    override fun requestLayout() {
+        super.requestLayout()
+        Log.e(TAG, "requestLayout: ")
+        post(measureAndLayout)
+    }
+
+    private val measureAndLayout = Runnable {
+        measure(
+            MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+        )
+        layout(left, top, right, bottom)
+    }
+
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) {
