@@ -412,6 +412,7 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onResume() {
         if (!wasPaused) return
+        if(didViewerAppear) onViewerDisappear()
         wasPaused = false
         if (!userAuthorized(context) && apiKey.isNotEmpty() && !authorizeRunning) authWith(
             apiKey,
@@ -822,24 +823,38 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private var didViewerAppear = false
+
+    /** needed for ReactNative library and uses reactContext */
     private fun onViewerAppear() {
-        Log.e("onViewerAppear", "onViewerAppear: id is $id")
+        didViewerAppear = true
         try {
             val event: WritableMap = Arguments.createMap()
-            event.putString("message", "MyMessage")
-            val reactContext: ReactContext = this.context as ReactContext
+            val reactContext: ReactContext = context as ReactContext
             reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
                 id,
-                "topChange",
+                "onViewerAppear",
                 event
             )
         }catch (e: Throwable){
-            Log.e("onViewerAppear", "onViewerAppear: id is $id and e is $e")
+            //not in reactContext
         }
     }
 
+    /** needed for ReactNative library and uses reactContext */
     private fun onViewerDisappear() {
-
+        didViewerAppear = false
+        try {
+            val event: WritableMap = Arguments.createMap()
+            val reactContext: ReactContext = context as ReactContext
+            reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(
+                id,
+                "onViewerDisappear",
+                event
+            )
+        }catch (e: Throwable){
+            //not in reactContext
+        }
     }
 
     private fun clearStreams() {
