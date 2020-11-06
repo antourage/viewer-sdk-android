@@ -240,8 +240,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
     private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
-//    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
-    private lateinit var fabLayoutParams: FrameLayout.LayoutParams
+    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
     private lateinit var widgetPosition: WidgetPosition
     private var shouldDisconnectSocket: Boolean = true
     private var goingLiveToLive: Boolean = false
@@ -285,9 +284,9 @@ class AntourageFab @JvmOverloads constructor(
     private fun initDefaultFabLocation() {
         widgetPosition = WidgetPosition.bottomRight
         fabLayoutParams =
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+            CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
             )
         fabLayoutParams.gravity = Gravity.BOTTOM or Gravity.END
         this.layoutParams = fabLayoutParams
@@ -380,9 +379,9 @@ class AntourageFab @JvmOverloads constructor(
      * */
     fun setPosition(widgetPosition: String) {
         fabLayoutParams =
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+            CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT
             )
 
         try {
