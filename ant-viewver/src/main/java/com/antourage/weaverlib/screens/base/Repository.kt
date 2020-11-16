@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.screens.base
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -10,22 +9,17 @@ import com.antourage.weaverlib.other.firebase.FirestoreDatabase
 import com.antourage.weaverlib.other.firebase.QuerySnapshotLiveData
 import com.antourage.weaverlib.other.firebase.QuerySnapshotValueLiveData
 import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.networking.*
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import okhttp3.MultipartBody
-import com.antourage.weaverlib.other.models.Stream
-import com.antourage.weaverlib.other.networking.ApiClient
-import com.antourage.weaverlib.other.networking.MockedNetworkBoundResource
-import com.antourage.weaverlib.other.networking.NetworkBoundResource
-import com.antourage.weaverlib.other.networking.Resource
-import com.antourage.weaverlib.other.networking.Status
-import com.antourage.weaverlib.other.room.RoomRepository
 import com.google.firebase.firestore.Source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import org.jetbrains.anko.collections.forEachWithIndex
 
 internal class Repository {
@@ -337,9 +331,9 @@ internal class Repository {
             FirestoreDatabase().getStreamsCollection().document(streamId.toString()).get()
                 .addOnSuccessListener { documentSnapshot ->
                     documentSnapshot.toObject(Stream::class.java).let {
-                        if(it?.isChatActive!=null){
-                            chatEnabled = it.isChatActive
-                        }
+                        chatEnabled = if(it?.isChatActive!=null){
+                            it.isChatActive
+                        }else false
                         if (pollEnabled != null && message != null) {
                             callback.onSuccess(chatEnabled!!, pollEnabled!!, message!!)
                         }

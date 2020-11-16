@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
+import com.antourage.weaverlib.ui.fab.WidgetPosition
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
@@ -17,7 +18,7 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
-    //    lateinit var antfab: AntourageFab
+    private lateinit var antfab: AntourageFab
     private lateinit var connectivityManager: ConnectivityManager
 
     companion object {
@@ -39,14 +40,13 @@ class MainActivity : AppCompatActivity() {
             this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
 
-//        /** To add widget programatically*/
-//        antfab = AntourageFab(this)
-//        if(antfab.parent == null){
-//            antfab.setLocale("sv")
-//            antfab.setPosition("bottomRight")
-//            antfab.showFab(this)
-//            antfab.setMargins(0, 0)
-//        }
+//        /** To add widget programmatically*/
+        antfab = AntourageFab(this)
+//        antfab.setLocale("sv")
+        antfab.setPosition(WidgetPosition.bottomRight)
+        antfab.setMargins(horizontal = 10, vertical = 80)
+        antfab.showFab(this)
+
 
         //region Antourage authorization
         AntourageFab.authWith(TEST_API_KEY.toUpperCase(), context = this)

@@ -68,9 +68,9 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         resource?.status?.let {
             if (it is Status.Success && it.data != null) {
                 if (chatContainsNonStatusMsg(it.data)) {
-                    if (isChatTurnedOn)chatStatusLiveData.postValue(ChatStatus.ChatMessages)
+                    if (isChatTurnedOn) chatStatusLiveData.postValue(ChatStatus.ChatMessages)
                     val name = user?.displayName
-                    if (name != null){
+                    if (name != null) {
                         changeAndPostDisplayNameForAllMessages(name, it.data)
                     } else {
                         messagesLiveData.value = it.data
@@ -89,7 +89,9 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                 is Status.Success -> {
                     if (it.data != null && it.data.isNotEmpty()) {
                         postAnsweredUsers = false
-                        if (UserCache.getInstance(getApplication())?.getCollapsedPollId().equals(it.data[0].id)) {
+                        if (UserCache.getInstance(getApplication())?.getCollapsedPollId()
+                                .equals(it.data[0].id)
+                        ) {
                             //todo: wtf?
                             val pollStatusText =
                                 if (postAnsweredUsers) "2 answers" else getApplication<Application>().getString(
@@ -126,6 +128,9 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                     messagesResponse = Repository.getMessages(it1)
                     messagesResponse?.observeForever(messagesObserver)
                 }
+            } else if (it is Status.Success && it.data == null) {
+                isChatTurnedOn = false
+                chatStatusLiveData.postValue(ChatStatus.ChatTurnedOff)
             }
         }
     }
@@ -216,7 +221,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
     }
 
-    fun markActivePollDismissed(){
+    fun markActivePollDismissed() {
         pollStatusLiveData.postValue(
             PollStatus.ActivePollDismissed(
                 getApplication<Application>().getString(
@@ -235,7 +240,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     }
 
     override fun checkIfMessageByUser(userID: String?): Boolean {
-        return if (userID == null){
+        return if (userID == null) {
             false
         } else {
             getUser()?.id?.toString() == userID
@@ -319,7 +324,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         val currentUserId = user?.id
         if (currentUserId != null) {
             list.forEach {
-                if (it.userID != null && it.userID == currentUserId.toString()){
+                if (it.userID != null && it.userID == currentUserId.toString()) {
                     it.nickname = displayName
                 }
             }
@@ -332,7 +337,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         val list = messagesLiveData.value
         if (currentUserId != null) {
             list?.forEach {
-                if (it.userID != null && it.userID == currentUserId.toString()){
+                if (it.userID != null && it.userID == currentUserId.toString()) {
                     it.nickname = newDisplayName
                 }
             }

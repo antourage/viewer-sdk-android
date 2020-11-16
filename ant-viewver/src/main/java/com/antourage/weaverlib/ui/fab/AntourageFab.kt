@@ -12,13 +12,11 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.AttributeSet
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.view.ViewTreeObserver
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
@@ -52,6 +50,7 @@ import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * When integrating to React Native need to add also constraint layout library in declaration
@@ -65,10 +64,6 @@ class AntourageFab @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), FabActionHandler {
 
-    enum class WidgetPosition {
-        topLeft, midLeft, bottomLeft, topMid, bottomMid, topRight, midRight, bottomRight
-    }
-
     companion object {
         private var cachedFcmToken: String = ""
         internal var isSubscribedToPushes = false
@@ -80,6 +75,7 @@ class AntourageFab @JvmOverloads constructor(
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
+        private var wereMarginsApplied: Boolean = false
 
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
@@ -238,10 +234,9 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private var horizontalMargin: Int = 10.validateHorizontalMarginForFab(context)
-    private var verticalMargin: Int = 100.validateVerticalMarginForFab(context)
-    private lateinit var fabLayoutParams: CoordinatorLayout.LayoutParams
-    private lateinit var widgetPosition: WidgetPosition
+    private var horizontalMargin: Int = 0
+    private var verticalMargin: Int = 0
+    private var widgetPosition = WidgetPosition.bottomRight
     private var shouldDisconnectSocket: Boolean = true
     private var goingLiveToLive: Boolean = false
     private var currentlyDisplayedLiveStream: StreamResponse? = null
@@ -282,24 +277,18 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun initDefaultFabLocation() {
-        widgetPosition = WidgetPosition.bottomRight
-        fabLayoutParams =
-            CoordinatorLayout.LayoutParams(
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT
-            )
-        fabLayoutParams.gravity = Gravity.BOTTOM or Gravity.END
-        this.layoutParams = fabLayoutParams
+        setPosition(true)
     }
 
     /**
-     * Method to show fab for non native apps
-     * In native apps you can just add fab in XML (no need to call this)
+     * Method to show fab
      */
     fun showFab(activity: Activity) {
-        val viewGroup =
-            (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
-        viewGroup.addView(this)
+        if (parent == null) {
+            val viewGroup =
+                (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
+            viewGroup.addView(this)
+        }
     }
 
     /**
@@ -330,8 +319,81 @@ class AntourageFab @JvmOverloads constructor(
 
 
     /**
-     * Method to set margins for non native apps
-     * In native apps you can set margins in XML as you'd like (no need to call this)
+     * Method to move fab to predefined positions
+     * */
+    fun setPosition(position: String?) {
+        Log.d(TAG, "setPosition: $position")
+        position?.let {
+            try {
+                widgetPosition = WidgetPosition.valueOf(it)
+                setPosition(false)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "INVALID position value: $widgetPosition | $e")
+            }
+
+        }
+    }
+
+    /**
+     * Method to move fab to predefined positions
+     * */
+    fun setPosition(position: WidgetPosition) {
+        Log.d(TAG, "setPosition: $position")
+        widgetPosition = position
+        setPosition(false)
+    }
+
+    private fun setPosition(justResetPosition: Boolean) {
+            viewTreeObserver.addOnGlobalLayoutListener(object :
+                ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    val parent = parent as View
+                    when (widgetPosition) {
+                        WidgetPosition.bottomLeft -> {
+                            x = 0f
+                            y = (parent.height - height).toFloat()
+                        }
+                        WidgetPosition.bottomRight -> {
+                            x = (parent.width - width).toFloat()
+                            y = (parent.height - height).toFloat()
+                        }
+                        WidgetPosition.bottomMid -> {
+                            x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                                .roundToInt()).toFloat()
+                            y = (parent.height - height).toFloat()
+                        }
+                        WidgetPosition.midLeft -> {
+                            x = 0f
+                            y = ((parent.height / 2).toDouble()
+                                .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+                        }
+                        WidgetPosition.midRight -> {
+                            x = (parent.width - width).toFloat()
+                            y = ((parent.height / 2).toDouble()
+                                .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+                        }
+                        WidgetPosition.topLeft -> {
+                            x = 0f
+                            y = 0f
+                        }
+                        WidgetPosition.topMid -> {
+                            x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                                .roundToInt()).toFloat()
+                            y = 0f
+                        }
+                        WidgetPosition.topRight -> {
+                            x = (parent.width - width).toFloat()
+                            y = 0f
+                        }
+                    }
+                    if (!justResetPosition) applyMargins()
+                }
+            })
+        }
+
+    /**
+     * Method to set margins
      * */
     fun setMargins(horizontal: Int, vertical: Int) {
         horizontalMargin = horizontal.validateHorizontalMarginForFab(context)
@@ -340,80 +402,51 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun applyMargins() {
-        when (widgetPosition) {
-            WidgetPosition.topLeft -> {
-                fabLayoutParams.marginStart = horizontalMargin
-                fabLayoutParams.topMargin = verticalMargin
-            }
-            WidgetPosition.topMid -> {
-                fabLayoutParams.topMargin = verticalMargin
-            }
-            WidgetPosition.topRight -> {
-                fabLayoutParams.marginEnd = horizontalMargin
-                fabLayoutParams.topMargin = verticalMargin
-            }
-            WidgetPosition.midLeft -> {
-                fabLayoutParams.marginStart = horizontalMargin
-            }
-            WidgetPosition.midRight -> {
-                fabLayoutParams.marginEnd = horizontalMargin
-            }
-            WidgetPosition.bottomLeft -> {
-                fabLayoutParams.marginStart = horizontalMargin
-                fabLayoutParams.bottomMargin = verticalMargin
-            }
-            WidgetPosition.bottomMid -> {
-                fabLayoutParams.bottomMargin = verticalMargin
-            }
-            WidgetPosition.bottomRight -> {
-                fabLayoutParams.marginEnd = horizontalMargin
-                fabLayoutParams.bottomMargin = verticalMargin
-            }
+        if (wereMarginsApplied) {
+            setPosition(true)
         }
-        this.layoutParams = fabLayoutParams
-    }
-
-    /**
-     * Method to move fab to predefined positions for non native apps
-     * In native apps you can move fab in XML as you'd like (no need to call this)
-     * */
-    fun setPosition(widgetPosition: String) {
-        fabLayoutParams =
-            CoordinatorLayout.LayoutParams(
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-                CoordinatorLayout.LayoutParams.WRAP_CONTENT
-            )
-
-        try {
-            this.widgetPosition = WidgetPosition.valueOf(widgetPosition)
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "INVALID position value: $widgetPosition | $e")
-        }
-
-        when (widgetPosition) {
-            WidgetPosition.bottomLeft.name -> fabLayoutParams.gravity =
-                Gravity.BOTTOM or Gravity.START
-            WidgetPosition.bottomMid.name -> fabLayoutParams.gravity =
-                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            WidgetPosition.bottomRight.name -> fabLayoutParams.gravity =
-                Gravity.BOTTOM or Gravity.END
-            WidgetPosition.midLeft.name -> fabLayoutParams.gravity =
-                Gravity.CENTER_VERTICAL or Gravity.START
-            WidgetPosition.midRight.name -> fabLayoutParams.gravity =
-                Gravity.CENTER_VERTICAL or Gravity.END
-            WidgetPosition.topLeft.name -> fabLayoutParams.gravity = Gravity.TOP or Gravity.START
-            WidgetPosition.topMid.name -> fabLayoutParams.gravity =
-                Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            WidgetPosition.topRight.name -> fabLayoutParams.gravity = Gravity.TOP or Gravity.END
-            else -> fabLayoutParams.gravity = Gravity.BOTTOM or Gravity.END
-        }
-        this.layoutParams = fabLayoutParams
-        applyMargins()
+        wereMarginsApplied = true
+        viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewTreeObserver!!.removeOnGlobalLayoutListener(this)
+                when (widgetPosition) {
+                    WidgetPosition.topLeft -> {
+                        x += horizontalMargin
+                        y += verticalMargin
+                    }
+                    WidgetPosition.topMid -> {
+                        y += verticalMargin
+                    }
+                    WidgetPosition.topRight -> {
+                        x -= horizontalMargin
+                        y += verticalMargin
+                    }
+                    WidgetPosition.midLeft -> {
+                        x += horizontalMargin
+                    }
+                    WidgetPosition.midRight -> {
+                        x -= horizontalMargin
+                    }
+                    WidgetPosition.bottomLeft -> {
+                        x += horizontalMargin
+                        y -= verticalMargin
+                    }
+                    WidgetPosition.bottomMid -> {
+                        y -= verticalMargin
+                    }
+                    WidgetPosition.bottomRight -> {
+                        x -= horizontalMargin
+                        y -= verticalMargin
+                    }
+                }
+            }
+        })
     }
 
     override fun onResume() {
         if (!wasPaused) return
-        if(didViewerAppear) onViewerDisappear()
+        if (didViewerAppear) onViewerDisappear()
         wasPaused = false
         if (!userAuthorized(context) && apiKey.isNotEmpty() && !authorizeRunning) authWith(
             apiKey,
@@ -837,7 +870,7 @@ class AntourageFab @JvmOverloads constructor(
                 "onViewerAppear",
                 event
             )
-        }catch (e: Throwable){
+        } catch (e: Throwable) {
             //not in reactContext
         }
     }
@@ -853,7 +886,7 @@ class AntourageFab @JvmOverloads constructor(
                 "onViewerDisappear",
                 event
             )
-        }catch (e: Throwable){
+        } catch (e: Throwable) {
             //not in reactContext
         }
     }
