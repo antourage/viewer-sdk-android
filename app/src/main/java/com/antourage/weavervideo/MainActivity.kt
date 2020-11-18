@@ -3,6 +3,7 @@ package com.antourage.weavervideo
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
@@ -46,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         antfab.setPosition(WidgetPosition.bottomRight)
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
-
 
         //region Antourage authorization
         AntourageFab.authWith(TEST_API_KEY.toUpperCase(), context = this)
