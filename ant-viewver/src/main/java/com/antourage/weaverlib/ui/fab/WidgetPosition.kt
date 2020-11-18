@@ -1,3 +1,5 @@
+@file:Suppress("EnumEntryName")
+
 package com.antourage.weaverlib.ui.fab
 
 enum class WidgetPosition {

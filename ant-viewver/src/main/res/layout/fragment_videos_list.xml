@@ -35,7 +35,8 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:listitem="@layout/item_live_video" />
+                    tools:listitem="@layout/item_live_video"
+                    tools:ignore="UnusedAttribute" />
 
 
         </com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView>
@@ -59,7 +60,8 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:listitem="@layout/item_video_placeholder" />
+                    tools:listitem="@layout/item_video_placeholder"
+                    tools:ignore="UnusedAttribute" />
 
 
         </com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView>
@@ -135,7 +137,8 @@
                 android:textSize="11sp"
                 app:behavior_hideable="false"
                 app:behavior_peekHeight="0dp"
-                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+                tools:ignore="SmallSp" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

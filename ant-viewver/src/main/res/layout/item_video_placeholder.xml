@@ -11,7 +11,8 @@
             android:id="@+id/itemPlaceholderContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless">
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            tools:ignore="UnusedAttribute">
 
         <ImageView
                 android:id="@+id/ivCircleOutline_holder"
@@ -44,7 +45,8 @@
                     app:layout_constraintBottom_toTopOf="@+id/txtTitle_live"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_chainStyle="spread" />
+                    app:layout_constraintVertical_chainStyle="spread"
+                    tools:ignore="SmallSp" />
 
             <TextView
                     android:id="@+id/txtTitle_live"
@@ -58,7 +60,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/viewStreamerInfo_holder"
-                    app:layout_constraintVertical_chainStyle="spread"/>
+                    app:layout_constraintVertical_chainStyle="spread"
+                    tools:ignore="SmallSp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -133,7 +136,8 @@
                 android:textSize="10sp"
                 android:background="@drawable/antourage_placeholder_rounded_shape"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnChat_holder" />
+                app:layout_constraintTop_toBottomOf="@id/btnChat_holder"
+                tools:ignore="SmallSp" />
 
         <TextView
                 android:id="@+id/txtCommentAuthor_holder"
@@ -143,7 +147,8 @@
                 android:textSize="10sp"
                 android:background="@drawable/antourage_placeholder_rounded_shape"
                 app:layout_constraintStart_toStartOf="@id/txtComment_holder"
-                app:layout_constraintTop_toBottomOf="@id/txtComment_holder"/>
+                app:layout_constraintTop_toBottomOf="@id/txtComment_holder"
+                tools:ignore="SmallSp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/txtJoinConversation_holder"
@@ -165,7 +170,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textSize="9sp" />
+                    android:textSize="9sp"
+                    tools:ignore="SmallSp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -136,15 +136,14 @@ internal fun String.parseDateLong(context: Context): String {
 internal fun Date.parseToDisplayMessagesAgoTimeLong(context: Context): String {
     val diff = getSecondsDateDiff(this, Date())
     val timeAgo: String
-    when {
+    timeAgo = when {
         diff > secInHour -> {
             val hours = (diff / secInHour).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
+            context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
         }
         diff > secInMin -> {
             val minute = (diff / secInMin).toInt()
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+            context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
 
         diff > 10 -> { return context.getString(R.string.ant_recent) }
@@ -260,9 +259,7 @@ internal fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T
     observeForever(object : Observer<Resource<T>> {
         override fun onChanged(resource: Resource<T>?) {
             observer.onChanged(resource)
-            when (resource?.status) {
-                is Status.Success, is Status.Failure -> removeObserver(this)
-            }
+            if (resource?.status is Status.Success || resource?.status is Status.Failure) removeObserver(this)
         }
     })
 }
@@ -397,7 +394,7 @@ internal fun TextView.showBadge() {
         .scaleX(1.0f)
         .alpha(1.0f)
         .setDuration(300)
-        .start();
+        .start()
 }
 
 internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {

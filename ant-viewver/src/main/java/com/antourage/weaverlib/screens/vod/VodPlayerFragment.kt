@@ -41,6 +41,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+@Suppress("ControlFlowWithEmptyBody")
 internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     CustomDrawerLayout.DrawerDoubleTapListener {
 
@@ -503,6 +504,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     }
                 })
 
+            @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 gestureDetector.onTouchEvent(p1)
                 return true

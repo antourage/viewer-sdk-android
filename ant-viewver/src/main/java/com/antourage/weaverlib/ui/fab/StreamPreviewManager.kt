@@ -19,7 +19,6 @@ internal class StreamPreviewManager {
 
     companion object {
         private var callback: StreamCallback? = null
-        private var streamId: Int? = null
         private var player: SimpleExoPlayer? = null
         private var streamUrl: String? = null
 

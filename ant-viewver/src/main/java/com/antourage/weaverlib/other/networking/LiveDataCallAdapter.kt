@@ -1,8 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
-import android.os.Handler
 import androidx.lifecycle.LiveData
-import com.antourage.weaverlib.Global
 import retrofit2.Call
 import retrofit2.CallAdapter
 import retrofit2.Callback

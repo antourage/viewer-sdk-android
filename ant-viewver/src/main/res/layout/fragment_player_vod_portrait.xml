@@ -99,7 +99,8 @@
             android:textSize="11sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/playerView"
-            tools:text="6,385" />
+            tools:text="6,385"
+            tools:ignore="SmallSp" />
 
     <ImageView
             android:id="@+id/skipForward"
@@ -269,6 +270,7 @@
                 android:textSize="11sp"
                 app:behavior_hideable="false"
                 app:behavior_peekHeight="0dp"
-                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+                tools:ignore="SmallSp" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

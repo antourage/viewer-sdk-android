@@ -9,13 +9,10 @@ import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.ListOfStreams
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import com.microsoft.signalr.HubConnectionState
 import com.microsoft.signalr.TransportEnum
-import java.lang.RuntimeException
-import kotlin.collections.ArrayList
 
 internal object SocketConnector {
 
@@ -181,7 +178,7 @@ internal object SocketConnector {
         reconnectHandler.removeCallbacksAndMessages(null)
         if (this::hubConnection.isInitialized) {
             if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
-                hubConnection?.stop()
+                hubConnection.stop()
             }
         }
     }

@@ -2,10 +2,7 @@ package com.antourage.weaverlib.other.networking
 
 import android.content.Context
 import android.net.*
-import android.os.Build
 import android.os.Handler
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 
@@ -27,8 +24,7 @@ internal class ConnectionStateMonitor(val context: Context) :
 
         fun isNetworkAvailable(): Boolean {
             val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
-            val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
-            return isConnected
+            return activeNetwork?.isConnectedOrConnecting == true
         }
 
         private fun initManager(context: Context) {
@@ -81,7 +77,7 @@ internal class ConnectionStateMonitor(val context: Context) :
                 Global.networkAvailable = false
                 internetStateLiveData.postValue(NetworkConnectionState.LOST)
                 Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
-                handler.postDelayed(finalNetworkCheck, 1000);
+                handler.postDelayed(finalNetworkCheck, 1000)
             }
         }
     }

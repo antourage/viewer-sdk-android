@@ -17,7 +17,6 @@
 
     <!--poll section-->
     <dimen name="poll_divider_size">10dp</dimen>
-    <dimen name="poll_divider_double_size">20dp</dimen>
     <dimen name="poll_answer_max_size">40dp</dimen>
     <dimen name="poll_banner_padding">40dp</dimen>
 </resources>

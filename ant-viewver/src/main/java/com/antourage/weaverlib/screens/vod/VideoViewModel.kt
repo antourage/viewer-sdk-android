@@ -34,6 +34,7 @@ import okhttp3.OkHttpClient
 import java.util.*
 import kotlin.collections.ArrayList
 
+@Suppress("ControlFlowWithEmptyBody")
 internal class VideoViewModel constructor(application: Application) : ChatViewModel(application) {
 
     companion object {
@@ -495,6 +496,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                             }
                             response.removeObserver(this)
                         }
+                        else -> {}
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.ui.keyboard
 
 import android.app.Activity
-import android.os.Build
 import android.view.ViewTreeObserver
 import java.lang.ref.WeakReference
 
@@ -14,14 +13,10 @@ import java.lang.ref.WeakReference
 class SimpleUnregistrar internal constructor(activity: Activity, globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener) :
     Unregistrar {
 
-    private val mActivityWeakReference: WeakReference<Activity>
+    private val mActivityWeakReference: WeakReference<Activity> = WeakReference(activity)
 
-    private val mOnGlobalLayoutListenerWeakReference: WeakReference<ViewTreeObserver.OnGlobalLayoutListener>
-
-    init {
-        mActivityWeakReference = WeakReference(activity)
-        mOnGlobalLayoutListenerWeakReference = WeakReference<ViewTreeObserver.OnGlobalLayoutListener>(globalLayoutListener)
-    }
+    private val mOnGlobalLayoutListenerWeakReference: WeakReference<ViewTreeObserver.OnGlobalLayoutListener> =
+        WeakReference<ViewTreeObserver.OnGlobalLayoutListener>(globalLayoutListener)
 
     override fun unregister() {
         val activity = mActivityWeakReference.get()
@@ -29,13 +24,8 @@ class SimpleUnregistrar internal constructor(activity: Activity, globalLayoutLis
 
         if (null != activity && null != globalLayoutListener) {
             val activityRoot = KeyboardVisibilityEvent.getActivityRoot(activity)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                activityRoot.viewTreeObserver
-                        .removeOnGlobalLayoutListener(globalLayoutListener)
-            } else {
-                activityRoot.viewTreeObserver
-                        .removeGlobalOnLayoutListener(globalLayoutListener)
-            }
+            activityRoot.viewTreeObserver
+                    .removeOnGlobalLayoutListener(globalLayoutListener)
         }
 
         mActivityWeakReference.clear()

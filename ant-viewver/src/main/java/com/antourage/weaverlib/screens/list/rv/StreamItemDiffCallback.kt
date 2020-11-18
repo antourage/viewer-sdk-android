@@ -1,10 +1,8 @@
 package com.antourage.weaverlib.screens.list.rv
 
-import android.content.Context
 import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.parseDateLong
 
 
 internal class StreamItemDiffCallback(
@@ -55,7 +53,7 @@ internal class StreamItemDiffCallback(
 //            if(!newStream.isLive)  newStream.duration?.let { diffBundle.putString(REFRESH_DURATION, it) }
 //        }
 
-        if (diffBundle.isEmpty) return null;
+        if (diffBundle.isEmpty) return null
         return diffBundle
     }
 }

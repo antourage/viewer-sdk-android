@@ -1,10 +1,8 @@
 package com.antourage.weaverlib.screens.list.refresh
 
 import android.content.Context
-import android.graphics.drawable.Animatable2
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.ImageView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -22,8 +20,8 @@ class AntRefreshView @JvmOverloads constructor(
         )
     }
 
-    var stripes = ImageView(context)
-    var animatedBackground = ImageView(context)
+    private var stripes = ImageView(context)
+    private var animatedBackground = ImageView(context)
 
     init {
         stripes.setImageResource(R.drawable.pull1)

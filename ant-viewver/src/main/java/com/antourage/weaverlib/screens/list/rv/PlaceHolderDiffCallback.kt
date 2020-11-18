@@ -34,7 +34,7 @@ internal class PlaceHolderDiffCallback(
             diffBundle.putInt(STATE, newState)
         }
 
-        if (diffBundle.isEmpty) return null;
+        if (diffBundle.isEmpty) return null
         return diffBundle
     }
 }

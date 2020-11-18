@@ -9,9 +9,10 @@ import android.widget.OverScroller;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings("unused")
 class MyNestedScrollView extends NestedScrollView {
 
-    private OverScroller mScroller;
+    private final OverScroller mScroller;
     public boolean isFling = false;
     private OnBottomReachedListener listener;
 
@@ -76,6 +77,6 @@ class MyNestedScrollView extends NestedScrollView {
     }
 
     public interface OnBottomReachedListener {
-        public void onBottomReached(View view);
+        void onBottomReached(View view);
     }
 }

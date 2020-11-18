@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.util.AttributeSet
@@ -47,6 +48,7 @@ internal class CustomDrawerLayout : DrawerLayout {
         return super.onInterceptTouchEvent(ev)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
         val orientation = context.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)

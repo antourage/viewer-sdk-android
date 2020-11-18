@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -27,7 +26,6 @@ import com.antourage.weaverlib.other.models.FeedInfo
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
@@ -552,19 +550,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun showErrorSnackbar(error: String) {
-        if (snackBarBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
-
-            snackBar.text = error
-            context?.let {
-                snackBar.backgroundColor =
-                    ContextCompat.getColor(it, R.color.ant_error_bg_color)
-            }
-
-            snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-    }
-
     private fun isNoConnectionSnackbarShowing(): Boolean {
         return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && snackBar.text == context?.resources?.getString(
             R.string.ant_no_connection
@@ -736,7 +721,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun checkIsLiveWasRemoved(newStreams: List<StreamResponse>) {
         val iterator = newLivesList.iterator()
         for (stream in iterator) {
-            if (newStreams.none() { it.id == stream.id }) {
+            if (newStreams.none { it.id == stream.id }) {
                 iterator.remove()
             }
         }

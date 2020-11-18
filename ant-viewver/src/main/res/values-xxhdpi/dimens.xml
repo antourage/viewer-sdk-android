@@ -3,5 +3,4 @@
     <dimen name="dialog_user_name_margin">40dp</dimen>
 
     <dimen name="poll_divider_size">12dp</dimen>
-    <dimen name="poll_divider_double_size">20dp</dimen>
 </resources>
