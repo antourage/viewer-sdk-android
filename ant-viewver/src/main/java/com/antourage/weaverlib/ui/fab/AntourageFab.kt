@@ -75,7 +75,6 @@ class AntourageFab @JvmOverloads constructor(
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
-        private var wereMarginsApplied: Boolean = false
 
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
@@ -234,6 +233,7 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private var viewIsDrawn: Boolean = false
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
     private var widgetPosition = WidgetPosition.bottomRight
@@ -344,50 +344,61 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun setPosition(justResetPosition: Boolean) {
-        runOnUi {
-            post {
-                val parent = parent as View
-                when (widgetPosition) {
-                    WidgetPosition.bottomLeft -> {
-                        x = 0f
-                        y = (parent.height - height).toFloat()
-                    }
-                    WidgetPosition.bottomRight -> {
-                        x = (parent.width - width).toFloat()
-                        y = (parent.height - height).toFloat()
-                    }
-                    WidgetPosition.bottomMid -> {
-                        x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
-                            .roundToInt()).toFloat()
-                        y = (parent.height - height).toFloat()
-                    }
-                    WidgetPosition.midLeft -> {
-                        x = 0f
-                        y = ((parent.height / 2).toDouble()
-                            .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
-                    }
-                    WidgetPosition.midRight -> {
-                        x = (parent.width - width).toFloat()
-                        y = ((parent.height / 2).toDouble()
-                            .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
-                    }
-                    WidgetPosition.topLeft -> {
-                        x = 0f
-                        y = 0f
-                    }
-                    WidgetPosition.topMid -> {
-                        x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
-                            .roundToInt()).toFloat()
-                        y = 0f
-                    }
-                    WidgetPosition.topRight -> {
-                        x = (parent.width - width).toFloat()
-                        y = 0f
-                    }
+        if (!viewIsDrawn) {
+            viewTreeObserver.addOnGlobalLayoutListener(object :
+                ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    viewIsDrawn = true
+                    viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    invalidatePosition(justResetPosition)
                 }
-                if (!justResetPosition) applyMargins()
+            })
+        } else {
+            invalidatePosition(justResetPosition)
+        }
+    }
+
+    private fun invalidatePosition(justResetPosition: Boolean) {
+        val parent = parent as View
+        when (widgetPosition) {
+            WidgetPosition.bottomLeft -> {
+                x = 0f
+                y = (parent.height - height).toFloat()
+            }
+            WidgetPosition.bottomRight -> {
+                x = (parent.width - width).toFloat()
+                y = (parent.height - height).toFloat()
+            }
+            WidgetPosition.bottomMid -> {
+                x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                    .roundToInt()).toFloat()
+                y = (parent.height - height).toFloat()
+            }
+            WidgetPosition.midLeft -> {
+                x = 0f
+                y = ((parent.height / 2).toDouble()
+                    .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+            }
+            WidgetPosition.midRight -> {
+                x = (parent.width - width).toFloat()
+                y = ((parent.height / 2).toDouble()
+                    .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+            }
+            WidgetPosition.topLeft -> {
+                x = 0f
+                y = 0f
+            }
+            WidgetPosition.topMid -> {
+                x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                    .roundToInt()).toFloat()
+                y = 0f
+            }
+            WidgetPosition.topRight -> {
+                x = (parent.width - width).toFloat()
+                y = 0f
             }
         }
+        if (!justResetPosition) applyMargins()
     }
 
     /**
@@ -400,42 +411,50 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun applyMargins() {
-        if (wereMarginsApplied) {
             setPosition(true)
-        }
-        wereMarginsApplied = true
-        runOnUi {
-            post {
-                when (widgetPosition) {
-                    WidgetPosition.topLeft -> {
-                        x += horizontalMargin
-                        y += verticalMargin
-                    }
-                    WidgetPosition.topMid -> {
-                        y += verticalMargin
-                    }
-                    WidgetPosition.topRight -> {
-                        x -= horizontalMargin
-                        y += verticalMargin
-                    }
-                    WidgetPosition.midLeft -> {
-                        x += horizontalMargin
-                    }
-                    WidgetPosition.midRight -> {
-                        x -= horizontalMargin
-                    }
-                    WidgetPosition.bottomLeft -> {
-                        x += horizontalMargin
-                        y -= verticalMargin
-                    }
-                    WidgetPosition.bottomMid -> {
-                        y -= verticalMargin
-                    }
-                    WidgetPosition.bottomRight -> {
-                        x -= horizontalMargin
-                        y -= verticalMargin
-                    }
+        if (!viewIsDrawn) {
+            viewTreeObserver.addOnGlobalLayoutListener(object :
+                ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    viewIsDrawn = true
+                    viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    invalidateMargins()
                 }
+            })
+        } else {
+            invalidateMargins()
+        }
+    }
+
+    private fun invalidateMargins() {
+        when (widgetPosition) {
+            WidgetPosition.topLeft -> {
+                x += horizontalMargin
+                y += verticalMargin
+            }
+            WidgetPosition.topMid -> {
+                y += verticalMargin
+            }
+            WidgetPosition.topRight -> {
+                x -= horizontalMargin
+                y += verticalMargin
+            }
+            WidgetPosition.midLeft -> {
+                x += horizontalMargin
+            }
+            WidgetPosition.midRight -> {
+                x -= horizontalMargin
+            }
+            WidgetPosition.bottomLeft -> {
+                x += horizontalMargin
+                y -= verticalMargin
+            }
+            WidgetPosition.bottomMid -> {
+                y -= verticalMargin
+            }
+            WidgetPosition.bottomRight -> {
+                x -= horizontalMargin
+                y -= verticalMargin
             }
         }
     }
