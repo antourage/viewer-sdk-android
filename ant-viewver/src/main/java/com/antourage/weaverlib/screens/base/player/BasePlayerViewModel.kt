@@ -158,11 +158,12 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     fun onNetworkGained() {
-        player?.prepare(getMediaSource(streamUrl), false, true)
-        player?.seekTo(currentWindow, player?.currentPosition ?: 0)
-        if (this@BasePlayerViewModel is PlayerViewModel || this@BasePlayerViewModel is VideoViewModel) {
-            checkShouldUseSockets()
-        }
+            player?.playWhenReady = true
+            player?.prepare()
+            player?.seekTo(currentWindow, player?.currentPosition ?: 0)
+            if (this@BasePlayerViewModel is PlayerViewModel || this@BasePlayerViewModel is VideoViewModel) {
+                checkShouldUseSockets()
+            }
     }
 
     private fun initStatisticsListeners() {

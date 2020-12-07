@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.screens.vod
 
 import android.app.Application
-import android.net.Uri
 import android.os.Handler
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -20,11 +19,15 @@ import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.base.chat.ChatViewModel
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
@@ -33,6 +36,7 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 internal class VideoViewModel constructor(application: Application) : ChatViewModel(application) {
 
@@ -522,10 +526,18 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             }
             .build()
 
-        val dataSourceFactory =
-            OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))
-        return HlsMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(Uri.parse(uri))
+        return if(uri.endsWith("mp4", true) || uri.endsWith("flv", true) ||  uri.endsWith("mov", true)){
+            val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory()
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
+                MediaItem.fromUri(
+                    uri
+                )
+            )
+        }else {
+            val okHttpDataSourceFactory =
+                OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))
+            HlsMediaSource.Factory(okHttpDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+        }
     }
 
     private fun processVODsChat(messages: List<Message>, isFetched: Boolean = true): List<Message> {

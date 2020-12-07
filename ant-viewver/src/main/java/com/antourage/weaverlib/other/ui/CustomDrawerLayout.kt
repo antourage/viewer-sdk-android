@@ -44,6 +44,7 @@ internal class CustomDrawerLayout : DrawerLayout {
         val orientation = context.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             gestureDetector.onTouchEvent(ev)
+        else return false
         return super.onInterceptTouchEvent(ev)
     }
 
@@ -51,6 +52,7 @@ internal class CustomDrawerLayout : DrawerLayout {
         val orientation = context.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             gestureDetector.onTouchEvent(ev)
+        else return false
         return super.onTouchEvent(ev)
     }
 

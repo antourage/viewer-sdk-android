@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -27,7 +26,6 @@ import com.antourage.weaverlib.other.models.FeedInfo
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
@@ -50,7 +48,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private lateinit var snackBarBehaviour: BottomSheetBehavior<View>
     private lateinit var videoAdapter: VideosAdapter
     private lateinit var placeholdersAdapter: VideoPlaceholdersAdapter
-
     private lateinit var rvLayoutManager: LinearLayoutManager
     private lateinit var placeholderLayoutManager: LinearLayoutManager
     private var refreshVODs = true
@@ -61,8 +58,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private var newLivesList = mutableListOf<StreamResponse>()
     private var shouldDisconnectSocket: Boolean = true
     private var isSnackBarScrollActive: Boolean = false
-
-
     private var canShowNewButton = false
 
     companion object {
@@ -120,12 +115,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun stopRefreshing() {
-        videoRefreshLayout.setRefreshing(false)
-        noContentRefreshLayout.setRefreshing(false)
-        placeholderRefreshLayout.setRefreshing(false)
-    }
-
     private val loaderObserver: Observer<Boolean> = Observer { show ->
         if (show == true) {
             showLoadingLayout()
@@ -143,8 +132,44 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             context?.let { context -> DevSettingsDialog(context, viewModel).show() }
     }
 
+    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
+        when (networkState?.ordinal) {
+            NetworkConnectionState.LOST.ordinal -> {
+                if (!Global.networkAvailable) {
+                    if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value) {
+                        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
+                    }
+                    showNoConnectionPlaceHolder()
+                    viewModel.onNetworkChanged(false)
+                }
+            }
+            NetworkConnectionState.AVAILABLE.ordinal -> {
+                viewModel.onNetworkChanged(true)
+                resolveErrorSnackbar(R.string.ant_you_are_online)
+                if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.ERROR.value
+                    || placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.NO_INTERNET.value && placeholderRefreshLayout.alpha == 1f
+                ) {
+                    viewModel.onNetworkGained(true)
+                    placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
+                }
+            }
+        }
+    }
+
+    private fun subscribeToObservers() {
+        viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
+        viewModel.errorLiveData.observe(this.viewLifecycleOwner, errorObserver)
+        viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
+        viewModel.feedInfoLiveData.observe(this.viewLifecycleOwner, feedInfoObserver)
+        viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
+        ConnectionStateMonitor.internetStateLiveData.observe(
+            this.viewLifecycleOwner,
+            networkStateObserver
+        )
+    }
     //endregion
 
+    //region Lifecycle callbacks
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(VideoListViewModel::class.java)
@@ -162,139 +187,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         subscribeToObservers()
         loadFeedInfo()
         btnNewLive.isEnabled = false
-    }
-
-    private fun loadFeedInfo() {
-        if (viewModel.getSavedFeedImageUrl().isNullOrEmpty()) {
-            viewModel.getFeedInfo()
-        } else {
-            Picasso.get()
-                .load(viewModel.getSavedFeedImageUrl())
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .into(ivTeamImage, object : Callback {
-                    override fun onSuccess() {
-                        val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
-                        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                            override fun onGlobalLayout() {
-                                ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                                centerTitle()
-                                viewModel.getSavedTagLine()?.let {
-                                    setTitle(it)
-                                }
-
-                            }
-                        })
-                        viewModel.getFeedInfo()
-                    }
-
-                    override fun onError(e: Exception?) {
-                        viewModel.getSavedTagLine()?.let {
-                            setTitle(it)
-                        }
-                        viewModel.getFeedInfo()
-                    }
-                })
-        }
-    }
-
-    private fun updateFeedInfo(feedInfo: FeedInfo) {
-        if (feedInfo.imageUrl.isNullOrEmpty()) {
-            ivTeamImage.setImageDrawable(null)
-            centerTitle()
-            setTitle(feedInfo.tagLine)
-        } else {
-            context?.let {
-                Picasso
-                    .get()
-                    .load(feedInfo.imageUrl)
-                    .into(ivTeamImage, object : Callback {
-                        override fun onSuccess() {
-                            val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
-                            vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                                override fun onGlobalLayout() {
-                                    ivTeamImage?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
-                                    centerTitle()
-                                    setTitle(feedInfo.tagLine)
-                                }
-                            })
-                        }
-
-                        override fun onError(e: Exception?) {
-                        }
-                    })
-            }
-            context?.let {
-                Picasso
-                    .get()
-                    .load(feedInfo.imageUrl)
-                    .into(ivNoContent)
-            }
-        }
-    }
-
-    private fun setTitle(text: String?) {
-        if (text.isNullOrEmpty()) {
-            tvTitle.text = ""
-        } else {
-            tvTitle.text = text
-        }
-    }
-
-    private fun centerTitle() {
-        val width =
-            px2dp(requireContext(), ivTeamImage.measuredWidth.toFloat())
-
-        if (width == 0.0f) {
-            val set = ConstraintSet()
-            set.clone(tvTitle.parent as ConstraintLayout)
-            set.clear(R.id.tvTitle, ConstraintSet.END)
-            set.clear(R.id.tvTitle, ConstraintSet.START)
-            set.connect(
-                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    requireContext(),
-                    10f
-                ).toInt()
-            )
-            set.connect(
-                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    requireContext(),
-                    34f
-                ).toInt()
-            )
-            set.applyTo(tvTitle.parent as ConstraintLayout)
-        }
-
-        if (width > 24) {
-            val set = ConstraintSet()
-            set.clone(tvTitle.parent as ConstraintLayout)
-            set.clear(R.id.tvTitle, ConstraintSet.END)
-            set.clear(R.id.tvTitle, ConstraintSet.START)
-            set.connect(
-                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    requireContext(),
-                    (width - 14.0).toFloat()
-                ).toInt()
-            )
-            set.connect(
-                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    requireContext(),
-                    10.0f
-                ).toInt()
-            )
-            set.applyTo(tvTitle.parent as ConstraintLayout)
-        }
-    }
-
-    private fun subscribeToObservers() {
-        viewModel.listOfStreams.observe(this.viewLifecycleOwner, streamsObserver)
-        viewModel.errorLiveData.observe(this.viewLifecycleOwner, errorObserver)
-        viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
-        viewModel.feedInfoLiveData.observe(this.viewLifecycleOwner, feedInfoObserver)
-        viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
-        ConnectionStateMonitor.internetStateLiveData.observe(
-            this.viewLifecycleOwner,
-            networkStateObserver
-        )
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -326,14 +218,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun initNewButtonCountdown() {
-        //needed in case live video was opened, then ended, and new live appeared
-        canShowNewButton = false
-        Handler().postDelayed({
-            canShowNewButton = true
-        }, 800)
-    }
-
     override fun onPause() {
         super.onPause()
         videosRV.onPause()
@@ -348,9 +232,51 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videosRV.adapter = null
         VideoCloseBackUp.sendBackUps()
     }
+    //endregion
+
 
     override fun initUi(view: View?) {
         initSnackbar()
+        initVideoRV()
+        initPlaceHolderRV()
+        initOnRefreshListeners()
+
+        btnNewLive.setOnClickListener {
+            videosRV.betterSmoothScrollToPosition(0)
+            videosRV.resetPlayPosition()
+        }
+
+        ivClose.setOnClickListener {
+            shouldDisconnectSocket = false
+            activity?.finish()
+        }
+        viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
+
+        ReceivingVideosManager.setReceivingVideoCallback(viewModel)
+
+        if (refreshVODs && viewModel.userAuthorized()) {
+            viewModel.refreshVODs()
+            //needed for onResume to not refreshVods too
+            Handler().postDelayed({
+                dontRefreshWhileInit = false
+            }, 300)
+            refreshVODs = false
+        }
+    }
+
+    private fun initNewButtonCountdown() {
+        //needed in case live video was opened, then ended, and new live appeared
+        canShowNewButton = false
+        Handler().postDelayed({
+            canShowNewButton = true
+        }, 800)
+    }
+
+    private fun initVideoRV(){
+        val onJoinedClick: (stream: StreamResponse) -> Unit = { streamResponse ->
+            openLiveFragment(streamResponse, true)
+        }
+
         val onClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             when {
                 streamResponse.isLive -> {
@@ -374,15 +300,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
         }
 
-        val onJoinedClick: (stream: StreamResponse) -> Unit = { streamResponse ->
-            openLiveFragment(streamResponse, true)
-        }
-
-        btnNewLive.setOnClickListener {
-            videosRV.betterSmoothScrollToPosition(0)
-            videosRV.resetPlayPosition()
-        }
-
         videoAdapter = VideosAdapter(onClick, onJoinedClick, videosRV)
         //to trigger autoplay when autoplaying live and it dissapears
         videoAdapter.registerAdapterDataObserver(object : AdapterDataObserver() {
@@ -393,26 +310,59 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
         })
-        placeholdersAdapter = VideoPlaceholdersAdapter()
-
-        initRecyclerView(videoAdapter, videosRV)
         videosRV.setRoomRepository(viewModel.roomRepository)
-        initRecyclerView(placeholdersAdapter, placeHolderRV)
-
-        placeholderLayoutManager = LinearLayoutManager(context)
-        placeholderLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-        placeHolderRV.layoutManager = placeholderLayoutManager
-
         rvLayoutManager = LinearLayoutManager(context)
         rvLayoutManager.orientation = LinearLayoutManager.VERTICAL
         rvLayoutManager.initialPrefetchItemCount = 4
         rvLayoutManager.isItemPrefetchEnabled = true
-
         videosRV.layoutManager = rvLayoutManager
+        videosRV.adapter = videoAdapter
+        val dividerItemDecoration = VerticalSpaceItemDecorator(
+            dp2px(requireContext(), 32f).toInt()
+        )
+        videosRV.addItemDecoration(dividerItemDecoration)
+        videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                videoRefreshLayout.isEnabled = true
 
-        initOnScrollListener()
+                if (isNewLiveButtonShown) {
+                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+                        triggerNewLiveButton(false)
+                    }
+                }
+            }
 
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val total = rvLayoutManager.itemCount
+                    val lastVisibleItem = rvLayoutManager.findLastVisibleItemPosition()
+                    if (videoAdapter.getStreams()
+                            .isNotEmpty() && !isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2
+                    ) {
+                        viewModel.refreshVODs(noLoadingPlaceholder = true)
+                        isLoadingMoreVideos = true
+                    }
+                }
+            }
+        })
+    }
+
+    private fun initPlaceHolderRV(){
+        placeholdersAdapter = VideoPlaceholdersAdapter()
+        placeholderLayoutManager = LinearLayoutManager(context)
+        placeholderLayoutManager.orientation = LinearLayoutManager.VERTICAL
+        placeHolderRV.layoutManager = placeholderLayoutManager
+
+        placeHolderRV.adapter = placeholdersAdapter
+        val dividerItemDecoration = VerticalSpaceItemDecorator(
+            dp2px(requireContext(), 32f).toInt()
+        )
+        placeHolderRV.addItemDecoration(dividerItemDecoration)
+    }
+
+    private fun initOnRefreshListeners(){
         videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 videosRV.hideAutoPlayLayout()
@@ -470,22 +420,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 }
             }
         })
+    }
 
-        ivClose.setOnClickListener {
-            shouldDisconnectSocket = false
-            activity?.finish()
-        }
-        viewBEChoice.setOnClickListener { viewModel.onLogoPressed() }
-
-        ReceivingVideosManager.setReceivingVideoCallback(viewModel)
-        if (refreshVODs && viewModel.userAuthorized()) {
-            viewModel.refreshVODs()
-            //needed for onResume to not refreshVods too
-            Handler().postDelayed({
-                dontRefreshWhileInit = false
-            }, 300)
-            refreshVODs = false
-        }
+    private fun stopRefreshing() {
+        videoRefreshLayout.setRefreshing(false)
+        noContentRefreshLayout.setRefreshing(false)
+        placeholderRefreshLayout.setRefreshing(false)
     }
 
     private fun initSnackbar() {
@@ -552,27 +492,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun showErrorSnackbar(error: String) {
-        if (snackBarBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
-
-            snackBar.text = error
-            context?.let {
-                snackBar.backgroundColor =
-                    ContextCompat.getColor(it, R.color.ant_error_bg_color)
-            }
-
-            snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-    }
-
     private fun isNoConnectionSnackbarShowing(): Boolean {
+        if(snackBar==null) return false
         return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && snackBar.text == context?.resources?.getString(
             R.string.ant_no_connection
         )
     }
 
     private fun resolveErrorSnackbar(messageId: Int? = null) {
-        if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED || snackBarBehaviour.state == BottomSheetBehavior.STATE_SETTLING) {
             if (messageId != null) {
                 context?.resources?.getString(messageId)
                     ?.let { messageToDisplay ->
@@ -600,46 +528,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
             }, 2000)
         }
-    }
-
-    private fun initRecyclerView(
-        adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>,
-        recyclerView: RecyclerView
-    ) {
-        recyclerView.adapter = adapter
-        val dividerItemDecoration = VerticalSpaceItemDecorator(
-            dp2px(requireContext(), 32f).toInt()
-        )
-        recyclerView.addItemDecoration(dividerItemDecoration)
-    }
-
-    private fun initOnScrollListener() {
-        videosRV.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                videoRefreshLayout.isEnabled = true
-
-                if (isNewLiveButtonShown) {
-                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-                        triggerNewLiveButton(false)
-                    }
-                }
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    val total = rvLayoutManager.itemCount
-                    val lastVisibleItem = rvLayoutManager.findLastVisibleItemPosition()
-                    if (videoAdapter.getStreams()
-                            .isNotEmpty() && !isLoadingMoreVideos && total <= lastVisibleItem + 1 && videoAdapter.getStreams()[lastVisibleItem].id == -2
-                    ) {
-                        viewModel.refreshVODs(noLoadingPlaceholder = true)
-                        isLoadingMoreVideos = true
-                    }
-                }
-            }
-        })
     }
 
     private fun showLoadingLayout(showOnlyIfError: Boolean = false) {
@@ -786,30 +674,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }, 1000)
     }
 
-    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
-        when (networkState?.ordinal) {
-            NetworkConnectionState.LOST.ordinal -> {
-                if (!Global.networkAvailable) {
-                    if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.LOADING.value) {
-                        placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.NO_INTERNET)
-                    }
-                    showNoConnectionPlaceHolder()
-                    viewModel.onNetworkChanged(false)
-                }
-            }
-            NetworkConnectionState.AVAILABLE.ordinal -> {
-                viewModel.onNetworkChanged(true)
-                resolveErrorSnackbar(R.string.ant_you_are_online)
-                if (placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.ERROR.value
-                    || placeholdersAdapter.getState() == VideoPlaceholdersAdapter.LoadingState.NO_INTERNET.value && placeholderRefreshLayout.alpha == 1f
-                ) {
-                    viewModel.onNetworkGained(true)
-                    placeholdersAdapter.setState(VideoPlaceholdersAdapter.LoadingState.LOADING)
-                }
-            }
-        }
-    }
-
     private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false) {
         val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
         videosRV.isOpeningPlayer = true
@@ -830,4 +694,123 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             slideFromBottom = true
         )
     }
+
+    //region FeedInfo
+    private fun loadFeedInfo() {
+        if (viewModel.getSavedFeedImageUrl().isNullOrEmpty()) {
+            viewModel.getFeedInfo()
+        } else {
+            loadSavedInfo()
+        }
+    }
+
+    private fun loadSavedInfo() {
+        Picasso.get()
+            .load(viewModel.getSavedFeedImageUrl())
+            .networkPolicy(NetworkPolicy.OFFLINE)
+            .into(ivTeamImage, object : Callback {
+                override fun onSuccess() {
+                    val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
+                    vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                            centerTitle()
+                            viewModel.getSavedTagLine()?.let {
+                                setTitle(it)
+                            }
+
+                        }
+                    })
+                    viewModel.getFeedInfo()
+                }
+
+                override fun onError(e: Exception?) {
+                    viewModel.getSavedTagLine()?.let {
+                        setTitle(it)
+                    }
+                    viewModel.getFeedInfo()
+                }
+            })
+    }
+
+    private fun updateFeedInfo(feedInfo: FeedInfo) {
+        if (feedInfo.imageUrl.isNullOrEmpty()) {
+            ivTeamImage.setImageDrawable(null)
+            centerTitle()
+            setTitle(feedInfo.tagLine)
+        } else {
+            context?.let {
+                Picasso
+                    .get()
+                    .load(feedInfo.imageUrl)
+                    .into(ivTeamImage, object : Callback {
+                        override fun onSuccess() {
+                            val vto: ViewTreeObserver = ivTeamImage.viewTreeObserver
+                            vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                                override fun onGlobalLayout() {
+                                    ivTeamImage?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                                    centerTitle()
+                                    setTitle(feedInfo.tagLine)
+                                }
+                            })
+                        }
+
+                        override fun onError(e: Exception?) {
+                        }
+                    })
+            }
+            context?.let {
+                Picasso
+                    .get()
+                    .load(feedInfo.imageUrl)
+                    .into(ivNoContent)
+            }
+        }
+    }
+
+    private fun setTitle(text: String?) {
+        if (text.isNullOrEmpty()) {
+            tvTitle.text = ""
+        } else {
+            tvTitle.text = text
+        }
+    }
+
+    private fun centerTitle() {
+        val width =
+            px2dp(requireContext(), ivTeamImage.measuredWidth.toFloat())
+        val set = ConstraintSet()
+        set.clone(tvTitle.parent as ConstraintLayout)
+        set.clear(R.id.tvTitle, ConstraintSet.END)
+        set.clear(R.id.tvTitle, ConstraintSet.START)
+        if(width == 0.0f){
+            set.connect(
+                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
+                    requireContext(),
+                    10f
+                ).toInt()
+            )
+            set.connect(
+                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
+                    requireContext(),
+                    34f
+                ).toInt()
+            )
+        }else if(width > 24){
+            set.connect(
+                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
+                    requireContext(),
+                    (width - 14.0).toFloat()
+                ).toInt()
+            )
+            set.connect(
+                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
+                    requireContext(),
+                    10.0f
+                ).toInt()
+            )
+        }
+        set.applyTo(tvTitle.parent as ConstraintLayout)
+    }
+    //endregion
 }

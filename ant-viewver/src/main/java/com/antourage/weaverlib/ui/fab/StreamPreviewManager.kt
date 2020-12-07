@@ -5,14 +5,15 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.Keep
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.*
 import com.google.android.exoplayer2.util.Util
+import okhttp3.OkHttpClient
 
 @Keep
 internal class StreamPreviewManager {
@@ -59,14 +60,26 @@ internal class StreamPreviewManager {
             )
         }
 
-        private fun getMediaSource(streamUrl: String?, context: Context): MediaSource {
-            val defaultBandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
-            val dataSourceFactory = DefaultDataSourceFactory(
-                context,
-                Util.getUserAgent(context, "Exo2"), defaultBandwidthMeter
-            )
-            return HlsMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse(streamUrl))
+        private fun getMediaSource(uri: String, context: Context): MediaSource {
+            val okHttpClient = OkHttpClient.Builder()
+                .addNetworkInterceptor { chain ->
+                    val request = chain.request().newBuilder().addHeader("Connection", "close").build()
+                    chain.proceed(request)
+                }
+                .build()
+
+            return if(uri.endsWith("mp4", true) || uri.endsWith("flv", true) ||  uri.endsWith("mov", true)){
+                val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory()
+                ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
+                    MediaItem.fromUri(
+                        uri
+                    )
+                )
+            }else {
+                val okHttpDataSourceFactory =
+                    OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(context, "Exo2"))
+                HlsMediaSource.Factory(okHttpDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+            }
         }
 
 

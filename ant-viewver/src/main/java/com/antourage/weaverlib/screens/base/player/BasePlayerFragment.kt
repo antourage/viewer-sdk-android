@@ -94,9 +94,9 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             /** handling case when there was bad connectivity on broadcaster */
             BaseViewModel.error.value?.let {
                 if (this@BasePlayerFragment is PlayerFragment) {
-                    playerControls.showTimeoutMs = 0
-                    playerControls.show()
                     if (Global.networkAvailable) {
+                        playerControls.showTimeoutMs = 0
+                        playerControls.show()
                         showErrorSnackBar(getString(R.string.ant_live_error), false)
                     } else {
                         showErrorSnackBar(getString(R.string.ant_no_connection), false)
@@ -325,11 +325,13 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                 viewModel.onNetworkGained()
                 playBtnPlaceholder.visibility = View.INVISIBLE
             }
+        } else {
+            showNoInternetMessage()
         }
     }
 
     private fun resolveErrorSnackBar(messageId: Int) {
-        if (snackBarBehaviour?.state == BottomSheetBehavior.STATE_EXPANDED) {
+        if (snackBarBehaviour?.state == BottomSheetBehavior.STATE_EXPANDED || snackBarBehaviour?.state == BottomSheetBehavior.STATE_SETTLING) {
             context?.resources?.getString(messageId)
                 ?.let { messageToDisplay ->
                     errorSnackBar?.text = messageToDisplay

@@ -39,7 +39,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     private val authorizeHandler = Handler()
     private var authorizeRunning = false
 
-
     private var livesToFetchInfo: MutableList<StreamResponse> = mutableListOf()
 
     private var showCallResult = false
@@ -458,7 +457,9 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     fun onNetworkChanged(isConnected: Boolean) {
         if (isConnected) {
             if (userAuthorized()) {
-                subscribeToLiveStreams(true)
+                Handler().postDelayed({
+                    subscribeToLiveStreams(true)
+                }, 500)
             }
         } else {
             SocketConnector.disconnectSocket()
