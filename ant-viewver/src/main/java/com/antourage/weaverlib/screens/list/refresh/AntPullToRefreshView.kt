@@ -1,8 +1,8 @@
 package com.antourage.weaverlib.screens.list.refresh
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -165,7 +165,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
                     return false
                 }
 
-                val yDiff = y - mInitialMotionY;
+                val yDiff = y - mInitialMotionY
                 if (yDiff > mTouchSlop && !mIsBeingDragged) {
                     mIsBeingDragged = true
                 }
@@ -181,6 +181,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
         return mIsBeingDragged
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         if (!mIsBeingDragged) {
             return super.onTouchEvent(ev)
@@ -236,7 +237,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
                     (y - mInitialMotionY) * DRAG_RATE
                 mIsBeingDragged = false
                 if (overScrollTop > totalDragDistance) {
-                    setRefreshing(true, true)
+                    setRefreshing(refreshing = true, notify = true)
                 } else {
                     mIsRefreshing = false
                     animateOffsetToStartPosition()
@@ -255,7 +256,7 @@ class AntPullToRefreshView @JvmOverloads constructor(
 
         mAnimateToStartPosition.reset()
 //        mAnimateToStartPosition.duration = MAX_OFFSET_ANIMATION_DURATION.toLong()
-        mAnimateToStartPosition.duration = animationDuration.toLong()
+        mAnimateToStartPosition.duration = animationDuration
         mAnimateToStartPosition.interpolator = mDecelerateInterpolator
         mAnimateToStartPosition.setAnimationListener(mToStartListener)
         mAntBaseProgressBar.clearAnimation()

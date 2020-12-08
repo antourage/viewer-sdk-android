@@ -37,11 +37,6 @@
         <item quantity="other">%d d</item>
     </plurals>
 
-    <plurals name="ant_seconds_long">
-        <item quantity="one">%d sekund</item>
-        <item quantity="other">%d sekunder</item>
-    </plurals>
-
 
     <plurals name="ant_minutes_long">
         <item quantity="one">%d minut</item>
@@ -86,17 +81,12 @@
     <string name="ant_your_chat_name">Ditt chatt-namn</string>
 
     <!--avatar chooser - to be deleted-->
-    <string name="ant_choose_image_source">Add image</string>
-    <string name="ant_delete_image">Delete image</string>
-    <string name="ant_from_gallery">From gallery</string>
-    <string name="ant_from_camera">From camera</string>
 
     <string name="ant_version_name">Version %1$s</string>
     <string name="invalid_toke_error_message">Innehållet kan inte visas. Försök öppna innehåll igen.</string>
 
     <!--feed-->
     <string name="ant_jump_to_top">Gå till början</string>
-    <string name="ant_demo_feed_title">Studio Häcken</string>
     <string name="ant_join_conversation">Gå med i konversation</string>
     <string name="ant_new">Ny</string>
     <string name="ant_videos_empty_list_placeholder_text_new">Snart kan du se interaktiv\nvideo här</string>

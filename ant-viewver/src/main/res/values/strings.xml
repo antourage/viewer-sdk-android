@@ -20,11 +20,6 @@
         <item quantity="other">%d poll answers</item>
     </plurals>
 
-    <plurals name="ant_number_of_viewers">
-        <item quantity="one">%d viewer</item>
-        <item quantity="other">%d viewers</item>
-    </plurals>
-
     <plurals name="ant_seconds">
         <item quantity="one">%d s</item>
         <item quantity="other">%d s</item>
@@ -43,11 +38,6 @@
         <item quantity="other">%d d</item>
     </plurals>
 
-
-    <plurals name="ant_seconds_long">
-        <item quantity="one">%d second</item>
-        <item quantity="other">%d seconds</item>
-    </plurals>
 
     <plurals name="ant_minutes_long">
         <item quantity="one">%d minute</item>
@@ -92,10 +82,6 @@
     <string name="ant_your_chat_name">Your chat name</string>
 
     <!--avatar chooser - to be deleted-->
-    <string name="ant_choose_image_source">Add image</string>
-    <string name="ant_delete_image">Delete image</string>
-    <string name="ant_from_gallery">From gallery</string>
-    <string name="ant_from_camera">From camera</string>
 
 
     <string name="ant_version_name">Version %1$s</string>
@@ -104,7 +90,6 @@
 
     <!--feed-->
     <string name="ant_jump_to_top">JUMP TO THE TOP</string>
-    <string name="ant_demo_feed_title">Studio Häcken</string>
     <string name="ant_join_conversation">Join conversation</string>
     <string name="ant_new">New</string>
     <string name="ant_videos_empty_list_placeholder_text_new">Live interactive videos\ncoming soon</string>

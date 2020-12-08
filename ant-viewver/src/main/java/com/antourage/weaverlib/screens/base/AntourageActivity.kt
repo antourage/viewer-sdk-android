@@ -2,9 +2,7 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -105,11 +103,11 @@ class AntourageActivity : AppCompatActivity() {
         }
     }
 
-    fun onShowKeyboard(keyboardHeight: Int) {
+    private fun onShowKeyboard(keyboardHeight: Int) {
         withCurrentFragment { it.onShowKeyboard(keyboardHeight) }
     }
 
-    fun onHideKeyboard(keyboardHeight: Int) {
+    private fun onHideKeyboard(keyboardHeight: Int) {
         withCurrentFragment { it.onHideKeyboard(keyboardHeight) }
     }
 
@@ -123,6 +121,7 @@ class AntourageActivity : AppCompatActivity() {
             && currentFragment is BaseFragment<*>
             && currentFragment.isVisible
         ) {
+            @Suppress("UNCHECKED_CAST")
             doStuff(currentFragment as BaseFragment<BaseViewModel>)
         }
     }

@@ -7,8 +7,8 @@
         app:cardBackgroundColor="@color/ant_feed_bg_color"
         app:cardElevation="0dp">
 
-<!-- not sure if needed-->
-<!--    android:foreground="?android:attr/selectableItemBackgroundBorderless"-->
+    <!-- not sure if needed-->
+    <!--    android:foreground="?android:attr/selectableItemBackgroundBorderless"-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -170,12 +170,12 @@
                     android:layout_marginEnd="8dp"
                     android:textColor="@color/ant_white"
                     android:includeFontPadding="false"
-                    android:text="00:01:02"
                     android:textSize="11sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@id/ivAutoPlay_vod"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="SmallSp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -224,7 +224,6 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="20dp"
                 android:fontFamily="sans-serif"
-                android:text="Love this sport"
                 android:textColor="@color/ant_white"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -238,14 +237,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:fontFamily="sans-serif"
-                android:text="Johan Junker  •  most recent"
                 android:textColor="@color/ant_streamer_name_color"
                 android:textSize="12sp"
                 android:breakStrategy="simple"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@id/txtComment_vod"
-                app:layout_constraintTop_toBottomOf="@id/txtComment_vod" />
+                app:layout_constraintTop_toBottomOf="@id/txtComment_vod"
+                tools:ignore="UnusedAttribute" />
 
 
         <TextView
@@ -270,7 +269,8 @@
                 android:paddingStart="6dp"
                 android:paddingEnd="6dp"
                 android:textColor="@color/ant_white"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                tools:ignore="SmallSp" />
 
         <!--needed for viewersCount to save height if NEW label goes GONE -->
         <TextView
@@ -296,7 +296,8 @@
                 android:paddingStart="6dp"
                 android:paddingEnd="6dp"
                 android:textColor="@color/ant_white"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                tools:ignore="SmallSp" />
 
         <TextView
                 android:id="@+id/txtViewsCount_vod"
@@ -319,7 +320,8 @@
                 app:layout_constraintLeft_toRightOf="@+id/txtNew"
                 app:layout_constraintTop_toTopOf="@+id/dummyTxtNew"
                 app:layout_constraintBottom_toBottomOf="@id/dummyTxtNew"
-                tools:text="6,385" />
+                tools:text="6,385"
+                tools:ignore="SmallSp" />
 
         <ProgressBar
                 android:id="@+id/watchingProgress"

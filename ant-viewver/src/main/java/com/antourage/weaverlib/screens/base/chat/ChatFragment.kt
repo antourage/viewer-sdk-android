@@ -53,7 +53,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var listUpdateHandler = Handler()
     private var listUpdateRunnable = object : Runnable {
         override fun run() {
-            rvMessages?.adapter?.notifyDataSetChanged()
+            rvMessages.adapter?.notifyDataSetChanged()
             val timeToUpdate = when {
                 listUpdateCounter > 12 -> LOW_UPDATE_FREQUENCY
                 else -> HIGH_UPDATE_FREQUENCY
@@ -323,7 +323,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
 
     override fun onResume() {
         super.onResume()
-        if ((rvMessages?.adapter?.itemCount ?: 0) != 0 && this@ChatFragment is PlayerFragment) {
+        if ((rvMessages.adapter?.itemCount ?: 0) != 0 && this@ChatFragment is PlayerFragment) {
             listUpdateCounter = 1
             listUpdateHandler.postDelayed(listUpdateRunnable, HIGH_UPDATE_FREQUENCY)
         }

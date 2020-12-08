@@ -5,14 +5,12 @@ import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
-import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
 
 /**
@@ -68,6 +66,7 @@ internal class ReceivingVideosManager {
                                 callback?.onVODReceivedInitial(resource)
                                 callback?.onVODReceived(resource)
                             }
+                            else -> {}
                         }
                     }
                 }
@@ -128,6 +127,7 @@ internal class ReceivingVideosManager {
                                             liveVideos = resource
                                             streamResponse.removeObserver(this)
                                         }
+                                        else -> {}
                                     }
                                 }
                             }
@@ -166,6 +166,7 @@ internal class ReceivingVideosManager {
                                             vodsForFab = resource
                                             streamResponse.removeObserver(this)
                                         }
+                                        else -> {}
                                     }
                                 }
                             }

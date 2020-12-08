@@ -45,7 +45,7 @@ internal class DevSettingsDialog(
             rb_staging.text = "stage: $BASE_URL_STAGING"
             rb_demo.text = "demo: $BASE_URL_DEMO"
             rb_prod.text = "prod: $BASE_URL_PROD"
-            setTxt.setOnClickListener { _ ->
+            setTxt.setOnClickListener {
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
                 val backEndUrl = when {
                     radioButton.text.contains("dev") -> BASE_URL_DEV

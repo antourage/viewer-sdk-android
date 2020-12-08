@@ -44,7 +44,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_header.*
-import java.lang.Math.abs
 
 /**
  * Be careful not to create multiple instances of player
@@ -181,7 +180,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun lockDrawer() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
@@ -351,7 +350,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                             var result = false
                             try {
                                 val diffY = e2.y - e1.y
-                                if (kotlin.math.abs(diffY) > SWIPE_THRESHOLD && abs(
+                                if (kotlin.math.abs(diffY) > SWIPE_THRESHOLD && kotlin.math.abs(
                                         velocityY
                                     ) > SWIPE_VELOCITY_THRESHOLD
                                 ) {
@@ -667,7 +666,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         ll_wrapper?.visibility = View.GONE
     }
 
-    private fun orientation() = this?.resources?.configuration.orientation
+    private fun orientation() = this.resources.configuration.orientation
 
     private fun enableChatUI() {
         enableMessageInput(true)
@@ -889,6 +888,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupUIForHidingKeyboardOnOutsideTouch(view: View) {
         // Set up touch listener for non-text box views to hide keyboard.
         if (view !is EditText && view.id != btnSend.id) {

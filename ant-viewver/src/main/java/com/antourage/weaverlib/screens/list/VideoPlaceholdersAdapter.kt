@@ -3,19 +3,15 @@ package com.antourage.weaverlib.screens.list
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.screens.list.rv.PlaceHolderDiffCallback
-import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback
-import com.antourage.weaverlib.screens.list.rv.VideosAdapter
 import kotlinx.android.synthetic.main.item_video_placeholder.view.*
 import org.jetbrains.anko.windowManager
 

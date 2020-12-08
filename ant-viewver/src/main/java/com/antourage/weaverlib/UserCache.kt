@@ -3,7 +3,6 @@ package com.antourage.weaverlib
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
 import java.lang.ref.WeakReference
@@ -59,7 +58,7 @@ internal class UserCache private constructor(context: Context) {
         prefs?.edit()?.putString(SP_SEEN_VIDEOS, str.toString())?.apply()
     }
 
-    fun getSeenVideos(): Set<Int> {
+    private fun getSeenVideos(): Set<Int> {
         val savedString = prefs?.getString(SP_SEEN_VIDEOS, "")
         val st = StringTokenizer(savedString, ",")
         val savedList = MutableList(st.countTokens()) { 0 }

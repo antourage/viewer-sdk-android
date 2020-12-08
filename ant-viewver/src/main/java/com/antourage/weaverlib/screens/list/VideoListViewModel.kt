@@ -186,6 +186,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
+            else -> {}
         }
     }
 
@@ -230,6 +231,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
+            else -> {}
         }
     }
 
@@ -273,6 +275,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
+            else -> {}
         }
     }
 
@@ -418,7 +421,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     private val showBeDialogLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var numberOfLogoClicks: Int = 0
     private val beDebouncer: Debouncer =
-        Debouncer(Runnable { numberOfLogoClicks = 0 }, BE_CHOICE_TIMEOUT)
+        Debouncer({ numberOfLogoClicks = 0 }, BE_CHOICE_TIMEOUT)
 
     init {
         showBeDialogLiveData.postValue(false)
@@ -509,7 +512,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
                         if (responseStatus.data != null) {
-                            val feedInfo = responseStatus.data as FeedInfo
+                            val feedInfo = responseStatus.data
                             if (!feedInfo.tagLine.isNullOrEmpty()) {
                                 UserCache.getInstance(getApplication())
                                     ?.saveTagLine(feedInfo.tagLine)

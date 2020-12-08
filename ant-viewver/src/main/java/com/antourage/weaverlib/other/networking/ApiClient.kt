@@ -1,26 +1,12 @@
 package com.antourage.weaverlib.other.networking
 
-import android.annotation.SuppressLint
-import android.os.AsyncTask
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.models.ListOfStreams
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.ui.fab.AntourageFab
-import com.microsoft.signalr.HubConnection
-import com.microsoft.signalr.HubConnectionBuilder
-import com.microsoft.signalr.HubConnectionState
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 
 internal object ApiClient {

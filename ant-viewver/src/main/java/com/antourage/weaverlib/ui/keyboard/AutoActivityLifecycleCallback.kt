@@ -30,10 +30,6 @@ abstract class AutoActivityLifecycleCallback internal constructor(private val mT
 
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle?) {
-
-    }
-
     override fun onActivityDestroyed(activity: Activity) {
         if (activity === mTargetActivity) {
             mTargetActivity.application.unregisterActivityLifecycleCallbacks(this)

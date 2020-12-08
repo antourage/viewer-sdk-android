@@ -39,12 +39,9 @@ internal class RoomRepository private constructor(context: Context) {
 
     fun insertAllComments(video: Video, message: List<Message>) {
         GlobalScope.launch(Dispatchers.IO) {
-
-            val result = videoDao.insertVideoIfNotExists(video)
+            videoDao.insertVideoIfNotExists(video)
             val comments = transformMessages(message, video.id)
-            with(result) {
-                commentDao.insertComments(*comments)
-            }
+            commentDao.insertComments(*comments)
         }
     }
 

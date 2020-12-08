@@ -44,6 +44,9 @@ import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Locale;
@@ -221,6 +224,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * attribute on a PlayerControlView. This will cause the specified layout to be inflated instead of
  * {@code exo_player_control_view.xml} for only the instance on which the attribute is set.
  */
+@SuppressWarnings("ALL")
 public class CustomPlayerControlView extends FrameLayout {
 
     static {
@@ -338,6 +342,7 @@ public class CustomPlayerControlView extends FrameLayout {
         this(context, attrs, defStyleAttr, attrs);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @SuppressWarnings({
             "nullness:argument.type.incompatible",
             "nullness:method.invocation.invalid",
@@ -569,6 +574,7 @@ public class CustomPlayerControlView extends FrameLayout {
      *
      * @param listener The listener to be removed.
      */
+    @SuppressWarnings("SuspiciousMethodCalls")
     public void removeVisibilityListener(com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener listener) {
         visibilityListeners.remove(listener);
     }
@@ -1259,7 +1265,7 @@ public class CustomPlayerControlView extends FrameLayout {
             implements Player.EventListener, TimeBar.OnScrubListener, OnClickListener {
 
         @Override
-        public void onScrubStart(TimeBar timeBar, long position) {
+        public void onScrubStart(@NotNull TimeBar timeBar, long position) {
             scrubbing = true;
             if (positionView != null) {
                 positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
@@ -1267,20 +1273,21 @@ public class CustomPlayerControlView extends FrameLayout {
         }
 
         @Override
-        public void onScrubMove(TimeBar timeBar, long position) {
+        public void onScrubMove(@NotNull TimeBar timeBar, long position) {
             if (positionView != null) {
                 positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
             }
         }
 
         @Override
-        public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
+        public void onScrubStop(@NotNull TimeBar timeBar, long position, boolean canceled) {
             scrubbing = false;
             if (!canceled && player != null) {
                 seekToTimeBarPosition(player, position);
             }
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
             updatePlayPauseButton();

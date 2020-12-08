@@ -280,6 +280,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                         onOpenStatisticUpdate(id)
                                         response.removeObserver(this)
                                     }
+                                    else -> {}
                                 }
                             }
                         }
@@ -306,6 +307,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                         onUpdateBannerInfo(resource.status.data)
                                         response.removeObserver(this)
                                     }
+                                    else -> {}
                                 }
                             }
                         }

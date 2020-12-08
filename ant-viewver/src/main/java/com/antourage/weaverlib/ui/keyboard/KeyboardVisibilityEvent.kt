@@ -2,6 +2,7 @@ package com.antourage.weaverlib.ui.keyboard
 
 import android.app.Activity
 import android.graphics.Rect
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -38,11 +39,14 @@ object KeyboardVisibilityEvent {
 
         val unregistrar = registerEventListener(activity, listener)
         activity.application
-                .registerActivityLifecycleCallbacks(object : AutoActivityLifecycleCallback(activity) {
-                    protected override fun onTargetActivityDestroyed() {
-                        unregistrar.unregister()
-                    }
-                })
+            .registerActivityLifecycleCallbacks(object : AutoActivityLifecycleCallback(activity) {
+                override fun onTargetActivityDestroyed() {
+                    unregistrar.unregister()
+                }
+
+                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+                }
+            })
     }
 
     /**

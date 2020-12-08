@@ -4,7 +4,6 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Handler
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -113,6 +112,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                 is Status.Failure -> {
                     error.value = it.errorMessage
                 }
+                else -> {}
             }
         }
     }
@@ -144,7 +144,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
     }
 
-    //Didn't deleted, as it can be useful in some next design refinement
+    //Wasn't deleted, as it can be useful in some next design refinement
     fun onAvatarChanged(it: Bitmap) {
         avatarDeleted = false
         newAvatar = it
@@ -314,6 +314,7 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                         is Status.Failure -> {
                             response.removeObserver(this)
                         }
+                        else -> {}
                     }
                 }
             })

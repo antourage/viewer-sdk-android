@@ -624,7 +624,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun checkIsLiveWasRemoved(newStreams: List<StreamResponse>) {
         val iterator = newLivesList.iterator()
         for (stream in iterator) {
-            if (newStreams.none() { it.id == stream.id }) {
+            if (newStreams.none { it.id == stream.id }) {
                 iterator.remove()
             }
         }

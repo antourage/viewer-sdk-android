@@ -51,13 +51,13 @@ internal class Repository {
             }.asLiveData()
         }
 
-        private val adaptiveBitrateUrl =
+        private const val adaptiveBitrateUrl =
             "http://antourage.cluster.video/antourage/smil:team1.smil/playlist.m3u8"
-        private val bitrate_720p_1800 =
+        private const val bitrate_720p_1800 =
             "http://antourage.cluster.video/antourage/team1_720p/playlist.m3u8"
-        private val bitrate_480p_800 =
+        private const val bitrate_480p_800 =
             "http://antourage.cluster.video/antourage/team1_480p/playlist.m3u8"
-        private val bitrate_360p_500 =
+        private const val bitrate_360p_500 =
             "http://antourage.cluster.video/antourage/team1_360p/playlist.m3u8"
 
         fun getMockedStreamsForTheTest(): List<StreamResponse> {
@@ -159,6 +159,7 @@ internal class Repository {
                         is Status.Loading -> {
                             streamResponseLD.value = resource
                         }
+                        else -> {}
                     }
                 }
             })
