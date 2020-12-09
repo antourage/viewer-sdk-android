@@ -176,10 +176,14 @@ internal object SocketConnector {
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
         reconnectHandler.removeCallbacksAndMessages(null)
-        if (this::hubConnection.isInitialized) {
-            if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
-                hubConnection.stop()
+        try{
+            if (this::hubConnection.isInitialized) {
+                if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
+                    hubConnection.stop()
+                }
             }
+        }catch (e: NullPointerException){
+            e.printStackTrace()
         }
     }
 
