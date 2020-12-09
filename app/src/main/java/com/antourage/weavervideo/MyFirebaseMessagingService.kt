@@ -7,14 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.ui.fab.AntourageFab
-import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONArray
@@ -30,11 +26,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a data payload.
         remoteMessage.data.run {
-            val title = "Live now!"
+            val title = get("title")
             val params = get("param")
-            val jsonObject = JSONArray(params)
-            val content = jsonObject[0]
-            content?.let { streamTitle -> sendNotification(title, streamTitle.toString()) }
+            val jsonParams = JSONArray(params)
+            val content = jsonParams[0]
+            content?.let { mContent -> title?.let { mTitle -> sendNotification(mTitle, mContent.toString()) } }
         }
 
         // Check if message contains a notification payload.
