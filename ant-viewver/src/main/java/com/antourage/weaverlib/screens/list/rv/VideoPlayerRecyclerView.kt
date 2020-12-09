@@ -3,7 +3,6 @@ package com.antourage.weaverlib.screens.list.rv
 import android.content.Context
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -44,8 +43,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoListener
@@ -258,11 +255,19 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     private fun setVodStopWatchingTime() {
+        if(currentlyPlayingVideo?.isLive == true) return
         val vodId = currentlyPlayingVideo?.id
         vodId?.let {
             val stopWatchingTime = videoPlayer?.currentPosition ?: 0
-            val duration = videoPlayer?.duration ?: 0L
-
+            var duration = 0L
+            videoPlayer?.duration.let {
+                if (it != null)
+                    if (it >= 0) {
+                        duration = it
+                    }else{
+                        return
+                    }
+            }
             if (stopWatchingTime > 0) {
                 if (duration != 0L && duration * 0.9 - stopWatchingTime < 0) {
                     roomRepository.addStopTime(Video(vodId, 0, getExpirationDate(vodId)))

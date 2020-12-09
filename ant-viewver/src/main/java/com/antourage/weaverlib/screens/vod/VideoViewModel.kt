@@ -118,13 +118,15 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         if (userProcessedMessages.isNotEmpty()) {
             for (message in userProcessedMessages) {
                 message.pushTimeMills?.let { pushedTimeMills ->
-                    if(player?.currentPosition ?: 0 >= pushedTimeMills){
+                    if (player?.currentPosition ?: 0 >= pushedTimeMills) {
                         shownMessages.add(message)
-                    }else if(getVideoDuration()!=null && getVideoDuration()!! >0){
-                        if((getVideoDuration() ?: 0) - (player?.currentPosition ?: 0) <= 1000){
+                    } else if (getVideoDuration() != null && getVideoDuration()!! > 0) {
+                        if ((getVideoDuration() ?: 0) - (player?.currentPosition ?: 0) <= 1000) {
                             shownMessages.add(message)
-                        }else{}
-                    }else{}
+                        } else {
+                        }
+                    } else {
+                    }
                 }
             }
         }
@@ -226,7 +228,15 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     private fun setVodStopWatchingTime(isUpdateLocally: Boolean = false) {
         stopWatchingTime = player?.currentPosition ?: 0
-        val duration = player?.duration ?: 0L
+        var duration = 0L
+        player?.duration.let {
+            if (it != null)
+                if (it >= 0) {
+                    duration = it
+                }else{
+                    return
+                }
+        }
         vodId?.let { vodId ->
             if (stopWatchingTime > 0) {
                 if (duration != 0L && duration * FULLY_VIEWED_VIDEO_SEGMENT - stopWatchingTime < 0) {
@@ -432,7 +442,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      * Used when impossible to playback video and the exoplayer stacked.
      */
     override fun changeVideoAfterPlayerRestart() {
-        if(!Global.networkAvailable) return
+        if (!Global.networkAvailable) return
         val currentIndex = player?.currentWindowIndex
         currentIndex?.let { index ->
             if (index in 0 until mediaSource.size && mediaSource.size != 1) {
@@ -499,6 +509,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                             }
                             response.removeObserver(this)
                         }
+                        else -> {}
                     }
                 }
             }
@@ -526,17 +537,22 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             }
             .build()
 
-        return if(uri.endsWith("mp4", true) || uri.endsWith("flv", true) ||  uri.endsWith("mov", true)){
+        return if (uri.endsWith("mp4", true) || uri.endsWith("flv", true) || uri.endsWith(
+                "mov",
+                true
+            )
+        ) {
             val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory()
             ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
                 MediaItem.fromUri(
                     uri
                 )
             )
-        }else {
+        } else {
             val okHttpDataSourceFactory =
                 OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))
-            HlsMediaSource.Factory(okHttpDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+            HlsMediaSource.Factory(okHttpDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(uri))
         }
     }
 
