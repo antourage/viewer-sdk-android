@@ -297,7 +297,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private fun getChatPollLiveInfo(stream: StreamResponse) {
         var isChatEnabled = false
-        var isPollEnabled = false
+        var isPollEnabled = true
         var comment: Message?
         Repository.getChatPollInfoFromLiveStream(
             stream.id!!,
