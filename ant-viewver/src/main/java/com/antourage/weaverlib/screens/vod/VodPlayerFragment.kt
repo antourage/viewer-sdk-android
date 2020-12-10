@@ -345,10 +345,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             id?.let { viewModel.setStreamId(it) }
 
             thumbnailUrl?.let {
-                Picasso.get()
-                    .load(thumbnailUrl)
-                    .networkPolicy(NetworkPolicy.OFFLINE)
-                    .into(ivFirstFrame)
+                if (it.isNotEmpty() && it.isNotBlank()) {
+                    Picasso.get()
+                        .load(thumbnailUrl)
+                        .networkPolicy(NetworkPolicy.OFFLINE)
+                        .into(ivFirstFrame)
+                }
             }
         }
         initSkipControls()
