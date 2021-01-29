@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
         <domain includeSubdomains="true">18.185.126.11</domain>
         <domain includeSubdomains="true">35.156.199.125</domain>
         <domain includeSubdomains="true">3.124.42.114</domain>
@@ -13,4 +14,9 @@
         <domain includeSubdomains="true">antourage.cluster.video</domain>
 <!--        <domain includeSubdomains="true">docker.staging-myra.com</domain>-->
     </domain-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
 </network-security-config>
