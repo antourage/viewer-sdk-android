@@ -98,6 +98,8 @@ class AntourageFab @JvmOverloads constructor(
             val userCache = UserCache.getInstance(context)
             val token = userCache?.getToken()
             if (token == null || token.isEmptyTrimmed()) {
+                if (BASE_URL.isEmptyTrimmed()) BASE_URL =
+                    UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
                 authorizeUser(apiKey, refUserId, nickname, context)
             }
         }
