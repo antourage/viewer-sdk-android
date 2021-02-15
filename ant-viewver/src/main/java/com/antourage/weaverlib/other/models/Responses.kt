@@ -48,6 +48,7 @@ data class StreamResponse(
     @field:SerializedName("expirationDate") val expirationDate: String?,
     @field:SerializedName("creatorFullName") val creatorFullName: String?,
     @field:SerializedName("creatorNickname") var creatorNickname: String?,
+    @field:SerializedName("images") val images: List<String>?,
     @field:SerializedName("thumbnailUrl") val thumbnailUrl: String?,
     @field:SerializedName("startTime") val startTime: String?,
     @field:SerializedName("url") val hlsUrl: Array<String>?,
@@ -55,6 +56,7 @@ data class StreamResponse(
     @field:SerializedName("organisationId") val organisationId: Int?,
     @field:SerializedName("channelId") val channelId: Int?,
     @field:SerializedName("duration") val duration: String?,
+    @field:SerializedName("type") val type: StreamResponseType?,
     @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
     @field:SerializedName("viewsCount") var viewsCount: Long?,
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
@@ -80,6 +82,10 @@ data class StreamResponse(
     override fun hashCode(): Int {
         return id ?: 0
     }
+}
+
+enum class StreamResponseType {
+    Vod, Post
 }
 
 data class User(

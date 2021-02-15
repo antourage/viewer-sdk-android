@@ -17,20 +17,26 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_DURATION
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_LIVE
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_NICKNAME
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_TIME
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_VOD
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_jump_to_top.view.*
 import kotlinx.android.synthetic.main.item_live_video.view.*
+import kotlinx.android.synthetic.main.item_post.view.*
 import kotlinx.android.synthetic.main.item_progress.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
+import kotlinx.android.synthetic.main.item_vod.view.txtNew
 import org.jetbrains.anko.windowManager
 import java.util.*
 
@@ -44,13 +50,17 @@ internal class VideosAdapter(
     lateinit var context: Context
     private var isListInitial = true
     private var calculatedHeight = 0
+    private var calculatedHeightForPost = 0
     private var screenWidth = 0
+
+    var viewPageStates: HashMap<Int, Int> = HashMap()
 
     companion object {
         const val VIEW_LIVE: Int = 0
         const val VIEW_VOD: Int = 1
         const val VIEW_JUMP_TO_TOP = 2
         const val VIEW_PROGRESS: Int = 3
+        const val VIEW_POST: Int = 4
     }
 
     /**format {most recent} in the way it doesn't get split in different lines*/
@@ -104,12 +114,16 @@ internal class VideosAdapter(
         constraintSet.applyTo(views[0].parent as ConstraintLayout)
     }
 
-    private fun getHeightNeeded(): Int {
+    private fun getHeightNeeded(isForPost: Boolean = false): Int {
         val displayMetrics = DisplayMetrics()
         context.windowManager.defaultDisplay.getMetrics(displayMetrics)
         val width = displayMetrics.widthPixels
         screenWidth = width
-        return width / 4 * 3
+        return if (isForPost) {
+            width
+        } else {
+            width / 4 * 3
+        }
     }
 
 
@@ -137,6 +151,13 @@ internal class VideosAdapter(
                     false
                 )
             )
+            VIEW_POST -> return PostViewHolder(
+                LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_post,
+                    parent,
+                    false
+                )
+            )
             else -> return JumpToTopHolder(
                 LayoutInflater.from(parent.context).inflate(
                     R.layout.item_jump_to_top,
@@ -157,6 +178,7 @@ internal class VideosAdapter(
             is LiveVideoViewHolder -> holder.cleanup()
             is VODViewHolder -> holder.cleanup()
             is ProgressHolder -> holder.cleanup()
+            is PostViewHolder -> holder.cleanup()
         }
     }
 
@@ -166,6 +188,7 @@ internal class VideosAdapter(
             is VODViewHolder -> holder.bindView(listOfStreams[position])
             is ProgressHolder -> holder.bindView()
             is JumpToTopHolder -> holder.bindView(listOfStreams[position])
+            is PostViewHolder -> holder.bindView(listOfStreams[position])
         }
     }
 
@@ -217,10 +240,16 @@ internal class VideosAdapter(
             if (listOfStreams[position].id == -2) {
                 return VIEW_PROGRESS
             }
-            return if (listOfStreams[position].isLive) {
-                VIEW_LIVE
-            } else {
-                VIEW_VOD
+            return when {
+                listOfStreams[position].isLive -> {
+                    VIEW_LIVE
+                }
+                listOfStreams[position].type == StreamResponseType.Vod -> {
+                    VIEW_VOD
+                }
+                else -> {
+                    VIEW_POST
+                }
             }
         } else
             return VIEW_VOD
@@ -394,7 +423,7 @@ internal class VideosAdapter(
                         )
                     )
                     loadThumbnailUrlOrShowPlaceholder(
-                        thumbnailUrl,
+                        images?.get(0),
                         ivThumbnail_vod,
                         ivThumbnail_vod_placeholder
                     )
@@ -450,6 +479,98 @@ internal class VideosAdapter(
             with(itemView) {
                 Picasso.get().cancelRequest(this.ivThumbnail_vod)
             }
+        }
+    }
+
+    inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var parent: View = itemView
+
+        fun bindView(post: StreamResponse) {
+            parent.tag = this
+            with(itemView) {
+                post.apply {
+                    if (images != null) {
+                        initViewPager(imagesViewPager, dots, images, layoutPosition)
+                    }
+                    loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_post)
+
+                    isNew?.let { txtNew.gone(!it) }
+                    txtTitle_post.text = videoName
+                    txtComment_post.gone(lastMessage.isNullOrEmpty())
+                    txtCommentAuthor_post.gone(lastMessage.isNullOrEmpty())
+                    btnChat_post.gone(lastMessage.isNullOrEmpty())
+                    txtComment_post.text = lastMessage
+                    txtCommentAuthor_post.text =
+                        lastMessageAuthor?.let { formatAuthor(it, resources) }
+
+                    val formattedStartTime = startTime?.parseToDate()?.parseToDisplayAgoTimeLong(
+                        context
+                    )
+                    val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
+                    txtStreamerInfo_post.text = streamerNameAndTime
+                    txtStreamerInfo_post.visible(!formattedStartTime.isNullOrEmpty())
+                }
+            }
+        }
+
+        fun cleanup() {
+            listOfStreams[layoutPosition].id?.let { viewPageStates.put(it, itemView.imagesViewPager.currentItem) }
+        }
+
+        private fun initViewPager(
+            imagesViewPager: ViewPager2,
+            dots: TabLayout,
+            images: List<String>,
+            layoutPosition: Int
+        ) {
+            val lp = imagesViewPager.layoutParams
+            lp.height = Resources.getSystem().displayMetrics.widthPixels
+            imagesViewPager.layoutParams = lp
+
+            val adapter = ImageSwiperAdapter(images)
+            imagesViewPager.adapter = adapter
+
+            if (images.size > 1) {
+                imagesViewPager.setCurrentItem(if (viewPageStates.containsKey(listOfStreams[layoutPosition].id)) viewPageStates[listOfStreams[layoutPosition].id]!! else 0, false)
+                TabLayoutMediator(dots, imagesViewPager) { _, _ ->
+                }.attach()
+                dots.visibility = View.VISIBLE
+            } else {
+                dots.visibility = View.GONE
+            }
+        }
+    }
+
+    inner class ImageSwiperAdapter(
+        private val list: List<String>
+    ) : RecyclerView.Adapter<ImageSwiperAdapter.ImageSwiper>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageSwiper {
+            val view: View = LayoutInflater.from(parent.context).inflate(
+                R.layout.item_image_from_post,
+                parent, false
+            )
+            return ImageSwiper(view)
+        }
+
+        override fun onBindViewHolder(holder: ImageSwiper, position: Int) {
+                if (list[position].isNotBlank()) Picasso.get()
+                    .load(list[position])
+                    .placeholder(R.drawable.antourage_ic_placeholder_video)
+                    .fit()
+                    .into(holder.imageView)
+                else
+                    Picasso.get()
+                        .load(R.drawable.antourage_ic_placeholder_video)
+                        .placeholder(R.drawable.antourage_ic_placeholder_video)
+                        .into(holder.imageView)
+        }
+
+        override fun getItemCount(): Int {
+            return list.size
+        }
+
+        inner class ImageSwiper(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val imageView: ImageView = itemView.findViewById(R.id.imageContentView)
         }
     }
 
