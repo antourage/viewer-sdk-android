@@ -15,7 +15,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "2.0.3"
+        versionName "2.0.28.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     testOptions {
@@ -149,8 +149,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //SignalR
-    implementation 'com.microsoft.signalr:signalr:5.0.0-preview.5.20279.2'
-    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.7'
+    implementation("com.microsoft.signalr:signalr:5.0.0-rc.1.20451.17")
+    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.30'
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
