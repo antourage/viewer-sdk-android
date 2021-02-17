@@ -7,10 +7,4 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/imageContentView"/>
-<!--    <ImageView-->
-<!--            android:scaleType="centerCrop"-->
-<!--            android:src="@drawable/antourage_ic_placeholder_video"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:id="@+id/placeholderViewPost"/>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

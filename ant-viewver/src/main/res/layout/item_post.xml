@@ -7,10 +7,7 @@
         app:cardBackgroundColor="@color/ant_feed_bg_color"
         app:cardElevation="0dp">
 
-    <!-- not sure if needed-->
-    <!--    android:foreground="?android:attr/selectableItemBackgroundBorderless"-->
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

@@ -555,13 +555,12 @@ internal class VideosAdapter(
         override fun onBindViewHolder(holder: ImageSwiper, position: Int) {
                 if (list[position].isNotBlank()) Picasso.get()
                     .load(list[position])
-                    .placeholder(R.drawable.antourage_ic_placeholder_video)
+                    .placeholder(R.drawable.antourage_ic_photo_placeholder)
                     .fit()
                     .into(holder.imageView)
                 else
                     Picasso.get()
-                        .load(R.drawable.antourage_ic_placeholder_video)
-                        .placeholder(R.drawable.antourage_ic_placeholder_video)
+                        .load(R.drawable.antourage_ic_photo_placeholder)
                         .into(holder.imageView)
         }
 
