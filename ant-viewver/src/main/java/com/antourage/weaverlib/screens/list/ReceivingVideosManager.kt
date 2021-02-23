@@ -127,7 +127,8 @@ internal class ReceivingVideosManager {
                                             liveVideos = resource
                                             streamResponse.removeObserver(this)
                                         }
-                                        else -> {}
+                                        else -> {
+                                        }
                                     }
                                 }
                             }

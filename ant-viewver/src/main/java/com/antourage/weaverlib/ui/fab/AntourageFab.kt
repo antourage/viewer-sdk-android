@@ -170,8 +170,8 @@ class AntourageFab @JvmOverloads constructor(
         private fun startAntRequests(isInitial: Boolean = true) {
             if (isInitial) {
                 ReceivingVideosManager.isFirstRequestVod = true
-                ReceivingVideosManager.isFirstRequest = true
             }
+            ReceivingVideosManager.isFirstRequest = true
             ReceivingVideosManager.startReceivingLiveStreams(true)
         }
 
@@ -413,7 +413,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun applyMargins() {
-            setPosition(true)
+        setPosition(true)
         if (!viewIsDrawn) {
             viewTreeObserver.addOnGlobalLayoutListener(object :
                 ViewTreeObserver.OnGlobalLayoutListener {
