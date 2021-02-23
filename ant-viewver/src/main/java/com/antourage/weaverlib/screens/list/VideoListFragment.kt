@@ -668,9 +668,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun scrollRvAndTriggerAutoplay() {
-        videosRV.smoothScrollToPosition(0)
+        videosRV?.smoothScrollToPosition(0)
         Handler().postDelayed({
-            videosRV.forceRestartAutoPlayOnChange()
+            videosRV?.forceRestartAutoPlayOnChange()
         }, 1000)
     }
 
