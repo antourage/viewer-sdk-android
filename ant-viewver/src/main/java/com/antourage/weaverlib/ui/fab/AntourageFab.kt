@@ -248,6 +248,7 @@ class AntourageFab @JvmOverloads constructor(
     private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private var currentFabState: FabState = FabState.INACTIVE
     private var nextFabState: FabState? = null
+    private var forceVodStateIfNeeded: Boolean = false
     private var isAnimationRunning = false
     private var circleAnimatedDrawable: AnimatedVectorDrawableCompat? = null
     private var playIconAnimatedDrawable: AnimatedVectorDrawableCompat? = null
@@ -607,7 +608,8 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun setVodState() {
         if (vods.isNotEmpty()) {
-            if (currentFabState != FabState.PRE_VOD && currentFabState != FabState.VOD && nextFabState != FabState.PRE_VOD && nextFabState != FabState.VOD) {
+            if (currentFabState != FabState.PRE_VOD && currentFabState != FabState.VOD && nextFabState != FabState.PRE_VOD && nextFabState != FabState.VOD || forceVodStateIfNeeded) {
+                forceVodStateIfNeeded = false
                 setIncomingWidgetStatus(FabState.PRE_VOD)
                 return
             }
@@ -954,6 +956,8 @@ class AntourageFab @JvmOverloads constructor(
         when (networkState?.ordinal) {
             NetworkConnectionState.LOST.ordinal -> {
                 if (!Global.networkAvailable) {
+                    clearStreams()
+                    forceVodStateIfNeeded = true
                     disconnectSocket()
                     ReceivingVideosManager.pauseWhileNoNetwork()
                     SocketConnector.cancelReconnect()
