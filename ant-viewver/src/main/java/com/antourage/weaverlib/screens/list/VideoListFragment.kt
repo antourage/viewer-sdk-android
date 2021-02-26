@@ -369,6 +369,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
                         if (viewModel.userAuthorized()) {
+                            viewModel.refreshChatPollInfo()
                             viewModel.refreshVODs(0, true)
                         } else {
                             videoRefreshLayout.setRefreshing(false)

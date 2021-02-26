@@ -68,7 +68,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     //will always show same error message to user, that's why used Boolean
     var errorLiveData: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
-     var stopwatch = Stopwatch()
+    var stopwatch = Stopwatch()
     protected var resetChronometer = true
 
     protected var player: SimpleExoPlayer? = null
@@ -142,7 +142,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         player = getSimpleExoPlayer()
         this.streamUrl = streamUrl
         player?.playWhenReady = playWhenReady
-        player?.prepare(getMediaSource(streamUrl), false, true)
+        player?.setMediaSource(getMediaSource(streamUrl), false)
+        player?.prepare()
         player?.seekTo(currentWindow, C.TIME_UNSET)
         initStatisticsListeners()
         return player
@@ -158,12 +159,12 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     fun onNetworkGained() {
-            player?.playWhenReady = true
-            player?.prepare()
-            player?.seekTo(currentWindow, player?.currentPosition ?: 0)
-            if (this@BasePlayerViewModel is PlayerViewModel || this@BasePlayerViewModel is VideoViewModel) {
-                checkShouldUseSockets()
-            }
+        player?.playWhenReady = true
+        player?.prepare()
+        player?.seekTo(currentWindow, player?.currentPosition ?: 0)
+        if (this@BasePlayerViewModel is PlayerViewModel || this@BasePlayerViewModel is VideoViewModel) {
+            checkShouldUseSockets()
+        }
     }
 
     private fun initStatisticsListeners() {
@@ -280,7 +281,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                         onOpenStatisticUpdate(id)
                                         response.removeObserver(this)
                                     }
-                                    else -> {}
+                                    else -> {
+                                    }
                                 }
                             }
                         }
@@ -307,7 +309,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                                         onUpdateBannerInfo(resource.status.data)
                                         response.removeObserver(this)
                                     }
-                                    else -> {}
+                                    else -> {
+                                    }
                                 }
                             }
                         }
@@ -457,7 +460,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     fun forceResetPlaying() {
-        player?.prepare(getMediaSource(streamUrl), false, true)
+        player?.setMediaSource(getMediaSource(streamUrl), false)
+        player?.prepare()
     }
 
     private val playerEventListener = object : Player.EventListener {
@@ -478,7 +482,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
                         }
                     }
                 }
-                Player.STATE_BUFFERING ->{
+                Player.STATE_BUFFERING -> {
                     stopwatch.stopIfRunning()
                 }
                 Player.STATE_ENDED -> {
@@ -514,7 +518,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
             )
 
             if (err.cause is BehindLiveWindowException) {
-                player?.prepare(getMediaSource(streamUrl), false, true)
+                player?.setMediaSource(getMediaSource(streamUrl), false)
+                player?.prepare()
             } else if (
                 (err.cause is HttpDataSource.HttpDataSourceException ||
                         err.cause is UnrecognizedInputFormatException)
@@ -551,20 +556,30 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         ) {
             if (player != null) {
                 if (player!!.duration != C.TIME_UNSET) {
-                    player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
-                        .setHandler(Handler())
-                        .setPosition(
-                            currentWindow,
-                            player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
-                        )
-                        .setDeleteAfterDelivery(false)
-                        .send()
-                    registerCallbacks(currentWindow)
+                    onTrackChanged()
+                } else {
+                    Handler().postDelayed({
+                        if (player!!.duration != C.TIME_UNSET) {
+                            onTrackChanged()
+                        }
+                    }, 1000)
                 }
             }
         }
     }
     //endregion
+
+    private fun onTrackChanged() {
+            player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
+                .setHandler(Handler())
+                .setPosition(
+                    currentWindow,
+                    player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
+                )
+                .setDeleteAfterDelivery(false)
+                .send()
+            registerCallbacks(currentWindow)
+    }
 
     protected fun createAdCallback(
         windowIndex: Int,

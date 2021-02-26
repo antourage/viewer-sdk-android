@@ -279,6 +279,14 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
     }
 
+    fun refreshChatPollInfo(){
+        liveVideosUpdated = false
+        if(liveVideos==null){
+            liveVideosUpdated = true
+        }else{
+            liveVideos?.let { getChatPollInfoForLives(it) }
+        }
+    }
 
     private fun getChatPollInfoForLives(list: List<StreamResponse>) {
         livesToFetchInfo.clear()

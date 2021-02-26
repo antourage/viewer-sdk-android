@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -214,7 +215,6 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     }
 
     private val autoPlayStateObserver: Observer<VideoViewModel.AutoPlayState> = Observer { state ->
-
         when (state) {
             VideoViewModel.AutoPlayState.START_AUTO_PLAY -> {
                 if (!viewModel.hasNextTrack()) { //STATE END OF LAST VIDEO IN PLAYLIST

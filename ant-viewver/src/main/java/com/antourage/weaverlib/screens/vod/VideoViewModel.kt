@@ -451,7 +451,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 } else {
                     index + 1
                 }
-                player?.prepare(mediaSource)
+                player?.setMediaSource(mediaSource)
+                player?.prepare()
                 player?.seekTo(seekToIndex, C.TIME_UNSET)
                 player?.playWhenReady = true
             }
@@ -542,12 +543,10 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                 true
             )
         ) {
-            val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory()
-            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
-                MediaItem.fromUri(
-                    uri
-                )
-            )
+            val okHttpDataSourceFactory =
+                OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))
+            ProgressiveMediaSource.Factory(okHttpDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(uri))
         } else {
             val okHttpDataSourceFactory =
                 OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(getApplication(), "Exo2"))

@@ -36,6 +36,7 @@ internal class ReceivingVideosManager {
             ReceivingVideosManager.callback = callback
         }
 
+
         fun loadVODs(count: Int, roomRepository: RoomRepository) {
             Log.d(TAG, "Trying to load VODs")
             val response = Repository.getVODsWithLastCommentAndStopTime(count, roomRepository)
