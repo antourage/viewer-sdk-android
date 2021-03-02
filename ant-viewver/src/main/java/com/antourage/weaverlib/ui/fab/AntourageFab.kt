@@ -369,46 +369,49 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun invalidatePosition(justResetPosition: Boolean) {
-        val parent = parent as View
-        when (widgetPosition) {
-            WidgetPosition.bottomLeft -> {
-                x = 0f
-                y = (parent.height - height).toFloat()
+        val parent = parent as? View
+        if(parent!=null){
+            if(parent.height == 0 || parent.width ==0 ) return
+            when (widgetPosition) {
+                WidgetPosition.bottomLeft -> {
+                    x = 0f
+                    y = (parent.height - height).toFloat()
+                }
+                WidgetPosition.bottomRight -> {
+                    x = (parent.width - width).toFloat()
+                    y = (parent.height - height).toFloat()
+                }
+                WidgetPosition.bottomMid -> {
+                    x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                        .roundToInt()).toFloat()
+                    y = (parent.height - height).toFloat()
+                }
+                WidgetPosition.midLeft -> {
+                    x = 0f
+                    y = ((parent.height / 2).toDouble()
+                        .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+                }
+                WidgetPosition.midRight -> {
+                    x = (parent.width - width).toFloat()
+                    y = ((parent.height / 2).toDouble()
+                        .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
+                }
+                WidgetPosition.topLeft -> {
+                    x = 0f
+                    y = 0f
+                }
+                WidgetPosition.topMid -> {
+                    x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
+                        .roundToInt()).toFloat()
+                    y = 0f
+                }
+                WidgetPosition.topRight -> {
+                    x = (parent.width - width).toFloat()
+                    y = 0f
+                }
             }
-            WidgetPosition.bottomRight -> {
-                x = (parent.width - width).toFloat()
-                y = (parent.height - height).toFloat()
-            }
-            WidgetPosition.bottomMid -> {
-                x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
-                    .roundToInt()).toFloat()
-                y = (parent.height - height).toFloat()
-            }
-            WidgetPosition.midLeft -> {
-                x = 0f
-                y = ((parent.height / 2).toDouble()
-                    .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
-            }
-            WidgetPosition.midRight -> {
-                x = (parent.width - width).toFloat()
-                y = ((parent.height / 2).toDouble()
-                    .roundToInt() - (height / 2).toDouble().roundToInt()).toFloat()
-            }
-            WidgetPosition.topLeft -> {
-                x = 0f
-                y = 0f
-            }
-            WidgetPosition.topMid -> {
-                x = ((parent.width / 2).toDouble().roundToInt() - (width / 2).toDouble()
-                    .roundToInt()).toFloat()
-                y = 0f
-            }
-            WidgetPosition.topRight -> {
-                x = (parent.width - width).toFloat()
-                y = 0f
-            }
+            if (!justResetPosition) applyMargins()
         }
-        if (!justResetPosition) applyMargins()
     }
 
     /**
@@ -437,6 +440,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun invalidateMargins() {
+        val parent = parent as? View
+        if(parent?.height == 0 || parent?.width ==0 ) return
         when (widgetPosition) {
             WidgetPosition.topLeft -> {
                 x += horizontalMargin
