@@ -320,6 +320,13 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Method needed for react native integration for positioning
+     * Should be called in createViewInstance
+     * */
+    fun resetViewIsDrawn(){
+        viewIsDrawn = false
+    }
 
     /**
      * Method to move fab to predefined positions
