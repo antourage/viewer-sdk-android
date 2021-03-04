@@ -827,11 +827,11 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun showBadge() {
         badgeView.background = badgeColor
-        badgeView.showBadge()
+        badgeView.showBadge(measureAndLayout)
     }
 
     private fun hideBadge() {
-        badgeView.hideBadge()
+        badgeView.hideBadge(measureAndLayout)
     }
 
     private fun updateBadgeColor(value: String) {

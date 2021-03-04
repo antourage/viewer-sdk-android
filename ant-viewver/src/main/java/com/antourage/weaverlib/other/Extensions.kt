@@ -375,17 +375,20 @@ internal fun View.dpToPx(dp: Float): Int = context.dpToPx(dp)
 internal fun Context.dpToPx(dp: Float): Int =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics).toInt()
 
-internal fun TextView.hideBadge() {
+internal fun TextView.hideBadge(runnable: Runnable) {
     this.animate()
         .scaleY(0.0f)
         .scaleX(0.0f)
         .alpha(0.0f)
         .setDuration(300)
-        .withEndAction { this.text = "" }
+        .withEndAction {
+            this.text = ""
+        }
         .start()
+    this.post(runnable)
 }
 
-internal fun TextView.showBadge() {
+internal fun TextView.showBadge(runnable: Runnable) {
     this.scaleX = 0.5f
     this.scaleY = 0.5f
     this.alpha = 0.0f
@@ -395,6 +398,7 @@ internal fun TextView.showBadge() {
         .alpha(1.0f)
         .setDuration(300)
         .start()
+    this.post(runnable)
 }
 
 internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
