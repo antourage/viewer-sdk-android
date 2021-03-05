@@ -369,8 +369,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
                         if (viewModel.userAuthorized()) {
-                            viewModel.refreshChatPollInfo()
                             viewModel.refreshVODs(0, true)
+                            viewModel.refreshChatPollInfo()
                         } else {
                             videoRefreshLayout.setRefreshing(false)
                             showErrorSnackbar(R.string.invalid_toke_error_message)
