@@ -441,7 +441,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun invalidateMargins() {
         val parent = parent as? View
-        if(parent?.height == 0 || parent?.width ==0 ) return
+        if(parent == null || parent.height == 0 || parent.width == 0 ) return
         when (widgetPosition) {
             WidgetPosition.topLeft -> {
                 x += horizontalMargin
@@ -530,6 +530,7 @@ class AntourageFab @JvmOverloads constructor(
                                 manageLiveStreams()
                             }
                         } else {
+                            liveStreams.clear()
                             manageVODs(true)
                             goingLiveToLive = false
                         }
@@ -830,6 +831,12 @@ class AntourageFab @JvmOverloads constructor(
         badgeView.showBadge(measureAndLayout)
     }
 
+    /**method for React Native for force hide badge on widget appearing*/
+    fun forceHideBadge(){
+        badgeView?.alpha = 0f
+        badgeView?.text = ""
+    }
+
     private fun hideBadge() {
         badgeView.hideBadge(measureAndLayout)
     }
@@ -1017,6 +1024,7 @@ class AntourageFab @JvmOverloads constructor(
                     runOnUi { manageLiveStreams() }
                 }
             } else {
+                liveStreams.clear()
                 runOnUi { manageVODs(true) }
                 goingLiveToLive = false
             }

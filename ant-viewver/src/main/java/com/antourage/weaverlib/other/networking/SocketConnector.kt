@@ -176,6 +176,8 @@ internal object SocketConnector {
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
         reconnectHandler.removeCallbacksAndMessages(null)
+        newLivesLiveData.value = null
+        newVodsLiveData.value = null
         try{
             if (this::hubConnection.isInitialized) {
                 if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
