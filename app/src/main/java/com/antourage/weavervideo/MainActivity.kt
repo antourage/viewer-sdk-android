@@ -48,8 +48,8 @@ class MainActivity : AppCompatActivity() {
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
 
-        //region Antourage authorization
-        AntourageFab.authWith(TEST_API_KEY.toUpperCase(), context = this)
+        //region Antourage configuration
+        AntourageFab.configure(this)
         //endregion
 
         //region Antourage push notification subscription

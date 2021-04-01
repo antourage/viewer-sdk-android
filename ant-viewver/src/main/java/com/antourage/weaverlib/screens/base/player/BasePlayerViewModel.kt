@@ -640,7 +640,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private fun checkShouldUseSockets() {
         initSocketListeners()
         if (ReceivingVideosManager.shouldUseSockets) {
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getAccessToken()
                 ?.let {
                     SocketConnector.connectToSockets(it)
                 }

@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
-import com.antourage.weaverlib.UserCache
-import okhttp3.Interceptor
+import com.antourage.weaverlib.other.networking.auth.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -10,95 +9,54 @@ import java.util.concurrent.TimeUnit
 
 
 internal object ApiClient {
-
     var BASE_URL = ""
-    private const val HEADER_TOKEN = "Authorization"
-    private const val HEADER_LANGUAGE = "Accept-Language"
     private const val VERSION_SUFFIX = "api/v1/widget/"
 
     lateinit var webService: WebService
     private var retrofit: Retrofit? = null
-    private var usingAuth = false
+    private var httpClient: OkHttpClient? = null
 
-
-//    private var shouldRebuild = false
-
-    fun getWebClient(useAuth: Boolean = true, v2: Boolean = false): ApiClient {
-        if (retrofit == null
-            || usingAuth != useAuth
-            || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)
-        ) {
-            rebuildRetrofit(useAuth, v2)
+    fun getWebClient(): ApiClient {
+        if (retrofit == null || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)) {
+            rebuildRetrofit()
         }
         return this
     }
 
-    //region Private
-
-    private fun getTokenForRequest(): String {
-        return UserCache.getInstance()?.let { userCache ->
-            userCache.getToken() ?: ""
-        } ?: ""
+    fun getHttpClient(): OkHttpClient {
+        if (httpClient == null) {
+            httpClient = buildOkHttpClient()
+        }
+        return httpClient as OkHttpClient
     }
 
-    private fun rebuildRetrofit(useAuth: Boolean, v2: Boolean = false) {
-        val client = buildOkHttpClient(useAuth)
+    //region Private
+
+    private fun rebuildRetrofit() {
+        httpClient = buildOkHttpClient()
         retrofit = Retrofit.Builder()
-            .baseUrl(
-                (BASE_URL + VERSION_SUFFIX)
-            )
-            .client(client)
+            .baseUrl(BASE_URL + VERSION_SUFFIX)
+            .client(httpClient!!)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
         webService = retrofit?.create(WebService::class.java)!!
     }
 
-    private fun buildOkHttpClient(useAuth: Boolean): OkHttpClient {
+    private fun buildOkHttpClient(): OkHttpClient {
         //TODO delete before release
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
-        usingAuth = useAuth
         val builder = OkHttpClient.Builder()
-        if (useAuth) {
-            addTokenInterceptor(builder)
-        } else {
-            addDefaultInterceptor(builder)
-        }
         builder
             .addInterceptor(loggingInterceptor)
+            .addInterceptor(AuthInterceptor())
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
         return builder.build()
     }
 
-    private fun addDefaultInterceptor(builder: OkHttpClient.Builder) {
-        // This automatically adds the accessToken for any requests if the @useAuth parameter is true and if there' any accessToken
-        val defaultInterceptor = Interceptor { chain ->
-            val request = chain.request()
-            var newRequest = request
-            newRequest = newRequest.newBuilder()
-                .addHeader(HEADER_LANGUAGE, "en")
-                .build()
-            chain.proceed(newRequest)
-        }
-        builder.addInterceptor(defaultInterceptor)
-    }
-
-    private fun addTokenInterceptor(builder: OkHttpClient.Builder) {
-        // This automatically adds the accessToken for any requests if the @useAuth parameter is true and if there' any accessToken
-        val tokenInterceptor = Interceptor { chain ->
-            val request = chain.request()
-            var newRequest = request
-            newRequest = newRequest.newBuilder()
-                .addHeader(HEADER_TOKEN, "Bearer ${getTokenForRequest()}")
-                .addHeader(HEADER_LANGUAGE, "en")
-                .build()
-            chain.proceed(newRequest)
-        }
-        builder.addInterceptor(tokenInterceptor)
-    }
     //endregion
 }

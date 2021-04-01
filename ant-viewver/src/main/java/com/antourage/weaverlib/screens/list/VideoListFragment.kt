@@ -197,7 +197,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videosRV.resetVideoView()
         shouldDisconnectSocket = true
         context?.let {
-            viewModel.handleUserAuthorization()
             viewModel.refreshVODsLocally()
             if (!ConnectionStateMonitor.isNetworkAvailable()) {
                 showNoConnectionPlaceHolder()
@@ -254,7 +253,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
         ReceivingVideosManager.setReceivingVideoCallback(viewModel)
 
-        if (refreshVODs && viewModel.userAuthorized()) {
+        if (refreshVODs) {
             viewModel.refreshVODs()
             //needed for onResume to not refreshVods too
             Handler().postDelayed({
@@ -368,13 +367,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 videosRV.hideAutoPlayLayout()
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
-                        if (viewModel.userAuthorized()) {
-                            viewModel.refreshVODs(0, true)
-                            viewModel.refreshChatPollInfo()
-                        } else {
-                            videoRefreshLayout.setRefreshing(false)
-                            showErrorSnackbar(R.string.invalid_toke_error_message)
-                        }
+                        viewModel.refreshVODs(0, true)
+                        viewModel.refreshChatPollInfo()
                     } else {
                         videoRefreshLayout.setRefreshing(false)
                         showErrorSnackbar(R.string.ant_no_connection)
@@ -388,13 +382,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             override fun onRefresh() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
-                        if (viewModel.userAuthorized()) {
-                            viewModel.refreshVODs(0, true)
-                            showLoadingLayout(true)
-                        } else {
-                            placeholderRefreshLayout.setRefreshing(false)
-                            showErrorSnackbar(R.string.invalid_toke_error_message)
-                        }
+                        viewModel.refreshVODs(0, true)
+                        showLoadingLayout(true)
                     } else {
                         placeholderRefreshLayout.setRefreshing(false)
                         showErrorSnackbar(R.string.ant_no_connection)
@@ -408,12 +397,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             override fun onRefresh() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
-                        if (viewModel.userAuthorized()) {
-                            viewModel.refreshVODs(0, true)
-                        } else {
-                            noContentRefreshLayout.setRefreshing(false)
-                            showErrorSnackbar(R.string.invalid_toke_error_message)
-                        }
+                        viewModel.refreshVODs(0, true)
                     } else {
                         noContentRefreshLayout.setRefreshing(false)
                         showErrorSnackbar(R.string.ant_no_connection)

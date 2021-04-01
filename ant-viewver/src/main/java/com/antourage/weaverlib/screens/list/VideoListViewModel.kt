@@ -3,7 +3,6 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -12,7 +11,6 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.UserRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
@@ -21,7 +19,6 @@ import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
-import com.antourage.weaverlib.ui.fab.AntourageFab
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -36,8 +33,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
-    private val authorizeHandler = Handler()
-    private var authorizeRunning = false
 
     private var livesToFetchInfo: MutableList<StreamResponse> = mutableListOf()
 
@@ -149,7 +144,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     fun onPause(shouldDisconnectSocket: Boolean = true) {
-        stopAuthHandler()
         showBeDialogLiveData.postValue(false)
         numberOfLogoClicks = 0
         ReceivingVideosManager.stopReceivingVideos()
@@ -162,7 +156,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
             initSocketListeners()
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getToken()
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getAccessToken()
                 ?.let {
                     ReceivingVideosManager.checkShouldUseSockets(it)
                 }
@@ -481,30 +475,12 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
     }
 
-    fun handleUserAuthorization() {
-        if (userAuthorized()) {
-            subscribeToLiveStreams(true)
-        } else {
-            getCachedApiKey()?.let { apiKey ->
-                authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname())
-            }
-        }
-    }
-
     internal fun userAuthorized(): Boolean {
-        return !(UserCache.getInstance(getApplication())?.getToken().isNullOrBlank())
+        return !(UserCache.getInstance(getApplication())?.getAccessToken().isNullOrBlank())
     }
 
     private fun getCachedNickname(): String? {
         return UserCache.getInstance(getApplication())?.getUserNickName()
-    }
-
-    private fun getCachedUserRefId(): String? {
-        return UserCache.getInstance(getApplication())?.getUserRefId()
-    }
-
-    private fun getCachedApiKey(): String? {
-        return UserCache.getInstance(getApplication())?.getApiKey()
     }
 
     fun getSavedTagLine(): String? {
@@ -540,71 +516,6 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                         response.removeObserver(this)
                     }
                     is Status.Failure -> {
-                        response.removeObserver(this)
-                    }
-                }
-            }
-        })
-    }
-
-    private fun startAuthHandler() {
-        if (!authorizeRunning) {
-            authorizeHandler.removeCallbacksAndMessages(null)
-            authorizeHandler.postDelayed({
-                if (!userAuthorized()) {
-                    getCachedApiKey()?.let { apiKey ->
-                        authorizeUser(apiKey, getCachedUserRefId(), getCachedNickname())
-                    }
-                }
-            }, AntourageFab.AUTH_RETRY)
-        }
-    }
-
-    private fun stopAuthHandler() {
-        authorizeHandler.removeCallbacksAndMessages(null)
-    }
-
-    private fun authorizeUser(
-        apiKey: String,
-        refUserId: String? = null,
-        nickname: String? = null
-    ) {
-        Log.d(AntourageFab.TAG, "Trying to authorize ant user...")
-        refUserId?.let { UserCache.getInstance(getApplication())?.saveUserRefId(it) }
-        nickname?.let { UserCache.getInstance(getApplication())?.saveUserNickName(it) }
-        UserCache.getInstance(getApplication())?.saveApiKey(apiKey)
-
-        val response = Repository.generateUser(UserRequest(apiKey, refUserId, nickname))
-        response.observeForever(object : Observer<Resource<User>> {
-            override fun onChanged(it: Resource<User>?) {
-                when (val responseStatus = it?.status) {
-                    is Status.Success -> {
-                        val user = responseStatus.data
-                        Log.d(AntourageFab.TAG, "Ant authorization successful")
-                        user?.apply {
-                            if (token != null && id != null) {
-                                stopAuthHandler()
-                                authorizeRunning = false
-                                Log.d(
-                                    AntourageFab.TAG,
-                                    "Ant token and ant userId != null, started live video timer"
-                                )
-                                UserCache.getInstance(getApplication())?.saveUserAuthInfo(token, id)
-                                if (!AntourageFab.isSubscribedToPushes) AntourageFab.retryRegisterNotifications()
-                                subscribeToLiveStreams(true)
-                                refreshVODs()
-                            }
-                        }
-                        response.removeObserver(this)
-                    }
-                    is Status.Failure -> {
-                        authorizeRunning = false
-                        startAuthHandler()
-                        Log.d(
-                            AntourageFab.TAG,
-                            "Ant authorization failed: ${responseStatus.errorMessage}"
-                        )
-                        errorLiveData.postValue(responseStatus.errorMessage)
                         response.removeObserver(this)
                     }
                 }
