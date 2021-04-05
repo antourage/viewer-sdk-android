@@ -3,6 +3,7 @@ package com.antourage.weaverlib.screens.base
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,8 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.replaceFragment
+import com.antourage.weaverlib.screens.join.JoinActivity
+import com.antourage.weaverlib.screens.join.JoinFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
@@ -131,6 +134,18 @@ class AntourageActivity : AppCompatActivity() {
     private fun replaceListFragment() {
         replaceFragment(VideoListFragment.newInstance(), R.id.mainContent)
         shouldGoBackToList = false
+    }
+
+    fun openJoinFragment(){
+        replaceFragment(JoinFragment.newInstance(), R.id.mainContent,
+            addToBackStack = true,
+            slideFromBottom = true
+        )
+    }
+
+    fun openJoinActivity(){
+        val intent = Intent (this, JoinActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onBackPressed() {

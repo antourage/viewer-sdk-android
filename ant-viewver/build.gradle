@@ -134,6 +134,7 @@ dependencies {
     //room:
     implementation "androidx.room:room-runtime:2.2.5"
     implementation "androidx.room:room-ktx:2.2.5"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt "androidx.room:room-compiler:2.2.5"
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
     //Coroutines
