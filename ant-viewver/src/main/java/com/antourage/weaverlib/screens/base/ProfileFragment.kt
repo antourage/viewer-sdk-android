@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.other.networking.auth.AuthClient.ANONYMOUS_CLIENT_ID
+import com.antourage.weaverlib.other.networking.auth.AuthClient.ANONYMOUS_SECRET
+import com.antourage.weaverlib.other.networking.auth.AuthClient.CLIENT_ID
 import kotlinx.android.synthetic.main.fragment_profile.*
 
 class ProfileFragment : Fragment() {
@@ -28,6 +31,6 @@ class ProfileFragment : Fragment() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.webViewClient = WebViewClient()
-        webView.loadUrl("https://widget.dev.antourage.com/#/auth")
+        webView.loadUrl("https://widget.dev.antourage.com/#/auth?appClientId=$CLIENT_ID&anonymousAppClientId=$ANONYMOUS_CLIENT_ID&anonymousAppClientSecret=$ANONYMOUS_SECRET")
     }
 }

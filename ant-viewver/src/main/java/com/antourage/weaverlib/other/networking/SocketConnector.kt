@@ -7,8 +7,10 @@ import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.ListOfStreams
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import com.microsoft.signalr.HubConnectionState
@@ -43,6 +45,7 @@ internal object SocketConnector {
     private const val FOURTH_RECONNECT = 4000L
     private var nextReconnectDelay = INITIAL_RECONNECT
     private var shouldDisconnectSocket = false
+    private var currentToken = ""
 
     class ConnectToSocketTask : AsyncTask<Long, Any, Any>() {
         @SuppressLint("CheckResult")
@@ -88,7 +91,8 @@ internal object SocketConnector {
 
     fun connectToSockets(token: String) {
         shouldDisconnectSocket = false
-        if (!this::hubConnection.isInitialized) {
+        if (!this::hubConnection.isInitialized || currentToken != token) {
+            currentToken = token
             hubConnection = HubConnectionBuilder.create(
                 "${ApiClient.BASE_URL}hub?access_token=${token}"
             )
@@ -128,40 +132,65 @@ internal object SocketConnector {
             Log.d(TAG, "vod:  $newStreams")
         }, ListOfStreams::class.java)
 
-        hubConnection.onClosed {
-            when (nextReconnectDelay) {
-                INITIAL_RECONNECT -> {
-                    nextReconnectDelay = FIRST_RECONNECT
-//                    Log.d(TAG, "setting delay on taskfinish: $nextReconnectDelay")
-                }
-                FIRST_RECONNECT -> {
-                    nextReconnectDelay = SECOND_RECONNECT
-                }
-                SECOND_RECONNECT -> {
-                    nextReconnectDelay = THIRD_RECONNECT
-                }
-                THIRD_RECONNECT -> {
-                    nextReconnectDelay = FOURTH_RECONNECT
-                }
-                FOURTH_RECONNECT -> {
-                    nextReconnectDelay = INITIAL_RECONNECT
-                    if (Global.networkAvailable) {
-                        isSocketUsed = false
-                        shouldDisconnectSocket = true
-                        socketConnection.postValue(SocketConnection.DISCONNECTED)
+        hubConnection.onClosed { exception ->
+            if(exception!=null && exception.message?.contains("401")!!){
+                Log.d(TAG, "Socket token expired")
+                if (Global.networkAvailable) {
+                    synchronized(ApiClient.getHttpClient()) {
+                        UserCache.getInstance()?.getAccessToken()?.let {
+                            if (it == currentToken) {
+                                isConnectTaskRunning = false
+                                val code: Int =
+                                    AuthClient.getAuthClient().authenticateUser().code() / 100
+                                if (code == 2) {
+                                    if (UserCache.getInstance()?.getAccessToken() != null) {
+                                        connectToSockets(UserCache.getInstance()?.getAccessToken()!!)
+                                    }
+                                }
+                            } else {
+                                reconnect()
+                            }
+                        }
                     }
                 }
+            }else{
+                reconnect()
             }
+        }
+    }
 
-            if (!shouldDisconnectSocket) {
-                if (Global.networkAvailable) {
-                    Log.d(TAG, "Starting reconnect")
-                    reconnectWithDelay(nextReconnectDelay)
-                    isConnectTaskRunning = true
-                }
-            } else {
-                Log.d(TAG, "Disconnected")
+    private fun reconnect(){
+        when (nextReconnectDelay) {
+            INITIAL_RECONNECT -> {
+                nextReconnectDelay = FIRST_RECONNECT
             }
+            FIRST_RECONNECT -> {
+                nextReconnectDelay = SECOND_RECONNECT
+            }
+            SECOND_RECONNECT -> {
+                nextReconnectDelay = THIRD_RECONNECT
+            }
+            THIRD_RECONNECT -> {
+                nextReconnectDelay = FOURTH_RECONNECT
+            }
+            FOURTH_RECONNECT -> {
+                nextReconnectDelay = INITIAL_RECONNECT
+                if (Global.networkAvailable) {
+                    isSocketUsed = false
+                    shouldDisconnectSocket = true
+                    socketConnection.postValue(SocketConnection.DISCONNECTED)
+                }
+            }
+        }
+
+        if (!shouldDisconnectSocket) {
+            if (Global.networkAvailable) {
+                Log.d(TAG, "Starting reconnect")
+                reconnectWithDelay(nextReconnectDelay)
+                isConnectTaskRunning = true
+            }
+        } else {
+            Log.d(TAG, "Disconnected")
         }
     }
 

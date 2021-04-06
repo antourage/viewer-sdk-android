@@ -33,19 +33,17 @@ class AuthInterceptor: Interceptor {
 
         if (response.code == 401) {
             synchronized(ApiClient.getHttpClient()) {
-                UserCache.getInstance()?.getAccessToken()?.let {
-                    if (it == accessToken) {
-                        val code: Int = AuthClient.getAuthClient().authenticateUser().code() / 100
-                        if (code != 2) {
-                            return response
-                        }
+                val currentAccessToken = UserCache.getInstance()?.getAccessToken()
+                if(currentAccessToken == null || currentAccessToken == accessToken) {
+                    val code: Int = AuthClient.getAuthClient().authenticateUser().code() / 100
+                    if (code != 2) {
+                        return response
                     }
                 }
 
                 UserCache.getInstance()?.getAccessToken()?.let {
                     builder.header(HEADER_TOKEN, "Bearer ${it}")
                     request = builder.build()
-
                     return chain.proceed(request)
                 }
             }

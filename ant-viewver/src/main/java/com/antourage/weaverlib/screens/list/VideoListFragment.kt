@@ -197,6 +197,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         videosRV.resetVideoView()
         shouldDisconnectSocket = true
         context?.let {
+            viewModel.subscribeToLiveStreams(true)
             viewModel.refreshVODsLocally()
             if (!ConnectionStateMonitor.isNetworkAvailable()) {
                 showNoConnectionPlaceHolder()
