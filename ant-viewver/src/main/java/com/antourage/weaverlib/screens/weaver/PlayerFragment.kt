@@ -761,6 +761,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 onCloseClicked()
                 shouldDisconnectSocket = false
             }
+
+        join_conversation_btn.setOnClickListener {
+            (activity as AntourageActivity).openJoinActivity()
+        }
     }
 
     private fun showFullScreenIcon() {
