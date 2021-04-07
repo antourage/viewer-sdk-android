@@ -27,8 +27,8 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
 import com.antourage.weaverlib.screens.list.rv.VerticalSpaceItemDecorator
 import com.antourage.weaverlib.screens.list.rv.VideosAdapter
@@ -129,7 +129,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
-            context?.let { context -> DevSettingsDialog(context, viewModel).show() }
+//            context?.let { context -> DevSettingsDialog(context, viewModel).show() }
+            (activity as AntourageActivity).openJoinTab()
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->

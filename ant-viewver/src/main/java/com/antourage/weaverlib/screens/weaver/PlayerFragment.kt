@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
@@ -28,6 +29,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
@@ -270,7 +272,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         rvMessages?.apply {
             adapter?.itemCount?.minus(0)?.let { adapterPosition ->
                 post {
-                    Handler().postDelayed({
+                    Handler(Looper.getMainLooper()).postDelayed({
                         layoutManager?.scrollToPosition(adapterPosition)
                     }, 300)
                 }
@@ -646,6 +648,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //region chatUI helper func
     private fun enableMessageInput(enable: Boolean, disableButtons: Boolean = false) {
+        join_conversation_btn.visibility = if(enable && orientation() == Configuration.ORIENTATION_PORTRAIT) View.VISIBLE else View.GONE
         etMessage.isEnabled = enable
         if (enable) {
             //used to fix disabling buttons in landscape and not enabling in portrait
@@ -661,7 +664,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun showMessageInput() {
-        ll_wrapper.visibility = View.VISIBLE
+        if(UserCache.getInstance()?.getRefreshToken()==null){
+            ll_wrapper.visibility = View.GONE
+        }else{
+            ll_wrapper.visibility = View.VISIBLE
+        }
     }
 
     private fun removeMessageInput() {
@@ -674,6 +681,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         enableMessageInput(true)
         if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()) {
             showMessageInput()
+        }else{
+            removeMessageInput()
         }
     }
     //end of region
@@ -684,7 +693,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (pollIdForAnimation != null) {
             polls_motion_layout.transitionToEnd()
             //callback to collapse extended poll layout in 6 sec
-            Handler().postDelayed(
+            Handler(Looper.getMainLooper()).postDelayed(
                 {
                     val pollStatus = viewModel.getPollStatusLiveData().value
                     if (polls_motion_layout != null && pollStatus is PollStatus.ActivePoll) {
@@ -763,7 +772,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
 
         join_conversation_btn.setOnClickListener {
-            (activity as AntourageActivity).openJoinActivity()
+            (activity as AntourageActivity).openJoinTab()
         }
     }
 
@@ -924,15 +933,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun animatePollBadgeIfRequired(marginBottomDp: Float) {
-        val params: ViewGroup.MarginLayoutParams? =
+        val params: ViewGroup.MarginLayoutParams =
             polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
-        val initBottomMargin = params?.bottomMargin ?: 0
+        val initBottomMargin = params.bottomMargin
         val endBottomMargin = polls_motion_layout?.dpToPx(marginBottomDp) ?: 0
         val a = object : Animation() {
             override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-                val marginParams: ViewGroup.MarginLayoutParams? =
+                val marginParams: ViewGroup.MarginLayoutParams =
                     polls_motion_layout?.layoutParams as ViewGroup.MarginLayoutParams
-                marginParams?.bottomMargin = initBottomMargin +
+                marginParams.bottomMargin = initBottomMargin +
                         ((endBottomMargin - initBottomMargin) * interpolatedTime).toInt()
                 polls_motion_layout?.layoutParams = params
             }

@@ -3,13 +3,14 @@ package com.antourage.weaverlib.screens.base
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -18,9 +19,8 @@ import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
+import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.other.replaceFragment
-import com.antourage.weaverlib.screens.join.JoinActivity
-import com.antourage.weaverlib.screens.join.JoinFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
@@ -136,16 +136,11 @@ class AntourageActivity : AppCompatActivity() {
         shouldGoBackToList = false
     }
 
-    fun openJoinFragment(){
-        replaceFragment(JoinFragment.newInstance(), R.id.mainContent,
-            addToBackStack = true,
-            slideFromBottom = true
-        )
-    }
-
-    fun openJoinActivity(){
-        val intent = Intent (this, JoinActivity::class.java)
-        startActivity(intent)
+    fun openJoinTab(){
+        val url = "https://widget.dev.antourage.com/#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
+        val builder: CustomTabsIntent.Builder  = CustomTabsIntent.Builder()
+        val customTabsIntent: CustomTabsIntent  = builder.build()
+        customTabsIntent.launchUrl(this, Uri.parse(url))
     }
 
     override fun onBackPressed() {

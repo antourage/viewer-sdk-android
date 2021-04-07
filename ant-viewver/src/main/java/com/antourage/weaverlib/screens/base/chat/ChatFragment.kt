@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.EditText
@@ -50,7 +51,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
     private var commentsLayout: ConstraintLayout? = null
     private var etMessage: EditText? = null
     private var listUpdateCounter = 0
-    private var listUpdateHandler = Handler()
+    private var listUpdateHandler = Handler(Looper.getMainLooper())
     private var listUpdateRunnable = object : Runnable {
         override fun run() {
             rvMessages.adapter?.notifyDataSetChanged()
@@ -174,14 +175,27 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                 (activity as AntourageActivity).hideSoftKeyboard()
                 drawerLayout.closeDrawer(navView)
             }
+            toggleChat(visible = false)
             context?.let { setLandscapeUI(it) }
-
             changeNewCommentsBadgePosition(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            toggleChat(visible = true)
             rvMessages.isVerticalFadingEdgeEnabled = false
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
             changeNewCommentsBadgePosition(false)
+        }
+    }
+
+    private fun toggleChat(visible: Boolean){
+        if(visible){
+            drawerLayout.visibility = View.VISIBLE
+            etMessage?.visibility = View.VISIBLE
+            btnUserSettings?.visibility = View.VISIBLE
+        }else{
+            drawerLayout.visibility = View.GONE
+            etMessage?.visibility = View.GONE
+            btnUserSettings?.visibility = View.GONE
         }
     }
 
@@ -222,15 +236,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
                             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                                 super.onDrawerSlide(drawerView, slideOffset)
                                 val orientation = resources.configuration.orientation
-                                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                    if (slideOffset == 0.0f) {
-                                        isChatDismissed = true
-                                    }
-                                    showMessageInputVisibleIfRequired(slideOffset > 0.3f)
-                                    if (slideOffset == 1.0f) {
-                                        isChatDismissed = false
-                                    }
-                                } else {
+                                if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                                     drawerLayout.openDrawer(navigationView, false)
                                 }
                             }
