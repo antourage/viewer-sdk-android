@@ -423,7 +423,7 @@ internal class VideosAdapter(
                         )
                     )
                     loadThumbnailUrlOrShowPlaceholder(
-                        images?.get(0),
+                        if(images?.isNotEmpty() == true) images[0] else "",
                         ivThumbnail_vod,
                         ivThumbnail_vod_placeholder
                     )
