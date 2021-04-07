@@ -344,10 +344,10 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             )
             id?.let { viewModel.setStreamId(it) }
 
-            thumbnailUrl?.let {
+            images?.get(0)?.let {
                 if (it.isNotEmpty() && it.isNotBlank()) {
                     Picasso.get()
-                        .load(thumbnailUrl)
+                        .load(it)
                         .networkPolicy(NetworkPolicy.OFFLINE)
                         .into(ivFirstFrame)
                 }

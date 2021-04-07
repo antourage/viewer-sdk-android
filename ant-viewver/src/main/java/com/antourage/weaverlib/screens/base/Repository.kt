@@ -32,24 +32,24 @@ internal class Repository {
                 override fun createCall() = ApiClient.getWebClient().webService.getLiveStreams()
             }.asLiveData()
 
-        fun getMockedLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
-            val mockedLiveVideos = List(10) { index ->
-                StreamResponse(
-                    index,
-                    "Stream $index",
-                    "Stream $index",
-                    null,
-                    null,
-                    "Creator $index",
-                    "Creator $index",
-                    "https://djyokoo.com/wp-content/uploads/2018/06/blog-placeholder-800x400.jpg",
-                    null, null, null, null, null,
-                    null, null, index.toLong(), null,true, index.toLong(), true
-                )
-            }
-            return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
-            }.asLiveData()
-        }
+//        fun getMockedLiveVideos(): LiveData<Resource<List<StreamResponse>>> {
+//            val mockedLiveVideos = List(10) { index ->
+//                StreamResponse(
+//                    index,
+//                    "Stream $index",
+//                    "Stream $index",
+//                    null,
+//                    null,
+//                    "Creator $index",
+//                    "Creator $index",
+//                    "https://djyokoo.com/wp-content/uploads/2018/06/blog-placeholder-800x400.jpg",
+//                    null, null, null, null, null,
+//                    null, null, index.toLong(), null,true, index.toLong(), true
+//                )
+//            }
+//            return object : MockedNetworkBoundResource<List<StreamResponse>>(mockedLiveVideos) {
+//            }.asLiveData()
+//        }
 
         private const val adaptiveBitrateUrl =
             "http://antourage.cluster.video/antourage/smil:team1.smil/playlist.m3u8"
@@ -60,42 +60,42 @@ internal class Repository {
         private const val bitrate_360p_500 =
             "http://antourage.cluster.video/antourage/team1_360p/playlist.m3u8"
 
-        fun getMockedStreamsForTheTest(): List<StreamResponse> {
-            val mockedStreams = mutableListOf<StreamResponse>()
-            mockedStreams.add(
-                StreamResponse(
-                    1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
-                    adaptiveBitrateUrl, null, null, null, null,
-                    null, null, 1, null, null, null,
-                    null, 0, null,true, 0, false
-                )
-            )
-            mockedStreams.add(
-                StreamResponse(
-                    1002, "bitrate_720p_1800", "bitrate_720p_1800",
-                    bitrate_720p_1800, null, null, null, null,
-                    null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false
-                )
-            )
-            mockedStreams.add(
-                StreamResponse(
-                    1003, "bitrate_480p_800", "bitrate_480p_800",
-                    bitrate_480p_800, null, null, null, null,
-                    null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false
-                )
-            )
-            mockedStreams.add(
-                StreamResponse(
-                    1004, "bitrate_360p_500", "bitrate_360p_500",
-                    bitrate_360p_500, null, null, null, null,
-                    null, null, 1, null, null, null,
-                    null, 0, null,false, 0, false
-                )
-            )
-            return mockedStreams
-        }
+//        fun getMockedStreamsForTheTest(): List<StreamResponse> {
+//            val mockedStreams = mutableListOf<StreamResponse>()
+//            mockedStreams.add(
+//                StreamResponse(
+//                    1001, "adaptiveBitrateUrl", "adaptiveBitrateUrl",
+//                    adaptiveBitrateUrl, null, null, null, null,
+//                    null, null, 1, null, null, null,
+//                    null, 0, null,true, 0, false
+//                )
+//            )
+//            mockedStreams.add(
+//                StreamResponse(
+//                    1002, "bitrate_720p_1800", "bitrate_720p_1800",
+//                    bitrate_720p_1800, null, null, null, null,
+//                    null, null, 1, null, null, null,
+//                    null, 0, null,false, 0, false
+//                )
+//            )
+//            mockedStreams.add(
+//                StreamResponse(
+//                    1003, "bitrate_480p_800", "bitrate_480p_800",
+//                    bitrate_480p_800, null, null, null, null,
+//                    null, null, 1, null, null, null,
+//                    null, 0, null,false, 0, false
+//                )
+//            )
+//            mockedStreams.add(
+//                StreamResponse(
+//                    1004, "bitrate_360p_500", "bitrate_360p_500",
+//                    bitrate_360p_500, null, null, null, null,
+//                    null, null, 1, null, null, null,
+//                    null, 0, null,false, 0, false
+//                )
+//            )
+//            return mockedStreams
+//        }
 
         fun getLiveViewers(id: Int): LiveData<Resource<Viewers>> =
             object : NetworkBoundResource<Viewers>() {

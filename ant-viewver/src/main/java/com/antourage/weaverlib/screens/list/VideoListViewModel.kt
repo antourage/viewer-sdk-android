@@ -406,8 +406,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         return StreamResponse(
             -1, null, null,
             null, null, null, null,
-            null, null, null, null, null,
-            null, null, null, null, null, false, null, false
+            null, null,null, null, null, null,
+            null, null, null, null, null, null, false, null, false
         )
     }
 
@@ -415,8 +415,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         return StreamResponse(
             -2, null, null,
             null, null, null, null,
-            null, null, null, null, null,
-            null, null, null, null, null, false, null, false
+            null, null,null, null, null, null,
+            null, null, null, null, null, null, false, null, false
         )
     }
 

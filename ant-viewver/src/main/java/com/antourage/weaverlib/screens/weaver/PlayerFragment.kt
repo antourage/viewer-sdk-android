@@ -388,10 +388,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         initStreamInfo(arguments?.getParcelable(ARGS_STREAM))
         val streamResponse = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)
         streamResponse?.apply {
-            thumbnailUrl?.let {
+            images?.get(0)?.let {
                 if (it.isNotEmpty() && it.isNotBlank()) {
                     Picasso.get()
-                        .load(thumbnailUrl)
+                        .load(it)
                         .networkPolicy(NetworkPolicy.OFFLINE)
                         .into(ivFirstFrame)
                 }
