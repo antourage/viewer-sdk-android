@@ -23,6 +23,7 @@ import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
@@ -79,9 +80,10 @@ class AntourageFab @JvmOverloads constructor(
         internal var wasPaused = true
 
         fun configure(context: Context) {
+            PropertyManager.getInstance(context)
             UserCache.getInstance(context)
             if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-                UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
+                (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
 
             if (!isSubscribedToPushes) retryRegisterNotifications()
             startAntRequests()
@@ -98,7 +100,7 @@ class AntourageFab @JvmOverloads constructor(
         fun retryRegisterNotifications(firebaseToken: String? = null) {
             if (pushRegistrationCallback == null) return
             if (firebaseToken != null) cachedFcmToken = firebaseToken
-            if (UserCache.getInstance() != null && UserCache.getInstance()!!.getAccessToken()
+            if (UserCache.getInstance() != null && UserCache.getInstance()!!.getIdToken()
                     .isNullOrBlank()
             ) {
                 return
@@ -167,9 +169,9 @@ class AntourageFab @JvmOverloads constructor(
     private var isAnimationRunning = false
     private var circleAnimatedDrawable: AnimatedVectorDrawableCompat? = null
     private var playIconAnimatedDrawable: AnimatedVectorDrawableCompat? = null
-    private var playIconAlphaHandler: Handler = Handler()
-    private var playIconStartHandler: Handler = Handler()
-    private var bounceHandler: Handler = Handler()
+    private var playIconAlphaHandler: Handler = Handler(Looper.getMainLooper())
+    private var playIconStartHandler: Handler = Handler(Looper.getMainLooper())
+    private var bounceHandler: Handler = Handler(Looper.getMainLooper())
     private var currentPlayerState: Int = 0
     private var isShowingLive: Boolean = false
     private var badgeColor: Drawable? = null
@@ -185,7 +187,7 @@ class AntourageFab @JvmOverloads constructor(
 
     init {
         if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-            UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL
+            (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick { checkWhatToOpen() }
         AntourageFabLifecycleObserver.registerActionHandler(this)
@@ -405,7 +407,7 @@ class AntourageFab @JvmOverloads constructor(
                 if (ReceivingVideosManager.isFirstRequestVod) {
                     ReceivingVideosManager.isFirstRequestVod = false
                     ReceivingVideosManager.pauseReceivingVideos()
-                    UserCache.getInstance(context)?.getAccessToken()?.let {
+                    UserCache.getInstance(context)?.getIdToken()?.let {
                         SocketConnector.connectToSockets(it)
                         initSocketListeners()
                     }
@@ -468,7 +470,7 @@ class AntourageFab @JvmOverloads constructor(
             }
         })
 
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             startAntRequests()
         }, 500)
     }
@@ -486,7 +488,7 @@ class AntourageFab @JvmOverloads constructor(
         currentFabState = FabState.INACTIVE
         setIncomingWidgetStatus(null)
         bounceHandler.removeCallbacksAndMessages(null)
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             circleAnimatedDrawable?.apply {
                 clearAnimationCallbacks()
             }
@@ -554,7 +556,7 @@ class AntourageFab @JvmOverloads constructor(
                 hideBadge()
                 circleAnimatedDrawable?.clearAnimationCallbacks()
                 if (goingLiveToLive) {
-                    Handler().postDelayed({
+                    Handler(Looper.getMainLooper()).postDelayed({
                         setIncomingWidgetStatus(FabState.PRE_LIVE)
                     }, 1200)
                 }

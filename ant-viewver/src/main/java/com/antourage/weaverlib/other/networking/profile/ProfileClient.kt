@@ -1,5 +1,5 @@
-package com.antourage.weaverlib.other.networking
-
+package com.antourage.weaverlib.other.networking.profile
+import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
 import com.antourage.weaverlib.other.networking.auth.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -8,26 +8,19 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 
-internal object ApiClient {
+internal object ProfileClient {
     var BASE_URL = ""
-    private const val VERSION_SUFFIX = "api/v1/widget/"
+    private const val VERSION_SUFFIX = "api/v1/"
 
-    lateinit var webService: WebService
+    lateinit var profileService: ProfileService
     private var retrofit: Retrofit? = null
     private var httpClient: OkHttpClient? = null
 
-    fun getWebClient(): ApiClient {
+    fun getWebClient(): ProfileClient {
         if (retrofit == null || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)) {
             buildRetrofit()
         }
         return this
-    }
-
-    fun getHttpClient(): OkHttpClient {
-        if (httpClient == null) {
-            httpClient = buildOkHttpClient()
-        }
-        return httpClient as OkHttpClient
     }
 
     //region Private
@@ -40,7 +33,7 @@ internal object ApiClient {
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
-        webService = retrofit?.create(WebService::class.java)!!
+        profileService = retrofit?.create(ProfileService::class.java)!!
     }
 
     private fun buildOkHttpClient(): OkHttpClient {

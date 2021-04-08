@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 
@@ -105,7 +106,7 @@ internal class ConnectionStateMonitor(val context: Context) :
         fun onNetworkLost() {
             Global.networkAvailable = false
             internetStateLiveData.postValue(NetworkConnectionState.LOST)
-            Handler().postDelayed({ internetStateLiveData.postValue(null) }, 500)
+            Handler(Looper.getMainLooper()).postDelayed({ internetStateLiveData.postValue(null) }, 500)
             handler.postDelayed(finalNetworkCheck, 1000);
         }
     }

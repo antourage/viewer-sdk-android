@@ -40,6 +40,9 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         registerKeyboardVisibilityEvent()
+        intent?.data?.let {
+            AuthClient.handleSignIn(it)
+        }
         VideoCloseBackUp.init(
             applicationContext.getSharedPreferences(
                 "backUpPrefs",
@@ -47,8 +50,8 @@ class AntourageActivity : AppCompatActivity() {
             )
         )
         if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-            UserCache.getInstance(applicationContext)?.getBeChoice()
-                ?: DevSettingsDialog.DEFAULT_URL
+            (UserCache.getInstance(applicationContext)?.getBeChoice()
+                ?: DevSettingsDialog.DEFAULT_URL)!!
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null

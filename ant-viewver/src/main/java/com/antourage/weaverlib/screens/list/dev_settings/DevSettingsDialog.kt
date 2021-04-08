@@ -4,10 +4,12 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.widget.RadioButton
 import com.antourage.weaverlib.BuildConfig
+import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.isAppInstalledFromGooglePlay
@@ -26,12 +28,13 @@ internal class DevSettingsDialog(
     Dialog(context) {
 
     companion object {
-        const val BASE_URL_DEV = "https://api.dev.antourage.com/"
-        const val BASE_URL_LOAD = "https://api.load-staging.antourage.com/"
-        const val BASE_URL_STAGING = "https://api.staging.antourage.com/"
-        const val BASE_URL_DEMO = "https://api.demo.antourage.com/"
-        const val BASE_URL_PROD = "https://api.antourage.com/"
-        const val DEFAULT_URL = BASE_URL_PROD
+        val BASE_URL_DEV = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_DEV)
+        val BASE_URL_LOAD = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_LOAD)
+        val BASE_URL_STAGING = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_STAGING)
+        val BASE_URL_DEMO = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_DEMO)
+        val BASE_URL_PROD = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_PROD)
+
+        val DEFAULT_URL = BASE_URL_PROD
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +81,7 @@ internal class DevSettingsDialog(
          than needed to open it.
          */
         setCanceledOnTouchOutside(false)
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             setCanceledOnTouchOutside(true)
         }, 1500)
     }

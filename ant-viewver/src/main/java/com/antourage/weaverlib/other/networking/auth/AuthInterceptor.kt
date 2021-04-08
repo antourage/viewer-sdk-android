@@ -22,9 +22,9 @@ class AuthInterceptor: Interceptor {
             .addHeader(HEADER_LANGUAGE, "en")
             .addHeader(HEADER_DEVICE_ID, "D12BEB59-6259-4FA1-A733-ADCD523D72DC") // TODO T: change to real device id
 
-        val accessToken = UserCache.getInstance()?.getAccessToken()
-        if (accessToken != null) {
-            builder.addHeader(HEADER_TOKEN, "Bearer ${accessToken}")
+        val idToken = UserCache.getInstance()?.getIdToken()
+        if (idToken != null) {
+            builder.addHeader(HEADER_TOKEN, "Bearer $idToken")
         }
 
         request = builder.build()
@@ -33,16 +33,16 @@ class AuthInterceptor: Interceptor {
 
         if (response.code == 401) {
             synchronized(ApiClient.getHttpClient()) {
-                val currentAccessToken = UserCache.getInstance()?.getAccessToken()
-                if(currentAccessToken == null || currentAccessToken == accessToken) {
+                val currentIdToken = UserCache.getInstance()?.getIdToken()
+                if(currentIdToken == null || currentIdToken == idToken) {
                     val code: Int = AuthClient.getAuthClient().authenticateUser().code() / 100
                     if (code != 2) {
                         return response
                     }
                 }
 
-                UserCache.getInstance()?.getAccessToken()?.let {
-                    builder.header(HEADER_TOKEN, "Bearer ${it}")
+                UserCache.getInstance()?.getIdToken()?.let {
+                    builder.header(HEADER_TOKEN, "Bearer $it")
                     request = builder.build()
                     return chain.proceed(request)
                 }

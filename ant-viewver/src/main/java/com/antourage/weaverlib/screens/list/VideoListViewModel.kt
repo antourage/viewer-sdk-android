@@ -156,7 +156,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
             initSocketListeners()
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getAccessToken()
+            UserCache.getInstance(getApplication<Application>().applicationContext)?.getIdToken()
                 ?.let {
                     ReceivingVideosManager.checkShouldUseSockets(it)
                 }
@@ -476,7 +476,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     internal fun userAuthorized(): Boolean {
-        return !(UserCache.getInstance(getApplication())?.getAccessToken().isNullOrBlank())
+        return !(UserCache.getInstance(getApplication())?.getIdToken().isNullOrBlank())
     }
 
     private fun getCachedNickname(): String? {

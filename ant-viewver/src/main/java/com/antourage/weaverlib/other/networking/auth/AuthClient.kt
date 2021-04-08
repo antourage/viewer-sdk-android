@@ -1,9 +1,13 @@
 package com.antourage.weaverlib.other.networking.auth
 
+import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -12,14 +16,22 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 internal object AuthClient {
-    // TODO: fetch from json
-    internal const val CLIENT_ID = "5out1bdgjk0370gjnbbsoj83o0"
-    internal const val ANONYMOUS_CLIENT_ID = "41qqu6923tmcmiq15grggvv839"
-    internal const val ANONYMOUS_SECRET = "ZTFoOXRoM2k5dWEzY21jZXMxNmVqbHVlcTllOWE2YXNrbDVkb2xuc2F0YXBkaTU0cGky"
 
-    var BASE_URL = "https://antourage-dev.auth.eu-central-1.amazoncognito.com"
+    private val propertyHelper = PropertyManager.getInstance()
 
-    internal const val TAG = "AuthClientLogs"
+    val CLIENT_ID = propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
+    val ANONYMOUS_CLIENT_ID = propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
+    val ANONYMOUS_SECRET = propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
+
+    private var BASE_URL = when(ApiClient.BASE_URL){
+        DevSettingsDialog.BASE_URL_DEV -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_DEV)
+        DevSettingsDialog.BASE_URL_LOAD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_LOAD)
+        DevSettingsDialog.BASE_URL_STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_STAGING)
+        DevSettingsDialog.BASE_URL_PROD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
+        else -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
+    }
+
+    internal const val TAG = "AntourageAuthClientLogs"
 
     lateinit var authService: AuthService
     private var retrofit: Retrofit? = null
@@ -62,18 +74,18 @@ internal object AuthClient {
         UserCache.getInstance()?.getRefreshToken()?.let { refreshToken ->
             Log.d(TAG, "Refreshing token")
 
-            val refreshTokenResponse = getAuthClient().authService.refreshToken(CLIENT_ID, refreshToken).execute()
+            val refreshTokenResponse = getAuthClient().authService.refreshToken(CLIENT_ID!!, refreshToken).execute()
 
             if (refreshTokenResponse.code() != 401) {
                 refreshTokenResponse.body()?.accessToken?.let {
-                    Log.d(TAG, "Successfully refreshed token")
-
                     UserCache.getInstance()?.saveAccessToken(it)
-
+                }
+                refreshTokenResponse.body()?.idToken?.let {
+                    Log.d(TAG, "Successfully refreshed token")
+                    UserCache.getInstance()?.saveIdToken(it)
                     return refreshTokenResponse
                 }
             }
-
             Log.d(TAG, "Some error occurred")
         }
 
@@ -87,10 +99,22 @@ internal object AuthClient {
 
         anonymousAuthResponse.body()?.accessToken?.let {
             Log.d(TAG, "Successfully authenticated anonymously")
-
-            UserCache.getInstance()?.saveAccessToken(it)
+            UserCache.getInstance()?.saveIdToken(it)
         }
 
         return anonymousAuthResponse
     }
+
+    internal fun handleSignIn(data: Uri) {
+            val accessToken = data.toString().substringAfter("token=").substringBefore("&idToken")
+            val idToken = data.toString().substringAfter("idToken=").substringBefore("&refreshToken")
+            val refreshToken = data.toString().substringAfter("&refreshToken=")
+
+            if(accessToken.isNotBlank() && idToken.isNotBlank() && refreshToken.isNotBlank()){
+                Log.d(TAG, "Saving new tokens" )
+                UserCache.getInstance()?.saveRefreshToken(refreshToken)
+                UserCache.getInstance()?.saveIdToken(idToken)
+                UserCache.getInstance()?.saveAccessToken(accessToken)
+            }
+        }
 }

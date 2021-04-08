@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "Antourage_testing_tag"
-        const val TEST_API_KEY = "A5F76EE9-BC76-4F76-A042-933B8993FC2C"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +39,10 @@ class MainActivity : AppCompatActivity() {
             this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
 
+        //region Antourage configuration
+        AntourageFab.configure(this)
+        //endregion
+
 //        /** To add widget programmatically*/
         antfab = AntourageFab(this)
 //        antfab.setLocale("sv")
@@ -47,9 +50,6 @@ class MainActivity : AppCompatActivity() {
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
 
-        //region Antourage configuration
-        AntourageFab.configure(this)
-        //endregion
 
         //region Antourage push notification subscription
         var fcmToken: String? = ""

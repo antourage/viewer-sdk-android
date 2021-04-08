@@ -137,14 +137,14 @@ internal object SocketConnector {
                 Log.d(TAG, "Socket token expired")
                 if (Global.networkAvailable) {
                     synchronized(ApiClient.getHttpClient()) {
-                        UserCache.getInstance()?.getAccessToken()?.let {
+                        UserCache.getInstance()?.getIdToken()?.let {
                             if (it == currentToken) {
                                 isConnectTaskRunning = false
                                 val code: Int =
                                     AuthClient.getAuthClient().authenticateUser().code() / 100
                                 if (code == 2) {
-                                    if (UserCache.getInstance()?.getAccessToken() != null) {
-                                        connectToSockets(UserCache.getInstance()?.getAccessToken()!!)
+                                    if (UserCache.getInstance()?.getIdToken() != null) {
+                                        connectToSockets(UserCache.getInstance()?.getIdToken()!!)
                                     }
                                 }
                             } else {

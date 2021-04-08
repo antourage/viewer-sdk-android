@@ -29,6 +29,7 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_FEED_IMAGE_URL = "sp_feed_image"
 
         private const val SP_ACCESS_TOKEN = "sp_access_token"
+        private const val SP_ID_TOKEN = "sp_id_token"
         private const val SP_REFRESH_TOKEN = "sp_refresh_token"
         private const val SP_USER_NICKNAME = "sp_user_nickname"
         private const val SP_USER_IMAGE = "sp_user_image"
@@ -124,6 +125,12 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveIdToken(token: String) {
+        prefs?.edit()
+            ?.putString(SP_ID_TOKEN, token)
+            ?.apply()
+    }
+
     fun saveRefreshToken(token: String) {
         prefs?.edit()
             ?.putString(SP_REFRESH_TOKEN, token)
@@ -153,6 +160,10 @@ internal class UserCache private constructor(context: Context) {
 
     fun getFeedImageUrl(): String? {
         return prefs?.getString(SP_FEED_IMAGE_URL, null)
+    }
+
+    fun getIdToken(): String? {
+        return prefs?.getString(SP_ID_TOKEN, null)
     }
 
     fun getAccessToken(): String? {
