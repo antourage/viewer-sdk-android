@@ -119,19 +119,19 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
-    fun saveAccessToken(token: String) {
+    fun saveAccessToken(token: String?) {
         prefs?.edit()
             ?.putString(SP_ACCESS_TOKEN, token)
             ?.apply()
     }
 
-    fun saveIdToken(token: String) {
+    fun saveIdToken(token: String?) {
         prefs?.edit()
             ?.putString(SP_ID_TOKEN, token)
             ?.apply()
     }
 
-    fun saveRefreshToken(token: String) {
+    fun saveRefreshToken(token: String?) {
         prefs?.edit()
             ?.putString(SP_REFRESH_TOKEN, token)
             ?.apply()

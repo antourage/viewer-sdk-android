@@ -73,6 +73,13 @@ internal class DevSettingsDialog(
             setTxt.visibility = View.GONE
         }
 
+        btnLogout.setOnClickListener {
+            UserCache.getInstance()?.saveAccessToken(null)
+            UserCache.getInstance()?.saveRefreshToken(null)
+            UserCache.getInstance()?.saveIdToken(null)
+            dismiss()
+        }
+
         val versionName = BuildConfig.VERSION_NAME
         txtModuleVersion.text = context.resources.getString(R.string.ant_version_name, versionName)
 

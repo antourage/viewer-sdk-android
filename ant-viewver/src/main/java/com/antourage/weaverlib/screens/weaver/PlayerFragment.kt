@@ -648,7 +648,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //region chatUI helper func
     private fun enableMessageInput(enable: Boolean, disableButtons: Boolean = false) {
-        join_conversation_btn.visibility = if(enable && orientation() == Configuration.ORIENTATION_PORTRAIT) View.VISIBLE else View.GONE
+        join_conversation_btn.visibility = if(enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()?.getRefreshToken() == null) View.VISIBLE else View.GONE
         etMessage.isEnabled = enable
         if (enable) {
             //used to fix disabling buttons in landscape and not enabling in portrait

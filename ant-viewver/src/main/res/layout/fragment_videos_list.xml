@@ -167,58 +167,84 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+        <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivUser"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/antourage_ic_default_user"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="32dp"
+                android:layout_height="32dp"/>
+
         <ImageButton
                 android:id="@+id/ivClose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/antourage_image_btn_bg"
-                android:src="@drawable/antourage_ic_close"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
-
-        <ImageView
-                android:id="@+id/ivTeamImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxHeight="32dp"
-                android:maxWidth="64dp"
-                android:layout_marginStart="12dp"
-                android:scaleType="centerInside"
-                android:adjustViewBounds="true"
+                android:src="@drawable/antourage_ic_back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
+
 
         <View
                 android:id="@+id/viewBEChoice"
-                android:layout_width="48dp"
+                android:layout_width="100dp"
                 android:layout_height="48dp"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-                android:id="@+id/tvTitle"
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/titleContainer"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:textAlignment="center"
-                android:textColor="@color/ant_white"
-                android:textSize="15sp"
-                android:maxLength="25"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@+id/ivTeamImage"
-                app:layout_constraintRight_toLeftOf="@+id/ivClose"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/ivUser"
+                app:layout_constraintStart_toEndOf="@+id/ivClose">
 
+            <ImageView
+                    android:id="@+id/ivTeamImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="64dp"
+                    android:maxHeight="32dp"
+                    android:scaleType="centerInside"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/tvTitle"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+
+            <com.antourage.weaverlib.other.ui.AccurateWidthTextView
+                    android:id="@+id/tvTitle"
+                    app:layout_constrainedWidth="true"
+                    android:gravity="clip_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="25"
+                    android:maxLines="2"
+                    android:textColor="@color/ant_white"
+                    android:textSize="20sp"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ivTeamImage"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

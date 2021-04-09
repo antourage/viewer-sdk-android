@@ -6,12 +6,11 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.activity.OnBackPressedCallback
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -89,7 +88,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     videoAdapter.setStreamList(newStreams)
                 }
 
-                Handler().postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     checkIsNewLiveAdded(newStreams, listBeforeUpdate)
                     checkIsLiveWasRemoved(newStreams)
                 }, 1000)
@@ -257,7 +256,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         if (refreshVODs) {
             viewModel.refreshVODs()
             //needed for onResume to not refreshVods too
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 dontRefreshWhileInit = false
             }, 300)
             refreshVODs = false
@@ -267,7 +266,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun initNewButtonCountdown() {
         //needed in case live video was opened, then ended, and new live appeared
         canShowNewButton = false
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             canShowNewButton = true
         }, 800)
     }
@@ -426,7 +425,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     canScroll = if (lastOffset > offset) {
                         if (videoRefreshLayout.alpha == 1f && videosRV.canScrollVertically(-1)) {
                             isSnackBarScrollActive = true
-                            Handler().postDelayed({
+                            Handler(Looper.getMainLooper()).postDelayed({
                                 isSnackBarScrollActive = false
                             }, 1500)
                             videosRV.smoothScrollBy(0, (bottomSheet.height))
@@ -434,7 +433,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         false
                     } else {
                         isSnackBarScrollActive = true
-                        Handler().postDelayed({
+                        Handler(Looper.getMainLooper()).postDelayed({
                             isSnackBarScrollActive = false
                         }, 1500)
                         videosRV.smoothScrollBy(0, -(bottomSheet.height))
@@ -509,7 +508,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                         }
                     }
             }
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 if (!isNoConnectionSnackbarShowing())
                     snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
             }, 2000)
@@ -562,7 +561,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showEmptyListPlaceholder() {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             if (noContentRefreshLayout.visibility != View.VISIBLE) {
                 placeholderRefreshLayout.hideWithAnimation()
                 videoRefreshLayout.hideWithAnimation()
@@ -639,7 +638,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newLivesList.size) {
                         newLivesList.clear()
                         if (isSnackBarScrollActive) {
-                            Handler().postDelayed({
+                            Handler(Looper.getMainLooper()).postDelayed({
                                 scrollRvAndTriggerAutoplay()
                             }, 1500)
                         } else {
@@ -655,7 +654,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private fun scrollRvAndTriggerAutoplay() {
         videosRV?.smoothScrollToPosition(0)
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             videosRV?.forceRestartAutoPlayOnChange()
         }, 1000)
     }
@@ -700,7 +699,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
                         override fun onGlobalLayout() {
                             ivTeamImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                            centerTitle()
                             viewModel.getSavedTagLine()?.let {
                                 setTitle(it)
                             }
@@ -722,7 +720,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun updateFeedInfo(feedInfo: FeedInfo) {
         if (feedInfo.imageUrl.isNullOrEmpty()) {
             ivTeamImage.setImageDrawable(null)
-            centerTitle()
             setTitle(feedInfo.tagLine)
         } else {
             context?.let {
@@ -735,7 +732,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                             vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
                                 override fun onGlobalLayout() {
                                     ivTeamImage?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
-                                    centerTitle()
                                     setTitle(feedInfo.tagLine)
                                 }
                             })
@@ -760,43 +756,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         } else {
             tvTitle.text = text
         }
-    }
-
-    private fun centerTitle() {
-        val width =
-            px2dp(requireContext(), ivTeamImage.measuredWidth.toFloat())
-        val set = ConstraintSet()
-        set.clone(tvTitle.parent as ConstraintLayout)
-        set.clear(R.id.tvTitle, ConstraintSet.END)
-        set.clear(R.id.tvTitle, ConstraintSet.START)
-        if(width == 0.0f){
-            set.connect(
-                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    requireContext(),
-                    10f
-                ).toInt()
-            )
-            set.connect(
-                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    requireContext(),
-                    34f
-                ).toInt()
-            )
-        }else if(width > 24){
-            set.connect(
-                R.id.tvTitle, ConstraintSet.END, R.id.ivClose, ConstraintSet.START, dp2px(
-                    requireContext(),
-                    (width - 14.0).toFloat()
-                ).toInt()
-            )
-            set.connect(
-                R.id.tvTitle, ConstraintSet.START, R.id.ivTeamImage, ConstraintSet.END, dp2px(
-                    requireContext(),
-                    10.0f
-                ).toInt()
-            )
-        }
-        set.applyTo(tvTitle.parent as ConstraintLayout)
     }
     //endregion
 }
