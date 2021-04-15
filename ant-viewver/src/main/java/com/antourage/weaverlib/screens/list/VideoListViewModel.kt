@@ -3,22 +3,28 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
+import com.antourage.weaverlib.other.getUtcTime
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.other.parseToDate
+import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
+import java.util.*
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -128,7 +134,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             }
 
             vods = mutableListOf()
-            Repository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
+            FeedRepository.vods?.let { (vods as MutableList<StreamResponse>).addAll(it) }
 
             if (addJumpToTop) {
                 (vods as MutableList<StreamResponse>).add(getListEndPlaceHolder())
@@ -182,7 +188,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -190,15 +197,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         when (resource.status) {
             is Status.Success -> {
                 val list = mutableListOf<StreamResponse>()
-                Repository.vods?.let {
+                FeedRepository.vods?.let {
                     list.addAll(it)
                 }
                 val newList = (resource.status.data)?.toMutableList()
 
                 if (newList != null) {
+                    FeedRepository.invalidateIsNewProperty(newList)
                     list.addAll(list.size, newList)
                 }
-                Repository.vods = list.toMutableList()
+                FeedRepository.vods = list.toMutableList()
 
                 if (newList?.size == VODS_COUNT) {
                     list.add(
@@ -227,7 +235,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -235,7 +244,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         when (resource.status) {
             is Status.Success -> {
                 val newList = (resource.status.data)?.toMutableList()
-                Repository.vods = newList?.toMutableList()
+                if (newList != null) {
+                    FeedRepository.invalidateIsNewProperty(newList)
+                }
+                FeedRepository.vods = newList?.toMutableList()
                 if (newList?.size == VODS_COUNT) {
                     newList.add(
                         newList.size, getStreamLoaderPlaceholder()
@@ -271,15 +283,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 error.postValue(resource.status.errorMessage)
                 errorLiveData.postValue(resource.status.errorMessage)
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 
-    fun refreshChatPollInfo(){
+    fun refreshChatPollInfo() {
         liveVideosUpdated = false
-        if(liveVideos==null){
+        if (liveVideos == null) {
             liveVideosUpdated = true
-        }else{
+        } else {
             liveVideos?.let { getChatPollInfoForLives(it) }
         }
     }
@@ -406,7 +419,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         return StreamResponse(
             -1, null, null,
             null, null, null, null,
-            null, null,null, null, null, null,
+            null, null, null, null, null, null,
             null, null, null, null, null, null, false, null, false
         )
     }
@@ -415,7 +428,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         return StreamResponse(
             -2, null, null,
             null, null, null, null,
-            null, null,null, null, null, null,
+            null, null, null, null, null, null,
             null, null, null, null, null, null, false, null, false
         )
     }

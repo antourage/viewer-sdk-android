@@ -99,7 +99,7 @@ internal object AuthClient {
 
         anonymousAuthResponse.body()?.accessToken?.let {
             Log.d(TAG, "Successfully authenticated anonymously")
-            UserCache.getInstance()?.saveIdToken(it)
+            UserCache.getInstance()?.saveAccessToken(it)
         }
 
         return anonymousAuthResponse

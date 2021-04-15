@@ -20,6 +20,7 @@ import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp.Companion.backUpLiveStopInfo
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp.Companion.backUpVodStopInfo
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.other.statistic.StatisticActions
 import com.antourage.weaverlib.other.statistic.Stopwatch
 import com.antourage.weaverlib.screens.base.BaseViewModel
@@ -600,7 +601,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         requestingStreamInfoHandler.postDelayed(object : Runnable {
             override fun run() {
                 if (Global.networkAvailable) {
-                    val currentStreamInfo = Repository.getLiveViewers(currentlyWatchedVideoId)
+                    val currentStreamInfo = FeedRepository.getLiveViewers(currentlyWatchedVideoId)
                     val streamInfoObserver = object : Observer<Resource<Viewers>> {
                         override fun onChanged(resource: Resource<Viewers>?) {
                             if (resource != null) {

@@ -335,7 +335,7 @@ internal fun String.parseTimerToMills(): Long {
     return inputFmt.parse(stringToParse)?.time ?: 0L
 }
 
-internal fun Long.getUtcTime(): String? {
+internal fun Long.getUtcTime(): String {
     return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH).format(this)
 }
 

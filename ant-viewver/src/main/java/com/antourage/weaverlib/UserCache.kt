@@ -28,12 +28,15 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_TAG_LINE = "sp_tag_line"
         private const val SP_FEED_IMAGE_URL = "sp_feed_image"
 
+        const val SP_DEVICE_ID = "sp_device_id"
         private const val SP_ACCESS_TOKEN = "sp_access_token"
         private const val SP_ID_TOKEN = "sp_id_token"
         private const val SP_REFRESH_TOKEN = "sp_refresh_token"
         private const val SP_USER_NICKNAME = "sp_user_nickname"
         private const val SP_USER_IMAGE = "sp_user_image"
         private const val SP_USER_IMAGE_URL = "sp_user_image_url"
+
+        private const val SP_USER_LAST_FETCHED_VOD = "sp_last_fetched_vod"
 
         private var INSTANCE: UserCache? = null
 
@@ -148,6 +151,26 @@ internal class UserCache private constructor(context: Context) {
             ?.putInt(SP_USER_ID, userId)
             ?.putString(SP_USER_NICKNAME, userNickname)
             ?.apply()
+    }
+
+    fun saveDeviceId(deviceId: String) {
+        prefs?.edit()
+            ?.putString(SP_DEVICE_ID, deviceId)
+            ?.apply()
+    }
+
+    fun saveLastViewedTime(lastVodTime: String) {
+        prefs?.edit()
+            ?.putString(SP_USER_LAST_FETCHED_VOD, lastVodTime)
+            ?.apply()
+    }
+
+    fun getLastViewedTime(): String? {
+        return prefs?.getString(SP_USER_LAST_FETCHED_VOD, null)
+    }
+
+    fun getDeviceId(): String? {
+        return prefs?.getString(SP_DEVICE_ID, null)
     }
 
     fun getCollapsedPollId(): String? {

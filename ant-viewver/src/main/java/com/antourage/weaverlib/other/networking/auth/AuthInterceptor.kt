@@ -1,5 +1,8 @@
 package com.antourage.weaverlib.other.networking.auth
 
+import android.os.Build
+import com.antourage.weaverlib.BuildConfig
+import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.networking.ApiClient
 import okhttp3.Interceptor
@@ -11,6 +14,10 @@ class AuthInterceptor: Interceptor {
     companion object {
         private const val HEADER_TOKEN = "Authorization"
         private const val HEADER_LANGUAGE = "Accept-Language"
+        private const val HEADER_LOCALIZATION = "antourage-localization"
+        private const val HEADER_OS = "antourage-widget"
+        private const val HEADER_VERSION = "antourage-widgetVersion"
+        private const val HEADER_OS_VERSION = "antourage-platform"
         private const val HEADER_DEVICE_ID = "antourage-deviceId"
     }
 
@@ -20,11 +27,25 @@ class AuthInterceptor: Interceptor {
 
         val builder = request.newBuilder()
             .addHeader(HEADER_LANGUAGE, "en")
-            .addHeader(HEADER_DEVICE_ID, "D12BEB59-6259-4FA1-A733-ADCD523D72DC") // TODO T: change to real device id
+            .addHeader(HEADER_DEVICE_ID, UserCache.getInstance()?.getDeviceId().toString())
 
         val idToken = UserCache.getInstance()?.getIdToken()
+        val accessToken = UserCache.getInstance()?.getAccessToken()
         if (idToken != null) {
             builder.addHeader(HEADER_TOKEN, "Bearer $idToken")
+        }else if(accessToken!=null){
+            builder.addHeader(HEADER_TOKEN, "Bearer $accessToken")
+        }
+
+        if(request.url.toString().contains("/open") || request.url.toString().contains("/close")){
+            builder.addHeader(HEADER_OS, "android")
+            builder.addHeader(HEADER_VERSION, BuildConfig.VERSION_NAME)
+            builder.addHeader(HEADER_OS_VERSION, Build.VERSION.RELEASE)
+            if(Global.setLocale!=null){
+                builder.addHeader(HEADER_LOCALIZATION, Global.setLocale.toString())
+            }else if(Global.defaultLocale!=null){
+                builder.addHeader(HEADER_LOCALIZATION, Global.defaultLocale.toString())
+            }
         }
 
         request = builder.build()

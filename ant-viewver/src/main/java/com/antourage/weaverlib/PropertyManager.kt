@@ -32,6 +32,9 @@ internal class PropertyManager private constructor(context: Context) {
         internal const val BASE_URL_DEMO = "BASE_URL_DEMO"
         internal const val BASE_URL_PROD = "BASE_URL_PROD"
 
+        internal const val PROFILE_URL = "PROFILE_URL"
+        internal const val FEED_BASE_URL = "FEED_BASE_URL"
+
         @Synchronized
         fun getInstance(context: Context): PropertyManager? {
             if (INSTANCE == null) {

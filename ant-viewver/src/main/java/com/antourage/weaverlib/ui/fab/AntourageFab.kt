@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.provider.Settings
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -27,7 +28,9 @@ import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
-import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
+import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
@@ -38,6 +41,7 @@ import com.antourage.weaverlib.other.networking.SocketConnector.newLivesLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.newVodsLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
@@ -82,11 +86,40 @@ class AntourageFab @JvmOverloads constructor(
         fun configure(context: Context) {
             PropertyManager.getInstance(context)
             UserCache.getInstance(context)
+            handleDeviceId(context)
+            getDefaultLanguage(context)
+
             if (BASE_URL.isEmptyTrimmed()) BASE_URL =
                 (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
 
             if (!isSubscribedToPushes) retryRegisterNotifications()
             startAntRequests()
+        }
+
+        private fun getDefaultLanguage(context: Context) {
+            val defaultLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                context.resources.configuration.locales[0]
+            } else {
+                context.resources.configuration.locale
+            }
+
+            if (defaultLocale.toLanguageTag().contains("sv")) {
+                Global.defaultLocale = defaultLocale
+            } else {
+                Global.defaultLocale = Locale("en", "US")
+            }
+        }
+
+        @SuppressLint("HardwareIds")
+        private fun handleDeviceId(context: Context) {
+            if (UserCache.getInstance()?.getDeviceId() == null) {
+                UserCache.getInstance()?.saveDeviceId(
+                    Settings.Secure.getString(
+                        context.contentResolver,
+                        Settings.Secure.ANDROID_ID
+                    ) ?: ""
+                )
+            }
         }
 
         private fun startAntRequests(isInitial: Boolean = true) {
@@ -216,9 +249,13 @@ class AntourageFab @JvmOverloads constructor(
      */
     fun setLocale(lang: String? = null) {
         if (lang != null) {
-            forceLocale(Locale(lang))
-        } else if (Global.currentLocale != null) {
-            forceLocale(Global.currentLocale!!)
+            when (lang) {
+                "sv" -> forceLocale(Locale("sv", "SE"))
+                "en" -> forceLocale(Locale("en", "US"))
+                else -> Log.e(TAG, "Trying to set unsupported locale $lang")
+            }
+        } else if (Global.setLocale != null) {
+            forceLocale(Global.setLocale!!)
         }
     }
 
@@ -229,7 +266,7 @@ class AntourageFab @JvmOverloads constructor(
                 Configuration(getActivity(context)!!.resources.configuration)
             Locale.setDefault(locale)
             config.setLocale(locale)
-            Global.currentLocale = locale
+            Global.setLocale = locale
             getActivity(context)?.baseContext?.resources?.updateConfiguration(
                 config,
                 getActivity(context)?.baseContext?.resources?.displayMetrics
@@ -241,7 +278,7 @@ class AntourageFab @JvmOverloads constructor(
      * Method needed for react native integration for positioning
      * Should be called in createViewInstance
      * */
-    fun resetViewIsDrawn(){
+    fun resetViewIsDrawn() {
         viewIsDrawn = false
     }
 
@@ -287,8 +324,8 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun invalidatePosition(justResetPosition: Boolean) {
         val parent = parent as? View
-        if(parent!=null){
-            if(parent.height == 0 || parent.width ==0 ) return
+        if (parent != null) {
+            if (parent.height == 0 || parent.width == 0) return
             when (widgetPosition) {
                 WidgetPosition.bottomLeft -> {
                     x = 0f
@@ -358,7 +395,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun invalidateMargins() {
         val parent = parent as? View
-        if(parent == null || parent.height == 0 || parent.width == 0 ) return
+        if (parent == null || parent.height == 0 || parent.width == 0) return
         when (widgetPosition) {
             WidgetPosition.topLeft -> {
                 x += horizontalMargin
@@ -398,7 +435,11 @@ class AntourageFab @JvmOverloads constructor(
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
-
+        FeedRepository.vods?.let {  vods->
+            if(vods.isNotEmpty()){
+                FeedRepository.updateLastSeenVod()
+            }
+        }
         ReceivingVideosManager.setReceivingVideoCallback(object :
             ReceivingVideosManager.ReceivingVideoCallback {
             override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
@@ -740,7 +781,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     /**method for React Native for force hide badge on widget appearing*/
-    fun forceHideBadge(){
+    fun forceHideBadge() {
         badgeView?.alpha = 0f
         badgeView?.text = ""
     }
@@ -854,7 +895,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun openVodActivity() {
         if (vods.isNotEmpty()) {
-            Repository.vods = vods.toMutableList()
+            FeedRepository.vods = vods.toMutableList()
             val intent = Intent(context, AntourageActivity::class.java)
             intent.putExtra(ARGS_STREAM_SELECTED, vods[0])
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)

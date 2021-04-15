@@ -13,6 +13,7 @@ import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.other.parseTimerToMills
 import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.other.room.RoomRepository
@@ -261,7 +262,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun getExpirationDate(vodId: Int): Long {
-        return Repository.vods?.find { video -> video.id?.equals(vodId) ?: false }
+        return FeedRepository.vods?.find { video -> video.id?.equals(vodId) ?: false }
             ?.startTime?.let { convertUtcToLocal(it)?.time } ?: 0L
     }
 
@@ -333,7 +334,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getVideoPosition() = getCurrentPosition()
 
     override fun onVideoChanged() {
-        val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods ?: arrayListOf()
         val currentVod = list[currentWindow]
         currentVod.id?.apply {
             if (this != vodId) {
@@ -365,9 +366,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     override fun onOpenStatisticUpdate(vodId: Int) {
-        val currCount = Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount
+        val currCount = FeedRepository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount
         currCount?.let { count ->
-            Repository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount = count + 1
+            FeedRepository.vods?.find { it.id?.equals(vodId) ?: false }?.viewsCount = count + 1
 
             currentViewers.postValue(Pair(vodId, count + 1))
         }
@@ -400,7 +401,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getChatStateLiveData() = chatStateLiveData
 
     private fun findVideoPositionById(videoId: Int): Int {
-        val list: List<StreamResponse> = Repository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods ?: arrayListOf()
         for (i in list.indices) {
             if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
@@ -414,7 +415,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      * using this to create playlist. For now, was approved
      */
     override fun getMediaSource(streamUrl: String?): MediaSource {
-        val list: List<StreamResponse>? = Repository.vods
+        val list: List<StreamResponse>? = FeedRepository.vods
         val mediaSources = ArrayList<MediaSource>()
         for (i in 0 until (list?.size ?: 0)) {
             // url can be even null, as far as we handle errors when user start video playback
@@ -467,7 +468,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      */
     private fun fetchNextVODsIfRequired(isNewVod: Boolean = false) {
         if (!isFetching) {
-            val vodsCount = if (isNewVod) 0 else Repository.vods?.size ?: 0
+            val vodsCount = if (isNewVod) 0 else FeedRepository.vods?.size ?: 0
             if (vodsCount % 15 == 0 || isNewVod) {
                 fetchNextVODs(vodsCount, isNewVod)
             }
@@ -476,7 +477,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     private fun fetchNextVODs(vodsCount: Int, isNewVod: Boolean = false) {
         isFetching = true
-        val response = Repository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
+        val response = FeedRepository.getVODsWithLastCommentAndStopTime(vodsCount, roomRepository)
         response.observeForever(object : Observer<Resource<List<StreamResponse>>> {
             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
                 if (resource != null) {
@@ -497,13 +498,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                                 if (isNewVod) {
                                     list = it.drop(1)
                                 } else {
-                                    val lastVideoId = Repository.vods?.last()?.id ?: 0
+                                    val lastVideoId = FeedRepository.vods?.last()?.id ?: 0
                                     if (!it.any { video -> video.id == lastVideoId }) {
                                         list = it
                                     }
                                 }
 
-                                Repository.vods?.addAll(list)
+                                FeedRepository.vods?.addAll(list)
                                 addToMediaSource(list)
                                 nextVideosFetchedLD.value = true
                                 Log.d("PLAYER_FETCH", "was new vod $isNewVod")
@@ -518,7 +519,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun fetchNextVODsIfTheLast(id: Int, isNewVod: Boolean = false) {
-        Repository.vods?.let {
+        FeedRepository.vods?.let {
             if (it.last().id == id) {
                 fetchNextVODsIfRequired(isNewVod && it.size == 1)
             }
@@ -583,7 +584,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun markVODAsWatched() {
-        Repository.vods?.find { it.id?.equals(vodId) ?: false }?.isNew = false
+        FeedRepository.vods?.find { it.id?.equals(vodId) ?: false }?.isNew = false
     }
 
     /**
@@ -591,7 +592,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      * turning back from player to videos list screen
      */
     private fun setVODStopWatchingTimeLocally() {
-        Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
+        FeedRepository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
             ?.stopTimeMillis = stopWatchingTime
     }
 

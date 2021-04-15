@@ -27,6 +27,7 @@ import com.antourage.weaverlib.other.hideWithAnimation
 import com.antourage.weaverlib.other.millisToTime
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.Video
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.other.revealWithAnimation
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
@@ -241,7 +242,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
 
     //todo: test whether correctly parsed
     private fun getExpirationDate(vodId: Int): Long {
-        return Repository.vods?.find { video -> video.id?.equals(vodId) ?: false }
+        return FeedRepository.vods?.find { video -> video.id?.equals(vodId) ?: false }
             ?.startTime?.let { convertUtcToLocal(it)?.time } ?: 0L
     }
 
@@ -250,7 +251,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
      * turning back from player to videos list screen
      */
     private fun setVODStopWatchingTimeLocally(vodId: Int, stopWatchingTime: Long) {
-        Repository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
+        FeedRepository.vods?.find { streamResponse -> streamResponse.id?.equals(vodId) ?: false }
             ?.stopTimeMillis = stopWatchingTime
     }
 

@@ -33,4 +33,6 @@
     <color name="ant_placeholder_items_color">#303030</color>
     <color name="ant_error_resolved_bg_color">#0cae4b</color>
     <color name="ant_error_bg_color">#323639</color>
+
+    <color name="ant_header_dark_gray">#192128</color>
 </resources>

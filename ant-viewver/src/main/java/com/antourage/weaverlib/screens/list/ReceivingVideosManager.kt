@@ -5,12 +5,13 @@ import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.other.room.RoomRepository
-import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
 
 /**
@@ -39,7 +40,7 @@ internal class ReceivingVideosManager {
 
         fun loadVODs(count: Int, roomRepository: RoomRepository) {
             Log.d(TAG, "Trying to load VODs")
-            val response = Repository.getVODsWithLastCommentAndStopTime(count, roomRepository)
+            val response = FeedRepository.getVODsWithLastCommentAndStopTime(count, roomRepository)
             response.observeForever(object :
                 Observer<Resource<List<StreamResponse>>> {
                 override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -94,7 +95,7 @@ internal class ReceivingVideosManager {
                 override fun run() {
                     if (isForFab || Global.networkAvailable) {
                         val streamResponse =
-                            Repository.getLiveVideos()
+                            FeedRepository.getLiveVideos()
                         streamResponse.observeForever(object :
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {
@@ -145,7 +146,7 @@ internal class ReceivingVideosManager {
                 override fun run() {
                     if (Global.networkAvailable) {
                         val streamResponse =
-                            Repository.getVODsForFab()
+                            FeedRepository.getVODsForFab(UserCache.getInstance()?.getLastViewedTime())
                         streamResponse.observeForever(object :
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {

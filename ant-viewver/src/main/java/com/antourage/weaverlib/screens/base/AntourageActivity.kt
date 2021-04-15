@@ -12,6 +12,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.ContextWrapper
@@ -25,6 +26,7 @@ import com.antourage.weaverlib.screens.list.VideoListFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
+import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.ARGS_STREAM_SELECTED
 import com.antourage.weaverlib.ui.keyboard.KeyboardVisibilityEvent
 
@@ -39,6 +41,9 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
+        if(UserCache.getInstance()==null || PropertyManager.getInstance()==null){
+            AntourageFab.configure(this)
+        }
         registerKeyboardVisibilityEvent()
         intent?.data?.let {
             AuthClient.handleSignIn(it)
@@ -146,6 +151,10 @@ class AntourageActivity : AppCompatActivity() {
         customTabsIntent.launchUrl(this, Uri.parse(url))
     }
 
+    fun openProfileTab(){
+        replaceFragment(ProfileFragment(), R.id.mainContent, addToBackStack = true, slideFromBottom = true)
+    }
+
     override fun onBackPressed() {
         if (shouldGoBackToList) {
             replaceListFragment()
@@ -155,7 +164,7 @@ class AntourageActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
-        val newLocale = Global.currentLocale
+        val newLocale = Global.setLocale
         if (newLocale != null) {
             super.attachBaseContext(ContextWrapper.wrap(newBase, newLocale))
         } else {

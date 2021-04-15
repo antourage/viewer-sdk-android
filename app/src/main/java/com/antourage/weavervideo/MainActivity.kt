@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
 //        /** To add widget programmatically*/
         antfab = AntourageFab(this)
-//        antfab.setLocale("sv")
+//        antfab.setLocale("en")
         antfab.setPosition(WidgetPosition.bottomRight)
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)

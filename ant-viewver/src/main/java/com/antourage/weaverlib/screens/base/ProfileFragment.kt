@@ -1,12 +1,17 @@
 package com.antourage.weaverlib.screens.base
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import com.antourage.weaverlib.PropertyManager
+import com.antourage.weaverlib.PropertyManager.Companion.PROFILE_URL
 import com.antourage.weaverlib.R
+import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.other.networking.auth.AuthClient.ANONYMOUS_CLIENT_ID
 import com.antourage.weaverlib.other.networking.auth.AuthClient.ANONYMOUS_SECRET
 import com.antourage.weaverlib.other.networking.auth.AuthClient.CLIENT_ID
@@ -20,6 +25,7 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_profile,container, false)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -31,6 +37,8 @@ class ProfileFragment : Fragment() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.webViewClient = WebViewClient()
-        webView.loadUrl("https://widget.dev.antourage.com/#/auth?appClientId=$CLIENT_ID&anonymousAppClientId=$ANONYMOUS_CLIENT_ID&anonymousAppClientSecret=$ANONYMOUS_SECRET")
+        webView.loadUrl("${PropertyManager.getInstance()?.getProperty(PROFILE_URL)}#/profile?token=${
+            UserCache.getInstance()?.getAccessToken()
+        }&idToken=${UserCache.getInstance()?.getIdToken()}&appClientId=$CLIENT_ID&appClientId=$CLIENT_ID")
     }
 }

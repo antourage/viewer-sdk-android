@@ -47,12 +47,6 @@ internal class StreamItemDiffCallback(
             newStream.viewsCount?.let { diffBundle.putLong(REFRESH_VOD, it) }
         }
 
-//        if(!oldStream.startTime?.parseDateLong(context)?.equals(newStream.startTime?.parseDateLong(context))!!){
-//            newStream.startTime?.let { diffBundle.putString(REFRESH_TIME, it) }
-//            newStream.creatorNickname?.let { diffBundle.putString(REFRESH_NICKNAME, it) }
-//            if(!newStream.isLive)  newStream.duration?.let { diffBundle.putString(REFRESH_DURATION, it) }
-//        }
-
         if (diffBundle.isEmpty) return null
         return diffBundle
     }

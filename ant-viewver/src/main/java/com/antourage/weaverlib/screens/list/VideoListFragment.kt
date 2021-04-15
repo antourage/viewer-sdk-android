@@ -26,6 +26,8 @@ import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
+import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.screens.list.refresh.AntPullToRefreshView
@@ -128,7 +130,13 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
 
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
-            context?.let { context -> DevSettingsDialog(context, viewModel).show() }
+            context?.let { context ->
+                val dialog = DevSettingsDialog(context, viewModel)
+                dialog.setOnDismissListener {
+                    invalidateUserBtn()
+                }
+                dialog.show()
+            }
     }
 
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
@@ -185,6 +193,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         loadFeedInfo()
+
         btnNewLive.isEnabled = false
     }
 
@@ -193,6 +202,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         initNewButtonCountdown()
+        invalidateUserBtn()
         videosRV.resetVideoView()
         shouldDisconnectSocket = true
         context?.let {
@@ -239,6 +249,14 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         initVideoRV()
         initPlaceHolderRV()
         initOnRefreshListeners()
+
+        loginBtn.setOnClickListener {
+            (activity as AntourageActivity).openJoinTab()
+        }
+
+        userBtn.setOnClickListener {
+            (activity as AntourageActivity).openProfileTab()
+        }
 
         btnNewLive.setOnClickListener {
             videosRV.betterSmoothScrollToPosition(0)
@@ -368,6 +386,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 context?.let {
                     if (ConnectionStateMonitor.isNetworkAvailable()) {
                         viewModel.refreshVODs(0, true)
+                        FeedRepository.updateLastSeenVod()
                         viewModel.refreshChatPollInfo()
                     } else {
                         videoRefreshLayout.setRefreshing(false)
@@ -755,6 +774,18 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             tvTitle.text = ""
         } else {
             tvTitle.text = text
+        }
+    }
+
+    private fun invalidateUserBtn() {
+        if(UserCache.getInstance()?.getRefreshToken()==null){
+            userBtn?.visibility = View.GONE
+            shadowView?.visibility = View.GONE
+            loginBtn?.visibility = View.VISIBLE
+        }else{
+            shadowView?.visibility = View.VISIBLE
+            userBtn?.visibility = View.VISIBLE
+            loginBtn?.visibility = View.GONE
         }
     }
     //endregion
