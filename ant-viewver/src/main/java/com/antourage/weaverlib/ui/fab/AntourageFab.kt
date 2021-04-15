@@ -760,7 +760,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun startPlayingStream(stream: StreamResponse) {
-        playerView.player = stream.hlsUrl?.get(0)?.let {
+        playerView.player = stream.hlsUrl?.let {
             StreamPreviewManager.getExoPlayer(
                 it, context
             )

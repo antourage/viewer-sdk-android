@@ -520,9 +520,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun startPlayingStream() {
         playerView.player =
-            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.get(
-                0
-            )?.let {
+            arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.hlsUrl?.let {
                 viewModel.getExoPlayer(
                     it
                 )

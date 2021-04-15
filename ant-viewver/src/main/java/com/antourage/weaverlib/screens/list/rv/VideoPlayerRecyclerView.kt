@@ -389,7 +389,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             if (child.tag is VideosAdapter.LiveVideoViewHolder) {
                 frameLayout = holder.itemView.mediaContainer_live
                 thumbnail = holder.itemView.ivThumbnail_live
-                mediaUrl = streams[targetPosition].hlsUrl?.get(0)
+                mediaUrl = streams[targetPosition].hlsUrl
                 currentlyPlayingVideo = streams[targetPosition]
                 autoPlayContainer = holder.itemView.autoPlayContainer_live
                 autoPlayImageView = holder.itemView.ivAutoPlay_live

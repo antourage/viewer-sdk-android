@@ -51,7 +51,7 @@ data class StreamResponse(
     @field:SerializedName("images") val images: List<String>?,
     @field:SerializedName("thumbnailUrl") val thumbnailUrl: String?,
     @field:SerializedName("startTime") val startTime: String?,
-    @field:SerializedName("url") val hlsUrl: Array<String>?,
+    @field:SerializedName("url") val hlsUrl: String?,
     @field:SerializedName("teamId") val teamId: Int?,
     @field:SerializedName("organisationId") val organisationId: Int?,
     @field:SerializedName("channelId") val channelId: Int?,

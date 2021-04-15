@@ -2,6 +2,7 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsIntent.Builder
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
@@ -41,7 +43,7 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        if(UserCache.getInstance()==null || PropertyManager.getInstance()==null){
+        if (UserCache.getInstance() == null || PropertyManager.getInstance() == null) {
             AntourageFab.configure(this)
         }
         registerKeyboardVisibilityEvent()
@@ -144,15 +146,29 @@ class AntourageActivity : AppCompatActivity() {
         shouldGoBackToList = false
     }
 
-    fun openJoinTab(){
-        val url = "https://widget.dev.antourage.com/#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
-        val builder: CustomTabsIntent.Builder  = CustomTabsIntent.Builder()
-        val customTabsIntent: CustomTabsIntent  = builder.build()
-        customTabsIntent.launchUrl(this, Uri.parse(url))
+    fun openJoinTab() {
+        val url =
+            "https://widget.dev.antourage.com/#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
+        val builder = Builder()
+        val customTabsIntent: CustomTabsIntent = builder
+            .build()
+
+        try {
+            customTabsIntent.intent.setPackage("com.android.chrome")
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        } catch (e: ActivityNotFoundException) {
+            customTabsIntent.intent.setPackage(null)
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        }
     }
 
-    fun openProfileTab(){
-        replaceFragment(ProfileFragment(), R.id.mainContent, addToBackStack = true, slideFromBottom = true)
+    fun openProfileTab() {
+        replaceFragment(
+            ProfileFragment(),
+            R.id.mainContent,
+            addToBackStack = true,
+            slideFromBottom = true
+        )
     }
 
     override fun onBackPressed() {
