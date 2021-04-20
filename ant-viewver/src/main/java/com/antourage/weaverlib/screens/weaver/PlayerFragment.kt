@@ -204,6 +204,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
                 }
                 is PollStatus.PollDetails -> {
+                    join_conversation_btn.visibility = View.GONE
                     wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollStatusLayout()
@@ -233,7 +234,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
                             if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
-                                ll_wrapper.visibility = View.VISIBLE
+                                join_conversation_btn.visibility = if(UserCache.getInstance()?.getRefreshToken() == null) View.VISIBLE else View.GONE
+                                showMessageInput()
                             }
                             if (viewModel.currentPoll != null) {
                                 showPollStatusLayout()
