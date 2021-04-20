@@ -759,6 +759,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private fun loadSavedProfileImage() {
         Picasso.get()
             .load(UserCache.getInstance()?.getUserImageUrl())
+            .placeholder(R.drawable.antourage_ic_incognito_user)
             .networkPolicy(NetworkPolicy.OFFLINE)
             .into(userBtn, object : Callback {
                 override fun onSuccess() {
@@ -773,18 +774,31 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun loadNewProfileImage() {
-        Picasso.get()
-            .load(UserCache.getInstance()?.getUserImageUrl())
-            .error(R.drawable.antourage_ic_default_user)
-            .into(userBtn, object : Callback {
-                override fun onSuccess() {
-                    shadowView?.visibility = View.VISIBLE
-                }
+        if(!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()){
+            Picasso.get()
+                .load(UserCache.getInstance()?.getUserImageUrl())
+                .placeholder(R.drawable.antourage_ic_incognito_user)
+                .into(userBtn, object : Callback {
+                    override fun onSuccess() {
+                        shadowView?.visibility = View.VISIBLE
+                    }
 
-                override fun onError(e: Exception?) {
-                    shadowView?.visibility = View.VISIBLE
-                }
-            })
+                    override fun onError(e: Exception?) {
+                        shadowView?.visibility = View.VISIBLE
+                    }
+                })
+        }else{
+            loadDefaultUserImage()
+        }
+    }
+
+    private fun loadDefaultUserImage(){
+        if(userBtn.drawable.constantState != ContextCompat.getDrawable(requireContext(), R.drawable.antourage_ic_incognito_user)?.constantState){
+            Picasso.get()
+                .load(R.drawable.antourage_ic_incognito_user)
+                .placeholder(R.drawable.antourage_ic_incognito_user)
+                .into(userBtn)
+        }
     }
 
     private fun loadSavedInfo() {
