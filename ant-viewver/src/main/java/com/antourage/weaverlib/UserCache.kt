@@ -32,8 +32,8 @@ internal class UserCache private constructor(context: Context) {
         private const val SP_ACCESS_TOKEN = "sp_access_token"
         private const val SP_ID_TOKEN = "sp_id_token"
         private const val SP_REFRESH_TOKEN = "sp_refresh_token"
+
         private const val SP_USER_NICKNAME = "sp_user_nickname"
-        private const val SP_USER_IMAGE = "sp_user_image"
         private const val SP_USER_IMAGE_URL = "sp_user_image_url"
 
         private const val SP_USER_LAST_FETCHED_VOD = "sp_last_fetched_vod"
@@ -52,6 +52,12 @@ internal class UserCache private constructor(context: Context) {
         fun getInstance(): UserCache? {
             return INSTANCE
         }
+    }
+
+    fun logout(){
+        getInstance()?.saveAccessToken(null)
+        getInstance()?.saveRefreshToken(null)
+        getInstance()?.saveIdToken(null)
     }
 
     fun saveVideoToSeen(seenVideoId: Int) {
@@ -146,6 +152,12 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveUserImage(imageUrl: String) {
+        prefs?.edit()
+            ?.putString(SP_USER_IMAGE_URL, imageUrl)
+            ?.apply()
+    }
+
     fun saveUserInfo(userId: Int, userNickname: String) {
         prefs?.edit()
             ?.putInt(SP_USER_ID, userId)
@@ -203,6 +215,10 @@ internal class UserCache private constructor(context: Context) {
 
     fun getUserNickName(): String? {
         return prefs?.getString(SP_USER_NICKNAME, null)
+    }
+
+    fun getUserImageUrl(): String? {
+        return prefs?.getString(SP_USER_IMAGE_URL, null)
     }
 
     private fun clearUserData() {

@@ -40,7 +40,9 @@ internal class StreamItemDiffCallback(
         val diffBundle = Bundle()
 
         if (newStream.viewersCount != oldStream.viewersCount) {
-            newStream.viewersCount?.let { diffBundle.putLong(REFRESH_LIVE, it) }
+            newStream.viewersCount?.let {
+                diffBundle.putLong(REFRESH_LIVE, it)
+            }
         }
 
         if (newStream.viewsCount != oldStream.viewsCount) {

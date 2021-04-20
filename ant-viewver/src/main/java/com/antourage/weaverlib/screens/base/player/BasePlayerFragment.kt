@@ -305,7 +305,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
             snackBarBehaviour?.state = BottomSheetBehavior.STATE_EXPANDED
         }
         if (isAutoCloseable) {
-            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
+            Handler(Looper.getMainLooper()).postDelayed({ hideErrorSnackBar() }, 2000)
         }
     }
 
@@ -352,7 +352,7 @@ internal abstract class BasePlayerFragment<VM : BasePlayerViewModel> : BaseFragm
                             .start()
                     }
                 }
-            Handler().postDelayed({ hideErrorSnackBar() }, 2000)
+            Handler(Looper.getMainLooper()).postDelayed({ hideErrorSnackBar() }, 2000)
         }
     }
 

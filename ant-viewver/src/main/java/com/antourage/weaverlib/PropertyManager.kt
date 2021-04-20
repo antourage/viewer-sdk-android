@@ -9,9 +9,11 @@ import java.util.*
 
 internal class PropertyManager private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
+    private var assetManager: AssetManager? = null
 
     init {
         this.contextRef = WeakReference(context)
+        this.assetManager = context.assets
     }
 
     companion object {
@@ -33,6 +35,7 @@ internal class PropertyManager private constructor(context: Context) {
         internal const val BASE_URL_PROD = "BASE_URL_PROD"
 
         internal const val PROFILE_URL = "PROFILE_URL"
+        internal const val WEB_PROFILE_URL = "WEB_PROFILE_URL"
         internal const val FEED_BASE_URL = "FEED_BASE_URL"
 
         @Synchronized
@@ -51,12 +54,12 @@ internal class PropertyManager private constructor(context: Context) {
 
     @Throws(IOException::class)
     internal fun getProperty(key: String): String? {
-        val properties = Properties()
-        val assetManager: AssetManager = contextRef?.get()?.assets!!
-        val inputStream: InputStream = assetManager.open("config.properties")
-        properties.load(inputStream)
-        return properties.getProperty(key)
+        assetManager?.let {
+            val properties = Properties()
+            val inputStream: InputStream = assetManager!!.open("config.properties")
+            properties.load(inputStream)
+            return properties.getProperty(key)
+        }
+        return null
     }
-
-
 }

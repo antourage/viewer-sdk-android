@@ -9,7 +9,7 @@ internal interface AuthService {
     fun anonymousAuth(@Header("Authorization") basicToken: String): Call<AuthResponse>
 
     @POST("oauth2/token?grant_type=refresh_token")
-    @Headers("Content-Type: application/x-www-form-urlencoded", "Accept: application/json")
+    @Headers("Content-Type: application/x-www-form-urlencoded")
     fun refreshToken(@Query("client_id") clientID: String,
                      @Query("refresh_token") refreshToken: String): Call<AuthResponse>
 }

@@ -86,7 +86,10 @@ internal object AuthClient {
                     return refreshTokenResponse
                 }
             }
-            Log.d(TAG, "Some error occurred")
+            Log.d(TAG, "Refresh token fail")
+            UserCache.getInstance()?.saveAccessToken(null)
+            UserCache.getInstance()?.saveRefreshToken(null)
+            UserCache.getInstance()?.saveIdToken(null)
         }
 
         Log.d(TAG, "Authenticating anonymously")

@@ -171,6 +171,7 @@
         <View
                 android:background="@drawable/antourage_blue_shadow"
                 android:id="@+id/shadowView"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -196,7 +197,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="16dp"
                 android:padding="0dp"
-                android:src="@drawable/antourage_ic_default_user"
+                android:src="@drawable/antourage_ic_incognito_user"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_width="32dp"

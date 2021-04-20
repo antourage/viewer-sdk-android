@@ -27,6 +27,7 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.other.networking.profile.ProfileResponse
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
@@ -79,8 +80,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 val listBeforeUpdate =
                     mutableListOf<StreamResponse>().apply { addAll(videoAdapter.getStreams()) }
 
-                videosRV.resumePlaying()
-
                 isLoadingMoreVideos = false
 
                 if (videoRefreshLayout.mIsRefreshing) {
@@ -90,8 +89,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     videoAdapter.setStreamList(newStreams)
                 }
 
+                videosRV.resumePlaying()
+
                 Handler(Looper.getMainLooper()).postDelayed({
                     checkIsNewLiveAdded(newStreams, listBeforeUpdate)
+                    checkIsNewVodAdded(newStreams, listBeforeUpdate)
                     checkIsLiveWasRemoved(newStreams)
                 }, 1000)
 
@@ -125,6 +127,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val feedInfoObserver: Observer<FeedInfo> = Observer { feedInfo ->
         feedInfo?.let {
             updateFeedInfo(feedInfo)
+        }
+    }
+
+    private val profileObserver: Observer<ProfileResponse> = Observer { profile ->
+        profile?.let {
+            loadNewProfileImage()
         }
     }
 
@@ -168,6 +176,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         viewModel.errorLiveData.observe(this.viewLifecycleOwner, errorObserver)
         viewModel.loaderLiveData.observe(this.viewLifecycleOwner, loaderObserver)
         viewModel.feedInfoLiveData.observe(this.viewLifecycleOwner, feedInfoObserver)
+        viewModel.profileLiveData.observe(this.viewLifecycleOwner, profileObserver)
         viewModel.getShowBeDialog().observe(this.viewLifecycleOwner, beChoiceObserver)
         ConnectionStateMonitor.internetStateLiveData.observe(
             this.viewLifecycleOwner,
@@ -193,6 +202,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
         loadFeedInfo()
+        loadProfileInfo()
 
         btnNewLive.isEnabled = false
     }
@@ -289,7 +299,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }, 800)
     }
 
-    private fun initVideoRV(){
+    private fun initVideoRV() {
         val onJoinedClick: (stream: StreamResponse) -> Unit = { streamResponse ->
             openLiveFragment(streamResponse, true)
         }
@@ -366,7 +376,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         })
     }
 
-    private fun initPlaceHolderRV(){
+    private fun initPlaceHolderRV() {
         placeholdersAdapter = VideoPlaceholdersAdapter()
         placeholderLayoutManager = LinearLayoutManager(context)
         placeholderLayoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -379,7 +389,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         placeHolderRV.addItemDecoration(dividerItemDecoration)
     }
 
-    private fun initOnRefreshListeners(){
+    private fun initOnRefreshListeners() {
         videoRefreshLayout.setOnRefreshListener(object : AntPullToRefreshView.OnRefreshListener {
             override fun onRefresh() {
                 videosRV.hideAutoPlayLayout()
@@ -497,7 +507,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun isNoConnectionSnackbarShowing(): Boolean {
-        if(snackBar==null) return false
+        if (snackBar == null) return false
         return snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && snackBar.text == context?.resources?.getString(
             R.string.ant_no_connection
         )
@@ -671,6 +681,34 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
+    private fun checkIsNewVodAdded(
+        newStreams: List<StreamResponse>,
+        oldStreams: List<StreamResponse>
+    ) {
+        if (newStreams[0].isLive) return
+
+        if (!isInitialListSet && oldStreams.isNotEmpty()) {
+            val newVod = newStreams[0]
+            if (oldStreams.none { it.id == newVod.id }) {
+                if (videoAdapter.getStreams()
+                        .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != newVod.id
+                ) {
+                    videosRV.afterMeasured {
+                        if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 1) {
+                            if (isSnackBarScrollActive) {
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    scrollRvAndTriggerAutoplay()
+                                }, 1500)
+                            } else {
+                                scrollRvAndTriggerAutoplay()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun scrollRvAndTriggerAutoplay() {
         videosRV?.smoothScrollToPosition(0)
         Handler(Looper.getMainLooper()).postDelayed({
@@ -706,6 +744,47 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         } else {
             loadSavedInfo()
         }
+    }
+
+    private fun loadProfileInfo() {
+        if (UserCache.getInstance()?.getRefreshToken() != null) {
+            if (UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
+                viewModel.getProfileInfo()
+            } else {
+                loadSavedProfileImage()
+            }
+        }
+    }
+
+    private fun loadSavedProfileImage() {
+        Picasso.get()
+            .load(UserCache.getInstance()?.getUserImageUrl())
+            .networkPolicy(NetworkPolicy.OFFLINE)
+            .into(userBtn, object : Callback {
+                override fun onSuccess() {
+                    shadowView.visibility = View.VISIBLE
+                    viewModel.getProfileInfo()
+                }
+
+                override fun onError(e: Exception?) {
+                    viewModel.getProfileInfo()
+                }
+            })
+    }
+
+    private fun loadNewProfileImage() {
+        Picasso.get()
+            .load(UserCache.getInstance()?.getUserImageUrl())
+            .error(R.drawable.antourage_ic_default_user)
+            .into(userBtn, object : Callback {
+                override fun onSuccess() {
+                    shadowView?.visibility = View.VISIBLE
+                }
+
+                override fun onError(e: Exception?) {
+                    shadowView?.visibility = View.VISIBLE
+                }
+            })
     }
 
     private fun loadSavedInfo() {
@@ -778,12 +857,12 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun invalidateUserBtn() {
-        if(UserCache.getInstance()?.getRefreshToken()==null){
+        if (UserCache.getInstance()?.getRefreshToken() == null) {
             userBtn?.visibility = View.GONE
             shadowView?.visibility = View.GONE
             loginBtn?.visibility = View.VISIBLE
-        }else{
-            shadowView?.visibility = View.VISIBLE
+        } else {
+            if (userBtn?.background != null) shadowView?.visibility = View.VISIBLE
             userBtn?.visibility = View.VISIBLE
             loginBtn?.visibility = View.GONE
         }

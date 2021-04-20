@@ -32,7 +32,8 @@ internal class StreamPreviewManager {
             this.streamUrl = streamUrl
             player?.playWhenReady = true
             player?.volume = 0f
-            player?.prepare(getMediaSource(streamUrl, context), false, true)
+            player?.setMediaSource(getMediaSource(streamUrl, context))
+            player?.prepare()
             initEventListener()
             return player
         }

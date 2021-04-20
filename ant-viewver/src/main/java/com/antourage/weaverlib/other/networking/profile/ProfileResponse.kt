@@ -6,6 +6,5 @@ data class ProfileResponse(
     @field:SerializedName("identityId") val identityId: String?,
     @field:SerializedName("imageUrl") val imageUrl: String?,
     @field:SerializedName("email") val email: String?,
-    @field:SerializedName("nickname") val nickname: String?,
-    @field:SerializedName("error") val error: String?
+    @field:SerializedName("nickname") val nickname: String?
 )

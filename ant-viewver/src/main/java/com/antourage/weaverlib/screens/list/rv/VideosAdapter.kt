@@ -78,12 +78,12 @@ internal class VideosAdapter(
         val diffCallback = StreamItemDiffCallback(this.listOfStreams, newListOfStreams)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
 
-        recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
-
         diffResult.dispatchUpdatesTo(this)
 
         this.listOfStreams.clear()
         this.listOfStreams.addAll(newListOfStreams)
+
+        recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
 
         if (isListInitial && listOfStreams.isNotEmpty()) {
             recyclerView.afterMeasured {
@@ -496,9 +496,9 @@ internal class VideosAdapter(
 
                     isNew?.let { txtNew.gone(!it) }
                     txtTitle_post.text = videoName
-                    txtComment_post.gone(lastMessage.isNullOrEmpty())
-                    txtCommentAuthor_post.gone(lastMessage.isNullOrEmpty())
-                    btnChat_post.gone(lastMessage.isNullOrEmpty())
+                    txtComment_post.gone(true)
+                    txtCommentAuthor_post.gone(true)
+                    btnChat_post.gone(true)
                     txtComment_post.text = lastMessage
                     txtCommentAuthor_post.text =
                         lastMessageAuthor?.let { formatAuthor(it, resources) }

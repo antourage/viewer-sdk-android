@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.screens.list
 
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
@@ -25,9 +26,9 @@ internal class ReceivingVideosManager {
         const val LIVE_STREAMS_REQUEST_INTERVAL = 5_000L
         const val NEW_VODS_COUNT_REQUEST_INTERVAL = 61_000L
         private const val NEW_VODS_COUNT_REQUEST_DELAY = 1_000L
-        private var liveVideos: Resource<List<StreamResponse>>? = null
-        private var vods: Resource<List<StreamResponse>>? = null
-        private var vodsForFab: Resource<List<StreamResponse>>? = null
+        internal var liveVideos: MutableList<StreamResponse> = mutableListOf()
+        private var vods: MutableList<StreamResponse> = mutableListOf()
+        private var vodForFab: StreamResponse? = null
 
         /**used to ensure that live list comes first*/
         var isFirstRequest = true
@@ -60,7 +61,7 @@ internal class ReceivingVideosManager {
                                 } else {
                                     callback?.onVODReceived(resource)
                                 }
-                                vods = resource
+                                vods = resource.status.data as MutableList<StreamResponse>
                                 Log.d(TAG, "Successfully received VOD list")
                                 response.removeObserver(this)
                             }
@@ -75,8 +76,8 @@ internal class ReceivingVideosManager {
             })
         }
 
-        val handlerLiveVideos = Handler()
-        private val handlerVODs = Handler()
+        val handlerLiveVideos = Handler(Looper.getMainLooper())
+        private val handlerVODs = Handler(Looper.getMainLooper())
 
         fun checkShouldUseSockets(token: String) {
             if (SocketConnector.isConnected() || SocketConnector.isSocketUsed) {
@@ -121,12 +122,14 @@ internal class ReceivingVideosManager {
                                             )
                                             if (isFirstRequest && isForFab && Global.networkAvailable) {
                                                 isFirstRequest = false
-                                                Handler().postDelayed({
+                                                Handler(Looper.getMainLooper()).postDelayed({
                                                     startReceivingVODsForFab()
                                                 }, 1200)
                                             }
                                             callback?.onLiveBroadcastReceived(resource)
-                                            liveVideos = resource
+                                            if(resource.status.data !=null){
+                                                liveVideos = resource.status.data as MutableList<StreamResponse>
+                                            }
                                             streamResponse.removeObserver(this)
                                         }
                                         else -> {
@@ -166,7 +169,9 @@ internal class ReceivingVideosManager {
                                                 "Successfully received vods list for fab"
                                             )
                                             callback?.onVODForFabReceived(resource)
-                                            vodsForFab = resource
+                                            if(resource.status.data?.isNotEmpty() == true){
+                                                vodForFab = resource.status.data[0]
+                                            }
                                             streamResponse.removeObserver(this)
                                         }
                                         else -> {}

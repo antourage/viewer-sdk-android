@@ -44,7 +44,7 @@ class AntourageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
         if (UserCache.getInstance() == null || PropertyManager.getInstance() == null) {
-            AntourageFab.configure(this)
+            AntourageFab.configure(applicationContext)
         }
         registerKeyboardVisibilityEvent()
         intent?.data?.let {

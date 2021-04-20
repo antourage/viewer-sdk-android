@@ -24,7 +24,6 @@ class AuthInterceptor: Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Chain): Response {
         var request = chain.request()
-
         val builder = request.newBuilder()
             .addHeader(HEADER_LANGUAGE, "en")
             .addHeader(HEADER_DEVICE_ID, UserCache.getInstance()?.getDeviceId().toString())
@@ -55,18 +54,21 @@ class AuthInterceptor: Interceptor {
         if (response.code == 401) {
             synchronized(ApiClient.getHttpClient()) {
                 val currentIdToken = UserCache.getInstance()?.getIdToken()
-                if(currentIdToken == null || currentIdToken == idToken) {
+                val currentAccessToken = UserCache.getInstance()?.getAccessToken()
+                if((currentIdToken != null && currentIdToken == idToken) || currentAccessToken == null || currentAccessToken == accessToken) {
                     val code: Int = AuthClient.getAuthClient().authenticateUser().code() / 100
                     if (code != 2) {
                         return response
                     }
                 }
 
-                UserCache.getInstance()?.getIdToken()?.let {
-                    builder.header(HEADER_TOKEN, "Bearer $it")
-                    request = builder.build()
-                    return chain.proceed(request)
+                if (UserCache.getInstance()?.getIdToken() != null) {
+                    builder.header(HEADER_TOKEN, "Bearer ${UserCache.getInstance()?.getIdToken()}")
+                } else if(UserCache.getInstance()?.getAccessToken() != null){
+                    builder.header(HEADER_TOKEN, "Bearer ${UserCache.getInstance()?.getAccessToken()}")
                 }
+                request = builder.build()
+                return chain.proceed(request)
             }
         }
         return response

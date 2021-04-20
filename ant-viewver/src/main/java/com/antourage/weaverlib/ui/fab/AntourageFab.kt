@@ -30,6 +30,7 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
@@ -38,7 +39,7 @@ import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.SocketConnector.disconnectSocket
 import com.antourage.weaverlib.other.networking.SocketConnector.newLivesLiveData
-import com.antourage.weaverlib.other.networking.SocketConnector.newVodsLiveData
+import com.antourage.weaverlib.other.networking.SocketConnector.newVodLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
@@ -194,7 +195,7 @@ class AntourageFab @JvmOverloads constructor(
     private var currentlyDisplayedLiveStream: StreamResponse? = null
     private var currentAnimationDrawableId: Int = -1
     private val liveStreams = arrayListOf<StreamResponse>()
-    private val vods = arrayListOf<StreamResponse>()
+    private var vod: StreamResponse? = null
     private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private var currentFabState: FabState = FabState.INACTIVE
     private var nextFabState: FabState? = null
@@ -435,8 +436,8 @@ class AntourageFab @JvmOverloads constructor(
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
-        FeedRepository.vods?.let {  vods->
-            if(vods.isNotEmpty()){
+        FeedRepository.vods?.let { vods ->
+            if (vods.isNotEmpty()) {
                 FeedRepository.updateLastSeenVod()
             }
         }
@@ -448,25 +449,30 @@ class AntourageFab @JvmOverloads constructor(
                 if (ReceivingVideosManager.isFirstRequestVod) {
                     ReceivingVideosManager.isFirstRequestVod = false
                     ReceivingVideosManager.pauseReceivingVideos()
-                    UserCache.getInstance(context)?.getIdToken()?.let {
-                        SocketConnector.connectToSockets(it)
-                        initSocketListeners()
+                    if (UserCache.getInstance(context)?.getIdToken() != null) {
+                        SocketConnector.connectToSockets(
+                            UserCache.getInstance(context)?.getIdToken()!!
+                        )
+                    } else if (UserCache.getInstance(context)?.getAccessToken() != null) {
+                        SocketConnector.connectToSockets(
+                            UserCache.getInstance(context)?.getAccessToken()!!
+                        )
                     }
+                    initSocketListeners()
                 }
 
                 when (val status = resource.status) {
                     is Status.Success -> {
-                        if (!status.data.isNullOrEmpty()) {
-                            vods.clear()
-                            vods.addAll(status.data)
+                        if (status.data != null && status.data.isNotEmpty()) {
+                            vod = status.data[0]
                             manageVODs()
                         } else {
-                            vods.clear()
+                            vod = null
                             manageVODs()
                         }
                     }
                     is Status.Failure -> {
-                        vods.clear()
+                        vod = null
                         manageVODs()
                     }
                 }
@@ -525,7 +531,7 @@ class AntourageFab @JvmOverloads constructor(
         currentPlayerState = 0
         isAnimationRunning = false
         goingLiveToLive = false
-        vods.clear()
+        vod = null
         currentFabState = FabState.INACTIVE
         setIncomingWidgetStatus(null)
         bounceHandler.removeCallbacksAndMessages(null)
@@ -569,7 +575,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun setVodState() {
-        if (vods.isNotEmpty()) {
+        if (vod != null) {
             if (currentFabState != FabState.PRE_VOD && currentFabState != FabState.VOD && nextFabState != FabState.PRE_VOD && nextFabState != FabState.VOD || forceVodStateIfNeeded) {
                 forceVodStateIfNeeded = false
                 setIncomingWidgetStatus(FabState.PRE_VOD)
@@ -894,12 +900,14 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun openVodActivity() {
-        if (vods.isNotEmpty()) {
-            FeedRepository.vods = vods.toMutableList()
+        if (vod?.type == StreamResponseType.Vod) {
+            FeedRepository.vods = mutableListOf(vod!!)
             val intent = Intent(context, AntourageActivity::class.java)
-            intent.putExtra(ARGS_STREAM_SELECTED, vods[0])
+            intent.putExtra(ARGS_STREAM_SELECTED, vod!!)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             context.startActivity(intent)
+        } else {
+            openAntActivity()
         }
     }
 
@@ -976,31 +984,23 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private val vodsFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
-        if (newStreams != null) {
-            val newVods = newStreams as ArrayList<StreamResponse>
-
-            if (!newVods.isNullOrEmpty()) {
-                vods.clear()
-                vods.addAll(newVods)
-                runOnUi { manageVODs() }
-            } else {
-                vods.clear()
-                runOnUi { manageVODs() }
-            }
+    private val vodsFromSocketObserver = Observer<StreamResponse> { vodResponse ->
+        if(vodResponse!=null){
+            vod = vodResponse
+            runOnUi { manageVODs() }
         }
     }
 
     private fun removeSocketListeners() {
         internetStateLiveData.removeObserver(networkStateObserver)
         socketConnection.removeObserver(socketConnectionObserver)
-        newVodsLiveData.removeObserver(vodsFromSocketObserver)
+        newVodLiveData.removeObserver(vodsFromSocketObserver)
         newLivesLiveData.removeObserver(liveFromSocketObserver)
     }
 
     private fun initSocketListeners() {
         socketConnection.observeForever(socketConnectionObserver)
-        newVodsLiveData.observeForever(vodsFromSocketObserver)
+        newVodLiveData.observeForever(vodsFromSocketObserver)
         newLivesLiveData.observeForever(liveFromSocketObserver)
     }
 

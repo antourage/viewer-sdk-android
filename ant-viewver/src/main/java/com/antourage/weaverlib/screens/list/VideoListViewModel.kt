@@ -10,7 +10,6 @@ import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
-import com.antourage.weaverlib.other.getUtcTime
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
@@ -18,13 +17,12 @@ import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
-import com.antourage.weaverlib.other.parseToDate
-import com.antourage.weaverlib.other.parseToMills
+import com.antourage.weaverlib.other.networking.profile.ProfileRepository
+import com.antourage.weaverlib.other.networking.profile.ProfileResponse
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
-import java.util.*
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
     OnDevSettingsChangedListener,
@@ -37,6 +35,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var loaderLiveData: MutableLiveData<Boolean> = MutableLiveData()
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
     var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
+    var profileLiveData: MutableLiveData<ProfileResponse> = MutableLiveData()
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
@@ -88,6 +87,33 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
     }
 
+    private val vodFromSocketObserver = Observer<StreamResponse> { newVod ->
+        if (newVod != null && FeedRepository.vods?.any { it.id == newVod.id } == false) {
+            val list = mutableListOf<StreamResponse>()
+            list.add(newVod)
+            FeedRepository.vods?.let {
+                list.addAll(it)
+            }
+
+            FeedRepository.vods = list.toMutableList()
+
+            if (vods?.last()?.id == -1) {
+                list.add(list.size, getListEndPlaceHolder())
+            } else if (vods?.last()?.id == -2) {
+                list.add(list.size, getStreamLoaderPlaceholder())
+            }
+
+            vods = list
+
+            vodsUpdated = true
+            vodsUpdatedWithoutError = true
+            if (liveVideosUpdated) {
+                showCallResult = true
+                runOnUi { updateVideosList() }
+            }
+        }
+    }
+
     private fun runOnUi(method: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
             method()
@@ -97,11 +123,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     private fun removeSocketListeners() {
         SocketConnector.socketConnection.removeObserver(socketConnectionObserver)
         SocketConnector.newLivesLiveData.removeObserver(liveFromSocketObserver)
+        SocketConnector.newVodLiveData.removeObserver(vodFromSocketObserver)
     }
 
-    private fun initSocketListeners() {
+    private fun initLiveSocketListeners() {
         SocketConnector.socketConnection.observeForever(socketConnectionObserver)
         SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
+    }
+
+    private fun initVodSocketListeners() {
+        SocketConnector.newVodLiveData.observeForever(vodFromSocketObserver)
     }
 
     fun refreshVODs(
@@ -161,11 +192,16 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         if (ReceivingVideosManager.isFirstRequestVod) {
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
-            initSocketListeners()
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getIdToken()
-                ?.let {
-                    ReceivingVideosManager.checkShouldUseSockets(it)
-                }
+            initLiveSocketListeners()
+            if (UserCache.getInstance()?.getIdToken() != null) {
+                ReceivingVideosManager.checkShouldUseSockets(
+                    UserCache.getInstance()?.getIdToken()!!
+                )
+            } else if (UserCache.getInstance()?.getAccessToken() != null) {
+                ReceivingVideosManager.checkShouldUseSockets(
+                    UserCache.getInstance()?.getAccessToken()!!
+                )
+            }
         }
         when (resource.status) {
             is Status.Success -> {
@@ -255,6 +291,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 }
 
                 vods = newList
+
+                initVodSocketListeners()
 
                 vodsUpdated = true
                 vodsUpdatedWithoutError = true
@@ -400,7 +438,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     ) {
         if (showCallResult || updateLiveStreams) {
             val resultList = mutableListOf<StreamResponse>()
-            liveVideos?.let { resultList.addAll(it) }
+            liveVideos?.let {
+                resultList.addAll(it)
+            }
+
             vods?.let { resultList.addAll(it.toList()) }
 
             loaderLiveData.postValue(false)
@@ -471,6 +512,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun onNetworkGained(isErrorShown: Boolean = false) {
         if (feedInfoLiveData.value == null) getFeedInfo()
+        if (profileLiveData.value == null) getProfileInfo()
         refreshVODs(noLoadingPlaceholder = !isErrorShown)
     }
 
@@ -535,4 +577,27 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             }
         })
     }
+
+    fun getProfileInfo() {
+        val response = ProfileRepository.getProfile()
+        response.observeForever(object : Observer<Resource<ProfileResponse>> {
+            override fun onChanged(it: Resource<ProfileResponse>?) {
+                when (val responseStatus = it?.status) {
+                    is Status.Success -> {
+                        if (responseStatus.data != null) {
+                            val profile = responseStatus.data
+                            UserCache.getInstance()?.saveUserNickName(profile.nickname?: "")
+                            UserCache.getInstance()?.saveUserImage(profile.imageUrl?: "")
+                            profileLiveData.postValue(profile)
+                        }
+                        response.removeObserver(this)
+                    }
+                    is Status.Failure -> {
+                        response.removeObserver(this)
+                    }
+                }
+            }
+        })
+    }
+
 }

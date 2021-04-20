@@ -9,6 +9,7 @@ internal class APIError {
     @SerializedName("ErrorCode")
     @Expose
     private val statusCode: Int = 0
+
     @SerializedName("Error")
     @Expose
     private val message: String? = null
@@ -26,6 +27,7 @@ open class SimpleResponse {
     @SerializedName("error")
     @Expose
     var error: String? = null
+
     @SerializedName("success")
     @Expose
     var success: Boolean? = null
@@ -36,6 +38,15 @@ class NotificationSubscriptionResponse : SimpleResponse() {
     @Expose
     var topic: String? = null
 }
+
+data class LiveUpdatedResponse(
+    @field:SerializedName("id") val id: Int?,
+    @field:SerializedName("viewerCount") val viewerCount: Long?
+)
+
+data class WebViewResponse(
+    @SerializedName("type") var type : String
+)
 
 class ListOfStreams : ArrayList<StreamResponse>()
 
@@ -61,7 +72,7 @@ data class StreamResponse(
     @field:SerializedName("viewsCount") var viewsCount: Long?,
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
-    @field:SerializedName("viewersCount") val viewersCount: Long?,
+    @field:SerializedName("viewersCount") var viewersCount: Long?,
     @field:SerializedName("isNew") var isNew: Boolean?,
     var stopTimeMillis: Long = 0,
     var lastMessage: String? = null,
@@ -113,18 +124,18 @@ data class UpdateImageResponse(
 )
 
 data class Viewers(
-    @field:SerializedName("liveStreamId") val liveStreamId : Int,
-    @field:SerializedName("viewers") val viewers : Long
+    @field:SerializedName("liveStreamId") val liveStreamId: Int,
+    @field:SerializedName("viewers") val viewers: Long
 )
 
 data class FeedInfo(
     @field:SerializedName("imageUrl") val imageUrl: String?,
-    @field:SerializedName("tagLine") val tagLine : String?
+    @field:SerializedName("tagLine") val tagLine: String?
 )
 
 @Parcelize
 data class AdBanner(
-    @field:SerializedName("imageUrl") val imageUrl : String?,
-    @field:SerializedName("externalUrl") val externalUrl : String?
+    @field:SerializedName("imageUrl") val imageUrl: String?,
+    @field:SerializedName("externalUrl") val externalUrl: String?
 ) : Parcelable
 

@@ -74,9 +74,7 @@ internal class DevSettingsDialog(
         }
 
         btnLogout.setOnClickListener {
-            UserCache.getInstance()?.saveAccessToken(null)
-            UserCache.getInstance()?.saveRefreshToken(null)
-            UserCache.getInstance()?.saveIdToken(null)
+            UserCache.getInstance()?.logout()
             dismiss()
         }
 
