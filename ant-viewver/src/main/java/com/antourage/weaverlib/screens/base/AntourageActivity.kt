@@ -180,7 +180,7 @@ class AntourageActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
-        val newLocale = Global.setLocale
+        val newLocale = Global.chosenLocale
         if (newLocale != null) {
             super.attachBaseContext(ContextWrapper.wrap(newBase, newLocale))
         } else {

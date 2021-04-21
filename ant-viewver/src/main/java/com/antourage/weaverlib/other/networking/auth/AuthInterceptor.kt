@@ -40,10 +40,10 @@ class AuthInterceptor: Interceptor {
             builder.addHeader(HEADER_OS, "android")
             builder.addHeader(HEADER_VERSION, BuildConfig.VERSION_NAME)
             builder.addHeader(HEADER_OS_VERSION, Build.VERSION.RELEASE)
-            if(Global.setLocale!=null){
-                builder.addHeader(HEADER_LOCALIZATION, Global.setLocale.toString())
+            if(Global.chosenLocale!=null){
+                builder.addHeader(HEADER_LOCALIZATION, Global.chosenLocale!!.language)
             }else if(Global.defaultLocale!=null){
-                builder.addHeader(HEADER_LOCALIZATION, Global.defaultLocale.toString())
+                builder.addHeader(HEADER_LOCALIZATION, Global.defaultLocale!!.language)
             }
         }
 

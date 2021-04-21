@@ -7,7 +7,7 @@ internal const val TAG = "Log_Global"
 class Global {
     companion object {
         var networkAvailable: Boolean = false
-        var setLocale: Locale? = null
+        var chosenLocale: Locale? = null
         var defaultLocale: Locale? = null
     }
 }

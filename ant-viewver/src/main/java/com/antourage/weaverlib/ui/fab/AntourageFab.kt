@@ -88,7 +88,7 @@ class AntourageFab @JvmOverloads constructor(
             PropertyManager.getInstance(context)
             UserCache.getInstance(context)
             handleDeviceId(context)
-            getDefaultLanguage(context)
+            setDefaultLocale(context)
 
             if (BASE_URL.isEmptyTrimmed()) BASE_URL =
                 (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
@@ -97,7 +97,7 @@ class AntourageFab @JvmOverloads constructor(
             startAntRequests()
         }
 
-        private fun getDefaultLanguage(context: Context) {
+        private fun setDefaultLocale(context: Context) {
             val defaultLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 context.resources.configuration.locales[0]
             } else {
@@ -255,8 +255,8 @@ class AntourageFab @JvmOverloads constructor(
                 "en" -> forceLocale(Locale("en", "US"))
                 else -> Log.e(TAG, "Trying to set unsupported locale $lang")
             }
-        } else if (Global.setLocale != null) {
-            forceLocale(Global.setLocale!!)
+        } else if (Global.chosenLocale != null) {
+            forceLocale(Global.chosenLocale!!)
         }
     }
 
@@ -267,7 +267,7 @@ class AntourageFab @JvmOverloads constructor(
                 Configuration(getActivity(context)!!.resources.configuration)
             Locale.setDefault(locale)
             config.setLocale(locale)
-            Global.setLocale = locale
+            Global.chosenLocale = locale
             getActivity(context)?.baseContext?.resources?.updateConfiguration(
                 config,
                 getActivity(context)?.baseContext?.resources?.displayMetrics
@@ -907,6 +907,7 @@ class AntourageFab @JvmOverloads constructor(
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             context.startActivity(intent)
         } else {
+            vod?.isNew = true
             openAntActivity()
         }
     }
@@ -999,6 +1000,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun initSocketListeners() {
+        SocketConnector.clearSocketData()
         socketConnection.observeForever(socketConnectionObserver)
         newVodLiveData.observeForever(vodsFromSocketObserver)
         newLivesLiveData.observeForever(liveFromSocketObserver)

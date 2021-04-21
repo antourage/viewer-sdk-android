@@ -680,6 +680,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     }
 
     private fun initSocketListeners() {
+        SocketConnector.clearSocketData()
         SocketConnector.socketConnection.observeForever(socketConnectionObserver)
         SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
     }

@@ -127,11 +127,13 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     private fun initLiveSocketListeners() {
+        SocketConnector.clearSocketData()
         SocketConnector.socketConnection.observeForever(socketConnectionObserver)
         SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
     }
 
     private fun initVodSocketListeners() {
+        SocketConnector.clearSocketData()
         SocketConnector.newVodLiveData.observeForever(vodFromSocketObserver)
     }
 

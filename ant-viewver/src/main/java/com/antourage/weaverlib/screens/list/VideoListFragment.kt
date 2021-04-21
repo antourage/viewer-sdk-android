@@ -42,6 +42,7 @@ import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
+import org.jetbrains.anko.backgroundDrawable
 
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
@@ -95,7 +96,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     checkIsNewLiveAdded(newStreams, listBeforeUpdate)
                     checkIsNewVodAdded(newStreams, listBeforeUpdate)
                     checkIsLiveWasRemoved(newStreams)
-                }, 1000)
+                }, 500)
 
                 isInitialListSet = false
                 if (viewModel.vodsUpdated && viewModel.liveVideosUpdated) {
@@ -693,15 +694,13 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 if (videoAdapter.getStreams()
                         .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != newVod.id
                 ) {
-                    videosRV.afterMeasured {
-                        if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 1) {
-                            if (isSnackBarScrollActive) {
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    scrollRvAndTriggerAutoplay()
-                                }, 1500)
-                            } else {
+                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 1) {
+                        if (isSnackBarScrollActive) {
+                            Handler(Looper.getMainLooper()).postDelayed({
                                 scrollRvAndTriggerAutoplay()
-                            }
+                            }, 1500)
+                        } else {
+                            scrollRvAndTriggerAutoplay()
                         }
                     }
                 }
@@ -763,7 +762,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             .networkPolicy(NetworkPolicy.OFFLINE)
             .into(userBtn, object : Callback {
                 override fun onSuccess() {
-                    shadowView.visibility = View.VISIBLE
+                    showShadowUnderImage()
                     viewModel.getProfileInfo()
                 }
 
@@ -774,31 +773,37 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun loadNewProfileImage() {
-        if(!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()){
+        if (!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
             Picasso.get()
                 .load(UserCache.getInstance()?.getUserImageUrl())
                 .placeholder(R.drawable.antourage_ic_incognito_user)
                 .into(userBtn, object : Callback {
                     override fun onSuccess() {
-                        shadowView?.visibility = View.VISIBLE
+                        showShadowUnderImage()
                     }
 
                     override fun onError(e: Exception?) {
-                        shadowView?.visibility = View.VISIBLE
+                        showShadowUnderImage()
                     }
                 })
-        }else{
+        } else {
             loadDefaultUserImage()
         }
     }
 
-    private fun loadDefaultUserImage(){
-        if(userBtn.drawable.constantState != ContextCompat.getDrawable(requireContext(), R.drawable.antourage_ic_incognito_user)?.constantState){
-            Picasso.get()
-                .load(R.drawable.antourage_ic_incognito_user)
-                .placeholder(R.drawable.antourage_ic_incognito_user)
-                .into(userBtn)
-        }
+    private fun loadDefaultUserImage() {
+        Picasso.get()
+            .load(R.drawable.antourage_ic_incognito_user)
+            .placeholder(R.drawable.antourage_ic_incognito_user)
+            .into(userBtn, object : Callback {
+                override fun onSuccess() {
+                    showShadowUnderImage()
+                }
+
+                override fun onError(e: Exception?) {
+                    showShadowUnderImage()
+                }
+            })
     }
 
     private fun loadSavedInfo() {
@@ -870,13 +875,26 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
+    private fun showShadowUnderImage() {
+        if (userBtn.visibility == View.VISIBLE) {
+            shadowView?.visibility = View.VISIBLE
+            if (!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
+                shadowView?.backgroundDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.antourage_blue_shadow)
+            } else {
+                shadowView?.backgroundDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.antourage_dark_shadow)
+            }
+        }
+    }
+
     private fun invalidateUserBtn() {
         if (UserCache.getInstance()?.getRefreshToken() == null) {
             userBtn?.visibility = View.GONE
             shadowView?.visibility = View.GONE
             loginBtn?.visibility = View.VISIBLE
         } else {
-            if (userBtn?.background != null) shadowView?.visibility = View.VISIBLE
+            showShadowUnderImage()
             userBtn?.visibility = View.VISIBLE
             loginBtn?.visibility = View.GONE
         }

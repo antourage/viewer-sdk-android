@@ -251,12 +251,16 @@ internal object SocketConnector {
         reconnectHandler.removeCallbacksAndMessages(null)
     }
 
+    fun clearSocketData(){
+        newLivesLiveData.postValue(null)
+        newVodLiveData.postValue(null)
+    }
+
     fun disconnectSocket() {
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
         reconnectHandler.removeCallbacksAndMessages(null)
-        newLivesLiveData.value = null
-        newVodLiveData.value = null
+        clearSocketData()
         try {
             if (this::hubConnection.isInitialized) {
                 if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
