@@ -120,6 +120,8 @@ class ProfileFragment : Fragment() {
                 UserCache.getInstance()?.getAccessToken()
             }&idToken=${
                 UserCache.getInstance()?.getIdToken()
+            }&refreshToken=${
+                UserCache.getInstance()?.getRefreshToken()
             }&appClientId=$CLIENT_ID&appClientId=$CLIENT_ID"
         )
     }
