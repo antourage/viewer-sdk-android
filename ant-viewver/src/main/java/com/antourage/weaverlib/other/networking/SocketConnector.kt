@@ -11,7 +11,6 @@ import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.ListOfStreams
-import com.antourage.weaverlib.other.models.LiveUpdatedResponse
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
@@ -148,9 +147,9 @@ internal object SocketConnector {
         hubConnection.on(SOCKET_LIVE_UPDATED, { response ->
             response?.let {
                 handleLiveUpdated(response)
-                Log.d(TAG, "live updated: id ${response.id} viewers ${response.viewerCount}")
+                Log.d(TAG, "live updated: id ${response.id} viewers ${response.viewersCount}")
             }
-        }, LiveUpdatedResponse::class.java)
+        }, StreamResponse::class.java)
 
 
         hubConnection.on(SOCKET_VOD, { newVod ->
@@ -201,12 +200,17 @@ internal object SocketConnector {
         newLivesLiveData.postValue(livesList)
     }
 
-    private fun handleLiveUpdated(liveUpdatedResponse: LiveUpdatedResponse) {
+    private fun handleLiveUpdated(liveUpdatedResponse: StreamResponse) {
         val livesList = ReceivingVideosManager.liveVideos
-        livesList.filter { it.id == liveUpdatedResponse.id }.forEach {
-            it.viewersCount = liveUpdatedResponse.viewerCount
+        if (!livesList.any { it.id == liveUpdatedResponse.id }) {
+            livesList.add(0, liveUpdatedResponse)
+            newLivesLiveData.postValue(livesList)
+        }else{
+            livesList.filter { it.id == liveUpdatedResponse.id }.forEach { match ->
+                match.viewersCount = liveUpdatedResponse.viewersCount
+                newLivesLiveData.postValue(livesList)
+            }
         }
-        newLivesLiveData.postValue(livesList)
     }
 
     private fun reconnect() {
