@@ -69,6 +69,7 @@ data class StreamResponse(
     @field:SerializedName("duration") val duration: String?,
     @field:SerializedName("type") val type: StreamResponseType?,
     @field:SerializedName("broadcasterPicUrl") val broadcasterPicUrl: String?,
+    @field:SerializedName("creatorImageUrl") val creatorImageUrl: String?,
     @field:SerializedName("viewsCount") var viewsCount: Long?,
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,

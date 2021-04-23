@@ -26,7 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:padding="4dp"
-                android:src="@drawable/antourage_ic_default_user"
+                android:src="@drawable/antourage_ic_incognito_user"
                 app:layout_constraintBottom_toBottomOf="@+id/ivCircleOutline_live"
                 app:layout_constraintEnd_toEndOf="@+id/ivCircleOutline_live"
                 app:layout_constraintStart_toStartOf="@+id/ivCircleOutline_live"

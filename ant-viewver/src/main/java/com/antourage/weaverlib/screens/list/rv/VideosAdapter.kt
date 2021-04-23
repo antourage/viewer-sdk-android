@@ -285,10 +285,10 @@ internal class VideosAdapter(
             .load(imageUrl)
         else
             Picasso.get()
-                .load(R.drawable.antourage_ic_default_user)
+                .load(R.drawable.antourage_ic_incognito_user)
         picasso
-            .placeholder(R.drawable.antourage_ic_default_user)
-            .error(R.drawable.antourage_ic_default_user)
+            .placeholder(R.drawable.antourage_ic_incognito_user)
+            .error(R.drawable.antourage_ic_incognito_user)
             .into(imageView)
     }
 
@@ -323,7 +323,7 @@ internal class VideosAdapter(
                         ivThumbnail_live_placeholder
                     )
 
-                    loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_live)
+                    loadStreamerImageOrShowPlaceholder(creatorImageUrl, ivStreamerPicture_live)
 
                     isChatEnabled?.let {
                         if (!it && lastMessage.isNullOrEmpty()) {

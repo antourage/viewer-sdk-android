@@ -101,13 +101,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     viewModel.currentVideo.value?.apply {
                         if (!broadcasterPicUrl.isNullOrEmpty()) {
                             Picasso.get().load(broadcasterPicUrl)
-                                .placeholder(R.drawable.antourage_ic_default_user)
-                                .error(R.drawable.antourage_ic_default_user)
+                                .placeholder(R.drawable.antourage_ic_incognito_user)
+                                .error(R.drawable.antourage_ic_incognito_user)
                                 .into(play_header_iv_photo)
 
                             Picasso.get().load(broadcasterPicUrl)
-                                .placeholder(R.drawable.antourage_ic_default_user)
-                                .error(R.drawable.antourage_ic_default_user)
+                                .placeholder(R.drawable.antourage_ic_incognito_user)
+                                .error(R.drawable.antourage_ic_incognito_user)
                                 .into(
                                     player_control_header
                                         .findViewById(R.id.play_header_iv_photo) as ImageView
@@ -190,12 +190,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
             }
             if (!broadcasterPicUrl.isNullOrEmpty()) {
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .error(R.drawable.antourage_ic_incognito_user)
                     .into(play_header_iv_photo)
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .error(R.drawable.antourage_ic_incognito_user)
                     .into(
                         player_control_header
                             .findViewById(R.id.play_header_iv_photo) as ImageView

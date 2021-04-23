@@ -725,14 +725,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             player_control_header.findViewById<TextView>(R.id.tvStreamName).text = streamTitle
             player_control_header.findViewById<TextView>(R.id.tvBroadcastedBy).text =
                 creatorNickname
-            if (!broadcasterPicUrl.isNullOrEmpty()) {
-                Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
+            if (!creatorImageUrl.isNullOrEmpty()) {
+                Picasso.get().load(creatorImageUrl)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .error(R.drawable.antourage_ic_incognito_user)
                     .into(play_header_iv_photo)
                 Picasso.get().load(broadcasterPicUrl)
-                    .placeholder(R.drawable.antourage_ic_default_user)
-                    .error(R.drawable.antourage_ic_default_user)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .error(R.drawable.antourage_ic_incognito_user)
                     .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))
             }
             txtNumberOfViewers.text = viewersCount?.formatQuantity() ?: "0"
