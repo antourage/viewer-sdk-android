@@ -36,7 +36,6 @@ import kotlinx.android.synthetic.main.item_live_video.view.*
 import kotlinx.android.synthetic.main.item_post.view.*
 import kotlinx.android.synthetic.main.item_progress.view.*
 import kotlinx.android.synthetic.main.item_vod.view.*
-import kotlinx.android.synthetic.main.item_vod.view.txtNew
 import org.jetbrains.anko.windowManager
 import java.util.*
 
@@ -81,7 +80,7 @@ internal class VideosAdapter(
         diffResult.dispatchUpdatesTo(this)
 
         this.listOfStreams.clear()
-        this.listOfStreams.addAll(newListOfStreams)
+        this.listOfStreams = newListOfStreams.map { it.copy() } as MutableList<StreamResponse>
 
         recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
 
@@ -96,7 +95,8 @@ internal class VideosAdapter(
 
     fun setStreamListForceUpdate(newListOfStreams: List<StreamResponse>) {
         this.listOfStreams.clear()
-        this.listOfStreams.addAll(newListOfStreams)
+        this.listOfStreams = newListOfStreams.map { it.copy() } as MutableList<StreamResponse>
+
         recyclerView.setMediaObjects(listOfStreams as ArrayList<StreamResponse>)
         notifyDataSetChanged()
     }
@@ -325,13 +325,14 @@ internal class VideosAdapter(
 
                     loadStreamerImageOrShowPlaceholder(creatorImageUrl, ivStreamerPicture_live)
 
-                    isChatEnabled?.let {
-                        if (!it && lastMessage.isNullOrEmpty()) {
-                            btnChat_live.gone(true)
-                        } else {
-                            btnChat_live.visibility = View.VISIBLE
-                        }
-                    }
+//                    isChatEnabled?.let {
+//                        if (!it && lastMessage.isNullOrEmpty()) {
+//                            btnChat_live.gone(true)
+//                        } else {
+//                            btnChat_live.visibility = View.VISIBLE
+//                        }
+//                    }
+
                     isChatEnabled?.let {
                         if (it) {
                             btnJoinConversation.visibility = View.VISIBLE
@@ -441,11 +442,11 @@ internal class VideosAdapter(
                         replayContainer.visibility = View.INVISIBLE
                     }
 
-                    isNew?.let { txtNew.gone(!it) }
+                    isNew?.let { txtNewBadge_vod.gone(!it) }
                     txtTitle_vod.text = videoName
                     txtComment_vod.gone(lastMessage.isNullOrEmpty())
                     txtCommentAuthor_vod.gone(lastMessage.isNullOrEmpty())
-                    btnChat_vod.gone(lastMessage.isNullOrEmpty())
+//                    btnChat_vod.gone(lastMessage.isNullOrEmpty())
                     txtComment_vod.text = lastMessage
                     txtCommentAuthor_vod.text =
                         lastMessageAuthor?.let { formatAuthor(it, resources) }
@@ -494,14 +495,8 @@ internal class VideosAdapter(
                     }
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_post)
 
-                    isNew?.let { txtNew.gone(!it) }
+                    isNew?.let { txtNewBadge_post.gone(!it) }
                     txtTitle_post.text = videoName
-                    txtComment_post.gone(true)
-                    txtCommentAuthor_post.gone(true)
-                    btnChat_post.gone(true)
-                    txtComment_post.text = lastMessage
-                    txtCommentAuthor_post.text =
-                        lastMessageAuthor?.let { formatAuthor(it, resources) }
 
                     val formattedStartTime = startTime?.parseToDate()?.parseToDisplayAgoTimeLong(
                         context

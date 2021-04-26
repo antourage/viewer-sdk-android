@@ -11,72 +11,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <ImageView
-                android:id="@+id/ivCircleOutline_post"
-                android:layout_width="43dp"
-                android:layout_height="43dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="20dp"
-                android:src="@drawable/antourage_ic_color_wheel"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/ivStreamerPicture_post"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:padding="4dp"
-                android:src="@drawable/antourage_ic_incognito_user"
-                app:layout_constraintBottom_toBottomOf="@+id/ivCircleOutline_post"
-                app:layout_constraintEnd_toEndOf="@+id/ivCircleOutline_post"
-                app:layout_constraintStart_toStartOf="@+id/ivCircleOutline_post"
-                app:layout_constraintTop_toTopOf="@+id/ivCircleOutline_post" />
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/viewStreamerInfoContainer_post"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivCircleOutline_post"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/ivCircleOutline_post"
-                app:layout_constraintTop_toTopOf="@+id/ivCircleOutline_post">
+          <de.hdodenhof.circleimageview.CircleImageView
+                  android:id="@+id/ivStreamerPicture_post"
+                  android:layout_width="32dp"
+                  android:layout_height="32dp"
+                  android:src="@drawable/antourage_ic_incognito_user"
+                  android:layout_marginStart="8dp"
+                  android:layout_marginTop="20dp"
+                  app:layout_constraintLeft_toLeftOf="parent"
+                  app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                     android:id="@+id/txtStreamerInfo_post"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:fontFamily="sans-serif"
                     android:maxLines="1"
                     android:textColor="@color/ant_streamer_name_color"
                     android:textSize="12sp"
-                    app:layout_constraintBottom_toTopOf="@+id/txtTitle_post"
+                    app:layout_constraintBottom_toBottomOf="@id/ivStreamerPicture_post"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_chainStyle="spread"
+                    app:layout_constraintStart_toEndOf="@id/ivStreamerPicture_post"
+                    app:layout_constraintTop_toTopOf="@id/ivStreamerPicture_post"
                     tools:text="DR Handball • 5 min ago" />
 
-            <TextView
-                    android:id="@+id/txtTitle_post"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-medium"
-                    android:maxLines="1"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/txtStreamerInfo_post"
-                    app:layout_constraintVertical_chainStyle="spread"
-                    tools:text="Naked players on the field" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/imagesViewPager"
@@ -88,8 +48,16 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ivCircleOutline_post"
+                app:layout_constraintTop_toBottomOf="@id/ivStreamerPicture_post"
                 tools:layout_height="414dp" />
+          
+          <View
+                  android:layout_width="match_parent"
+                  android:layout_height="55dp"
+                  android:background="@drawable/antourage_feed_bottom_shadow"
+                  app:layout_constraintLeft_toLeftOf="parent"
+                  app:layout_constraintRight_toRightOf="parent"
+                  app:layout_constraintBottom_toBottomOf="@id/imagesViewPager"/>
 
         <com.google.android.material.tabs.TabLayout
                 android:id="@+id/dots"
@@ -104,20 +72,8 @@
                 app:layout_constraintStart_toStartOf="parent"/>
 
 
-        <ImageButton
-                android:id="@+id/btnChat_post"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/antourage_ic_chat"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/imagesViewPager"
-                tools:ignore="ContentDescription" />
-
         <TextView
-                android:id="@+id/txtComment_post"
+                android:id="@+id/txtTitle_post"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
@@ -125,52 +81,36 @@
                 android:layout_marginEnd="20dp"
                 android:fontFamily="sans-serif"
                 android:textColor="@color/ant_white"
-                android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnChat_post" />
-
-        <TextView
-                android:id="@+id/txtCommentAuthor_post"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/ant_streamer_name_color"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:breakStrategy="simple"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@id/txtComment_post"
-                app:layout_constraintTop_toBottomOf="@id/txtComment_post"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imagesViewPager"
                 tools:ignore="UnusedAttribute" />
 
-
-        <TextView
-                android:id="@+id/txtNew"
-                android:text="@string/ant_new"
-                android:textAllCaps="true"
-                app:layout_constraintLeft_toLeftOf="@+id/imagesViewPager"
-                app:layout_constraintTop_toTopOf="@+id/imagesViewPager"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="6dp"
-                app:layout_goneMarginTop="6dp"
-                android:background="@drawable/bg_rect_round_3"
-                android:backgroundTint="@color/ant_blue"
-                android:elevation="10dp"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:textColor="@color/ant_white"
-                android:textSize="11sp"
-                tools:ignore="SmallSp" />
+          <TextView
+                  android:id="@+id/txtNewBadge_post"
+                  android:layout_width="52dp"
+                  android:layout_height="24dp"
+                  android:layout_marginTop="16dp"
+                  android:layout_marginStart="16dp"
+                  app:layout_constraintLeft_toLeftOf="@+id/imagesViewPager"
+                  app:layout_constraintTop_toTopOf="@+id/imagesViewPager"
+                  android:background="@drawable/antourage_new_badge_background"
+                  android:elevation="10dp"
+                  android:fontFamily="sans-serif-black"
+                  android:gravity="center"
+                  android:includeFontPadding="false"
+                  android:paddingStart="6dp"
+                  android:paddingTop="4dp"
+                  android:paddingEnd="6dp"
+                  android:paddingBottom="4dp"
+                  android:text="@string/ant_new"
+                  android:textAllCaps="true"
+                  android:textColor="@color/ant_white"
+                  android:textSize="11sp"
+                  tools:ignore="SmallSp" />
 
         <!--needed for viewersCount to save height if NEW label goes GONE -->
         <TextView

@@ -29,8 +29,7 @@ internal class StreamItemDiffCallback(
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         return oldList[oldItemPosition].viewersCount == newList[newItemPosition].viewersCount &&
                 oldList[oldItemPosition].viewsCount == newList[newItemPosition].viewsCount &&
-                oldList[oldItemPosition].isNew == newList[newItemPosition].isNew &&
-                oldList[oldItemPosition].startTime.equals(newList[newItemPosition].startTime)
+                oldList[oldItemPosition].isNew == newList[newItemPosition].isNew
     }
 
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
