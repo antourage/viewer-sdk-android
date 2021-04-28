@@ -495,6 +495,11 @@ internal class VideosAdapter(
                     }
                     loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_post)
 
+                    if(images!=null && images.size > 1) {
+                        shadowPost.visibility = View.VISIBLE
+                    }else{
+                        shadowPost.visibility = View.INVISIBLE
+                    }
                     isNew?.let { txtNewBadge_post.gone(!it) }
                     txtTitle_post.text = videoName
 

@@ -449,15 +449,7 @@ class AntourageFab @JvmOverloads constructor(
                 if (ReceivingVideosManager.isFirstRequestVod) {
                     ReceivingVideosManager.isFirstRequestVod = false
                     ReceivingVideosManager.pauseReceivingVideos()
-                    if (UserCache.getInstance(context)?.getIdToken() != null) {
-                        SocketConnector.connectToSockets(
-                            UserCache.getInstance(context)?.getIdToken()!!
-                        )
-                    } else if (UserCache.getInstance(context)?.getAccessToken() != null) {
-                        SocketConnector.connectToSockets(
-                            UserCache.getInstance(context)?.getAccessToken()!!
-                        )
-                    }
+                    SocketConnector.connectToSockets()
                     initSocketListeners()
                 }
 

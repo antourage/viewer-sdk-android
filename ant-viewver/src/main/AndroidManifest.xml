@@ -9,6 +9,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
     <application
             android:largeHeap="true"
             android:networkSecurityConfig="@xml/network_security_config"
@@ -37,6 +43,15 @@
                 android:name=".ModuleResourcesProvider"
                 android:authorities="${applicationId}.ModuleResourcesProvider"
                 android:exported="false" />
+        <provider
+                android:name="androidx.core.content.FileProvider"
+                android:authorities="com.antourage.weaverlib.fileProvider"
+                android:exported="false"
+                android:grantUriPermissions="true">
+            <meta-data
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

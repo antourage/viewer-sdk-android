@@ -52,8 +52,10 @@
                 tools:layout_height="414dp" />
           
           <View
+                  android:id="@+id/shadowPost"
                   android:layout_width="match_parent"
                   android:layout_height="55dp"
+                  android:visibility="invisible"
                   android:background="@drawable/antourage_feed_bottom_shadow"
                   app:layout_constraintLeft_toLeftOf="parent"
                   app:layout_constraintRight_toRightOf="parent"

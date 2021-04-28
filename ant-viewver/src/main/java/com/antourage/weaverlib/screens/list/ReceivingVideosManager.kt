@@ -79,9 +79,9 @@ internal class ReceivingVideosManager {
         val handlerLiveVideos = Handler(Looper.getMainLooper())
         private val handlerVODs = Handler(Looper.getMainLooper())
 
-        fun checkShouldUseSockets(token: String) {
+        fun checkShouldUseSockets() {
             if (SocketConnector.isConnected() || SocketConnector.isSocketUsed) {
-                SocketConnector.connectToSockets(token)
+                SocketConnector.connectToSockets()
             } else {
                 startReceivingLiveStreams()
             }

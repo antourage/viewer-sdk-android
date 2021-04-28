@@ -65,9 +65,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
         if (it == SocketConnector.SocketConnection.DISCONNECTED) {
             if (Global.networkAvailable) {
-                if (userAuthorized()) {
-                    subscribeToLiveStreams()
-                }
+                subscribeToLiveStreams()
             }
         }
     }
@@ -195,15 +193,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
             initLiveSocketListeners()
-            if (UserCache.getInstance()?.getIdToken() != null) {
-                ReceivingVideosManager.checkShouldUseSockets(
-                    UserCache.getInstance()?.getIdToken()!!
-                )
-            } else if (UserCache.getInstance()?.getAccessToken() != null) {
-                ReceivingVideosManager.checkShouldUseSockets(
-                    UserCache.getInstance()?.getAccessToken()!!
-                )
-            }
+            ReceivingVideosManager.checkShouldUseSockets()
         }
         when (resource.status) {
             is Status.Success -> {
@@ -472,7 +462,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             -2, null, null,
             null, null, null, null,
             null, null, null, null, null, null,
-            null, null, null, null, null, null,  null, false, null, false
+            null, null, null, null, null, null, null, false, null, false
         )
     }
 
@@ -520,11 +510,9 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun onNetworkChanged(isConnected: Boolean) {
         if (isConnected) {
-            if (userAuthorized()) {
-                Handler().postDelayed({
-                    subscribeToLiveStreams(true)
-                }, 500)
-            }
+            Handler(Looper.getMainLooper()).postDelayed({
+                subscribeToLiveStreams(true)
+            }, 500)
         } else {
             SocketConnector.disconnectSocket()
             ReceivingVideosManager.pauseWhileNoNetwork()
@@ -588,8 +576,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                     is Status.Success -> {
                         if (responseStatus.data != null) {
                             val profile = responseStatus.data
-                            UserCache.getInstance()?.saveUserNickName(profile.nickname?: "")
-                            UserCache.getInstance()?.saveUserImage(profile.imageUrl?: "")
+                            UserCache.getInstance()?.saveUserNickName(profile.nickname ?: "")
+                            UserCache.getInstance()?.saveUserImage(profile.imageUrl ?: "")
                             profileLiveData.postValue(profile)
                         }
                         response.removeObserver(this)

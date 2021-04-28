@@ -641,10 +641,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     private fun checkShouldUseSockets() {
         initSocketListeners()
         if (ReceivingVideosManager.shouldUseSockets) {
-            UserCache.getInstance(getApplication<Application>().applicationContext)?.getIdToken()
-                ?.let {
-                    SocketConnector.connectToSockets(it)
-                }
+            SocketConnector.connectToSockets()
         } else {
             if (this@BasePlayerViewModel is PlayerViewModel) {
                 this.currentlyWatchedVideoId?.let {

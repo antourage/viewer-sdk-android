@@ -95,7 +95,15 @@ internal object SocketConnector {
         return this::hubConnection.isInitialized && hubConnection.connectionState == HubConnectionState.CONNECTED
     }
 
-    fun connectToSockets(token: String) {
+    fun connectToSockets() {
+        var token = ""
+
+        if (UserCache.getInstance()?.getIdToken() != null) {
+            token = UserCache.getInstance()?.getIdToken()!!
+        } else if (UserCache.getInstance()?.getAccessToken() != null) {
+            token = UserCache.getInstance()?.getAccessToken()!!
+        }
+
         shouldDisconnectSocket = false
         if (!this::hubConnection.isInitialized || currentToken != token) {
             currentToken = token
@@ -164,19 +172,17 @@ internal object SocketConnector {
                 Log.d(TAG, "Socket token expired")
                 if (Global.networkAvailable) {
                     synchronized(ApiClient.getHttpClient()) {
-                        UserCache.getInstance()?.getIdToken()?.let {
-                            if (it == currentToken) {
-                                isConnectTaskRunning = false
-                                val code: Int =
-                                    AuthClient.getAuthClient().authenticateUser().code() / 100
-                                if (code == 2) {
-                                    if (UserCache.getInstance()?.getIdToken() != null) {
-                                        connectToSockets(UserCache.getInstance()?.getIdToken()!!)
-                                    }
-                                }
-                            } else {
-                                reconnect()
+                        val currentIdToken = UserCache.getInstance()?.getIdToken()
+                        val currentAccessToken = UserCache.getInstance()?.getAccessToken()
+                        if ((currentIdToken != null && currentIdToken == currentToken) || currentAccessToken == null || currentAccessToken == currentToken) {
+                            isConnectTaskRunning = false
+                            val code: Int =
+                                AuthClient.getAuthClient().authenticateUser().code() / 100
+                            if (code == 2) {
+                                connectToSockets()
                             }
+                        } else {
+                            reconnect()
                         }
                     }
                 }
@@ -205,7 +211,7 @@ internal object SocketConnector {
         if (!livesList.any { it.id == liveUpdatedResponse.id }) {
             livesList.add(0, liveUpdatedResponse)
             newLivesLiveData.postValue(livesList)
-        }else{
+        } else {
             livesList.filter { it.id == liveUpdatedResponse.id }.forEach { match ->
                 match.viewersCount = liveUpdatedResponse.viewersCount
                 newLivesLiveData.postValue(livesList)
@@ -255,7 +261,7 @@ internal object SocketConnector {
         reconnectHandler.removeCallbacksAndMessages(null)
     }
 
-    fun clearSocketData(){
+    fun clearSocketData() {
         newLivesLiveData.postValue(null)
         newVodLiveData.postValue(null)
     }
