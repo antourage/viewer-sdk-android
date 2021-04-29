@@ -876,7 +876,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun showShadowUnderImage() {
-        if (userBtn.visibility == View.VISIBLE) {
+        if (userBtn?.visibility == View.VISIBLE) {
             shadowView?.visibility = View.VISIBLE
             if (!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
                 shadowView?.backgroundDrawable =

@@ -487,18 +487,13 @@ class ProfileFragment : Fragment() {
                 ex.printStackTrace()
             }
             if (photoFile != null) {
-                val fileProvider = FileProvider.getUriForFile(
+                val fileProviderUri = FileProvider.getUriForFile(
                     requireContext(), "com.antourage.weaverlib.fileProvider",
                     photoFile
                 )
                 mCameraPhotoPath = "file:" + photoFile.absolutePath
                 takePictureIntent.putExtra(
-                    MediaStore.EXTRA_OUTPUT, Uri.fromFile(
-                        photoFile
-                    )
-                )
-                takePictureIntent.putExtra(
-                    MediaStore.EXTRA_OUTPUT, fileProvider
+                    MediaStore.EXTRA_OUTPUT, fileProviderUri
                 )
                 startActivityForResult(takePictureIntent, REQUEST_CODE_CAMERA)
             }
@@ -514,6 +509,7 @@ class ProfileFragment : Fragment() {
                 requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
                 "user_images"
             )
+        mediaStorageDir.mkdirs()
         return File(mediaStorageDir.path + File.separator + fileName)
     }
 
