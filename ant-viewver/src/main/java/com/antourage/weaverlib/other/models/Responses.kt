@@ -100,6 +100,13 @@ enum class StreamResponseType {
     Vod, Post
 }
 
+data class ProfileResponse(
+    @field:SerializedName("identityId") val id: String?,
+    @field:SerializedName("imageUrl") val imageUrl: String?,
+    @field:SerializedName("email") val email: String?,
+    @field:SerializedName("nickname") val nickname: String?
+)
+
 data class User(
     @field:SerializedName("id") val id: Int?,
     @field:SerializedName("token") val token: String?,

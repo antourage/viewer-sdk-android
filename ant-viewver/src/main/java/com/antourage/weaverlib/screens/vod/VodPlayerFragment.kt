@@ -34,7 +34,16 @@ import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.TimeBar
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
 import kotlinx.android.synthetic.main.fragment_player_vod_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_vod_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_vod.*
 import kotlinx.android.synthetic.main.player_header.*
 import java.util.*
@@ -431,13 +440,14 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         })
     }
 
+
     private fun initControlsVisibilityListener() {
         playerControls.addVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                 if (visibility == View.VISIBLE) {
-                    txtNumberOfViewers.marginDp(12f, 62f)
+                    txtNumberOfViewers.marginDp(0f, 62f, 16f)
                 } else {
-                    txtNumberOfViewers.marginDp(12f, 12f)
+                    txtNumberOfViewers.marginDp(0f, 16f, 16f)
                 }
             } else if (visibility == View.VISIBLE) {
                 //stops progress bar updates

@@ -2,7 +2,7 @@
     <public />
     <string name="ant_live">LIVE</string>
     <string name="ant_new_vod">NEW</string>
-    <string name="ant_hint_chat">Chat</string>
+    <string name="ant_hint_chat">Say something</string>
     <string name="ant_hint_disabled">Chat disabled</string>
     <string name="ant_pipe" translatable="false">|</string>
 

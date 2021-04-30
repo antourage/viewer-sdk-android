@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 internal class PollDetailsViewModel constructor(application: Application)
     : BaseViewModel(application){
 
-    internal var userId: Int? = null
+    internal var userId: String? = null
     private val pollLiveData = MutableLiveData<Poll>()
     private var answersLiveData: MutableLiveData<List<AnswersCombined>> = MutableLiveData()
     private var streamId: Int = -1
@@ -30,7 +30,7 @@ internal class PollDetailsViewModel constructor(application: Application)
     internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
     internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
 
-    fun initPollDetails(streamId: Int, pollId: String, userId: Int, banner: AdBanner?) {
+    fun initPollDetails(streamId: Int, pollId: String, userId: String, banner: AdBanner?) {
         this.streamId = streamId
         this.pollId = pollId
         this.userId = userId
@@ -58,12 +58,12 @@ internal class PollDetailsViewModel constructor(application: Application)
         return sum
     }
 
-    fun onAnswerChosen(pos: Int, userId: Int) {
+    fun onAnswerChosen(pos: Int, userId: String) {
         FirebaseAuth.getInstance(FirebaseApp.getInstance(BuildConfig.FirebaseName))
             .currentUser?.let {
             val userAnswer = AnsweredUser()
             userAnswer.chosenAnswer = pos
-            userAnswer.id = userId.toString()
+            userAnswer.id = userId
             Repository.vote(streamId, pollId, userAnswer)
             isAnswered = true
         }
@@ -78,13 +78,13 @@ internal class PollDetailsViewModel constructor(application: Application)
                     var counter = 0
                     var isAnsweredByUser = false
                     for (j in answeredUsers.indices) {
-                        if (answeredUsers[j].id == userId.toString()) {
+                        if (answeredUsers[j].id == userId) {
                             isAnswered = true
                         }
                         if (answeredUsers[j].chosenAnswer == i) {
                             counter++
                             if (!isAnsweredByUser){
-                                isAnsweredByUser = answeredUsers[j].id == userId.toString()
+                                isAnsweredByUser = answeredUsers[j].id == userId
                             }
                         }
                     }

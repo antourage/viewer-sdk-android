@@ -180,7 +180,6 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
             changeNewCommentsBadgePosition(true)
         } else if (newOrientation == Configuration.ORIENTATION_PORTRAIT) {
             toggleChat(visible = true)
-            rvMessages.isVerticalFadingEdgeEnabled = false
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN)
             context?.let { initMessagesDivider(it, false) }
             changeNewCommentsBadgePosition(false)
@@ -191,11 +190,9 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         if(visible){
             drawerLayout.visibility = View.VISIBLE
             etMessage?.visibility = View.VISIBLE
-            btnUserSettings?.visibility = View.VISIBLE
         }else{
             drawerLayout.visibility = View.GONE
             etMessage?.visibility = View.GONE
-            btnUserSettings?.visibility = View.GONE
         }
     }
 
@@ -256,7 +253,7 @@ internal abstract class ChatFragment<VM : ChatViewModel> : BasePlayerFragment<VM
         linearLayoutManager.stackFromEnd = true
         rvMessages.apply {
             overScrollMode = View.OVER_SCROLL_NEVER
-            isVerticalFadingEdgeEnabled = false
+            isVerticalFadingEdgeEnabled = true
             layoutManager = linearLayoutManager
             adapter = MessagesAdapter(
                 mutableListOf(),

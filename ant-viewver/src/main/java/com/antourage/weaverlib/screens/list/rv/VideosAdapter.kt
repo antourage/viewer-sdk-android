@@ -64,7 +64,7 @@ internal class VideosAdapter(
 
     /**format {most recent} in the way it doesn't get split in different lines*/
     private fun formatAuthor(lastMessageAuthor: String, resources: Resources): Spanned {
-        val transparentSpace = "<font color='#191919'>_</font>"
+        val transparentSpace = "<font color='#000000'>_</font>"
         val mostRecentWords = resources.getString(R.string.ant_most_recent).split(" ")
         return if (mostRecentWords.size == 1) {
             (Html.fromHtml("$lastMessageAuthor&nbsp; &nbsp; •$transparentSpace$transparentSpace${mostRecentWords[0]}"))

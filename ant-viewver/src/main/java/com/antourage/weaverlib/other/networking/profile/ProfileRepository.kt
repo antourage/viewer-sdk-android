@@ -1,6 +1,7 @@
 package com.antourage.weaverlib.other.networking.profile
 
 import androidx.lifecycle.LiveData
+import com.antourage.weaverlib.other.models.ProfileResponse
 import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 

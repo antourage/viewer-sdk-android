@@ -22,12 +22,12 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.FeedInfo
+import com.antourage.weaverlib.other.models.ProfileResponse
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
-import com.antourage.weaverlib.other.networking.profile.ProfileResponse
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.BaseFragment
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
@@ -716,7 +716,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false) {
-        val userId = context?.let { UserCache.getInstance(it)?.getUserId() } ?: -1
+        val userId = context?.let { UserCache.getInstance(it)?.getUserId() }
         videosRV.isOpeningPlayer = true
         replaceFragment(
             PlayerFragment.newInstance(stream, userId, isFromJoinChat),

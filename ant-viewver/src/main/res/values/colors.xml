@@ -37,4 +37,9 @@
     <color name="ant_header_dark_gray">#192128</color>
     <color name="ant_web_background">#191919</color>
     <color name="ant_web_icons_tint">#8C8C8C</color>
+
+    <color name="ant_chat_input_stroke">#536471</color>
+    <color name="ant_chat_input_background">#2E3942</color>
+    <color name="ant_message_author">#ADB3B8</color>
+
 </resources>

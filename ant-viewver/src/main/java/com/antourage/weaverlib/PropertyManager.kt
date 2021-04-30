@@ -23,17 +23,16 @@ internal class PropertyManager private constructor(context: Context) {
         internal const val ANONYMOUS_CLIENT_ID = "ANONYMOUS_CLIENT_ID"
         internal const val ANONYMOUS_SECRET = "ANONYMOUS_SECRET"
 
+        internal const val CLIENT_ID_STAGE = "CLIENT_ID_STAGE"
+        internal const val ANONYMOUS_CLIENT_ID_STAGE = "ANONYMOUS_CLIENT_ID_STAGE"
+        internal const val ANONYMOUS_SECRET_STAGE = "ANONYMOUS_SECRET_STAGE"
+
         internal const val COGNITO_URL_DEV = "COGNITO_URL_DEV"
         internal const val COGNITO_URL_LOAD = "COGNITO_URL_LOAD"
         internal const val COGNITO_URL_STAGING = "COGNITO_URL_STAGING"
         internal const val COGNITO_URL_PROD = "COGNITO_URL_PROD"
 
-        internal const val BASE_URL_DEV = "BASE_URL_DEV"
-        internal const val BASE_URL_LOAD = "BASE_URL_LOAD"
-        internal const val BASE_URL_STAGING = "BASE_URL_STAGING"
-        internal const val BASE_URL_DEMO = "BASE_URL_DEMO"
-        internal const val BASE_URL_PROD = "BASE_URL_PROD"
-
+        internal const val BASE_URL = "BASE_URL"
         internal const val PROFILE_URL = "PROFILE_URL"
         internal const val WEB_PROFILE_URL = "WEB_PROFILE_URL"
         internal const val FEED_BASE_URL = "FEED_BASE_URL"

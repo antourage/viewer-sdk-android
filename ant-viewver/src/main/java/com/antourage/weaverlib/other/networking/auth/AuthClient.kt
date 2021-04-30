@@ -5,9 +5,9 @@ import android.util.Base64
 import android.util.Log
 import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
+import com.antourage.weaverlib.screens.list.dev_settings.Environments
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -19,15 +19,29 @@ internal object AuthClient {
 
     private val propertyHelper = PropertyManager.getInstance()
 
-    val CLIENT_ID = propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
-    val ANONYMOUS_CLIENT_ID = propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
-    val ANONYMOUS_SECRET = propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
+    val CLIENT_ID = when(EnvironmentManager.currentEnv){
+        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
+        Environments.STAGING ->     propertyHelper?.getProperty(PropertyManager.CLIENT_ID_STAGE)
+        else -> propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
+    }
 
-    private var BASE_URL = when(ApiClient.BASE_URL){
-        DevSettingsDialog.BASE_URL_DEV -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_DEV)
-        DevSettingsDialog.BASE_URL_LOAD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_LOAD)
-        DevSettingsDialog.BASE_URL_STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_STAGING)
-        DevSettingsDialog.BASE_URL_PROD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
+    val ANONYMOUS_CLIENT_ID = when(EnvironmentManager.currentEnv){
+        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
+        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID_STAGE)
+        else -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
+    }
+
+    val ANONYMOUS_SECRET = when(EnvironmentManager.currentEnv){
+        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
+        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET_STAGE)
+        else -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
+    }
+
+    private var BASE_URL = when(EnvironmentManager.currentEnv){
+        Environments.PROD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
+        Environments.LOAD_STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_LOAD)
+        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_STAGING)
+        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_DEV)
         else -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
     }
 

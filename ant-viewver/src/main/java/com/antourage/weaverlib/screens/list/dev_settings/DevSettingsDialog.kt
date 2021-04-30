@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.screens.list.dev_settings
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
@@ -13,7 +14,6 @@ import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.isAppInstalledFromGooglePlay
-import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.room.AppDatabase
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import kotlinx.coroutines.Dispatchers
@@ -27,38 +27,30 @@ internal class DevSettingsDialog(
 ) :
     Dialog(context) {
 
-    companion object {
-        val BASE_URL_DEV = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_DEV)
-        val BASE_URL_LOAD = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_LOAD)
-        val BASE_URL_STAGING = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_STAGING)
-        val BASE_URL_DEMO = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_DEMO)
-        val BASE_URL_PROD = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL_PROD)
-
-        val DEFAULT_URL = BASE_URL_PROD
-    }
-
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
         if (!isAppInstalledFromGooglePlay(context)) {
-            initBECheckedBtn(UserCache.getInstance(context.applicationContext)?.getBeChoice())
-            rb_dev.text = "dev: $BASE_URL_DEV"
-            rb_load.text = "load: $BASE_URL_LOAD"
-            rb_staging.text = "stage: $BASE_URL_STAGING"
-            rb_demo.text = "demo: $BASE_URL_DEMO"
-            rb_prod.text = "prod: $BASE_URL_PROD"
+            initBECheckedBtn()
+            val baseUrl = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL)
+            rb_dev.text = "dev: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.DEV)}"
+            rb_load.text = "load: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.LOAD_STAGING)}"
+            rb_staging.text = "stage: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.STAGING)}"
+            rb_demo.text = "demo: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.DEMO)}"
+            rb_prod.text = "prod: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.PROD)}"
             setTxt.setOnClickListener {
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
                 val backEndUrl = when {
-                    radioButton.text.contains("dev") -> BASE_URL_DEV
-                    radioButton.text.contains("load") -> BASE_URL_LOAD
-                    radioButton.text.contains("stage") -> BASE_URL_STAGING
-                    radioButton.text.contains("demo") -> BASE_URL_DEMO
-                    radioButton.text.contains("prod") -> BASE_URL_PROD
-                    else -> BASE_URL_PROD
+                    radioButton.text.contains("dev") -> Environments.DEV
+                    radioButton.text.contains("load") -> Environments.LOAD_STAGING
+                    radioButton.text.contains("stage") -> Environments.STAGING
+                    radioButton.text.contains("demo") -> Environments.DEMO
+                    radioButton.text.contains("prod") -> Environments.PROD
+                    else -> Environments.PROD
                 }
-                if (backEndUrl != ApiClient.BASE_URL) {
+                if (backEndUrl != EnvironmentManager.currentEnv) {
                     GlobalScope.launch(Dispatchers.IO) {
                         AppDatabase.getInstance(context).commentDao().clearComments()
                         AppDatabase.getInstance(context).videoStopTimeDao().clearVideos()
@@ -91,14 +83,13 @@ internal class DevSettingsDialog(
         }, 1500)
     }
 
-    private fun initBECheckedBtn(beChoice: String?) {
-        val radioButton: RadioButton? = when (beChoice) {
-            BASE_URL_DEV -> findViewById(R.id.rb_dev)
-            BASE_URL_LOAD -> findViewById(R.id.rb_load)
-            BASE_URL_STAGING -> findViewById(R.id.rb_staging)
-            BASE_URL_DEMO -> findViewById(R.id.rb_demo)
-            BASE_URL_PROD -> findViewById(R.id.rb_prod)
-            else -> findViewById(R.id.rb_prod)
+    private fun initBECheckedBtn() {
+        val radioButton: RadioButton? = when (EnvironmentManager.currentEnv) {
+            Environments.DEV -> findViewById(R.id.rb_dev)
+            Environments.LOAD_STAGING -> findViewById(R.id.rb_load)
+            Environments.STAGING -> findViewById(R.id.rb_staging)
+            Environments.DEMO -> findViewById(R.id.rb_demo)
+            Environments.PROD -> findViewById(R.id.rb_prod)
         }
         if (radioButton != null)
             radioButton.isChecked = true

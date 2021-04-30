@@ -18,14 +18,12 @@ import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.ContextWrapper
-import com.antourage.weaverlib.other.isEmptyTrimmed
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab
@@ -56,9 +54,8 @@ class AntourageActivity : AppCompatActivity() {
                 Context.MODE_PRIVATE
             )
         )
-        if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-            (UserCache.getInstance(applicationContext)?.getBeChoice()
-                ?: DevSettingsDialog.DEFAULT_URL)!!
+
+        EnvironmentManager.setBaseUrl(applicationContext)
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null
@@ -69,7 +66,7 @@ class AntourageActivity : AppCompatActivity() {
                     if (streamToWatch.isLive) {
                         PlayerFragment.newInstance(
                             streamToWatch,
-                            UserCache.getInstance(applicationContext)?.getUserId() ?: -1
+                            UserCache.getInstance(applicationContext)?.getUserId()
                         )
                     } else {
                         VodPlayerFragment.newInstance(streamToWatch, isNewVod = true)
@@ -148,7 +145,9 @@ class AntourageActivity : AppCompatActivity() {
 
     fun openJoinTab() {
         val url =
-            "https://widget.dev.antourage.com/#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
+        "${EnvironmentManager.generateUrl(PropertyManager.getInstance()?.getProperty(
+            PropertyManager.WEB_PROFILE_URL
+        ))}#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
         val builder = Builder()
         val customTabsIntent: CustomTabsIntent = builder
             .build()

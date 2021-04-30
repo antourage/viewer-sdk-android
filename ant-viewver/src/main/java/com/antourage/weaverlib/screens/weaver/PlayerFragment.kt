@@ -31,10 +31,9 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
 import com.antourage.weaverlib.other.models.MessageType
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.User
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -68,13 +67,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         fun newInstance(
             stream: StreamResponse,
-            userId: Int,
+            userId: String?,
             isRequiredToStartChat: Boolean = false
         ): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
-            bundle.putInt(ARGS_USER_ID, userId)
+            bundle.putString(ARGS_USER_ID, userId)
             bundle.putBoolean(ARGS_START_CHAT, isRequiredToStartChat)
             fragment.arguments = bundle
             return fragment
@@ -128,7 +127,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             }
     }
 
-    private val userInfoObserver: Observer<User> = Observer { user ->
+    private val userInfoObserver: Observer<ProfileResponse> = Observer { user ->
         user?.apply {
             if (!viewModel.noDisplayNameSet()) {
                 etMessage.isFocusable = true
@@ -164,7 +163,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         live_control_timer.visibility = View.INVISIBLE
         live_buttons_layout.visibility = View.INVISIBLE
 
-        txtNumberOfViewers.marginDp(6f, 6f)
         tv_live_end_time.text = viewModel.getDuration()?.formatTimeMillisToTimer() ?: "0:00"
         tv_live_end_time.visibility = View.VISIBLE
         enableMessageInput(false, disableButtons = true)
@@ -219,7 +217,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     }
 
                     val videoId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id
-                    val userId = arguments?.getInt(ARGS_USER_ID)
+                    val userId = arguments?.getString(ARGS_USER_ID)
                     if (videoId != null && userId != null) {
                         replaceChildFragment(
                             PollDetailsFragment.newInstance(
@@ -234,7 +232,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
                             if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
-                                join_conversation_btn.visibility = if(UserCache.getInstance()?.getRefreshToken() == null) View.VISIBLE else View.GONE
+                                join_conversation_btn.visibility = if (UserCache.getInstance()
+                                        ?.getRefreshToken() == null
+                                ) View.VISIBLE else View.GONE
                                 showMessageInput()
                             }
                             if (viewModel.currentPoll != null) {
@@ -254,8 +254,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private val onBtnSendClicked = View.OnClickListener {
         val message = Message(
             viewModel.getUser()?.imageUrl ?: "",
-            null,
-            viewModel.getUser()?.displayName,
+            viewModel.getUser()?.email ?: "",
+            viewModel.getUser()?.nickname,
             etMessage.text.toString(),
             MessageType.USER,
             Timestamp.now()
@@ -268,9 +268,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             viewModel.addMessage(message, id)
         }
         etMessage.setText("")
-        if (btnUserSettings.visibility == View.VISIBLE) {
-            btnSend.visibility = View.INVISIBLE
-        }
         rvMessages?.apply {
             adapter?.itemCount?.minus(0)?.let { adapterPosition ->
                 post {
@@ -280,16 +277,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                 }
             }
         }
-    }
-
-    private val onUserSettingsClicked = View.OnClickListener {
-        showUserNameDialog()
-        if (!etMessage.isFocused)
-            hideKeyboard()
-    }
-
-    private val onMessageETClicked = View.OnClickListener {
-        checkIfRequireDisplayNameSetting()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -329,7 +316,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (viewModel.shouldForceResetLiveStream) {
                 playerControls.showTimeoutMs = 2000
                 viewModel.forceResetPlaying()
-                if(getSnackBarErrorText() == getString(R.string.ant_live_error)){
+                if (getSnackBarErrorText() == getString(R.string.ant_live_error)) {
                     hideErrorSnackBar()
                 }
             }
@@ -409,8 +396,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         val isStartChat = arguments?.getBoolean(ARGS_START_CHAT) ?: false
         if (!isStartChat) {
             return
-        } else if (viewModel.noDisplayNameSet()) {
-            showUserNameDialog()
         } else {
             etMessage.isFocusable = true
             etMessage.isFocusableInTouchMode = true
@@ -428,11 +413,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         playerControls.addVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
                 if (visibility == View.VISIBLE) {
-                    txtNumberOfViewers.marginDp(4f, 62f)
-                    txtLabelLive.marginDp(12f, 62f)
+                    txtNumberOfViewers.marginDp(0f, 62f, 16f)
+                    txtLabelLive.marginDp(16f, 62f)
                 } else {
-                    txtLabelLive.marginDp(12f, 12f)
-                    txtNumberOfViewers.marginDp(4f, 12f)
+                    txtLabelLive.marginDp(16f, 16f)
+                    txtNumberOfViewers.marginDp(0f, 16f, 16f)
                 }
             }
         }
@@ -463,7 +448,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun activateCommentInputBar(shouldActivate: Boolean) {
         //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
-        btnUserSettings.visibility = if (shouldActivate) View.GONE else View.VISIBLE
         btnSend.visibility = when {
             shouldActivate -> View.VISIBLE
             etMessage.text.isNullOrBlank() -> View.INVISIBLE
@@ -474,7 +458,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         } else {
             etMessage.requestFocus()
         }
-        changeInputBarConstraints(shouldActivate)
+//        changeInputBarConstraints(shouldActivate)
         if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
             animatePlayerHeader(!shouldActivate)
         }
@@ -495,23 +479,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             )
         }
         set.applyTo(constraintLayoutParent)
-    }
-
-    private fun changeInputBarConstraints(isKeyboardOpened: Boolean) {
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(ll_wrapper)
-        if (isKeyboardOpened) {
-            constraintSet.connect(
-                R.id.etMessage, ConstraintSet.START, R.id.ll_wrapper,
-                ConstraintSet.START, dp2px(requireContext(), 12f).toInt()
-            )
-        } else {
-            constraintSet.connect(
-                R.id.etMessage, ConstraintSet.START, R.id.btnUserSettings,
-                ConstraintSet.END, dp2px(requireContext(), 12f).toInt()
-            )
-        }
-        constraintSet.applyTo(ll_wrapper)
     }
 
     override fun onControlsVisible() {}
@@ -571,41 +538,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         } else {
             when (newConfig.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
-                    /* ll_wrapper.background =
-                         context?.let {
-                             ContextCompat.getDrawable(
-                                 it,
-                                 R.drawable.antourage_rounded_semitransparent_bg
-                             )
-                         }*/
-                    if (userDialog != null) {
-                        val input =
-                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                        val isKeyboardVisible = keyboardIsVisible
-                        userDialog?.dismiss()
-                        showUserNameDialog(input, isKeyboardVisible)
-                    } else {
-                        if (keyboardIsVisible) {
-                            etMessage.requestFocus()
-                        }
+                    if (keyboardIsVisible) {
+                        etMessage.requestFocus()
                     }
                     changeButtonsSize(isEnlarge = true)
                 }
                 Configuration.ORIENTATION_PORTRAIT -> {
-                    if (userDialog != null) {
-                        val input =
-                            userDialog?.findViewById<EditText>(R.id.etDisplayName)?.text.toString()
-                        val isKeyboardVisible = keyboardIsVisible
-                        userDialog?.dismiss()
-                        showUserNameDialog(input, isKeyboardVisible)
-                    } else {
-                        if (keyboardIsVisible) {
-                            etMessage.requestFocus()
-                        }
+                    if (keyboardIsVisible) {
+                        etMessage.requestFocus()
                     }
-                    /*context?.let { ContextCompat.getColor(it, R.color.ant_bg_color) }?.let {
-                        ll_wrapper.setBackgroundColor(it)
-                    }*/
                     changeButtonsSize(isEnlarge = false)
                 }
             }
@@ -648,15 +589,18 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //region chatUI helper func
     private fun enableMessageInput(enable: Boolean, disableButtons: Boolean = false) {
-        join_conversation_btn.visibility = if(enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()?.getRefreshToken() == null) View.VISIBLE else View.GONE
+        join_conversation_btn.visibility =
+            if (enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
+                    ?.getRefreshToken() == null
+            ) View.VISIBLE else View.GONE
         etMessage.isEnabled = enable
         if (enable) {
             //used to fix disabling buttons in landscape and not enabling in portrait
             //btnShare?.isEnabled = enable //temporary
-            btnUserSettings?.isEnabled = enable
+//            btnUserSettings?.isEnabled = enable
         }
         //btnShare?.isEnabled = !disableButtons
-        btnUserSettings?.isEnabled = !disableButtons
+//        btnUserSettings?.isEnabled = !disableButtons
 
         if (!enable) etMessage.setText("")
         etMessage.hint =
@@ -664,9 +608,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun showMessageInput() {
-        if(UserCache.getInstance()?.getRefreshToken()==null){
+        if (UserCache.getInstance()?.getRefreshToken() == null) {
             ll_wrapper.visibility = View.GONE
-        }else{
+        } else {
             ll_wrapper.visibility = View.VISIBLE
         }
     }
@@ -681,7 +625,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         enableMessageInput(true)
         if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()) {
             showMessageInput()
-        }else{
+        } else {
             removeMessageInput()
         }
     }
@@ -742,7 +686,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
-        etMessage.setOnClickListener(onMessageETClicked)
         etMessage?.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 wasEditTextFocused = true
@@ -757,7 +700,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             showKeyboard(etMessage)
             return@setOnLongClickListener false
         }
-        btnUserSettings.setOnClickListener(onUserSettingsClicked)
+//        btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
         poll_bg.setOnClickListener {
             playerControls.hide()
@@ -802,105 +745,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         tvAgoLandscape.gone(text.isNullOrBlank())
     }
 
-    /**
-     * Shows dialog for choosing userName.
-     * Both parameters used in case of configuration change in order to save state and
-     * restore keyboard(as it hides on dialog dismiss).
-     * @inputName: text inputted by user before configuration change. Will be set to ET.
-     * @showKeyboard: indicates, whether we should show keyboard in recreated dialog.
-     * Basic dialog can be shown without parameters.
-     * On dialog shown/closed updates Player fragment field @userDialog so it can be used to check
-     * whether dialog is shown on configuration change.
-     */
-    @SuppressLint("InflateParams") //for dialog can be null
-    fun showUserNameDialog(inputName: String? = null, showKeyboard: Boolean = false) {
-        with(Dialog(requireContext())) {
-            val currentDialogOrientation = resources.configuration.orientation
-            setContentView(
-                layoutInflater.inflate(
-                    if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                        R.layout.dialog_chat_name
-                    } else {
-                        R.layout.dialog_chat_name_land
-                    }, null
-                )
-            )
-
-            val initUserName = inputName ?: (viewModel.getUser()?.displayName ?: "")
-
-            val eText = findViewById<EditText>(R.id.etDisplayName)
-            val saveButton = findViewById<TextView>(R.id.btnConfirm)
-            findViewById<TextView>(R.id.btnCancel).setOnClickListener {
-                eText.setText(viewModel.getUser()?.displayName)
-                dismiss()
-            }
-            findViewById<ImageButton>(R.id.d_name_close).setOnClickListener {
-                eText.setText(viewModel.getUser()?.displayName)
-                dismiss()
-            }
-
-            with(eText) {
-                if (initUserName.isNotBlank()) {
-                    setText(initUserName)
-                } else {
-                    isFocusableInTouchMode = true
-                    isFocusable = true
-                }
-
-                afterTextChanged { saveButton.isEnabled = validateNewUserName(it) }
-                setOnFocusChangeListener { _, _ ->
-                    saveButton.isEnabled = validateNewUserName(text.toString())
-                }
-            }
-
-            saveButton.setOnClickListener {
-                viewModel.changeUserDisplayName(eText.text.toString())
-                hideKeyboard()
-                dismiss()
-            }
-
-            setOnDismissListener {
-                if (currentDialogOrientation == resources.configuration.orientation) {
-                    userDialog = null
-                }
-            }
-
-            show()
-            val inset = resources.getDimension(R.dimen.dialog_user_name_margin).toInt()
-            window?.setBackgroundDrawable(InsetDrawable(ColorDrawable(Color.TRANSPARENT), inset))
-            window?.setLayout(
-                if (currentDialogOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                    WindowManager.LayoutParams.MATCH_PARENT
-                } else {
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                },
-                WindowManager.LayoutParams.WRAP_CONTENT
-            )
-
-            userDialog = this
-            if (showKeyboard) {
-                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-
-                eText.requestFocus()
-                val imm = requireContext()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(eText, InputMethodManager.SHOW_IMPLICIT)
-            }
-        }
-    }
-
-    private fun validateNewUserName(newName: String): Boolean =
-        !newName.isEmptyTrimmed() && !viewModel.getUser()?.displayName.equals(newName)
-
-
     private fun initUser() {
         viewModel.initUser()
-    }
-
-    private fun checkIfRequireDisplayNameSetting() {
-        if (viewModel.noDisplayNameSet()) {
-            showUserNameDialog()
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

@@ -31,11 +31,11 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
         const val ARGS_USER_ID = "args_user_id"
         const val ARGS_BANNER = "args_banner"
 
-        fun newInstance(streamId: Int, pollId: String, userId: Int, banner: AdBanner?): PollDetailsFragment {
+        fun newInstance(streamId: Int, pollId: String, userId: String?, banner: AdBanner?): PollDetailsFragment {
             val bundle = Bundle()
             bundle.putString(ARGS_POLL_ID, pollId)
             bundle.putInt(ARGS_STREAM_ID, streamId)
-            bundle.putInt(ARGS_USER_ID, userId)
+            bundle.putString(ARGS_USER_ID, userId)
             bundle.putParcelable(ARGS_BANNER, banner)
             val fragment = PollDetailsFragment()
             fragment.arguments = bundle
@@ -80,7 +80,7 @@ internal class PollDetailsFragment : BaseFragment<PollDetailsViewModel>(),
             viewModel.initPollDetails(
                 arguments.getInt(ARGS_STREAM_ID, -1),
                 arguments.getString(ARGS_POLL_ID, ""),
-                arguments.getInt(ARGS_USER_ID, -1),
+                arguments.getString(ARGS_USER_ID, null),
                 arguments.getParcelable(ARGS_BANNER)
             )
         }

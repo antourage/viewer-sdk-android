@@ -6,7 +6,7 @@
         android:id="@+id/player_header_layout"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        tools:background="@color/ant_bg_color">
+        android:background="@color/ant_black">
 
     <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/play_header_iv_photo"

@@ -27,12 +27,11 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
-import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
@@ -43,10 +42,13 @@ import com.antourage.weaverlib.other.networking.SocketConnector.newVodLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.other.showBadge
+import com.antourage.weaverlib.other.validateHorizontalMarginForFab
+import com.antourage.weaverlib.other.validateVerticalMarginForFab
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
@@ -90,8 +92,7 @@ class AntourageFab @JvmOverloads constructor(
             handleDeviceId(context)
             setDefaultLocale(context)
 
-            if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-                (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
+            EnvironmentManager.setBaseUrl(context)
 
             if (!isSubscribedToPushes) retryRegisterNotifications()
             startAntRequests()
@@ -220,8 +221,7 @@ class AntourageFab @JvmOverloads constructor(
         }
 
     init {
-        if (BASE_URL.isEmptyTrimmed()) BASE_URL =
-            (UserCache.getInstance(context)?.getBeChoice() ?: DevSettingsDialog.DEFAULT_URL)!!
+        EnvironmentManager.setBaseUrl(context)
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick { checkWhatToOpen() }
         AntourageFabLifecycleObserver.registerActionHandler(this)

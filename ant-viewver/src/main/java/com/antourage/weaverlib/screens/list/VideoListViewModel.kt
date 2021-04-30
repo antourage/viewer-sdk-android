@@ -3,7 +3,6 @@ package com.antourage.weaverlib.screens.list
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -18,10 +17,10 @@ import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.other.networking.profile.ProfileRepository
-import com.antourage.weaverlib.other.networking.profile.ProfileResponse
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.list.dev_settings.Environments
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
@@ -493,11 +492,13 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun getShowBeDialog() = showBeDialogLiveData as LiveData<Boolean>
 
-    override fun onBeChanged(choice: String?) {
-        choice?.let {
+    override fun onBeChanged(choice: Environments) {
+        choice.let {
             UserCache.getInstance(getApplication<Application>().applicationContext)
-                ?.updateBEChoice(choice)
-            BASE_URL = choice
+                ?.updateEnvChoice(choice)
+            UserCache.getInstance()?.saveAccessToken(null)
+            UserCache.getInstance()?.saveIdToken(null)
+            UserCache.getInstance()?.saveRefreshToken(null)
         }
     }
     //endregion
@@ -578,6 +579,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                             val profile = responseStatus.data
                             UserCache.getInstance()?.saveUserNickName(profile.nickname ?: "")
                             UserCache.getInstance()?.saveUserImage(profile.imageUrl ?: "")
+                            UserCache.getInstance()?.saveUserId(profile.id ?: "")
                             profileLiveData.postValue(profile)
                         }
                         response.removeObserver(this)

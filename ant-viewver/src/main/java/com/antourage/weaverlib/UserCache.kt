@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.antourage.weaverlib.other.models.AdBanner
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.DEFAULT_URL
+import com.antourage.weaverlib.screens.list.dev_settings.Environments
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -20,7 +20,7 @@ internal class UserCache private constructor(context: Context) {
     companion object {
         private const val ANT_PREF = "ant_pref"
         private const val SP_SEEN_VIDEOS = "sp_seen_videos"
-        private const val SP_BE_CHOICE = "sp_be_choice"
+        private const val SP_ENV_CHOICE = "sp_env_choice"
         private const val SP_BANNER_IMAGE = "sp_banner_image"
         private const val SP_BANNER_URL = "sp_banner_url"
         private const val SP_USER_ID = "sp_user_id"
@@ -97,13 +97,13 @@ internal class UserCache private constructor(context: Context) {
         )
     }
 
-    fun getBeChoice(): String? {
-        return prefs?.getString(SP_BE_CHOICE, DEFAULT_URL)
+    fun getEnvChoice(): String {
+        return prefs?.getString(SP_ENV_CHOICE, null)?: Environments.PROD.name
     }
 
-    fun updateBEChoice(link: String) {
+    fun updateEnvChoice(env: Environments) {
         prefs?.edit()
-            ?.putString(SP_BE_CHOICE, link)
+            ?.putString(SP_ENV_CHOICE, env.name)
             ?.apply()
             ?.apply {
                 clearUserData()
@@ -152,15 +152,21 @@ internal class UserCache private constructor(context: Context) {
             ?.apply()
     }
 
+    fun saveUserId(userId: String) {
+        prefs?.edit()
+            ?.putString(SP_USER_ID, userId)
+            ?.apply()
+    }
+
     fun saveUserImage(imageUrl: String) {
         prefs?.edit()
             ?.putString(SP_USER_IMAGE_URL, imageUrl)
             ?.apply()
     }
 
-    fun saveUserInfo(userId: Int, userNickname: String) {
+    private fun saveUserInfo(userId: Int, userNickname: String) {
         prefs?.edit()
-            ?.putInt(SP_USER_ID, userId)
+            ?.putString(SP_USER_ID, userId.toString())
             ?.putString(SP_USER_NICKNAME, userNickname)
             ?.apply()
     }
@@ -209,8 +215,8 @@ internal class UserCache private constructor(context: Context) {
         return prefs?.getString(SP_REFRESH_TOKEN, null)
     }
 
-    fun getUserId(): Int? {
-        return prefs?.getInt(SP_USER_ID, -1)
+    fun getUserId(): String? {
+        return prefs?.getString(SP_USER_ID, null)
     }
 
     fun getUserNickName(): String? {

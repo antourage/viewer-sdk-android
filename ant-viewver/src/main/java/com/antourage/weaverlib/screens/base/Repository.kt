@@ -124,8 +124,8 @@ internal class Repository {
                 }
 
                 video.text = message?.text ?: ""
-                if(message?.userID ==  UserCache.getInstance()?.getUserId().toString()){
-                    video.nickname = UserCache.getInstance()?.getUserNickName() ?: message.nickname
+                if(message?.userID ==  UserCache.getInstance()?.getUserId()){
+                    video.nickname = UserCache.getInstance()?.getUserNickName() ?: message?.nickname
                             ?: ""
                 }else{
                     video.nickname = message?.nickname ?: ""

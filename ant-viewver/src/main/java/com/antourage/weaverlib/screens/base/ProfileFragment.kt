@@ -38,6 +38,7 @@ import com.antourage.weaverlib.other.models.WebViewResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.auth.AuthClient.CLIENT_ID
+import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -123,7 +124,9 @@ class ProfileFragment : Fragment() {
 
     private fun loadUrl() {
         webView.loadUrl(
-            "${PropertyManager.getInstance()?.getProperty(WEB_PROFILE_URL)}#/profile?token=${
+            "${EnvironmentManager.generateUrl(PropertyManager.getInstance()?.getProperty(
+                WEB_PROFILE_URL
+            ))}#/profile?token=${
                 UserCache.getInstance()?.getAccessToken()
             }&idToken=${
                 UserCache.getInstance()?.getIdToken()

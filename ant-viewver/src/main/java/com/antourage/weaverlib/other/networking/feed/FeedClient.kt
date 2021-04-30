@@ -3,8 +3,7 @@ package com.antourage.weaverlib.other.networking.feed
 import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
-import com.antourage.weaverlib.other.networking.auth.AuthClient
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -14,13 +13,7 @@ internal object FeedClient{
     private var retrofit: Retrofit? = null
     private val propertyHelper = PropertyManager.getInstance()
 
-    private var BASE_URL = when(ApiClient.BASE_URL){
-        DevSettingsDialog.BASE_URL_DEV ->  propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL)
-        DevSettingsDialog.BASE_URL_LOAD -> propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL)
-        DevSettingsDialog.BASE_URL_STAGING -> propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL)
-        DevSettingsDialog.BASE_URL_PROD -> propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL)
-        else -> propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL)
-    }
+    private var BASE_URL = EnvironmentManager.generateUrl(propertyHelper?.getProperty(PropertyManager.FEED_BASE_URL))
 
     fun getWebClient(): FeedClient {
         if (retrofit == null || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)) {
