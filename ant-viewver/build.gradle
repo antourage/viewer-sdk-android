@@ -15,8 +15,9 @@ android {
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
-        versionName "2.0.34.10"
+        versionName "2.0.34.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'antourage-proguard-rules.txt'
     }
     testOptions {
         unitTests.returnDefaultValues = true

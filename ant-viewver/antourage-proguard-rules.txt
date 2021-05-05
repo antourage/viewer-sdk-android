@@ -1,0 +1,5 @@
+-keepclassmembers class com.antourage.weaverlib.* {
+    <fields>;
+    <init>();
+    <methods>;
+}

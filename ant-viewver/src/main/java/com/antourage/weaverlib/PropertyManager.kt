@@ -55,7 +55,7 @@ internal class PropertyManager private constructor(context: Context) {
     internal fun getProperty(key: String): String? {
         assetManager?.let {
             val properties = Properties()
-            val inputStream: InputStream = assetManager!!.open("config.properties")
+            val inputStream: InputStream = assetManager!!.open("antourage.properties")
             properties.load(inputStream)
             return properties.getProperty(key)
         }
