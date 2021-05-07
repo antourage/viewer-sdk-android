@@ -9,16 +9,17 @@ import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.widget.RadioButton
+import androidx.core.content.ContextCompat
 import com.antourage.weaverlib.BuildConfig
-import com.antourage.weaverlib.PropertyManager
+import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.isAppInstalledFromGooglePlay
 import com.antourage.weaverlib.other.room.AppDatabase
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.textColor
 
 
 internal class DevSettingsDialog(
@@ -27,47 +28,33 @@ internal class DevSettingsDialog(
 ) :
     Dialog(context) {
 
+    companion object{
+       const val PROD = "prod"
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
-        if (!isAppInstalledFromGooglePlay(context)) {
-            initBECheckedBtn()
-            val baseUrl = PropertyManager.getInstance()?.getProperty(PropertyManager.BASE_URL)
-            rb_dev.text = "dev: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.DEV)}"
-            rb_load.text = "load: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.LOAD_STAGING)}"
-            rb_staging.text = "stage: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.STAGING)}"
-            rb_demo.text = "demo: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.DEMO)}"
-            rb_prod.text = "prod: ${EnvironmentManager.getUrlForEnv(baseUrl,Environments.PROD)}"
+        if (!ConfigManager.configFile.environments.isNullOrEmpty()) {
+            populateEnvs()
             setTxt.setOnClickListener {
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
-                val backEndUrl = when {
-                    radioButton.text.contains("dev") -> Environments.DEV
-                    radioButton.text.contains("load") -> Environments.LOAD_STAGING
-                    radioButton.text.contains("stage") -> Environments.STAGING
-                    radioButton.text.contains("demo") -> Environments.DEMO
-                    radioButton.text.contains("prod") -> Environments.PROD
-                    else -> Environments.PROD
-                }
-                if (backEndUrl != EnvironmentManager.currentEnv) {
+                if (radioButton.text.toString() != UserCache.getInstance()?.getEnvChoice()) {
                     GlobalScope.launch(Dispatchers.IO) {
                         AppDatabase.getInstance(context).commentDao().clearComments()
                         AppDatabase.getInstance(context).videoStopTimeDao().clearVideos()
+                        UserCache.getInstance()?.clearUserData()
                     }
                 }
-                listener.onBeChanged(backEndUrl)
+                listener.onBeChanged(radioButton.text.toString())
                 this.dismiss()
             }
         } else {
             tv_title_dialog.visibility = View.GONE
             rg_links.visibility = View.GONE
             setTxt.visibility = View.GONE
-        }
-
-        btnLogout.setOnClickListener {
-            UserCache.getInstance()?.logout()
-            dismiss()
         }
 
         val versionName = BuildConfig.VERSION_NAME
@@ -83,15 +70,30 @@ internal class DevSettingsDialog(
         }, 1500)
     }
 
-    private fun initBECheckedBtn() {
-        val radioButton: RadioButton? = when (EnvironmentManager.currentEnv) {
-            Environments.DEV -> findViewById(R.id.rb_dev)
-            Environments.LOAD_STAGING -> findViewById(R.id.rb_load)
-            Environments.STAGING -> findViewById(R.id.rb_staging)
-            Environments.DEMO -> findViewById(R.id.rb_demo)
-            Environments.PROD -> findViewById(R.id.rb_prod)
+    private fun populateEnvs() {
+        ConfigManager.configFile.environments?.let {
+            it.forEach { env ->
+                val rb = RadioButton(context)
+                rb.text = env.name
+                rb.textColor = ContextCompat.getColor(context, R.color.ant_white)
+                rg_links.addView(rb)
+            }
         }
-        if (radioButton != null)
-            radioButton.isChecked = true
+        val rb = RadioButton(context)
+        rb.text = PROD
+        rb.textColor = ContextCompat.getColor(context, R.color.ant_white)
+        rg_links.addView(rb)
+
+        initBECheckedBtn()
+    }
+
+    private fun initBECheckedBtn() {
+        val count: Int = rg_links.childCount
+        for (i in 0 until count) {
+            val o: View = rg_links.getChildAt(i)
+            if (o is RadioButton) {
+                o.isChecked = o.text == UserCache.getInstance()?.getEnvChoice()
+            }
+        }
     }
 }

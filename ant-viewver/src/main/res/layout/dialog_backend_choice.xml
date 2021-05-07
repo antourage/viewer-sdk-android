@@ -24,48 +24,9 @@
     <RadioGroup
             android:id="@+id/rg_links"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title_dialog">
 
-        <RadioButton
-                android:id="@+id/rb_dev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:textColor="@android:color/white" />
-
-        <RadioButton
-                android:id="@+id/rb_load"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:textColor="@android:color/white" />
-
-        <RadioButton
-                android:id="@+id/rb_staging"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:textColor="@android:color/white" />
-
-        <RadioButton
-                android:id="@+id/rb_demo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:textColor="@android:color/white" />
-
-        <RadioButton
-                android:id="@+id/rb_prod"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:textColor="@android:color/white" />
 
     </RadioGroup>
 
@@ -91,18 +52,5 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/setTxt"
             tools:text="Version 0.2.3" />
-
-    <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="@color/ant_black"
-            android:text="LOGOUT"
-            android:background="@drawable/bg_button_rect_round_18"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtModuleVersion" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

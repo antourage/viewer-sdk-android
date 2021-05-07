@@ -13,8 +13,11 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsIntent.Builder
+import com.antourage.weaverlib.ConfigManager.ANONYMOUS_CLIENT_ID
+import com.antourage.weaverlib.ConfigManager.ANONYMOUS_SECRET
+import com.antourage.weaverlib.ConfigManager.CLIENT_ID
+import com.antourage.weaverlib.ConfigManager.WEB_PROFILE_URL
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.ContextWrapper
@@ -23,7 +26,6 @@ import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.other.replaceFragment
 import com.antourage.weaverlib.screens.list.VideoListFragment
-import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.antourage.weaverlib.screens.vod.VodPlayerFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
 import com.antourage.weaverlib.ui.fab.AntourageFab
@@ -41,7 +43,7 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        if (UserCache.getInstance() == null || PropertyManager.getInstance() == null) {
+        if (UserCache.getInstance() == null) {
             AntourageFab.configure(applicationContext)
         }
         registerKeyboardVisibilityEvent()
@@ -54,8 +56,6 @@ class AntourageActivity : AppCompatActivity() {
                 Context.MODE_PRIVATE
             )
         )
-
-        EnvironmentManager.setBaseUrl(applicationContext)
 
         val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null
@@ -145,9 +145,7 @@ class AntourageActivity : AppCompatActivity() {
 
     fun openJoinTab() {
         val url =
-        "${EnvironmentManager.generateUrl(PropertyManager.getInstance()?.getProperty(
-            PropertyManager.WEB_PROFILE_URL
-        ))}#/auth?appClientId=${AuthClient.CLIENT_ID}&anonymousAppClientId=${AuthClient.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${AuthClient.ANONYMOUS_SECRET}"
+        "${WEB_PROFILE_URL}#/auth?appClientId=${CLIENT_ID}&anonymousAppClientId=${ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${ANONYMOUS_SECRET}"
         val builder = Builder()
         val customTabsIntent: CustomTabsIntent = builder
             .build()

@@ -29,16 +29,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.ConfigManager.CLIENT_ID
+import com.antourage.weaverlib.ConfigManager.WEB_PROFILE_URL
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.PropertyManager
-import com.antourage.weaverlib.PropertyManager.Companion.WEB_PROFILE_URL
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.WebViewResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.networking.auth.AuthClient.CLIENT_ID
-import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -124,15 +122,13 @@ class ProfileFragment : Fragment() {
 
     private fun loadUrl() {
         webView.loadUrl(
-            "${EnvironmentManager.generateUrl(PropertyManager.getInstance()?.getProperty(
-                WEB_PROFILE_URL
-            ))}#/profile?token=${
+            "${WEB_PROFILE_URL}#/profile?token=${
                 UserCache.getInstance()?.getAccessToken()
             }&idToken=${
                 UserCache.getInstance()?.getIdToken()
             }&refreshToken=${
                 UserCache.getInstance()?.getRefreshToken()
-            }&appClientId=$CLIENT_ID&appClientId=$CLIENT_ID"
+            }&appClientId=$CLIENT_ID"
         )
     }
 

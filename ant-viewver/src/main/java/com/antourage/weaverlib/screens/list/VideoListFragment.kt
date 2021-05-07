@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
+import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -140,11 +141,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
             context?.let { context ->
-                val dialog = DevSettingsDialog(context, viewModel)
-                dialog.setOnDismissListener {
-                    invalidateUserBtn()
+                if(!ConfigManager.configFile.environments.isNullOrEmpty()){
+                    val dialog = DevSettingsDialog(context, viewModel)
+                    dialog.show()
                 }
-                dialog.show()
             }
     }
 

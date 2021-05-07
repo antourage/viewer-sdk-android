@@ -11,7 +11,6 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
 import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.networking.ApiClient.BASE_URL
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
@@ -20,7 +19,6 @@ import com.antourage.weaverlib.other.networking.profile.ProfileRepository
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.BaseViewModel
 import com.antourage.weaverlib.screens.base.Repository
-import com.antourage.weaverlib.screens.list.dev_settings.Environments
 import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 
 internal class VideoListViewModel(application: Application) : BaseViewModel(application),
@@ -492,7 +490,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     fun getShowBeDialog() = showBeDialogLiveData as LiveData<Boolean>
 
-    override fun onBeChanged(choice: Environments) {
+    override fun onBeChanged(choice: String) {
         choice.let {
             UserCache.getInstance(getApplication<Application>().applicationContext)
                 ?.updateEnvChoice(choice)

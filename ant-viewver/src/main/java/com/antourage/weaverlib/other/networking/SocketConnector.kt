@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.antourage.weaverlib.ConfigManager.BASE_URL
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.ListOfStreams
@@ -108,7 +109,7 @@ internal object SocketConnector {
         if (!this::hubConnection.isInitialized || currentToken != token) {
             currentToken = token
             hubConnection = HubConnectionBuilder.create(
-                "${ApiClient.BASE_URL}hub?access_token=${token}"
+                "${BASE_URL}hub?access_token=${token}"
             )
                 .withTransport(TransportEnum.WEBSOCKETS)
                 .shouldSkipNegotiate(true)

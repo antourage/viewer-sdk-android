@@ -3,11 +3,12 @@ package com.antourage.weaverlib.other.networking.auth
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import com.antourage.weaverlib.PropertyManager
+import com.antourage.weaverlib.ConfigManager.ANONYMOUS_CLIENT_ID
+import com.antourage.weaverlib.ConfigManager.ANONYMOUS_SECRET
+import com.antourage.weaverlib.ConfigManager.AUTH_URL
+import com.antourage.weaverlib.ConfigManager.CLIENT_ID
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
-import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
-import com.antourage.weaverlib.screens.list.dev_settings.Environments
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -17,41 +18,12 @@ import java.util.concurrent.TimeUnit
 
 internal object AuthClient {
 
-    private val propertyHelper = PropertyManager.getInstance()
-
-    val CLIENT_ID = when(EnvironmentManager.currentEnv){
-        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
-        Environments.STAGING ->     propertyHelper?.getProperty(PropertyManager.CLIENT_ID_STAGE)
-        else -> propertyHelper?.getProperty(PropertyManager.CLIENT_ID)
-    }
-
-    val ANONYMOUS_CLIENT_ID = when(EnvironmentManager.currentEnv){
-        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
-        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID_STAGE)
-        else -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_CLIENT_ID)
-    }
-
-    val ANONYMOUS_SECRET = when(EnvironmentManager.currentEnv){
-        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
-        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET_STAGE)
-        else -> propertyHelper?.getProperty(PropertyManager.ANONYMOUS_SECRET)
-    }
-
-    private var BASE_URL = when(EnvironmentManager.currentEnv){
-        Environments.PROD -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
-        Environments.LOAD_STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_LOAD)
-        Environments.STAGING -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_STAGING)
-        Environments.DEV -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_DEV)
-        else -> propertyHelper?.getProperty(PropertyManager.COGNITO_URL_PROD)
-    }
-
     internal const val TAG = "AntourageAuthClientLogs"
-
     lateinit var authService: AuthService
     private var retrofit: Retrofit? = null
 
     fun getAuthClient(): AuthClient {
-        if (retrofit == null || retrofit?.baseUrl().toString() != BASE_URL) {
+        if (retrofit == null || retrofit?.baseUrl().toString() != AUTH_URL) {
             buildRetrofit()
         }
         return this
@@ -60,7 +32,7 @@ internal object AuthClient {
     private fun buildRetrofit() {
         val client = buildOkHttpClient()
         retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(AUTH_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
@@ -88,7 +60,8 @@ internal object AuthClient {
         UserCache.getInstance()?.getRefreshToken()?.let { refreshToken ->
             Log.d(TAG, "Refreshing token")
 
-            val refreshTokenResponse = getAuthClient().authService.refreshToken(CLIENT_ID!!, refreshToken).execute()
+            val refreshTokenResponse =
+                getAuthClient().authService.refreshToken(CLIENT_ID!!, refreshToken).execute()
 
             if (refreshTokenResponse.code() != 401) {
                 refreshTokenResponse.body()?.accessToken?.let {
@@ -109,9 +82,14 @@ internal object AuthClient {
         Log.d(TAG, "Authenticating anonymously")
 
         val decodedSecret = String(Base64.decode(ANONYMOUS_SECRET, Base64.NO_WRAP), Charsets.UTF_8)
-        val tokenBase64 = String(Base64.encode("$ANONYMOUS_CLIENT_ID:$decodedSecret".toByteArray(), Base64.NO_WRAP))
-        val basicToken = "Basic $tokenBase64"
 
+        val tokenBase64 = String(
+            Base64.encode(
+                "$ANONYMOUS_CLIENT_ID:$decodedSecret".toByteArray(),
+                Base64.NO_WRAP
+            )
+        )
+        val basicToken = "Basic $tokenBase64"
         val anonymousAuthResponse = getAuthClient().authService.anonymousAuth(basicToken).execute()
 
         anonymousAuthResponse.body()?.accessToken?.let {
@@ -123,15 +101,15 @@ internal object AuthClient {
     }
 
     internal fun handleSignIn(data: Uri) {
-            val accessToken = data.toString().substringAfter("token=").substringBefore("&idToken")
-            val idToken = data.toString().substringAfter("idToken=").substringBefore("&refreshToken")
-            val refreshToken = data.toString().substringAfter("&refreshToken=")
+        val accessToken = data.toString().substringAfter("token=").substringBefore("&idToken")
+        val idToken = data.toString().substringAfter("idToken=").substringBefore("&refreshToken")
+        val refreshToken = data.toString().substringAfter("&refreshToken=")
 
-            if(accessToken.isNotBlank() && idToken.isNotBlank() && refreshToken.isNotBlank()){
-                Log.d(TAG, "Saving new tokens" )
-                UserCache.getInstance()?.saveRefreshToken(refreshToken)
-                UserCache.getInstance()?.saveIdToken(idToken)
-                UserCache.getInstance()?.saveAccessToken(accessToken)
-            }
+        if (accessToken.isNotBlank() && idToken.isNotBlank() && refreshToken.isNotBlank()) {
+            Log.d(TAG, "Saving new tokens")
+            UserCache.getInstance()?.saveRefreshToken(refreshToken)
+            UserCache.getInstance()?.saveIdToken(idToken)
+            UserCache.getInstance()?.saveAccessToken(accessToken)
         }
+    }
 }

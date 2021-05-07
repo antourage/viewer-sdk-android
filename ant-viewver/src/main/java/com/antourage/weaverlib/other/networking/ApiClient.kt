@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
+import com.antourage.weaverlib.ConfigManager.BASE_URL
 import com.antourage.weaverlib.other.networking.auth.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -7,9 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-
 internal object ApiClient {
-    var BASE_URL = ""
     private const val VERSION_SUFFIX = "api/v1/widget/"
 
     lateinit var webService: WebService

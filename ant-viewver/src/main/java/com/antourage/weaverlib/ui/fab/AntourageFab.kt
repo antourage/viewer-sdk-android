@@ -23,8 +23,8 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.PropertyManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.hideBadge
@@ -48,7 +48,6 @@ import com.antourage.weaverlib.other.validateVerticalMarginForFab
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
-import com.antourage.weaverlib.screens.list.dev_settings.EnvironmentManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
@@ -87,12 +86,10 @@ class AntourageFab @JvmOverloads constructor(
         internal var wasPaused = true
 
         fun configure(context: Context) {
-            PropertyManager.getInstance(context)
             UserCache.getInstance(context)
+            ConfigManager.init(context)
             handleDeviceId(context)
             setDefaultLocale(context)
-
-            EnvironmentManager.setBaseUrl(context)
 
             if (!isSubscribedToPushes) retryRegisterNotifications()
             startAntRequests()
@@ -221,7 +218,6 @@ class AntourageFab @JvmOverloads constructor(
         }
 
     init {
-        EnvironmentManager.setBaseUrl(context)
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick { checkWhatToOpen() }
         AntourageFabLifecycleObserver.registerActionHandler(this)
