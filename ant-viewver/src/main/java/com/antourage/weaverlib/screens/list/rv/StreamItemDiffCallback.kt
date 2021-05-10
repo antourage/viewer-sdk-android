@@ -13,9 +13,6 @@ internal class StreamItemDiffCallback(
     companion object {
         const val REFRESH_LIVE = "refresh_live"
         const val REFRESH_VOD = "refresh_vod"
-        const val REFRESH_TIME = "refresh_time"
-        const val REFRESH_NICKNAME = "refresh_nickname"
-        const val REFRESH_DURATION = "refresh_duration"
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

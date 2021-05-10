@@ -69,6 +69,10 @@
     <string name="ant_started_now">Just now</string>
     <string name="ant_recent">Recent</string>
 
+    <string name="ant_prefix_posted">Posted\u0020</string>
+    <string name="ant_prefix_live_in_progress">Live started %1$s</string>
+    <string name="ant_prefix_live">Live\u0020</string>
+
     <string name="choose_link">Choose link</string>
     <string name="ant_set">set</string>
 

@@ -28,8 +28,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.QuerySnapshot
@@ -335,7 +333,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getVideoPosition() = getCurrentPosition()
 
     override fun onVideoChanged() {
-        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type != StreamResponseType.POST } ?: arrayListOf()
         val currentVod = list[currentWindow]
         currentVod.id?.apply {
             if (this != vodId) {
@@ -402,7 +400,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getChatStateLiveData() = chatStateLiveData
 
     private fun findVideoPositionById(videoId: Int): Int {
-        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type != StreamResponseType.POST } ?: arrayListOf()
         for (i in list.indices) {
             if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
@@ -421,8 +419,8 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         for (i in 0 until (list?.size ?: 0)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI
-            if (list?.get(i)?.type == StreamResponseType.Vod) {
-                mediaSources.add(buildSimpleMediaSource(list[i].videoURL.toString()))
+            if (list?.get(i)?.type != StreamResponseType.POST) {
+                mediaSources.add(buildSimpleMediaSource(list!![i].videoURL.toString()))
             }
         }
         mediaSource.clear()
@@ -435,7 +433,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         for (i in 0 until (list.size)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI
-            if (list[i].type == StreamResponseType.Vod) {
+            if (list[i].type != StreamResponseType.POST) {
                 mediaSources.add(buildSimpleMediaSource(list[i].videoURL.toString()))
             }
         }
@@ -486,7 +484,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      * Called after fetching next 15 items in case total number of fetched vods is not enough (more posts than vods)
      */
     fun fetchMoreVodsIfRequired(){
-        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type != StreamResponseType.POST } ?: arrayListOf()
         if (list.size <= currentWindow + 2) {
             fetchNextVODsIfRequired()
         }
@@ -538,7 +536,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun fetchNextVODsIfTheLast(id: Int, isNewVod: Boolean = false) {
-        FeedRepository.vods?.filter { it.type == StreamResponseType.Vod }?.let {
+        FeedRepository.vods?.filter { it.type != StreamResponseType.POST }?.let {
             if (it.last().id == id) {
                 fetchNextVODsIfRequired(isNewVod && it.size == 1)
             }

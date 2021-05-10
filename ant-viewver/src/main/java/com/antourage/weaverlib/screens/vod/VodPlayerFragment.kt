@@ -26,6 +26,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.other.ui.CustomDrawerLayout
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
 import com.antourage.weaverlib.screens.weaver.PlayerFragment
@@ -194,7 +195,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 creatorNickname
             txtNumberOfViewers.text = viewsCount?.formatQuantity() ?: "0"
             context?.let { context ->
-                updateWasLiveValueOnUI(startTime, duration)
+                updateWasLiveValueOnUI(startTime, duration, type!!)
                 id?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             if (!broadcasterPicUrl.isNullOrEmpty()) {
@@ -343,7 +344,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         startPlayingStream()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
-            updateWasLiveValueOnUI(startTime, duration)
+            updateWasLiveValueOnUI(startTime, duration, type!!)
             viewModel.initUi(
                 id,
                 startTime,
@@ -743,16 +744,16 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onMinuteChanged() {
         viewModel.currentVideo.value?.let {
             if (it.startTime != null && it.duration != null) {
-                updateWasLiveValueOnUI(it.startTime, it.duration)
+                updateWasLiveValueOnUI(it.startTime, it.duration, it.type!!)
             }
         }
     }
 
-    private fun updateWasLiveValueOnUI(startTime: String?, duration: String?) {
+    private fun updateWasLiveValueOnUI(startTime: String?, duration: String?, type: StreamResponseType) {
         context?.apply {
             val formattedStartTime =
                 duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                    Date(it).parseToDisplayAgoTimeLong(this)
+                    Date(it).parseToDisplayAgoTimeLong(this, type)
                 }
             play_header_tv_ago.text = formattedStartTime
             play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())

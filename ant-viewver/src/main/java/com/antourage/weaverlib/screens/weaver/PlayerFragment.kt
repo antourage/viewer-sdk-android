@@ -2,12 +2,8 @@ package com.antourage.weaverlib.screens.weaver
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.InsetDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,9 +11,7 @@ import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.Transformation
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -734,12 +728,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         })
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setWasLiveText(text: String?) {
         val tvAgoLandscape = player_control_header
             .findViewById<TextView>(R.id.play_header_tv_ago)
         if (text != null && text.isNotEmpty()) {
-            tvAgoLandscape.text = text
-            play_header_tv_ago.text = text
+            val formattedText = resources.getString(R.string.ant_prefix_live_in_progress, text)
+            tvAgoLandscape.text = formattedText
+            play_header_tv_ago.text = formattedText
         }
         play_header_tv_ago.gone(text.isNullOrBlank())
         tvAgoLandscape.gone(text.isNullOrBlank())

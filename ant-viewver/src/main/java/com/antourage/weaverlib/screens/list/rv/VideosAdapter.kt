@@ -22,10 +22,7 @@ import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.StreamResponseType
-import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_DURATION
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_LIVE
-import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_NICKNAME
-import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_TIME
 import com.antourage.weaverlib.screens.list.rv.StreamItemDiffCallback.Companion.REFRESH_VOD
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -211,20 +208,6 @@ internal class VideosAdapter(
                             holder.setViews(bundle.getLong(key).toString())
                         }
                     }
-                    REFRESH_TIME -> {
-                        if (holder is LiveVideoViewHolder) {
-                            holder.setTime(
-                                bundle.getString(key),
-                                bundle.getString(REFRESH_NICKNAME)
-                            )
-                        } else if (holder is VODViewHolder) {
-                            holder.setTime(
-                                bundle.getString(key),
-                                bundle.getString(REFRESH_NICKNAME),
-                                bundle.getString(REFRESH_DURATION)
-                            )
-                        }
-                    }
                 }
             }
         } else {
@@ -244,7 +227,7 @@ internal class VideosAdapter(
                 listOfStreams[position].isLive -> {
                     VIEW_LIVE
                 }
-                listOfStreams[position].type == StreamResponseType.Vod -> {
+                listOfStreams[position].type != StreamResponseType.POST  -> {
                     VIEW_VOD
                 }
                 else -> {
@@ -297,13 +280,6 @@ internal class VideosAdapter(
 
         fun setViews(views: String) {
             itemView.txtViewersCount_live.text = views.toLong().formatQuantity()
-        }
-
-        fun setTime(startTime: String?, creatorNickname: String?) {
-            val formattedStartTime = startTime?.parseDateLong(context)
-            val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
-            itemView.txtStreamerInfo_live.text = streamerNameAndTime
-            itemView.txtStreamerInfo_live.visible(!formattedStartTime.isNullOrEmpty())
         }
 
         fun bindView(liveStream: StreamResponse) {
@@ -377,7 +353,7 @@ internal class VideosAdapter(
                     txtTitle_live.text = streamTitle
                     txtViewersCount_live.text = viewersCount?.formatQuantity() ?: "0"
                     txtViewersCount_live.gone(viewersCount == null)
-                    val formattedStartTime = startTime?.parseDateLong(context)
+                    val formattedStartTime = context.resources.getString(R.string.ant_prefix_live_in_progress, startTime?.parseDateLong(context))
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_live.text = streamerNameAndTime
                     txtStreamerInfo_live.visible(!formattedStartTime.isNullOrEmpty())
@@ -393,22 +369,10 @@ internal class VideosAdapter(
     }
 
     inner class VODViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //TODO refactor styles for vod/live item.xml
-
         var parent: View = itemView
 
         fun setViews(views: String) {
             itemView.txtViewsCount_vod.text = views
-        }
-
-        fun setTime(startTime: String?, creatorNickname: String?, duration: String?) {
-            val formattedStartTime =
-                duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                    Date(it).parseToDisplayAgoTimeLong(context)
-                }
-            val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
-            itemView.txtStreamerInfo_vod.text = streamerNameAndTime
-            itemView.txtStreamerInfo_vod.visible(!formattedStartTime.isNullOrEmpty())
         }
 
         fun bindView(vod: StreamResponse) {
@@ -453,7 +417,7 @@ internal class VideosAdapter(
 
                     val formattedStartTime =
                         duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                            Date(it).parseToDisplayAgoTimeLong(context)
+                            Date(it).parseToDisplayAgoTimeLong(context, vod.type)
                         }
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
@@ -504,7 +468,8 @@ internal class VideosAdapter(
                     txtTitle_post.text = videoName
 
                     val formattedStartTime = startTime?.parseToDate()?.parseToDisplayAgoTimeLong(
-                        context
+                        context,
+                        post.type!!
                     )
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_post.text = streamerNameAndTime

@@ -31,6 +31,7 @@ import com.antourage.weaverlib.other.Constants.secInMonth
 import com.antourage.weaverlib.other.Constants.secInWeek
 import com.antourage.weaverlib.other.Constants.secInYear
 import com.antourage.weaverlib.other.Constants.suffixes
+import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.screens.list.rv.VideoPlayerRecyclerView
@@ -191,8 +192,14 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
     }
 }
 
-internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
+internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamResponseType? = null): String {
     val diff = getSecondsDateDiff(this, Date())
+    val prefix = when(type){
+        StreamResponseType.POST -> context.resources.getString(R.string.ant_prefix_posted)
+        StreamResponseType.VOD -> context.resources.getString(R.string.ant_prefix_live)
+        StreamResponseType.UPLOADED_VIDEO -> context.resources.getString(R.string.ant_prefix_posted)
+        null -> null
+    }
     val timeAgo: String
     when {
         diff > secInYear -> {
@@ -224,7 +231,10 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context): String {
             return context.getString(R.string.ant_started_now)
         }
     }
-    return context.getString(R.string.ant_started_ago, timeAgo)
+    val resultString = if(prefix == null){
+        timeAgo
+    }else "$prefix$timeAgo"
+    return context.getString(R.string.ant_started_ago, resultString)
 }
 
 internal fun <T : View> T.trueWidth(function: (Int) -> Unit) {

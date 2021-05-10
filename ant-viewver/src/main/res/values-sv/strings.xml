@@ -103,5 +103,9 @@
     <string name="ant_ten_seconds">10 sekunder</string>
     <string name="ant_skip_curtain">skippa ridå</string>
     <string name="ant_live_error">Livesändningen blev avbruten. Tryck på play för att fortsätta</string>
+    <string name="ant_prefix_live_in_progress">Live sedan %1$s</string>
+    <string name="ant_prefix_live">Live\\u0020</string>
+    <string name="ant_prefix_posted">Publicerat\\u0020</string>
+    <string name="join_conversation" translatable="false">Gå med i konversation</string>
 
 </resources>

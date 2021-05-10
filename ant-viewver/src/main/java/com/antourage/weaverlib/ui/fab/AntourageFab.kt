@@ -888,7 +888,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun openVodActivity() {
-        if (vod?.type == StreamResponseType.Vod) {
+        if (vod?.type != StreamResponseType.POST) {
             FeedRepository.vods = mutableListOf(vod!!)
             val intent = Intent(context, AntourageActivity::class.java)
             intent.putExtra(ARGS_STREAM_SELECTED, vod!!)
