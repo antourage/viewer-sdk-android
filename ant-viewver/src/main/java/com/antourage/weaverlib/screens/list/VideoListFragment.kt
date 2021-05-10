@@ -141,10 +141,8 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private val beChoiceObserver: Observer<Boolean> = Observer {
         if (it != null && it)
             context?.let { context ->
-                if(!ConfigManager.configFile.environments.isNullOrEmpty()){
-                    val dialog = DevSettingsDialog(context, viewModel)
-                    dialog.show()
-                }
+                val dialog = DevSettingsDialog(context, viewModel)
+                dialog.show()
             }
     }
 

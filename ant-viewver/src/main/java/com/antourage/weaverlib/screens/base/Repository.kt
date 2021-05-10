@@ -46,11 +46,6 @@ internal class Repository {
                 override fun createCall() = ApiClient.getWebClient().webService.postLiveClose(body)
             }.asLiveData()
 
-        fun getUser(): LiveData<Resource<User>> =
-            object : NetworkBoundResource<User>() {
-                override fun createCall() = ApiClient.getWebClient().webService.getUser()
-            }.asLiveData()
-
         fun getFeedInfo(): LiveData<Resource<FeedInfo>> =
             object : NetworkBoundResource<FeedInfo>() {
                 override fun createCall() = ApiClient.getWebClient().webService.getFeedInfo()

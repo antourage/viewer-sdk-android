@@ -18,9 +18,6 @@ internal interface WebService {
     @POST("vod/close")
     fun postVODClose(@Body body: VideoClosedRequest): LiveData<ApiResponse<SimpleResponse>>
 
-    @GET("users")
-    fun getUser(): LiveData<ApiResponse<User>>
-
     @GET("users/feed")
     fun getFeedInfo(): LiveData<ApiResponse<FeedInfo>>
 

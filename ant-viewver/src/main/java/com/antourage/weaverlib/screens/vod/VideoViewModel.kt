@@ -14,6 +14,7 @@ import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.other.networking.profile.ProfileRepository
 import com.antourage.weaverlib.other.parseTimerToMills
 import com.antourage.weaverlib.other.parseToDate
 import com.antourage.weaverlib.other.room.RoomRepository
@@ -68,7 +69,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     private var vodId: Int? = null
     private var curtains: ArrayList<CurtainRangeMillis> = ArrayList()
     private var vodResponseDuration: Long = 0L
-    private var user: User? = null
+    private var user: ProfileResponse? = null
 
     private var isFetching: Boolean =
         false //in case user quickly tapping next fixes possible double fetch
@@ -195,9 +196,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun initUserAndFetchChat(id: Int?) {
-        val response = Repository.getUser()
-        response.observeForever(object : Observer<Resource<User>> {
-            override fun onChanged(it: Resource<User>?) {
+        val response = ProfileRepository.getProfile()
+        response.observeForever(object : Observer<Resource<ProfileResponse>> {
+            override fun onChanged(it: Resource<ProfileResponse>?) {
                 when (val responseStatus = it?.status) {
                     is Status.Success -> {
                         user = responseStatus.data
@@ -234,7 +235,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
             if (it != null)
                 if (it >= 0) {
                     duration = it
-                }else{
+                } else {
                     return
                 }
         }
@@ -334,7 +335,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getVideoPosition() = getCurrentPosition()
 
     override fun onVideoChanged() {
-        val list: List<StreamResponse> = FeedRepository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
         val currentVod = list[currentWindow]
         currentVod.id?.apply {
             if (this != vodId) {
@@ -401,7 +402,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     fun getChatStateLiveData() = chatStateLiveData
 
     private fun findVideoPositionById(videoId: Int): Int {
-        val list: List<StreamResponse> = FeedRepository.vods ?: arrayListOf()
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
         for (i in list.indices) {
             if (list[i].id == videoId) {
                 currentVideo.postValue(list[i])
@@ -420,7 +421,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         for (i in 0 until (list?.size ?: 0)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI
-            mediaSources.add(buildSimpleMediaSource(list?.get(i)?.videoURL.toString()))
+            if (list?.get(i)?.type == StreamResponseType.Vod) {
+                mediaSources.add(buildSimpleMediaSource(list[i].videoURL.toString()))
+            }
         }
         mediaSource.clear()
         mediaSource.addMediaSources(mediaSources)
@@ -432,7 +435,9 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         for (i in 0 until (list.size)) {
             // url can be even null, as far as we handle errors when user start video playback
             // can't exclude video with url null from playlist, as it breaks video changing logic on UI
-            mediaSources.add(buildSimpleMediaSource(list[i].videoURL.toString()))
+            if (list[i].type == StreamResponseType.Vod) {
+                mediaSources.add(buildSimpleMediaSource(list[i].videoURL.toString()))
+            }
         }
         if (mediaSources.isNotEmpty()) mediaSource.addMediaSources(mediaSources)
     }
@@ -468,10 +473,22 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
      */
     private fun fetchNextVODsIfRequired(isNewVod: Boolean = false) {
         if (!isFetching) {
-            val vodsCount = if (isNewVod) 0 else FeedRepository.vods?.size ?: 0
-            if (vodsCount % 15 == 0 || isNewVod) {
-                fetchNextVODs(vodsCount, isNewVod)
+            val itemsCount = if (isNewVod) 0 else FeedRepository.vods?.size ?: 0
+            if (itemsCount % 15 == 0 || isNewVod) {
+                fetchNextVODs(itemsCount, isNewVod)
             }
+        }
+    }
+
+
+
+    /**
+     * Called after fetching next 15 items in case total number of fetched vods is not enough (more posts than vods)
+     */
+    fun fetchMoreVodsIfRequired(){
+        val list: List<StreamResponse> = FeedRepository.vods?.filter { it.type == StreamResponseType.Vod } ?: arrayListOf()
+        if (list.size <= currentWindow + 2) {
+            fetchNextVODsIfRequired()
         }
     }
 
@@ -507,11 +524,13 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                                 FeedRepository.vods?.addAll(list)
                                 addToMediaSource(list)
                                 nextVideosFetchedLD.value = true
+                                fetchMoreVodsIfRequired()
                                 Log.d("PLAYER_FETCH", "was new vod $isNewVod")
                             }
                             response.removeObserver(this)
                         }
-                        else -> {}
+                        else -> {
+                        }
                     }
                 }
             }
@@ -519,7 +538,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun fetchNextVODsIfTheLast(id: Int, isNewVod: Boolean = false) {
-        FeedRepository.vods?.let {
+        FeedRepository.vods?.filter { it.type == StreamResponseType.Vod }?.let {
             if (it.last().id == id) {
                 fetchNextVODsIfRequired(isNewVod && it.size == 1)
             }
@@ -558,7 +577,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
 
     private fun processVODsChat(messages: List<Message>, isFetched: Boolean = true): List<Message> {
         val currentUserId = user?.id
-        val currentUserName = user?.displayName
+        val currentUserName = user?.nickname
 
         for (message in messages) {
             if (isFetched) {
