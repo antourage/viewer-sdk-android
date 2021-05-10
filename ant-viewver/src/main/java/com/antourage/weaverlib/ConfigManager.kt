@@ -17,8 +17,8 @@ internal object ConfigManager {
     var FEED_URL = "https://feed.antourage.com/"
     var AUTH_URL = "https://identity.antourage.com"
     var CLIENT_ID = ""
-    var ANONYMOUS_CLIENT_ID = "awdaw"
-    var ANONYMOUS_SECRET = "ganvo"
+    var ANONYMOUS_CLIENT_ID = ""
+    var ANONYMOUS_SECRET = ""
     lateinit var configFile: ConfigFile
 
     fun init(context: Context) {

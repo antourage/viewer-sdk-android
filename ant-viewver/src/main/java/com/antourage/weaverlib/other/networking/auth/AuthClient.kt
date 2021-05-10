@@ -57,6 +57,10 @@ internal object AuthClient {
     fun authenticateUser(): Response<AuthResponse> {
         Log.d(TAG, "Trying to authenticate user...")
 
+        if(CLIENT_ID.isEmpty() || ANONYMOUS_CLIENT_ID.isEmpty() || ANONYMOUS_SECRET.isEmpty()){
+            throw Exception("No authorization credentials provided or file antourage_info.json not found")
+        }
+
         UserCache.getInstance()?.getRefreshToken()?.let { refreshToken ->
             Log.d(TAG, "Refreshing token")
 
