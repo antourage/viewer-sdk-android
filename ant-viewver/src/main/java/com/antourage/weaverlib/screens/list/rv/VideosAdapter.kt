@@ -406,7 +406,12 @@ internal class VideosAdapter(
                         replayContainer.visibility = View.INVISIBLE
                     }
 
-                    isNew?.let { txtNewBadge_vod.gone(!it) }
+                    if(isNew == null || !isNew!!){
+                        txtNewBadge_vod.gone(true)
+                    }else{
+                        txtNewBadge_vod.gone(false)
+                    }
+
                     txtTitle_vod.text = videoName
                     txtComment_vod.gone(lastMessage.isNullOrEmpty())
                     txtCommentAuthor_vod.gone(lastMessage.isNullOrEmpty())
@@ -464,9 +469,13 @@ internal class VideosAdapter(
                     }else{
                         shadowPost.visibility = View.INVISIBLE
                     }
-                    isNew?.let { txtNewBadge_post.gone(!it) }
-                    txtTitle_post.text = videoName
+                    if(isNew == null || !isNew!!){
+                        txtNewBadge_post.gone(true)
+                    }else{
+                        txtNewBadge_post.gone(false)
+                    }
 
+                    txtTitle_post.text = videoName
                     val formattedStartTime = startTime?.parseToDate()?.parseToDisplayAgoTimeLong(
                         context,
                         post.type!!

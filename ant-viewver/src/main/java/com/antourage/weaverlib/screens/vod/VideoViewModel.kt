@@ -44,7 +44,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
         private const val STOP_TIME_UPDATE_INTERVAL_MS = 2000L
         private const val FULLY_VIEWED_VIDEO_SEGMENT = 0.9
         private const val SKIP_VIDEO_TIME_MILLS = 10000
-        private const val CURTAIN_MARGIN_MILLS = 500
+        internal const val CURTAIN_MARGIN_MILLS = 500
     }
 
     enum class AutoPlayState {

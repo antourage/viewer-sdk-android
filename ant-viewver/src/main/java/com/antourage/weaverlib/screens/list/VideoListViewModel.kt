@@ -86,6 +86,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         if (newVod != null && FeedRepository.vods?.any { it.id == newVod.id } == false) {
             val list = mutableListOf<StreamResponse>()
             list.add(newVod)
+            FeedRepository.invalidateIsNewProperty(list)
             FeedRepository.vods?.let {
                 list.addAll(it)
             }

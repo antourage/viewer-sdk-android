@@ -22,15 +22,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.other.convertUtcToLocal
-import com.antourage.weaverlib.other.hideWithAnimation
-import com.antourage.weaverlib.other.millisToTime
+import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.models.CurtainRangeMillis
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.Video
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
-import com.antourage.weaverlib.other.revealWithAnimation
 import com.antourage.weaverlib.other.room.RoomRepository
-import com.antourage.weaverlib.screens.base.Repository
+import com.antourage.weaverlib.screens.vod.VideoViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory
 import com.google.android.exoplayer2.source.MediaSource
@@ -52,7 +50,7 @@ import kotlinx.android.synthetic.main.item_vod.view.*
 import okhttp3.OkHttpClient
 import java.util.*
 
-private const val AUTO_PLAY_DEBOUNCE: Long = 500
+private const val AUTO_PLAY_DEBOUNCE: Long = 100
 
 internal class VideoPlayerRecyclerView : RecyclerView {
 
@@ -256,7 +254,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
     }
 
     private fun setVodStopWatchingTime() {
-        if(currentlyPlayingVideo?.isLive == true) return
+        if (currentlyPlayingVideo?.isLive == true) return
         val vodId = currentlyPlayingVideo?.id
         vodId?.let {
             val stopWatchingTime = videoPlayer?.currentPosition ?: 0
@@ -265,7 +263,7 @@ internal class VideoPlayerRecyclerView : RecyclerView {
                 if (it != null)
                     if (it >= 0) {
                         duration = it
-                    }else{
+                    } else {
                         return
                     }
             }
@@ -289,10 +287,10 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         }
 
         if (isVideoViewAdded && thumbnail?.alpha != 1f) {
-            thumbnail?.revealWithAnimation()
-            autoPlayContainer?.hideWithAnimation()
+            thumbnail?.reveal()
+            autoPlayContainer?.hide()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-                duration?.revealWithAnimation()
+                duration?.reveal()
             }
         }
         stopDurationUpdate()
@@ -304,9 +302,9 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
             currentlyPlayingVideo?.let { fullyViewedVods.add(it) }
             replayView?.revealWithAnimation()
-            duration?.revealWithAnimation()
+            duration?.reveal()
             thumbnail?.revealWithAnimation()
-            autoPlayContainer?.hideWithAnimation()
+            autoPlayContainer?.hide()
             watchingProgress?.hideWithAnimation()
             if (shouldSetStopTime) {
                 setVodStopWatchingTime()
@@ -414,11 +412,52 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             val videoSource: MediaSource
             if (mediaUrl != null) {
                 videoSource = getMediaSource(mediaUrl, context)
-                videoPlayer?.prepare(videoSource)
-                stopTime?.let { videoPlayer?.seekTo(it) }
+                videoPlayer?.setMediaSource(videoSource)
+                videoPlayer?.prepare()
+                stopTime?.let { seekToLastWatchingTime(streams[targetPosition], it) }
                 videoPlayer?.playWhenReady = true
             }
         }
+    }
+    /**
+     * method for skipping first curtain if it doesn't last as whole video
+     * if no curtains - continue play from previous stop time
+     */
+    private fun seekToLastWatchingTime(video: StreamResponse, stopWatchingTime: Long) {
+        var endOfCurtainOnBeginning = 0L
+        val curtains: List<CurtainRangeMillis>
+        if (!video.curtainRangeModels.isNullOrEmpty()) {
+            curtains = ArrayList(video.curtainRangeModels!!.map {
+                CurtainRangeMillis(
+                    it.start?.parseTimerToMills() ?: 0L,
+                    it.end?.parseTimerToMills() ?: 0L
+                )
+            })
+
+            curtains.forEach {
+                if (stopWatchingTime + VideoViewModel.CURTAIN_MARGIN_MILLS >= it.start && stopWatchingTime < it.end) {
+                    if (it.start <= VideoViewModel.CURTAIN_MARGIN_MILLS) {
+                        if (it.end + 1000 < getDurationOnVideoStart(video)) {
+                            //case curtain on the beginning
+                            endOfCurtainOnBeginning = it.end
+                        }
+                    }
+                    return@forEach
+                }
+            }
+        }
+
+        val timeToSeekTo =
+            if (endOfCurtainOnBeginning != 0L) endOfCurtainOnBeginning else stopWatchingTime
+        videoPlayer?.seekTo(timeToSeekTo)
+    }
+
+    private fun getDurationOnVideoStart(video: StreamResponse): Long {
+        var duration = videoPlayer?.duration ?: 0L
+        if (duration < 0L) {
+            duration = video.duration?.parseTimerToMills() ?: 0L
+        }
+        return duration
     }
 
     private fun getMediaSource(uri: String, context: Context): MediaSource {
@@ -429,17 +468,22 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             }
             .build()
 
-        return if(uri.endsWith("mp4", true) || uri.endsWith("flv", true) ||  uri.endsWith("mov", true)){
+        return if (uri.endsWith("mp4", true) || uri.endsWith("flv", true) || uri.endsWith(
+                "mov",
+                true
+            )
+        ) {
             val dataSourceFactory: DataSource.Factory = DefaultHttpDataSourceFactory()
             ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(
                 MediaItem.fromUri(
                     uri
                 )
             )
-        }else {
+        } else {
             val okHttpDataSourceFactory =
                 OkHttpDataSourceFactory(okHttpClient, Util.getUserAgent(context, "Exo2"))
-            HlsMediaSource.Factory(okHttpDataSourceFactory).createMediaSource(MediaItem.fromUri(uri))
+            HlsMediaSource.Factory(okHttpDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(uri))
         }
     }
 
@@ -482,12 +526,12 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         videoSurfaceView?.requestFocus()
         videoSurfaceView?.visibility = VISIBLE
         videoSurfaceView?.alpha = 1f
-        autoPlayContainer?.revealWithAnimation()
+        autoPlayContainer?.reveal()
         animateAutoPlay()
         startDurationUpdate()
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-            if (watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.revealWithAnimation()
-            duration?.hideWithAnimation()
+            if (watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.reveal()
+            duration?.hide()
         }
     }
 
@@ -558,14 +602,12 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             thumbnail?.visibility = VISIBLE
             thumbnail?.alpha = 1f
             autoPlayContainer?.visibility = View.INVISIBLE
-            autoPlayContainer?.alpha = 1f
             autoPlayImageView?.clearAnimation()
             autoPlayAnimatedDrawable?.clearAnimationCallbacks()
             autoPlayAnimatedDrawable?.stop()
             stopDurationUpdate()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-                duration?.visibility = View.VISIBLE
-                duration?.alpha = 1f
+                duration?.reveal()
             }
         }
     }
