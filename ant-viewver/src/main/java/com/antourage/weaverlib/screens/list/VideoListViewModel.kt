@@ -9,8 +9,10 @@ import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.Debouncer
-import com.antourage.weaverlib.other.models.*
+import com.antourage.weaverlib.other.models.FeedInfo
 import com.antourage.weaverlib.other.models.Message
+import com.antourage.weaverlib.other.models.ProfileResponse
+import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
@@ -122,14 +124,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         SocketConnector.newVodLiveData.removeObserver(vodFromSocketObserver)
     }
 
-    private fun initLiveSocketListeners() {
+    private fun liveSocketListeners() {
         SocketConnector.clearSocketData()
         SocketConnector.socketConnection.observeForever(socketConnectionObserver)
         SocketConnector.newLivesLiveData.observeForever(liveFromSocketObserver)
-    }
-
-    private fun initVodSocketListeners() {
-        SocketConnector.clearSocketData()
         SocketConnector.newVodLiveData.observeForever(vodFromSocketObserver)
     }
 
@@ -190,7 +188,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         if (ReceivingVideosManager.isFirstRequestVod) {
             ReceivingVideosManager.isFirstRequestVod = false
             ReceivingVideosManager.pauseReceivingVideos()
-            initLiveSocketListeners()
+            liveSocketListeners()
+//            initVodSocketListeners()
             ReceivingVideosManager.checkShouldUseSockets()
         }
         when (resource.status) {
@@ -282,7 +281,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
                 vods = newList
 
-                initVodSocketListeners()
+//                initVodSocketListeners()
 
                 vodsUpdated = true
                 vodsUpdatedWithoutError = true

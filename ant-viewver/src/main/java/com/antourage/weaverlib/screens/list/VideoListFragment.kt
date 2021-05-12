@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -645,6 +644,41 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             triggerNewLiveButton(false)
         }
     }
+
+    private fun checkIsNewItemAdded(
+        newStreams: List<StreamResponse>,
+        oldStreams: List<StreamResponse>
+    ) {
+        if (!isInitialListSet && canShowNewButton && oldStreams.isNotEmpty()) {
+            for (stream in newStreams) {
+                if (oldStreams.none { it.id == stream.id }) {
+                    if (videoAdapter.getStreams()
+                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
+                    ) {
+                        newLivesList.add(stream)
+                    }
+                }
+            }
+
+            if (newLivesList.isNotEmpty() && oldStreams.isNotEmpty()) {
+                videosRV.afterMeasured {
+                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newLivesList.size) {
+                        newLivesList.clear()
+                        if (isSnackBarScrollActive) {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                scrollRvAndTriggerAutoplay()
+                            }, 1500)
+                        } else {
+                            scrollRvAndTriggerAutoplay()
+                        }
+                    } else {
+                        triggerNewLiveButton(true)
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun checkIsNewLiveAdded(
         newStreams: List<StreamResponse>,
