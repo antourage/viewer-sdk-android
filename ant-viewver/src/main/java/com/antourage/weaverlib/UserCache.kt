@@ -58,6 +58,9 @@ internal class UserCache private constructor(context: Context) {
         getInstance()?.saveAccessToken(null)
         getInstance()?.saveRefreshToken(null)
         getInstance()?.saveIdToken(null)
+        getInstance()?.saveUserNickName("")
+        getInstance()?.saveUserImage("")
+        getInstance()?.saveUserId("")
     }
 
     fun saveVideoToSeen(seenVideoId: Int) {
@@ -227,5 +230,6 @@ internal class UserCache private constructor(context: Context) {
     fun clearUserData() {
         saveUserInfo(-1, "")
     }
+
 
 }

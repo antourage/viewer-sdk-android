@@ -568,26 +568,27 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     }
 
     fun getProfileInfo() {
-        val response = ProfileRepository.getProfile()
-        response.observeForever(object : Observer<Resource<ProfileResponse>> {
-            override fun onChanged(it: Resource<ProfileResponse>?) {
-                when (val responseStatus = it?.status) {
-                    is Status.Success -> {
-                        if (responseStatus.data != null) {
-                            val profile = responseStatus.data
-                            UserCache.getInstance()?.saveUserNickName(profile.nickname ?: "")
-                            UserCache.getInstance()?.saveUserImage(profile.imageUrl ?: "")
-                            UserCache.getInstance()?.saveUserId(profile.id ?: "")
-                            profileLiveData.postValue(profile)
+        if (!UserCache.getInstance()?.getIdToken().isNullOrEmpty()) {
+            val response = ProfileRepository.getProfile()
+            response.observeForever(object : Observer<Resource<ProfileResponse>> {
+                override fun onChanged(it: Resource<ProfileResponse>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            if (responseStatus.data != null) {
+                                val profile = responseStatus.data
+                                UserCache.getInstance()?.saveUserNickName(profile.nickname ?: "")
+                                UserCache.getInstance()?.saveUserImage(profile.imageUrl ?: "")
+                                UserCache.getInstance()?.saveUserId(profile.id ?: "")
+                                profileLiveData.postValue(profile)
+                            }
+                            response.removeObserver(this)
                         }
-                        response.removeObserver(this)
-                    }
-                    is Status.Failure -> {
-                        response.removeObserver(this)
+                        is Status.Failure -> {
+                            response.removeObserver(this)
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
     }
-
 }

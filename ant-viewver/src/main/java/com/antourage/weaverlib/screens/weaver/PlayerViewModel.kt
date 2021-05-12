@@ -281,19 +281,21 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     }
 
     fun initUser() {
-        val response = ProfileRepository.getProfile()
-        response.observeForever(object : Observer<Resource<ProfileResponse>> {
-            override fun onChanged(it: Resource<ProfileResponse>?) {
-                when (val responseStatus = it?.status) {
-                    is Status.Success -> {
-                        user = responseStatus.data
-                        userInfoLiveData.postValue(user)
-                        response.removeObserver(this)
+        if(!UserCache.getInstance()?.getIdToken().isNullOrEmpty()){
+            val response = ProfileRepository.getProfile()
+            response.observeForever(object : Observer<Resource<ProfileResponse>> {
+                override fun onChanged(it: Resource<ProfileResponse>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            user = responseStatus.data
+                            userInfoLiveData.postValue(user)
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> response.removeObserver(this)
                     }
-                    is Status.Failure -> response.removeObserver(this)
                 }
-            }
-        })
+            })
+        }
     }
 
     fun noDisplayNameSet() =

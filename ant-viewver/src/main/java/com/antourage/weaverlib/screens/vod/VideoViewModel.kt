@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import com.antourage.weaverlib.Global
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.SingleLiveEvent
 import com.antourage.weaverlib.other.convertUtcToLocal
 import com.antourage.weaverlib.other.models.*
@@ -194,22 +195,26 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
     }
 
     private fun initUserAndFetchChat(id: Int?) {
-        val response = ProfileRepository.getProfile()
-        response.observeForever(object : Observer<Resource<ProfileResponse>> {
-            override fun onChanged(it: Resource<ProfileResponse>?) {
-                when (val responseStatus = it?.status) {
-                    is Status.Success -> {
-                        user = responseStatus.data
-                        getChatList(id)
-                        response.removeObserver(this)
-                    }
-                    is Status.Failure -> {
-                        getChatList(id)
-                        response.removeObserver(this)
+        if(!UserCache.getInstance()?.getIdToken().isNullOrEmpty()) {
+            val response = ProfileRepository.getProfile()
+            response.observeForever(object : Observer<Resource<ProfileResponse>> {
+                override fun onChanged(it: Resource<ProfileResponse>?) {
+                    when (val responseStatus = it?.status) {
+                        is Status.Success -> {
+                            user = responseStatus.data
+                            getChatList(id)
+                            response.removeObserver(this)
+                        }
+                        is Status.Failure -> {
+                            getChatList(id)
+                            response.removeObserver(this)
+                        }
                     }
                 }
-            }
-        })
+            })
+        }else{
+            getChatList(id)
+        }
     }
 
     override fun onResume() {
