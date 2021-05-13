@@ -58,7 +58,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     private var isLoadingMoreVideos = false
     private var isNewLiveButtonShown = false
     private var isInitialListSet = true
-    private var newLivesList = mutableListOf<StreamResponse>()
+    private var newItemsList = mutableListOf<StreamResponse>()
     private var shouldDisconnectSocket: Boolean = true
     private var isSnackBarScrollActive: Boolean = false
     private var canShowNewButton = false
@@ -93,8 +93,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 videosRV.resumePlaying()
 
                 Handler(Looper.getMainLooper()).postDelayed({
-                    checkIsNewLiveAdded(newStreams, listBeforeUpdate)
-                    checkIsNewVodAdded(newStreams, listBeforeUpdate)
+                    checkIsNewItemAdded(newStreams, listBeforeUpdate)
                     checkIsLiveWasRemoved(newStreams)
                 }, 500)
 
@@ -209,7 +208,6 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onResume() {
         super.onResume()
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        initNewButtonCountdown()
         invalidateUserBtn()
         videosRV.resetVideoView()
         shouldDisconnectSocket = true
@@ -614,33 +612,33 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         if (isVisible && !isNewLiveButtonShown) {
             isNewLiveButtonShown = true
             if (btnNewLive != null) {
-                btnNewLive.alpha = 1f
+                btnNewLive.visibility = View.VISIBLE
                 btnNewLive.isEnabled = true
                 btnNewLive.animate().translationYBy(150f).setDuration(300).start()
             }
         } else if (!isVisible) {
             if (!isPause) {
-                newLivesList.clear()
+                newItemsList.clear()
             }
             if (isNewLiveButtonShown) {
                 isNewLiveButtonShown = false
                 btnNewLive.isEnabled = false
                 if (btnNewLive != null) {
                     btnNewLive.animate().translationY(0f).setDuration(300)
-                        .withEndAction { btnNewLive.alpha = 0f }.start()
+                        .withEndAction { btnNewLive.visibility = View.GONE }.start()
                 }
             }
         }
     }
 
     private fun checkIsLiveWasRemoved(newStreams: List<StreamResponse>) {
-        val iterator = newLivesList.iterator()
+        val iterator = newItemsList.iterator()
         for (stream in iterator) {
             if (newStreams.none { it.id == stream.id }) {
                 iterator.remove()
             }
         }
-        if (newLivesList.isEmpty() && isNewLiveButtonShown) {
+        if (newItemsList.isEmpty() && isNewLiveButtonShown) {
             triggerNewLiveButton(false)
         }
     }
@@ -649,93 +647,33 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         newStreams: List<StreamResponse>,
         oldStreams: List<StreamResponse>
     ) {
-        if (!isInitialListSet && canShowNewButton && oldStreams.isNotEmpty()) {
+
+        val newestItems = mutableListOf<StreamResponse>()
+        if (!isInitialListSet && oldStreams.isNotEmpty()) {
             for (stream in newStreams) {
                 if (oldStreams.none { it.id == stream.id }) {
-                    if (videoAdapter.getStreams()
-                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
-                    ) {
-                        newLivesList.add(stream)
+                    if (videoAdapter.getStreams().isNotEmpty()) {
+                        newestItems.add(stream)
+                        newItemsList.add(stream)
                     }
                 }
             }
 
-            if (newLivesList.isNotEmpty() && oldStreams.isNotEmpty()) {
-                videosRV.afterMeasured {
-                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newLivesList.size) {
-                        newLivesList.clear()
-                        if (isSnackBarScrollActive) {
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                scrollRvAndTriggerAutoplay()
-                            }, 1500)
-                        } else {
+            if (oldStreams.isNotEmpty() && newestItems.isNotEmpty()) {
+                if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newestItems.size) {
+                    newItemsList.clear()
+                    if (isSnackBarScrollActive) {
+                        Handler(Looper.getMainLooper()).postDelayed({
                             scrollRvAndTriggerAutoplay()
-                        }
+                        }, 1500)
                     } else {
-                        triggerNewLiveButton(true)
+                        scrollRvAndTriggerAutoplay()
                     }
+                } else if(oldStreams.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition()>newStreams.indexOf(newestItems[0])){
+                    triggerNewLiveButton(true)
                 }
-            }
-        }
-    }
-
-
-    private fun checkIsNewLiveAdded(
-        newStreams: List<StreamResponse>,
-        oldStreams: List<StreamResponse>
-    ) {
-        if (!isInitialListSet && canShowNewButton && oldStreams.isNotEmpty()) {
-            for (stream in newStreams) {
-                if (stream.isLive && oldStreams.none { it.id == stream.id }) {
-                    if (videoAdapter.getStreams()
-                            .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != stream.id
-                    ) {
-                        newLivesList.add(stream)
-                    }
-                }
-            }
-
-            if (newLivesList.isNotEmpty() && oldStreams.isNotEmpty()) {
-                videosRV.afterMeasured {
-                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newLivesList.size) {
-                        newLivesList.clear()
-                        if (isSnackBarScrollActive) {
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                scrollRvAndTriggerAutoplay()
-                            }, 1500)
-                        } else {
-                            scrollRvAndTriggerAutoplay()
-                        }
-                    } else {
-                        triggerNewLiveButton(true)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun checkIsNewVodAdded(
-        newStreams: List<StreamResponse>,
-        oldStreams: List<StreamResponse>
-    ) {
-        if (newStreams[0].isLive) return
-
-        if (!isInitialListSet && oldStreams.isNotEmpty()) {
-            val newVod = newStreams[0]
-            if (oldStreams.none { it.id == newVod.id }) {
-                if (videoAdapter.getStreams()
-                        .isNotEmpty() && rvLayoutManager.findFirstCompletelyVisibleItemPosition() == -1 || rvLayoutManager.findFirstCompletelyVisibleItemPosition() >= 0 && videoAdapter.getStreams()[rvLayoutManager.findFirstCompletelyVisibleItemPosition()].id != newVod.id
-                ) {
-                    if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == 1) {
-                        if (isSnackBarScrollActive) {
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                scrollRvAndTriggerAutoplay()
-                            }, 1500)
-                        } else {
-                            scrollRvAndTriggerAutoplay()
-                        }
-                    }
-                }
+            }else if(oldStreams.isNotEmpty() && newItemsList.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition()>newStreams.indexOf(newItemsList[0])){
+                triggerNewLiveButton(true)
             }
         }
     }

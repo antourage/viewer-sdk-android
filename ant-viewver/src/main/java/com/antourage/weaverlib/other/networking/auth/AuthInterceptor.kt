@@ -44,10 +44,10 @@ class AuthInterceptor : Interceptor {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 builder.addHeader(
                     HEADER_LOCALIZATION,
-                    Resources.getSystem().configuration.locales[0].language
+                    Resources.getSystem().configuration.locales[0].toLanguageTag()
                 )
             } else {
-                builder.addHeader(HEADER_LOCALIZATION, Locale.getDefault().language)
+                builder.addHeader(HEADER_LOCALIZATION, Locale.getDefault().toLanguageTag())
 
             }
         }
