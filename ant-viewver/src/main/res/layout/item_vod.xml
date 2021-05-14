@@ -131,6 +131,7 @@
                 android:layout_margin="8dp"
                 android:layout_height="wrap_content"
                 android:visibility="invisible"
+                android:elevation="10dp"
                 app:layout_constraintBottom_toBottomOf="@id/ivThumbnail_vod"
                 app:layout_constraintRight_toRightOf="parent">
 
@@ -140,6 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="7dp"
+                    android:elevation="10dp"
                     android:src="@drawable/antourage_autoplay_animation"
                     app:layout_constraintStart_toEndOf="@id/txtAutoPlayDuration_vod"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -154,6 +156,7 @@
                     android:textColor="@color/ant_white"
                     android:textSize="18sp"
                     tools:text = "00:00"
+                    android:elevation="10dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     tools:ignore="SmallSp" />
@@ -170,6 +173,7 @@
                 android:textColor="@color/ant_white"
                 android:textSize="18sp"
                 tools:ignore="SmallSp"
+                android:elevation="10dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="16dp"
                 android:visibility="invisible"

@@ -446,20 +446,11 @@ fun View.animateShowHideDown(isShow: Boolean) {
 internal fun View.revealWithAnimation() {
     alpha = 0f
     visibility = View.VISIBLE
-    animate().alpha(1f).setDuration(300).start()
+    animate().alpha(1f).setDuration(100).start()
 }
 
 internal fun View.hideWithAnimation() {
-    animate().alpha(0f).setDuration(300).withEndAction { this.visibility = View.INVISIBLE }.start()
-}
-
-internal fun View.hide() {
-    this.visibility = View.INVISIBLE
-}
-
-internal fun View.reveal() {
-    this.alpha = 1f
-    this.visibility = View.VISIBLE
+    animate().alpha(0f).setDuration(100).withEndAction { this.visibility = View.INVISIBLE }.start()
 }
 
 internal inline fun VideoPlayerRecyclerView.afterMeasured(crossinline f: VideoPlayerRecyclerView.() -> Unit) {

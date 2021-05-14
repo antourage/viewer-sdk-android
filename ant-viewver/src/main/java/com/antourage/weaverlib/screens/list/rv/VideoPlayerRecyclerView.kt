@@ -287,10 +287,10 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         }
 
         if (isVideoViewAdded && thumbnail?.alpha != 1f) {
-            thumbnail?.reveal()
-            autoPlayContainer?.hide()
+            thumbnail?.revealWithAnimation()
+            autoPlayContainer?.hideWithAnimation()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-                duration?.reveal()
+                duration?.revealWithAnimation()
             }
         }
         stopDurationUpdate()
@@ -302,9 +302,9 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
             currentlyPlayingVideo?.let { fullyViewedVods.add(it) }
             replayView?.revealWithAnimation()
-            duration?.reveal()
+            duration?.revealWithAnimation()
             thumbnail?.revealWithAnimation()
-            autoPlayContainer?.hide()
+            autoPlayContainer?.hideWithAnimation()
             watchingProgress?.hideWithAnimation()
             if (shouldSetStopTime) {
                 setVodStopWatchingTime()
@@ -526,12 +526,12 @@ internal class VideoPlayerRecyclerView : RecyclerView {
         videoSurfaceView?.requestFocus()
         videoSurfaceView?.visibility = VISIBLE
         videoSurfaceView?.alpha = 1f
-        autoPlayContainer?.reveal()
+        autoPlayContainer?.revealWithAnimation()
         animateAutoPlay()
         startDurationUpdate()
         if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-            if (watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.reveal()
-            duration?.hide()
+            if (watchingProgress?.visibility == View.INVISIBLE) watchingProgress?.revealWithAnimation()
+            duration?.hideWithAnimation()
         }
     }
 
@@ -607,7 +607,8 @@ internal class VideoPlayerRecyclerView : RecyclerView {
             autoPlayAnimatedDrawable?.stop()
             stopDurationUpdate()
             if (autoPlayContainer?.id == R.id.autoPlayContainer_vod) {
-                duration?.reveal()
+                duration?.visibility = View.VISIBLE
+                duration?.alpha = 1f
             }
         }
     }
