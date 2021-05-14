@@ -56,6 +56,8 @@ class ProfileFragment : Fragment() {
     private var uploadMessage: ValueCallback<Array<Uri>>? = null
     private val REQUEST_CODE_ALBUM = 1
     private val REQUEST_CODE_CAMERA = 2
+    private var shouldReload = true
+    private var wasPaused = false
 
 
     override fun onCreateView(
@@ -76,8 +78,6 @@ class ProfileFragment : Fragment() {
             it.isEnabled = false
             parentFragmentManager.popBackStack()
         }
-
-        loadUrl()
     }
 
 
@@ -89,6 +89,8 @@ class ProfileFragment : Fragment() {
         webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         webView.settings.allowFileAccess = true
 
+        loadUrl()
+
         webView.webChromeClient = MyWebChromeClient()
         webView.addJavascriptInterface(JsObject(WebCallback.instance(
             { logout() }, { updateUser() })
@@ -96,13 +98,16 @@ class ProfileFragment : Fragment() {
         )
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                webView?.loadUrl(
-                    "javascript:(function() {" +
-                            "window.parent.addEventListener ('message', function(event) {" +
-                            " AntListener.receiveMessage(JSON.stringify(event.data));});" +
-                            "})()"
-                )
-                hideLoading()
+                if (!wasPaused) {
+                    shouldReload = false
+                    webView?.loadUrl(
+                        "javascript:(function() {" +
+                                "window.parent.addEventListener ('message', function(event) {" +
+                                " AntListener.receiveMessage(JSON.stringify(event.data));});" +
+                                "})()"
+                    )
+                    hideLoading()
+                }
             }
 
             override fun onReceivedError(
@@ -173,7 +178,7 @@ class ProfileFragment : Fragment() {
         if (ConnectionStateMonitor.isNetworkAvailable()) {
             if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && errorSnackBar?.text == context?.resources?.getString(
                     R.string.ant_no_connection
-                )
+                ) || (wasPaused && shouldReload)
             ) {
                 resolveErrorSnackBar(R.string.ant_you_are_online)
                 showLoading()
@@ -182,6 +187,7 @@ class ProfileFragment : Fragment() {
         } else {
             showNoConnection()
         }
+        wasPaused = false
     }
 
     private fun resolveErrorSnackBar(messageId: Int) {
@@ -258,7 +264,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showNoConnection() {
-        showErrorSnackBar(getString(R.string.ant_no_connection))
+        context?.getString(R.string.ant_no_connection)?.let { showErrorSnackBar(it) }
         hideLoading()
         backgroundView?.visibility = View.VISIBLE
         ivError?.setImageDrawable(
@@ -460,7 +466,8 @@ class ProfileFragment : Fragment() {
                         intent.data = uri
                         startActivity(intent)
                     }
-                    alertDialogBuilder.setNegativeButton("Cancel"
+                    alertDialogBuilder.setNegativeButton(
+                        "Cancel"
                     ) { _, _ -> }
 
                     val dialog = alertDialogBuilder.create()
@@ -547,12 +554,16 @@ class ProfileFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        wasPaused = true
+        webView?.stopLoading()
         ConnectionStateMonitor.internetStateLiveData.removeObserver(networkStateObserver)
         loaderAnimatedDrawable?.apply {
-            clearAnimationCallbacks()
-            stop()
-            isLoaderShowing = false
-
+            if (ivLoader?.visibility == View.VISIBLE && isRunning) {
+                ivLoader?.visibility = View.INVISIBLE
+                clearAnimationCallbacks()
+                stop()
+                isLoaderShowing = false
+            }
         }
     }
 }

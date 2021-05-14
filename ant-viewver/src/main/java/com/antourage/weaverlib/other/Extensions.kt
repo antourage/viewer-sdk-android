@@ -200,35 +200,35 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamRespon
         StreamResponseType.UPLOADED_VIDEO -> context.resources.getString(R.string.ant_prefix_posted)
         null -> null
     }
-    val timeAgo: String
-    when {
+    val timeAgo: String = when {
         diff > secInYear -> {
             val days = (diff / secInYear).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_years_long, days, days)
+           context.resources.getQuantityString(R.plurals.ant_years_long, days, days)
         }
         diff > secInMonth -> {
             val days = (diff / secInMonth).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_months_long, days, days)
+           context.resources.getQuantityString(R.plurals.ant_months_long, days, days)
         }
         diff > secInWeek -> {
             val days = (diff / secInWeek).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_weeks_long, days, days)
+            context.resources.getQuantityString(R.plurals.ant_weeks_long, days, days)
         }
         diff > secInDay -> {
             val days = (diff / secInDay).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_days_long, days, days)
+            context.resources.getQuantityString(R.plurals.ant_days_long, days, days)
         }
         diff > secInHour -> {
             val hours = (diff / secInHour).toInt()
-            timeAgo = context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
+            context.resources.getQuantityString(R.plurals.ant_hours_long, hours, hours)
         }
         diff > secInMin -> {
             val minute = (diff / secInMin).toInt()
-            timeAgo =
-                context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
+            context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
         else -> {
-            return context.getString(R.string.ant_started_now)
+            return if(prefix == null){
+                context.getString(R.string.ant_started_now)
+            }else "$prefix${context.getString(R.string.ant_started_now).toLowerCase()}"
         }
     }
     val resultString = if(prefix == null){

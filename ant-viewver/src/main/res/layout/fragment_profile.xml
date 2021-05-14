@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/ant_web_background"
+        android:background="@color/ant_header_dark_gray"
         tools:context=".screens.base.ProfileFragment">
 
     <WebView
@@ -23,7 +23,7 @@
             android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/ant_web_background">
+            android:background="@color/ant_header_dark_gray">
 
         <ImageView
                 android:id="@+id/ivLoader"
