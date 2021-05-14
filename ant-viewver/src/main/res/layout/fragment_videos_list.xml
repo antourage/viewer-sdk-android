@@ -169,13 +169,11 @@
             app:layout_constraintTop_toTopOf="parent">
 
         <View
-                android:background="@drawable/antourage_blue_shadow"
                 android:id="@+id/shadowView"
-                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="4dp"
                 android:layout_marginTop="8dp"
                 android:layout_width="56dp"
                 android:layout_height="56dp"/>
@@ -184,7 +182,7 @@
         <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/shadowFixView"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="12dp"
                 android:padding="0dp"
                 android:src="@color/ant_header_dark_gray"
                 app:layout_constraintTop_toTopOf="parent"
@@ -198,7 +196,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="12dp"
                 android:padding="0dp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"/>
@@ -207,7 +205,7 @@
         <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/userBtn"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="12dp"
                 android:padding="0dp"
                 android:src="@drawable/antourage_ic_incognito_user"
                 app:layout_constraintTop_toTopOf="parent"
@@ -219,7 +217,7 @@
                 android:id="@+id/ivClose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="6dp"
                 android:background="@drawable/antourage_image_btn_bg"
                 android:src="@drawable/antourage_ic_back"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -241,8 +239,9 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="54dp"
-                app:layout_constraintStart_toEndOf="@+id/ivClose">
+                android:layout_marginEnd="58dp"
+                android:layout_marginStart="48dp"
+                app:layout_constraintStart_toStartOf="parent">
 
             <ImageView
                     android:id="@+id/ivTeamImage"
@@ -252,7 +251,7 @@
                     android:maxWidth="64dp"
                     android:maxHeight="40dp"
                     android:scaleType="centerInside"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/tvTitle"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -261,17 +260,17 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="ContentDescription" />
 
-            <com.antourage.weaverlib.other.ui.AccurateWidthTextView
+            <TextView
                     android:id="@+id/tvTitle"
-                    app:layout_constrainedWidth="true"
                     android:gravity="clip_horizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="2dp"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-light"
-                    android:maxLength="25"
-                    android:maxLines="2"
+                    android:includeFontPadding="false"
+                    android:maxLength="20"
+                    android:maxLines="1"
                     android:textColor="@color/ant_white"
                     android:textSize="20sp"
                     android:visibility="visible"

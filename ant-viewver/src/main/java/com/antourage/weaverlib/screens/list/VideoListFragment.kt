@@ -732,7 +732,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             .networkPolicy(NetworkPolicy.OFFLINE)
             .into(userBtn, object : Callback {
                 override fun onSuccess() {
-                    showShadowUnderImage()
+                    invalidateShadowView()
                     viewModel.getProfileInfo()
                 }
 
@@ -749,11 +749,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                 .placeholder(R.drawable.antourage_ic_incognito_user)
                 .into(userBtn, object : Callback {
                     override fun onSuccess() {
-                        showShadowUnderImage()
+                        invalidateShadowView()
                     }
 
                     override fun onError(e: Exception?) {
-                        showShadowUnderImage()
+                        invalidateShadowView()
                     }
                 })
         } else {
@@ -767,11 +767,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             .placeholder(R.drawable.antourage_ic_incognito_user)
             .into(userBtn, object : Callback {
                 override fun onSuccess() {
-                    showShadowUnderImage()
+                    invalidateShadowView()
                 }
 
                 override fun onError(e: Exception?) {
-                    showShadowUnderImage()
+                    invalidateShadowView()
                 }
             })
     }
@@ -845,26 +845,22 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         }
     }
 
-    private fun showShadowUnderImage() {
-        if (userBtn?.visibility == View.VISIBLE) {
-            shadowView?.visibility = View.VISIBLE
-            if (!UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
+    private fun invalidateShadowView() {
+            if (UserCache.getInstance()?.getRefreshToken() == null || !UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
                 shadowView?.backgroundDrawable =
                     ContextCompat.getDrawable(requireContext(), R.drawable.antourage_blue_shadow)
             } else {
                 shadowView?.backgroundDrawable =
                     ContextCompat.getDrawable(requireContext(), R.drawable.antourage_dark_shadow)
             }
-        }
     }
 
     private fun invalidateUserBtn() {
+        invalidateShadowView()
         if (UserCache.getInstance()?.getRefreshToken() == null) {
             userBtn?.visibility = View.GONE
-            shadowView?.visibility = View.GONE
             loginBtn?.visibility = View.VISIBLE
         } else {
-            showShadowUnderImage()
             userBtn?.visibility = View.VISIBLE
             loginBtn?.visibility = View.GONE
         }
