@@ -647,8 +647,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         newStreams: List<StreamResponse>,
         oldStreams: List<StreamResponse>
     ) {
-
         val newestItems = mutableListOf<StreamResponse>()
+        //handle pagination not to trigger new button
+        if(oldStreams.isNotEmpty() && newStreams.isNotEmpty() && viewModel.doNotTriggerNewButton) return
         if (!isInitialListSet && oldStreams.isNotEmpty()) {
             for (stream in newStreams) {
                 if (oldStreams.none { it.id == stream.id }) {

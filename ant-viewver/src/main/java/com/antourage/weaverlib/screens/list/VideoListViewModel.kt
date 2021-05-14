@@ -35,6 +35,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
     var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
     var profileLiveData: MutableLiveData<ProfileResponse> = MutableLiveData()
+    var doNotTriggerNewButton: Boolean = false // to prevent new button to appear on pagination fetching
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
@@ -71,6 +72,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private val liveFromSocketObserver = Observer<List<StreamResponse>> { newStreams ->
         if (newStreams != null) {
+            doNotTriggerNewButton = false
             liveVideos = newStreams.toMutableList()
             liveVideos?.let { getChatPollInfoForLives(it) }
             liveVideos?.let {
@@ -86,6 +88,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
 
     private val vodFromSocketObserver = Observer<StreamResponse> { newVod ->
         if (newVod != null && FeedRepository.vods?.any { it.id == newVod.id } == false) {
+            doNotTriggerNewButton = false
             val list = mutableListOf<StreamResponse>()
             list.add(newVod)
             FeedRepository.invalidateIsNewProperty(list)
@@ -194,6 +197,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
         }
         when (resource.status) {
             is Status.Success -> {
+                doNotTriggerNewButton = false
                 liveVideos = (resource.status.data)?.toMutableList()
                 liveVideos?.let { getChatPollInfoForLives(it) }
                 liveVideos?.let {
@@ -221,6 +225,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     override fun onVODReceived(resource: Resource<List<StreamResponse>>) {
         when (resource.status) {
             is Status.Success -> {
+                doNotTriggerNewButton = true
                 val list = mutableListOf<StreamResponse>()
                 FeedRepository.vods?.let {
                     list.addAll(it)
