@@ -25,9 +25,10 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.duration
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.liveWatchedBeforeSignIn
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.resetLastWatchedLive
 import com.antourage.weaverlib.other.models.*
-import com.antourage.weaverlib.other.models.Message
-import com.antourage.weaverlib.other.models.MessageType
 import com.antourage.weaverlib.other.ui.keyboard.KeyboardEventListener
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.chat.ChatFragment
@@ -50,11 +51,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private var wasDrawerClosed = false
     private var userDialog: Dialog? = null
     private var shouldDisconnectSocket: Boolean = true
+    private var alreadyHandledSignInInterruption: Boolean = false
 
     companion object {
         const val ARGS_STREAM = "args_stream"
         const val ARGS_USER_ID = "args_user_id"
         const val ARGS_START_CHAT = "args_required_to_start_chat"
+        const val ARGS_LAST_DURATION = "args_last_duration"
 
         private const val SWIPE_THRESHOLD = 100
         private const val SWIPE_VELOCITY_THRESHOLD = 100
@@ -62,13 +65,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         fun newInstance(
             stream: StreamResponse,
             userId: String?,
-            isRequiredToStartChat: Boolean = false
+            isRequiredToStartChat: Boolean = false,
+            lastWatchedDuration: Long? = null
         ): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
             bundle.putString(ARGS_USER_ID, userId)
             bundle.putBoolean(ARGS_START_CHAT, isRequiredToStartChat)
+            if (lastWatchedDuration != null) {
+                bundle.putLong(ARGS_LAST_DURATION, lastWatchedDuration)
+            }
             fragment.arguments = bundle
             return fragment
         }
@@ -87,6 +94,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         playerControls.show()
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
+                    arguments?.getLong(ARGS_LAST_DURATION).let{
+                        if (!alreadyHandledSignInInterruption && it != 0L) {
+                            alreadyHandledSignInInterruption = true
+                            playerControls.player?.duration?.let { it1 ->
+                                playerControls.player?.seekTo(
+                                    it1
+                                )
+                            }
+                        }
+                    }
                 }
                 Player.STATE_IDLE -> {
                     if (!viewModel.wasStreamInitialized)
@@ -495,6 +512,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         super.onResume()
         viewModel.onResume()
         shouldDisconnectSocket = true
+        resetLastWatchedLive()
     }
 
     override fun onPause() {
@@ -710,6 +728,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         join_conversation_btn.setOnClickListener {
             (activity as AntourageActivity).openJoinTab()
+            liveWatchedBeforeSignIn = arguments?.getParcelable(ARGS_STREAM)
+            duration = viewModel.getDuration()
         }
     }
 

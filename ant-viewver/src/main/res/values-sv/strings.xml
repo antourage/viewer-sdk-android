@@ -2,7 +2,7 @@
     <public />
     <string name="ant_live">LIVE</string>
     <string name="ant_new_vod">NY</string>
-    <string name="ant_hint_chat">Chatta</string>
+    <string name="ant_hint_chat">Säg något</string>
     <string name="ant_hint_disabled">Chat avstängd</string>
 
     <!--polls-->

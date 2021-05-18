@@ -21,7 +21,9 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.ContextWrapper
-import com.antourage.weaverlib.other.models.StreamResponse
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.duration
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.liveWatchedBeforeSignIn
+import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.resetLastWatchedLive
 import com.antourage.weaverlib.other.networking.VideoCloseBackUp
 import com.antourage.weaverlib.other.networking.auth.AuthClient
 import com.antourage.weaverlib.other.replaceFragment
@@ -57,7 +59,7 @@ class AntourageActivity : AppCompatActivity() {
             )
         )
 
-        val streamToWatch = intent?.getParcelableExtra<StreamResponse>(ARGS_STREAM_SELECTED)
+        val streamToWatch = liveWatchedBeforeSignIn ?: intent?.getParcelableExtra(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null
         supportFragmentManager.beginTransaction()
             .replace(
@@ -66,7 +68,8 @@ class AntourageActivity : AppCompatActivity() {
                     if (streamToWatch.isLive) {
                         PlayerFragment.newInstance(
                             streamToWatch,
-                            UserCache.getInstance(applicationContext)?.getUserId()
+                            UserCache.getInstance(applicationContext)?.getUserId(),
+                            lastWatchedDuration = duration
                         )
                     } else {
                         VodPlayerFragment.newInstance(streamToWatch, isNewVod = true)
@@ -74,7 +77,7 @@ class AntourageActivity : AppCompatActivity() {
                 } else VideoListFragment.newInstance()
             )
             .commit()
-
+        resetLastWatchedLive()
         FirebaseLoginService().handleSignIn()
         setupKeyboardListener(findViewById(R.id.mainContent))
     }
