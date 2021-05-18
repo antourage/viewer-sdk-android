@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.antourage.weaverlib.BuildConfig
+import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.other.models.AnsweredUser
 import com.antourage.weaverlib.other.models.AnswersCombined
@@ -30,10 +31,10 @@ internal class PollDetailsViewModel constructor(application: Application)
     internal fun getPollLiveData(): LiveData<Poll> = pollLiveData
     internal fun getAnswersLiveData(): LiveData<List<AnswersCombined>> = answersLiveData
 
-    fun initPollDetails(streamId: Int, pollId: String, userId: String, banner: AdBanner?) {
+    fun initPollDetails(streamId: Int, pollId: String, banner: AdBanner?) {
         this.streamId = streamId
         this.pollId = pollId
-        this.userId = userId
+        this.userId = UserCache.getInstance()?.getUserId()
         this.banner = banner
         Repository.getPollDetails(streamId, pollId).observeForever { resource ->
             resource?.status?.let { status ->

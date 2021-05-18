@@ -687,10 +687,9 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun openLiveFragment(stream: StreamResponse, isFromJoinChat: Boolean = false) {
-        val userId = context?.let { UserCache.getInstance(it)?.getUserId() }
         videosRV.isOpeningPlayer = true
         replaceFragment(
-            PlayerFragment.newInstance(stream, userId, isFromJoinChat),
+            PlayerFragment.newInstance(stream, isFromJoinChat),
             R.id.mainContent,
             addToBackStack = true,
             slideFromBottom = true

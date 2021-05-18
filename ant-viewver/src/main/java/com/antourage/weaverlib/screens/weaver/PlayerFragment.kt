@@ -55,7 +55,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     companion object {
         const val ARGS_STREAM = "args_stream"
-        const val ARGS_USER_ID = "args_user_id"
         const val ARGS_START_CHAT = "args_required_to_start_chat"
         const val ARGS_LAST_DURATION = "args_last_duration"
 
@@ -64,14 +63,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         fun newInstance(
             stream: StreamResponse,
-            userId: String?,
             isRequiredToStartChat: Boolean = false,
             lastWatchedDuration: Long? = null
         ): PlayerFragment {
             val fragment = PlayerFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARGS_STREAM, stream)
-            bundle.putString(ARGS_USER_ID, userId)
             bundle.putBoolean(ARGS_START_CHAT, isRequiredToStartChat)
             if (lastWatchedDuration != null) {
                 bundle.putLong(ARGS_LAST_DURATION, lastWatchedDuration)
@@ -228,13 +225,12 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     }
 
                     val videoId = arguments?.getParcelable<StreamResponse>(ARGS_STREAM)?.id
-                    val userId = arguments?.getString(ARGS_USER_ID)
+                    val userId = viewModel.getUser()?.id
                     if (videoId != null && userId != null) {
                         replaceChildFragment(
                             PollDetailsFragment.newInstance(
                                 videoId,
                                 state.pollId,
-                                userId,
                                 viewModel.getBanner()
                             ), R.id.bottomLayout, true
                         )
@@ -715,8 +711,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 //        btnUserSettings.setOnClickListener(onUserSettingsClicked)
 
         poll_bg.setOnClickListener {
-            playerControls.hide()
-            onPollDetailsClicked()
+            val userId = UserCache.getInstance()?.getUserId()
+            if(userId.isNullOrEmpty() || userId == "-1"){
+                join_conversation_btn.callOnClick()
+            }else{
+                playerControls.hide()
+                onPollDetailsClicked()
+            }
         }
 
         player_control_header.findViewById<ImageView>(R.id.play_header_iv_close)

@@ -288,6 +288,10 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
                     when (val responseStatus = it?.status) {
                         is Status.Success -> {
                             user = responseStatus.data
+                            val profile = responseStatus.data
+                            UserCache.getInstance()?.saveUserNickName(profile?.nickname ?: "")
+                            UserCache.getInstance()?.saveUserImage(profile?.imageUrl ?: "")
+                            UserCache.getInstance()?.saveUserId(profile?.id ?: "")
                             userInfoLiveData.postValue(user)
                             response.removeObserver(this)
                         }
@@ -301,28 +305,6 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
     fun noDisplayNameSet() =
         user == null || user?.nickname == null || user?.nickname?.isEmptyTrimmed() == true
 
-//    fun changeUserDisplayName(newDisplayName: String) {
-//        if (newDisplayName != user?.nickname) {
-//            changeDisplayNameForAllMessagesLocally(newDisplayName)
-//            UserCache.getInstance(getApplication())?.saveUserNickName(newDisplayName)
-//            val response = Repository.updateDisplayName(UpdateDisplayNameRequest(newDisplayName))
-//            response.observeForever(object : Observer<Resource<SimpleResponse>> {
-//                override fun onChanged(it: Resource<SimpleResponse>?) {
-//                    when (it?.status) {
-//                        is Status.Success -> {
-//                            user?.nickname = newDisplayName
-//                            userInfoLiveData.postValue(user)
-//                            response.removeObserver(this)
-//                        }
-//                        is Status.Failure -> {
-//                            response.removeObserver(this)
-//                        }
-//                        else -> {}
-//                    }
-//                }
-//            })
-//        }
-//    }
 
     private fun changeAndPostDisplayNameForAllMessages(displayName: String, list: List<Message>) {
         val currentUserId = user?.id
@@ -335,19 +317,6 @@ internal class PlayerViewModel constructor(application: Application) : ChatViewM
         }
         messagesLiveData.postValue(list)
     }
-
-//    private fun changeDisplayNameForAllMessagesLocally(newDisplayName: String) {
-//        val currentUserId = user?.id
-//        val list = messagesLiveData.value
-//        if (currentUserId != null) {
-//            list?.forEach {
-//                if (it.userID != null && it.userID == currentUserId.toString()) {
-//                    it.nickname = newDisplayName
-//                }
-//            }
-//        }
-//        messagesLiveData.postValue(list)
-//    }
 
     fun getDuration() = getCurrentDuration()
 

@@ -68,7 +68,6 @@ class AntourageActivity : AppCompatActivity() {
                     if (streamToWatch.isLive) {
                         PlayerFragment.newInstance(
                             streamToWatch,
-                            UserCache.getInstance(applicationContext)?.getUserId(),
                             lastWatchedDuration = duration
                         )
                     } else {
