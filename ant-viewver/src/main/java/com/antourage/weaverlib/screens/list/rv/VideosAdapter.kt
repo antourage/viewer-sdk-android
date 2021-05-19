@@ -353,7 +353,7 @@ internal class VideosAdapter(
                     txtTitle_live.text = streamTitle
                     txtViewersCount_live.text = viewersCount?.formatQuantity() ?: "0"
                     txtViewersCount_live.gone(viewersCount == null)
-                    val formattedStartTime = context.resources.getString(R.string.ant_prefix_live_in_progress, startTime?.parseDateLong(context))
+                    val formattedStartTime = context.resources.getString(R.string.ant_prefix_live_in_progress, startTime?.parseDateLong(context)?.toLowerCase())
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_live.text = streamerNameAndTime
                     txtStreamerInfo_live.visible(!formattedStartTime.isNullOrEmpty())

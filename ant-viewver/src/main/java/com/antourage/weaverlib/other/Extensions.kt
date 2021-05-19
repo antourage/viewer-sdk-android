@@ -227,7 +227,7 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamRespon
         }
         else -> {
             return if(prefix == null){
-                context.getString(R.string.ant_started_now)
+                context.getString(R.string.ant_started_now).toLowerCase()
             }else "$prefix${context.getString(R.string.ant_started_now).toLowerCase()}"
         }
     }
