@@ -392,7 +392,7 @@ internal class VideosAdapter(
                         ivThumbnail_vod,
                         ivThumbnail_vod_placeholder
                     )
-                    loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_vod)
+                    loadStreamerImageOrShowPlaceholder(creatorImageUrl, ivStreamerPicture_vod)
                     this@with.setOnClickListener {
                         if (adapterPosition >= 0 && adapterPosition < listOfStreams.size &&
                             adapterPosition != -1
@@ -462,7 +462,7 @@ internal class VideosAdapter(
                     if (images != null) {
                         initViewPager(imagesViewPager, dots, images, layoutPosition)
                     }
-                    loadStreamerImageOrShowPlaceholder(broadcasterPicUrl, ivStreamerPicture_post)
+                    loadStreamerImageOrShowPlaceholder(creatorImageUrl, ivStreamerPicture_post)
 
                     if(images!=null && images.size > 1) {
                         shadowPost.visibility = View.VISIBLE

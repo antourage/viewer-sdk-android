@@ -682,7 +682,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     .placeholder(R.drawable.antourage_ic_incognito_user)
                     .error(R.drawable.antourage_ic_incognito_user)
                     .into(play_header_iv_photo)
-                Picasso.get().load(broadcasterPicUrl)
+                Picasso.get().load(creatorImageUrl)
                     .placeholder(R.drawable.antourage_ic_incognito_user)
                     .error(R.drawable.antourage_ic_incognito_user)
                     .into(player_control_header.findViewById<ImageView>(R.id.play_header_iv_photo))

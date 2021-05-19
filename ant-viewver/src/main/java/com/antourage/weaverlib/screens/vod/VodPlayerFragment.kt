@@ -109,13 +109,13 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         )
                     }
                     viewModel.currentVideo.value?.apply {
-                        if (!broadcasterPicUrl.isNullOrEmpty()) {
-                            Picasso.get().load(broadcasterPicUrl)
+                        if (!creatorImageUrl.isNullOrEmpty()) {
+                            Picasso.get().load(creatorImageUrl)
                                 .placeholder(R.drawable.antourage_ic_incognito_user)
                                 .error(R.drawable.antourage_ic_incognito_user)
                                 .into(play_header_iv_photo)
 
-                            Picasso.get().load(broadcasterPicUrl)
+                            Picasso.get().load(creatorImageUrl)
                                 .placeholder(R.drawable.antourage_ic_incognito_user)
                                 .error(R.drawable.antourage_ic_incognito_user)
                                 .into(
@@ -198,12 +198,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 updateWasLiveValueOnUI(startTime, duration, type!!)
                 id?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
-            if (!broadcasterPicUrl.isNullOrEmpty()) {
-                Picasso.get().load(broadcasterPicUrl)
+            if (!creatorImageUrl.isNullOrEmpty()) {
+                Picasso.get().load(creatorImageUrl)
                     .placeholder(R.drawable.antourage_ic_incognito_user)
                     .error(R.drawable.antourage_ic_incognito_user)
                     .into(play_header_iv_photo)
-                Picasso.get().load(broadcasterPicUrl)
+                Picasso.get().load(creatorImageUrl)
                     .placeholder(R.drawable.antourage_ic_incognito_user)
                     .error(R.drawable.antourage_ic_incognito_user)
                     .into(

@@ -86,7 +86,6 @@ class ProfileFragment : Fragment() {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowContentAccess = true
-        webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         webView.settings.allowFileAccess = true
 
         loadUrl()
