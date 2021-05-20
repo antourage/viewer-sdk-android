@@ -420,10 +420,15 @@ internal class VideosAdapter(
                     txtCommentAuthor_vod.text =
                         lastMessageAuthor?.let { formatAuthor(it, resources) }
 
-                    val formattedStartTime =
+                    val formattedStartTime = if(type == StreamResponseType.VOD){
                         duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
                             Date(it).parseToDisplayAgoTimeLong(context, vod.type)
                         }
+                    }else {
+                        publishDate?.parseToDate()?.time?.let {
+                            Date(it).parseToDisplayAgoTimeLong(context, vod.type)
+                        }
+                    }
                     val streamerNameAndTime = "$creatorNickname  •  $formattedStartTime"
                     txtStreamerInfo_vod.text = streamerNameAndTime
                     txtStreamerInfo_vod.visible(!formattedStartTime.isNullOrEmpty())
@@ -476,7 +481,7 @@ internal class VideosAdapter(
                     }
 
                     txtTitle_post.text = videoName
-                    val formattedStartTime = startTime?.parseToDate()?.parseToDisplayAgoTimeLong(
+                    val formattedStartTime = publishDate?.parseToDate()?.parseToDisplayAgoTimeLong(
                         context,
                         post.type!!
                     )

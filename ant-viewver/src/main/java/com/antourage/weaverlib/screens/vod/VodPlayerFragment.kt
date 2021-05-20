@@ -195,7 +195,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                 creatorNickname
             txtNumberOfViewers.text = viewsCount?.formatQuantity() ?: "0"
             context?.let { context ->
-                updateWasLiveValueOnUI(startTime, duration, type!!)
+                updateWasLiveValueOnUI(this)
                 id?.let { UserCache.getInstance(context)?.saveVideoToSeen(it) }
             }
             if (!creatorImageUrl.isNullOrEmpty()) {
@@ -344,7 +344,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
         startPlayingStream()
         val streamResponse = arguments?.getParcelable<StreamResponse>(PlayerFragment.ARGS_STREAM)
         streamResponse?.apply {
-            updateWasLiveValueOnUI(startTime, duration, type!!)
+            updateWasLiveValueOnUI(this)
             viewModel.initUi(
                 id,
                 startTime,
@@ -744,17 +744,22 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
     override fun onMinuteChanged() {
         viewModel.currentVideo.value?.let {
             if (it.startTime != null && it.duration != null) {
-                updateWasLiveValueOnUI(it.startTime, it.duration, it.type!!)
+                updateWasLiveValueOnUI(it)
             }
         }
     }
 
-    private fun updateWasLiveValueOnUI(startTime: String?, duration: String?, type: StreamResponseType) {
+    private fun updateWasLiveValueOnUI(feedItem: StreamResponse) {
         context?.apply {
-            val formattedStartTime =
-                duration?.parseToMills()?.plus((startTime?.parseToDate()?.time ?: 0))?.let {
-                    Date(it).parseToDisplayAgoTimeLong(this, type)
+            val formattedStartTime = if(feedItem.type == StreamResponseType.VOD){
+                feedItem.duration?.parseToMills()?.plus((feedItem.startTime?.parseToDate()?.time ?: 0))?.let {
+                    Date(it).parseToDisplayAgoTimeLong(this, feedItem.type)
                 }
+            }else {
+                feedItem.publishDate?.parseToDate()?.time?.let {
+                    Date(it).parseToDisplayAgoTimeLong(this, feedItem.type)
+                }
+            }
             play_header_tv_ago.text = formattedStartTime
             play_header_tv_ago.gone(formattedStartTime.isNullOrEmpty())
             val tvAgoLandscape = player_control_header

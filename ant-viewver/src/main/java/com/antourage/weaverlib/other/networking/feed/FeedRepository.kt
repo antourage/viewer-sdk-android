@@ -12,7 +12,6 @@ import com.antourage.weaverlib.other.networking.NetworkBoundResource
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.parseToDate
-import com.antourage.weaverlib.other.parseToMills
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.screens.base.Repository
 import kotlinx.coroutines.Dispatchers
@@ -64,9 +63,9 @@ internal class FeedRepository {
                         is Status.Success -> {
                             val videoList = resource.status.data
                             if (videoList != null) {
-                                if(videoList.isEmpty()){
+                                if (videoList.isEmpty()) {
                                     streamResponseLD.postValue(Resource(Status.Success(videoList)))
-                                }else{
+                                } else {
                                     updateListWithLastComments(videoList, repository) {
                                         streamResponseLD.postValue(Resource(Status.Success(it)))
                                     }
@@ -79,7 +78,8 @@ internal class FeedRepository {
                         is Status.Loading -> {
                             streamResponseLD.value = resource
                         }
-                        else -> {}
+                        else -> {
+                        }
                     }
                 }
             })
@@ -121,18 +121,12 @@ internal class FeedRepository {
             }
         }
 
-        internal fun updateLastSeenVod(){
-            if(vods == null || vods?.isEmpty()!!) return
+        internal fun updateLastSeenVod() {
+            if (vods == null || vods?.isEmpty()!!) return
             val vod = vods!![0]
             val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
-            val newestVodTime: Date = if (vod.duration != null) {
-                Date(
-                    vod.duration.parseToMills().plus((vod.startTime?.parseToDate()?.time ?: 0))
-                )
-            } else {
-                Date((vod.startTime?.parseToDate()?.time ?: 0))
-            }
-            if(lastViewedTime == null || newestVodTime.after(lastViewedTime)) {
+            val newestVodTime = Date((vod.publishDate?.parseToDate()?.time ?: 0))
+            if (lastViewedTime == null || newestVodTime.after(lastViewedTime)) {
                 UserCache.getInstance()?.saveLastViewedTime(newestVodTime.time.getUtcTime())
             }
 
@@ -142,20 +136,15 @@ internal class FeedRepository {
             val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
                 ?: return
             newList.forEach { vod ->
-                if (!vod.isLive ) {
-                    val time: Date = if (vod.duration != null) {
-                        Date(
-                            vod.duration.parseToMills().plus((vod.startTime?.parseToDate()?.time ?: 0))
-                        )
-                    } else {
-                        Date((vod.startTime?.parseToDate()?.time ?: 0))
-                    }
+                if (!vod.isLive) {
+                    val time = Date((vod.publishDate?.parseToDate()?.time ?: 0))
 
-                    vod.isNew = !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
-                        it.id?.equals(
-                            vod.id
-                        ) == true
-                    }?.isNew == false))
+                    vod.isNew =
+                        !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
+                            it.id?.equals(
+                                vod.id
+                            ) == true
+                        }?.isNew == false))
                 }
             }
         }
