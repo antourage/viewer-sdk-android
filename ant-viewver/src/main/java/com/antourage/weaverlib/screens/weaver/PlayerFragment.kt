@@ -715,6 +715,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if(userId.isNullOrEmpty() || userId == "-1"){
                 join_conversation_btn.callOnClick()
             }else{
+                removeMessageInput()
                 playerControls.hide()
                 onPollDetailsClicked()
             }
