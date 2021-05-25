@@ -14,6 +14,7 @@
     <color name="ant_semitransparent">#66424242</color>
     <color name="ant_halftransparent">#80000000</color>
     <color name="ant_dark_transparent">#AB000000</color>
+    <color name="ant_dark_transparent_a90">#F2000000</color>
     <color name="ant_dark_gray_2">#1F1F1F</color>
     <color name="ant_dark_gray_3_a50">#800F0F0F</color>
     <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>

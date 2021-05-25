@@ -56,8 +56,8 @@ class ProfileFragment : Fragment() {
     private var uploadMessage: ValueCallback<Array<Uri>>? = null
     private val REQUEST_CODE_ALBUM = 1
     private val REQUEST_CODE_CAMERA = 2
-    private var shouldReload = true
     private var wasPaused = false
+    private var shouldReload = false
 
 
     override fun onCreateView(
@@ -97,7 +97,7 @@ class ProfileFragment : Fragment() {
         )
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                if (!wasPaused) {
+                if (!wasPaused && webView?.progress == 100) {
                     shouldReload = false
                     webView?.loadUrl(
                         "javascript:(function() {" +
@@ -115,6 +115,7 @@ class ProfileFragment : Fragment() {
                 error: WebResourceError?
             ) {
                 super.onReceivedError(view, request, error)
+                shouldReload = true
                 if (ConnectionStateMonitor.isNetworkAvailable()) {
                     showError()
                 } else {
@@ -164,11 +165,20 @@ class ProfileFragment : Fragment() {
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             resolveErrorSnackBar(R.string.ant_you_are_online)
-            showLoading()
-            webView?.reload()
+            if(shouldReload){
+                showLoading()
+                webView?.reload()
+            }else {
+                backgroundView?.visibility = View.GONE
+                ivLoader?.visibility = View.INVISIBLE
+                isLoaderShowing = false
+            }
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 showNoConnection()
+                if(webView?.progress != 100){
+                    shouldReload = true
+                }
             }
         }
     }

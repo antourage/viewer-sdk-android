@@ -219,7 +219,9 @@ class AntourageFab @JvmOverloads constructor(
 
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
-        fabContainer.onClick { checkWhatToOpen() }
+        fabContainer.onClick {
+            checkWhatToOpen()
+        }
         AntourageFabLifecycleObserver.registerActionHandler(this)
         clearStreams()
         initPlayAnimation()
@@ -974,7 +976,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private val vodsFromSocketObserver = Observer<StreamResponse> { vodResponse ->
-        if(vodResponse!=null){
+        if (vodResponse != null) {
             vod = vodResponse
             runOnUi { manageVODs() }
         }

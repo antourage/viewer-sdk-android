@@ -1,5 +1,6 @@
 package com.antourage.weaverlib.other
 
+import android.animation.Animator
 import android.app.Activity
 import android.content.Context
 import android.graphics.Point
@@ -7,10 +8,14 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.View
+import android.view.ViewAnimationUtils
+import androidx.constraintlayout.widget.ConstraintLayout
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.hypot
 
 
 internal fun dp2px(context: Context, dipValue: Float): Float {
@@ -42,6 +47,43 @@ internal fun convertUtcToLocal(utcTime: String): Date? {
         e.printStackTrace()
         null
     }
+}
+
+internal fun circularRevealView(viewToReveal: View, anchorView: View) {
+    val cx = (anchorView.left + anchorView.right) / 2
+    val cy = (anchorView.top + anchorView.bottom) / 2
+    val anim: Animator = ViewAnimationUtils.createCircularReveal(
+        viewToReveal, cx, cy, 0.0f,
+        hypot(
+            cx.toDouble(),
+            cy.toDouble()
+        ).toFloat()
+    )
+    viewToReveal.visibility = ConstraintLayout.VISIBLE
+    anim.duration = 400
+    anim.start()
+}
+
+internal fun circularHideView(viewToHide: View, anchorView: View) {
+    val cx = (anchorView.left + anchorView.right) / 2
+    val cy = (anchorView.top + anchorView.bottom) / 2
+    val anim: Animator = ViewAnimationUtils.createCircularReveal(
+        viewToHide, cx, cy, hypot(
+            cx.toDouble(),
+            cy.toDouble()
+        ).toFloat(), 0.0f
+    )
+    anim.duration = 400
+    anim.addListener(object : Animator.AnimatorListener {
+        override fun onAnimationRepeat(animation: Animator?) {}
+        override fun onAnimationCancel(animation: Animator?) {}
+        override fun onAnimationStart(animation: Animator?) {}
+
+        override fun onAnimationEnd(animation: Animator?) {
+            viewToHide.visibility = ConstraintLayout.GONE
+        }
+    })
+    anim.start()
 }
 
 internal fun getSecondsDateDiff(date1: Date, date2: Date): Long {
