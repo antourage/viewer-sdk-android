@@ -95,6 +95,13 @@ class AntourageFab @JvmOverloads constructor(
             startAntRequests()
         }
 
+        internal fun reconfigure(context: Context){
+            UserCache.getInstance(context)
+            ConfigManager.init(context)
+            handleDeviceId(context)
+            setDefaultLocale(context)
+        }
+
         private fun setDefaultLocale(context: Context) {
             val defaultLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 context.resources.configuration.locales[0]

@@ -37,6 +37,10 @@ internal object ConfigManager {
         }
     }
 
+    internal fun isConfigInitialized(): Boolean{
+        return this::configFile.isInitialized
+    }
+
     private fun setupSecrets() {
         CLIENT_ID = configFile.appClientId ?: ""
         ANONYMOUS_CLIENT_ID = configFile.anonymousAppClientId ?: ""

@@ -13,12 +13,12 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsIntent.Builder
+import com.antourage.weaverlib.*
+import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.ConfigManager.ANONYMOUS_CLIENT_ID
 import com.antourage.weaverlib.ConfigManager.ANONYMOUS_SECRET
 import com.antourage.weaverlib.ConfigManager.CLIENT_ID
 import com.antourage.weaverlib.ConfigManager.WEB_PROFILE_URL
-import com.antourage.weaverlib.Global
-import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.ContextWrapper
 import com.antourage.weaverlib.other.LiveWatchedBeforeSignIn.duration
@@ -45,8 +45,8 @@ class AntourageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_antourage)
-        if (UserCache.getInstance() == null) {
-            AntourageFab.configure(applicationContext)
+        if (UserCache.getInstance() == null || !ConfigManager.isConfigInitialized()) {
+            AntourageFab.reconfigure(applicationContext)
         }
         registerKeyboardVisibilityEvent()
         intent?.data?.let {
