@@ -115,5 +115,11 @@
     <string name="ant_slash" translatable="false">/</string>
     <string name="ant_init_time_doubled" translatable="false">00:00</string>
     <string name="ant_init_time" translatable="false">0:00</string>
-    <string name="join_conversation" translatable="false">JOIN CONVERSATION</string>
+    <string name="join_conversation">JOIN CONVERSATION</string>
+
+    <!--intro-->
+    <string name="ant_see_it_first">See It First</string>
+    <string name="ant_ask_questions">Ask Questions</string>
+    <string name="ant_have_your_say">Have Your Say</string>
+    <string name="ant_be_a_part_of_the_community">Be A Part of the Community</string>
 </resources>

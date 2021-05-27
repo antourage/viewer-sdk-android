@@ -49,26 +49,26 @@ internal fun convertUtcToLocal(utcTime: String): Date? {
     }
 }
 
-internal fun circularRevealView(viewToReveal: View, anchorView: View) {
-    val cx = (anchorView.left + anchorView.right) / 2
-    val cy = (anchorView.top + anchorView.bottom) / 2
+internal fun circularRevealOverlay(overlay: View, fab: View) {
+    val cx = (fab.x + fab.width/2)
+    val cy = (fab.y + fab.height/2)
     val anim: Animator = ViewAnimationUtils.createCircularReveal(
-        viewToReveal, cx, cy, 0.0f,
+        overlay, cx.toInt(), cy.toInt(), 0.0f,
         hypot(
             cx.toDouble(),
             cy.toDouble()
         ).toFloat()
     )
-    viewToReveal.visibility = ConstraintLayout.VISIBLE
+    overlay.visibility = ConstraintLayout.VISIBLE
     anim.duration = 400
     anim.start()
 }
 
-internal fun circularHideView(viewToHide: View, anchorView: View) {
-    val cx = (anchorView.left + anchorView.right) / 2
-    val cy = (anchorView.top + anchorView.bottom) / 2
+internal fun circularHideOverlay(overlay: View, fab: View) {
+    val cx = (fab.x + fab.width/2)
+    val cy = (fab.y + fab.height/2)
     val anim: Animator = ViewAnimationUtils.createCircularReveal(
-        viewToHide, cx, cy, hypot(
+        overlay, cx.toInt(), cy.toInt(), hypot(
             cx.toDouble(),
             cy.toDouble()
         ).toFloat(), 0.0f
@@ -80,7 +80,7 @@ internal fun circularHideView(viewToHide: View, anchorView: View) {
         override fun onAnimationStart(animation: Animator?) {}
 
         override fun onAnimationEnd(animation: Animator?) {
-            viewToHide.visibility = ConstraintLayout.GONE
+            overlay.visibility = ConstraintLayout.GONE
         }
     })
     anim.start()

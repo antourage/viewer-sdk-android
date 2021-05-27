@@ -27,7 +27,7 @@ import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.hideBadge
+import com.antourage.weaverlib.other.*
 import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
 import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.models.StreamResponseType
@@ -42,9 +42,6 @@ import com.antourage.weaverlib.other.networking.SocketConnector.newVodLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
-import com.antourage.weaverlib.other.showBadge
-import com.antourage.weaverlib.other.validateHorizontalMarginForFab
-import com.antourage.weaverlib.other.validateVerticalMarginForFab
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
@@ -56,6 +53,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.lang.Exception
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -85,6 +83,9 @@ class AntourageFab @JvmOverloads constructor(
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
 
+        /**
+         *  Method for configuring fab that initializes all needed library instances
+         *  */
         fun configure(context: Context) {
             UserCache.getInstance(context)
             ConfigManager.init(context)
@@ -184,6 +185,7 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private lateinit var onboardingView: OnboardingView
     private var viewIsDrawn: Boolean = false
     private var horizontalMargin: Int = 0
     private var verticalMargin: Int = 0
@@ -204,6 +206,7 @@ class AntourageFab @JvmOverloads constructor(
     private var playIconAlphaHandler: Handler = Handler(Looper.getMainLooper())
     private var playIconStartHandler: Handler = Handler(Looper.getMainLooper())
     private var bounceHandler: Handler = Handler(Looper.getMainLooper())
+    private var onboardingHandler: Handler = Handler(Looper.getMainLooper())
     private var currentPlayerState: Int = 0
     private var isShowingLive: Boolean = false
     private var badgeColor: Drawable? = null
@@ -220,6 +223,7 @@ class AntourageFab @JvmOverloads constructor(
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick {
+            UserCache.getInstance()?.setOnboardingSeen()
             checkWhatToOpen()
         }
         AntourageFabLifecycleObserver.registerActionHandler(this)
@@ -233,15 +237,33 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     /**
-     * Method to show fab
+     * Method to programmatically add fab to UI of host app
      */
     fun showFab(activity: Activity) {
         if (parent == null) {
-            val viewGroup =
+            val hostRootView =
                 (activity.findViewById<ViewGroup>(android.R.id.content)).getChildAt(0) as ViewGroup
-            viewGroup.addView(this)
+            hostRootView.addView(this)
         }
     }
+
+    /**
+     * Method to show instruction overlay on first app start
+     */
+    private fun revealOnboardingView() {
+        try {
+            onboardingHandler.postDelayed({
+                onboardingView = OnboardingView(context)
+                ((rootView as ViewGroup).findViewById<ViewGroup>(android.R.id.content)
+                    .getChildAt(0) as ViewGroup).addView(onboardingView)
+                onboardingView.startAnimation(this)
+                UserCache.getInstance()?.setOnboardingSeen()
+            }, 4000)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 
     /**
      * Method to force set locale (currently default or Swedish)
@@ -432,6 +454,9 @@ class AntourageFab @JvmOverloads constructor(
         if (didViewerAppear) onViewerDisappear()
         wasPaused = false
         setLocale()
+        if(UserCache.getInstance()?.isOnboardingSeen() == false){
+            revealOnboardingView()
+        }
         internetStateLiveData.observeForever(networkStateObserver)
         shouldDisconnectSocket = true
         FeedRepository.vods?.let { vods ->
@@ -525,6 +550,7 @@ class AntourageFab @JvmOverloads constructor(
         currentFabState = FabState.INACTIVE
         setIncomingWidgetStatus(null)
         bounceHandler.removeCallbacksAndMessages(null)
+        onboardingHandler.removeCallbacksAndMessages(null)
         Handler(Looper.getMainLooper()).postDelayed({
             circleAnimatedDrawable?.apply {
                 clearAnimationCallbacks()
@@ -820,6 +846,8 @@ class AntourageFab @JvmOverloads constructor(
         shouldDisconnectSocket = false
 
         onViewerAppear()
+
+        if(this::onboardingView.isInitialized) onboardingView.hideView()
 
         when (currentFabState) {
             FabState.INACTIVE -> {
