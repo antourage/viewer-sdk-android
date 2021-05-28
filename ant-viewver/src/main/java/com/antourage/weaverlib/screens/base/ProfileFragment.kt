@@ -502,8 +502,9 @@ class ProfileFragment : Fragment() {
                 ex.printStackTrace()
             }
             if (photoFile != null) {
+                val authority = "${requireContext().packageName}.antourage.fileProvider"
                 val fileProviderUri = FileProvider.getUriForFile(
-                    requireContext(), "com.antourage.weaverlib.fileProvider",
+                    requireContext(), authority,
                     photoFile
                 )
                 mCameraPhotoPath = "file:" + photoFile.absolutePath

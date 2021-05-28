@@ -45,11 +45,12 @@
                 android:exported="false" />
         <provider
                 android:name="androidx.core.content.FileProvider"
-                android:authorities="com.antourage.weaverlib.fileProvider"
+                android:authorities="${applicationId}.antourage.fileProvider"
                 android:exported="false"
                 android:grantUriPermissions="true">
             <meta-data
                     android:name="android.support.FILE_PROVIDER_PATHS"
+                    tools:node="merge"
                     android:resource="@xml/provider_paths" />
         </provider>
     </application>
