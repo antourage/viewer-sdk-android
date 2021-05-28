@@ -44,7 +44,7 @@
                 android:authorities="${applicationId}.ModuleResourcesProvider"
                 android:exported="false" />
         <provider
-                android:name="androidx.core.content.FileProvider"
+                android:name=".other.AntourageFileProvider"
                 android:authorities="${applicationId}.antourage.fileProvider"
                 android:exported="false"
                 android:grantUriPermissions="true">
