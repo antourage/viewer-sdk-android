@@ -19,7 +19,6 @@ import android.view.ViewTreeObserver
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -209,17 +208,36 @@ class AntourageFab @JvmOverloads constructor(
     private var onboardingHandler: Handler = Handler(Looper.getMainLooper())
     private var currentPlayerState: Int = 0
     private var isShowingLive: Boolean = false
-    private var badgeColor: Drawable? = null
-    private var textBadge: String = ""
-        set(value) {
-            if (value == badgeView.text) return
-            if (value.isNotEmpty()) badgeView.text = value
-            updateBadgeColor(value)
-            if (ViewCompat.isLaidOut(this)) {
-                invalidateBadge(value)
+
+    private fun showBadge(text: String) {
+        if(text == badgeView?.text) return
+        badgeView?.text = text
+        when (text) {
+            context.getString(R.string.ant_live) -> {
+                badgeView?.background = ContextCompat.getDrawable(
+                    context,
+                    R.drawable.antourage_fab_badge_rounded_background_live
+                )
+            }
+            context.getString(R.string.ant_new_vod) -> {
+                badgeView?.background = ContextCompat.getDrawable(
+                    context,
+                    R.drawable.antourage_fab_badge_rounded_background_vod
+                )
             }
         }
+        badgeView?.showBadge(measureAndLayout)
+    }
 
+    private fun hideBadge() {
+        badgeView.hideBadge(measureAndLayout)
+    }
+
+    /**method for React Native for force hide badge on widget appearing*/
+    fun forceHideBadge() {
+        badgeView?.alpha = 0f
+        badgeView?.text = ""
+    }
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick {
@@ -453,8 +471,9 @@ class AntourageFab @JvmOverloads constructor(
         if (!wasPaused) return
         if (didViewerAppear) onViewerDisappear()
         wasPaused = false
+        forceHideBadge()
         setLocale()
-        if(UserCache.getInstance()?.isOnboardingSeen() == false){
+        if (UserCache.getInstance()?.isOnboardingSeen() == false) {
             revealOnboardingView()
         }
         internetStateLiveData.observeForever(networkStateObserver)
@@ -551,12 +570,12 @@ class AntourageFab @JvmOverloads constructor(
         setIncomingWidgetStatus(null)
         bounceHandler.removeCallbacksAndMessages(null)
         onboardingHandler.removeCallbacksAndMessages(null)
+        forceHideBadge()
         Handler(Looper.getMainLooper()).postDelayed({
             circleAnimatedDrawable?.apply {
                 clearAnimationCallbacks()
             }
             circleAnimatedDrawable?.stop()
-            textBadge = ""
             releasePlayer()
         }, 100)
     }
@@ -632,7 +651,7 @@ class AntourageFab @JvmOverloads constructor(
                     startPlayingStream(streamToDisplay)
                     shownLiveStreams.add(streamToDisplay)
                 }
-                setTextToBadge(context.getString(R.string.ant_live))
+                showBadge(context.getString(R.string.ant_live))
                 startAnimation(state)
             }
             FabState.LIVE -> {
@@ -641,7 +660,7 @@ class AntourageFab @JvmOverloads constructor(
                 startAnimation(state)
             }
             FabState.PRE_VOD -> {
-                setTextToBadge(context.getString(R.string.ant_new_vod))
+                showBadge(context.getString(R.string.ant_new_vod))
                 startAnimation(state)
             }
             FabState.VOD -> {
@@ -789,39 +808,6 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private fun invalidateBadge(value: String) {
-        if (value == context.getString(R.string.ant_live) || value == context.getString(R.string.ant_new_vod)) {
-            showBadge()
-        } else {
-            hideBadge()
-        }
-    }
-
-    private fun showBadge() {
-        badgeView.background = badgeColor
-        badgeView.showBadge(measureAndLayout)
-    }
-
-    /**method for React Native for force hide badge on widget appearing*/
-    fun forceHideBadge() {
-        badgeView?.alpha = 0f
-        badgeView?.text = ""
-    }
-
-    private fun hideBadge() {
-        badgeView.hideBadge(measureAndLayout)
-    }
-
-    private fun updateBadgeColor(value: String) {
-        val backgroundDrawableId =
-            if (value == context.getString(R.string.ant_live)) R.drawable.antourage_fab_badge_rounded_background_live else R.drawable.antourage_fab_badge_rounded_background_vod
-        badgeColor =
-            ContextCompat.getDrawable(
-                context,
-                backgroundDrawableId
-            )
-    }
-
     private fun getNextStreamToDisplay(): StreamResponse? {
         for (element in liveStreams) {
             if (shownLiveStreams.none { it.id == element.id }) {
@@ -847,7 +833,7 @@ class AntourageFab @JvmOverloads constructor(
 
         onViewerAppear()
 
-        if(this::onboardingView.isInitialized) onboardingView.hideView()
+        if (this::onboardingView.isInitialized) onboardingView.hideView()
 
         when (currentFabState) {
             FabState.INACTIVE -> {
@@ -1028,10 +1014,6 @@ class AntourageFab @JvmOverloads constructor(
         Handler(Looper.getMainLooper()).post {
             method()
         }
-    }
-
-    private fun setTextToBadge(text: String) {
-        textBadge = text
     }
 
     internal enum class FabState(val animationDrawableId: Int) {
