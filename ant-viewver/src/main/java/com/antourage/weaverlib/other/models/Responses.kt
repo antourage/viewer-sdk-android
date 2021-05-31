@@ -45,7 +45,8 @@ data class LiveUpdatedResponse(
 )
 
 data class WebViewResponse(
-    @SerializedName("type") var type : String
+    @SerializedName("type") var type : String,
+    @SerializedName("message") var messageCode : String?
 )
 
 class ListOfStreams : ArrayList<StreamResponse>()

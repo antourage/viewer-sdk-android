@@ -12,6 +12,7 @@ import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,7 +44,6 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_videos_list.*
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.backgroundDrawable
-
 
 internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun getLayoutId() = R.layout.fragment_videos_list
@@ -186,6 +186,10 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(VideoListViewModel::class.java)
+        setFragmentResultListener("antWebResponse") { _, bundle ->
+            val result = bundle.getInt("antWebMessage")
+            if (result != 0) showNotificationSnackBar(getString(result))
+        }
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 shouldDisconnectSocket = false
@@ -509,6 +513,22 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         )
     }
 
+    private fun showNotificationSnackBar(message: String) {
+        if (snackBarBehaviour?.state != BottomSheetBehavior.STATE_EXPANDED) {
+            snackBar?.text = message
+            context?.let {
+                snackBar.backgroundColor =
+                    ContextCompat.getColor(it, R.color.ant_error_resolved_bg_color)
+            }
+            snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (!isNoConnectionSnackbarShowing())
+                    snackBarBehaviour.state = BottomSheetBehavior.STATE_COLLAPSED
+            }, 3500)
+        }
+    }
+
+
     private fun resolveErrorSnackbar(messageId: Int? = null) {
         if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED || snackBarBehaviour.state == BottomSheetBehavior.STATE_SETTLING) {
             if (messageId != null) {
@@ -649,7 +669,7 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     ) {
         val newestItems = mutableListOf<StreamResponse>()
         //handle pagination not to trigger new button
-        if(oldStreams.isNotEmpty() && newStreams.isNotEmpty() && viewModel.doNotTriggerNewButton) return
+        if (oldStreams.isNotEmpty() && newStreams.isNotEmpty() && viewModel.doNotTriggerNewButton) return
         if (!isInitialListSet && oldStreams.isNotEmpty()) {
             for (stream in newStreams) {
                 if (oldStreams.none { it.id == stream.id }) {
@@ -670,10 +690,16 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
                     } else {
                         scrollRvAndTriggerAutoplay()
                     }
-                } else if(oldStreams.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition()>newStreams.indexOf(newestItems[0])){
+                } else if (oldStreams.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition() > newStreams.indexOf(
+                        newestItems[0]
+                    )
+                ) {
                     triggerNewLiveButton(true)
                 }
-            }else if(oldStreams.isNotEmpty() && newItemsList.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition()>newStreams.indexOf(newItemsList[0])){
+            } else if (oldStreams.isNotEmpty() && newItemsList.isNotEmpty() && rvLayoutManager.findFirstVisibleItemPosition() > newStreams.indexOf(
+                    newItemsList[0]
+                )
+            ) {
                 triggerNewLiveButton(true)
             }
         }
@@ -846,13 +872,15 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
     }
 
     private fun invalidateShadowView() {
-            if (UserCache.getInstance()?.getRefreshToken() == null || !UserCache.getInstance()?.getUserImageUrl().isNullOrEmpty()) {
-                shadowView?.backgroundDrawable =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.antourage_blue_shadow)
-            } else {
-                shadowView?.backgroundDrawable =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.antourage_dark_shadow)
-            }
+        if (UserCache.getInstance()?.getRefreshToken() == null || !UserCache.getInstance()
+                ?.getUserImageUrl().isNullOrEmpty()
+        ) {
+            shadowView?.backgroundDrawable =
+                ContextCompat.getDrawable(requireContext(), R.drawable.antourage_blue_shadow)
+        } else {
+            shadowView?.backgroundDrawable =
+                ContextCompat.getDrawable(requireContext(), R.drawable.antourage_dark_shadow)
+        }
     }
 
     private fun invalidateUserBtn() {

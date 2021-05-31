@@ -122,4 +122,10 @@
     <string name="ant_ask_questions">Ask Questions</string>
     <string name="ant_have_your_say">Have Your Say</string>
     <string name="ant_be_a_part_of_the_community">Be A Part of the Community</string>
+
+    <!--intro-->
+    <string name="ant_web_profile_updated">Your account has been successfully updated</string>
+    <string name="ant_web_password_updated">Your password has been successfully updated</string>
+    <string name="ant_web_deleted">Your account has been successfully deleted. Thank you for being a part of Antourage</string>
+
 </resources>
