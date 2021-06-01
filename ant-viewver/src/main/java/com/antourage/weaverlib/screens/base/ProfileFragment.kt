@@ -25,7 +25,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -91,7 +93,7 @@ class ProfileFragment : Fragment() {
         loadUrl()
 
         webView.webChromeClient = MyWebChromeClient()
-        webView.addJavascriptInterface(JsObject(WebCallback.instance(
+        webView.addJavascriptInterface(JsObject(WebCallback.newInstance(
             { logout() }, { updateUser() })
         ), "AntListener"
         )
@@ -141,17 +143,36 @@ class ProfileFragment : Fragment() {
         @JavascriptInterface
         fun receiveMessage(jsonData: String?): Boolean {
             val message = Gson().fromJson(jsonData, WebViewResponse::class.java)
-            callback.onMessage(message.type)
+            if(message?.messageCode == null){
+                messageId = 0
+            }else{
+                message.messageCode?.let {
+                    when(it.toLowerCase()){
+                        "accountupdated" ->{
+                            messageId = R.string.ant_web_profile_updated
+                        }
+                        "passwordupdated" ->{
+                            messageId = R.string.ant_web_password_updated
+                        }
+                        "accountdeleted" ->{
+                            messageId = R.string.ant_web_deleted
+                        }
+                    }
+                }
+            }
+            callback.onMessage(message)
             return false
         }
     }
 
     private fun updateUser() {
+        setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
     }
 
     private fun logout() {
         UserCache.getInstance()?.logout()
+        setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
     }
 
@@ -165,10 +186,10 @@ class ProfileFragment : Fragment() {
     private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
         if (networkState?.ordinal == NetworkConnectionState.AVAILABLE.ordinal) {
             resolveErrorSnackBar(R.string.ant_you_are_online)
-            if(shouldReload){
+            if (shouldReload) {
                 showLoading()
                 webView?.reload()
-            }else {
+            } else {
                 backgroundView?.visibility = View.GONE
                 ivLoader?.visibility = View.INVISIBLE
                 isLoaderShowing = false
@@ -176,7 +197,7 @@ class ProfileFragment : Fragment() {
         } else if (networkState?.ordinal == NetworkConnectionState.LOST.ordinal) {
             if (!Global.networkAvailable) {
                 showNoConnection()
-                if(webView?.progress != 100){
+                if (webView?.progress != 100) {
                     shouldReload = true
                 }
             }
@@ -185,7 +206,7 @@ class ProfileFragment : Fragment() {
 
     private fun resumeIfWasOffline() {
         if (ConnectionStateMonitor.isNetworkAvailable()) {
-            if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && errorSnackBar?.text == context?.resources?.getString(
+            if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED && profileSnackBar?.text == context?.resources?.getString(
                     R.string.ant_no_connection
                 ) || (wasPaused && shouldReload)
             ) {
@@ -203,8 +224,8 @@ class ProfileFragment : Fragment() {
         if (snackBarBehaviour.state == BottomSheetBehavior.STATE_EXPANDED || snackBarBehaviour.state == BottomSheetBehavior.STATE_SETTLING) {
             context?.resources?.getString(messageId)
                 ?.let { messageToDisplay ->
-                    errorSnackBar?.text = messageToDisplay
-                    errorSnackBar?.let { snackBar ->
+                    profileSnackBar?.text = messageToDisplay
+                    profileSnackBar?.let { snackBar ->
                         val colorFrom: Int =
                             ContextCompat.getColor(requireContext(), R.color.ant_error_bg_color)
                         val colorTo: Int =
@@ -226,7 +247,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun initSnackBar() {
-        errorSnackBar.let { snackBar ->
+        profileSnackBar.let { snackBar ->
             snackBarBehaviour = BottomSheetBehavior.from(snackBar as View)
             snackBarBehaviour.addBottomSheetCallback(object :
                 BottomSheetBehavior.BottomSheetCallback() {
@@ -243,11 +264,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showErrorSnackBar(message: String) {
-        errorSnackBar?.text = message
+        profileSnackBar?.text = message
         snackBarLayout?.visibility = View.VISIBLE
         if (snackBarBehaviour?.state != BottomSheetBehavior.STATE_EXPANDED) {
             context?.let {
-                errorSnackBar?.backgroundColor =
+                profileSnackBar?.backgroundColor =
                     ContextCompat.getColor(it, R.color.ant_error_bg_color)
             }
             snackBarBehaviour.state = BottomSheetBehavior.STATE_EXPANDED
@@ -286,7 +307,7 @@ class ProfileFragment : Fragment() {
     }
 
     internal interface WebViewCallback {
-        fun onMessage(string: String)
+        fun onMessage(response: WebViewResponse)
     }
 
     internal object WebCallback : WebViewCallback {
@@ -294,14 +315,14 @@ class ProfileFragment : Fragment() {
         lateinit var logout: () -> Unit
 
 
-        fun instance(logout: () -> Unit, update: () -> Unit): WebViewCallback {
+        fun newInstance(logout: () -> Unit, update: () -> Unit): WebViewCallback {
             this.update = update
             this.logout = logout
             return this
         }
 
-        override fun onMessage(string: String) {
-            when (string) {
+        override fun onMessage(response: WebViewResponse) {
+            when (response.type) {
                 LOGOUT -> {
                     this.logout()
                 }
@@ -310,7 +331,6 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
-
     }
 
     private fun initAndShowLoader() {
@@ -502,8 +522,9 @@ class ProfileFragment : Fragment() {
                 ex.printStackTrace()
             }
             if (photoFile != null) {
+                val authority = "${requireContext().packageName}.antourage.fileProvider"
                 val fileProviderUri = FileProvider.getUriForFile(
-                    requireContext(), "com.antourage.weaverlib.fileProvider",
+                    requireContext(), authority,
                     photoFile
                 )
                 mCameraPhotoPath = "file:" + photoFile.absolutePath
@@ -553,6 +574,7 @@ class ProfileFragment : Fragment() {
     companion object {
         private const val UPDATE_USER = "antourage-updateUser"
         private const val LOGOUT = "antourage-logout"
+        private var messageId: Int = 0
     }
 
     override fun onResume() {

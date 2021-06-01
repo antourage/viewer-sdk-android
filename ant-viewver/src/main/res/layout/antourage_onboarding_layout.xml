@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/onboardingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationZ="1dp"
+        android:background="@color/ant_dark_transparent_a90"
+        android:clickable="true"
+        android:focusable="true">
+
+
+    <TextView
+            android:id="@+id/overlayTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:alpha="0"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/ant_be_a_part_of_the_community"
+            android:textColor="@color/ant_white"
+            android:textSize="36sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.15" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/firstItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:alpha="0"
+            app:layout_constraintEnd_toEndOf="@id/overlayTitle"
+            app:layout_constraintStart_toStartOf="@+id/overlayTitle"
+            app:layout_constraintTop_toBottomOf="@id/overlayTitle">
+
+        <ImageView
+                android:id="@+id/firstItemImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/antourage_ic_onboarding_chat"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:fontFamily="sans-serif-light"
+                android:includeFontPadding="false"
+                android:text="@string/ant_have_your_say"
+                android:textColor="@color/ant_white"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@id/firstItemImg"
+                app:layout_constraintStart_toEndOf="@+id/firstItemImg"
+                app:layout_constraintTop_toTopOf="@id/firstItemImg" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/secondItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:alpha="0"
+            app:layout_constraintEnd_toEndOf="@id/overlayTitle"
+            app:layout_constraintStart_toStartOf="@+id/overlayTitle"
+            app:layout_constraintTop_toBottomOf="@id/firstItem">
+
+        <ImageView
+                android:id="@+id/secondItemImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/antourage_ic_onboarding_eye"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:fontFamily="sans-serif-light"
+                android:includeFontPadding="false"
+                android:text="@string/ant_see_it_first"
+                android:textColor="@color/ant_white"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@id/secondItemImg"
+                app:layout_constraintStart_toEndOf="@+id/secondItemImg"
+                app:layout_constraintTop_toTopOf="@id/secondItemImg" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/thirdItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:alpha="0"
+            app:layout_constraintEnd_toEndOf="@id/overlayTitle"
+            app:layout_constraintStart_toStartOf="@+id/overlayTitle"
+            app:layout_constraintTop_toBottomOf="@id/secondItem">
+
+        <ImageView
+                android:id="@+id/thirdItemImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/antourage_ic_onboarding_ask"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:fontFamily="sans-serif-light"
+                android:includeFontPadding="false"
+                android:text="@string/ant_ask_questions"
+                android:textColor="@color/ant_white"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@id/thirdItemImg"
+                app:layout_constraintStart_toEndOf="@+id/thirdItemImg"
+                app:layout_constraintTop_toTopOf="@id/thirdItemImg" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+            android:id="@+id/onboardingArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/antourage_onboarding_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+            android:id="@+id/closeOnboardingBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:src="@drawable/antourage_ic_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

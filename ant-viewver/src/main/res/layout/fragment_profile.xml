@@ -73,7 +73,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
         <TextView
-                android:id="@+id/errorSnackBar"
+                android:id="@+id/profileSnackBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/ant_error_bg_color"

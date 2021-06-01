@@ -38,6 +38,8 @@ internal class UserCache private constructor(context: Context) {
 
         private const val SP_USER_LAST_FETCHED_VOD = "sp_last_fetched_vod"
 
+        private const val SP_ONBOARDING_SEEN = "sp_onboarding_seen"
+
         private var INSTANCE: UserCache? = null
 
         @Synchronized
@@ -181,6 +183,16 @@ internal class UserCache private constructor(context: Context) {
         prefs?.edit()
             ?.putString(SP_USER_LAST_FETCHED_VOD, lastVodTime)
             ?.apply()
+    }
+
+    fun setOnboardingSeen() {
+        prefs?.edit()
+            ?.putBoolean(SP_ONBOARDING_SEEN, true)
+            ?.apply()
+    }
+
+    fun isOnboardingSeen(): Boolean? {
+        return prefs?.getBoolean(SP_ONBOARDING_SEEN, false)
     }
 
     fun getLastViewedTime(): String? {

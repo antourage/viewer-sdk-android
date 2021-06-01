@@ -108,4 +108,13 @@
     <string name="ant_prefix_posted">Publicerat\u0020</string>
     <string name="join_conversation" translatable="false">Gå med i konversation</string>
 
+    <!--intro-->
+    <string name="ant_see_it_first">Se det först</string>
+    <string name="ant_ask_questions">Ställ frågor</string>
+    <string name="ant_have_your_say">Tyck till</string>
+    <string name="ant_be_a_part_of_the_community">Gå med i gemenskapen</string>
+    <string name="ant_web_password_updated">Ditt lösenord är nu uppdaterat!</string>
+    <string name="ant_web_profile_updated">Ditt konto är nu uppdaterat!</string>
+    <string name="ant_web_deleted">Ditt konto är nu raderat!</string>
+
 </resources>

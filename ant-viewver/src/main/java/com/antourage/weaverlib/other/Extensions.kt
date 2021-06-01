@@ -6,9 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.view.animation.AnimationUtils
+import android.view.animation.*
 import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.NonNull
@@ -95,6 +96,18 @@ internal fun Fragment.replaceFragment(
     )
 }
 
+fun View.slideUpOnboarding(offset: Long) {
+    this.visibility = VISIBLE;
+    this.alpha = 0.0f;
+    val yBeforeAnimation = this.y
+    this.y = this.y + 150f
+
+    this.animate()
+        .setStartDelay(offset)
+        .y(yBeforeAnimation)
+        .alpha(1.0f).duration = 300
+}
+
 internal fun Fragment.replaceChildFragment(
     fragment: Fragment,
     frameId: Int,
@@ -147,9 +160,13 @@ internal fun Date.parseToDisplayMessagesAgoTimeLong(context: Context): String {
             context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
 
-        diff > 10 -> { return context.getString(R.string.ant_recent) }
+        diff > 10 -> {
+            return context.getString(R.string.ant_recent)
+        }
 
-        else -> { return context.getString(R.string.ant_started_now) }
+        else -> {
+            return context.getString(R.string.ant_started_now)
+        }
     }
     return context.getString(R.string.ant_started_ago, timeAgo)
 }
@@ -192,9 +209,12 @@ internal fun Date.parseToDisplayAgoTime(context: Context): String {
     }
 }
 
-internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamResponseType? = null): String {
+internal fun Date.parseToDisplayAgoTimeLong(
+    context: Context,
+    type: StreamResponseType? = null
+): String {
     val diff = getSecondsDateDiff(this, Date())
-    val prefix = when(type){
+    val prefix = when (type) {
         StreamResponseType.POST -> context.resources.getString(R.string.ant_prefix_posted)
         StreamResponseType.VOD -> context.resources.getString(R.string.ant_prefix_live)
         StreamResponseType.UPLOADED_VIDEO -> context.resources.getString(R.string.ant_prefix_posted)
@@ -203,11 +223,11 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamRespon
     val timeAgo: String = when {
         diff > secInYear -> {
             val days = (diff / secInYear).toInt()
-           context.resources.getQuantityString(R.plurals.ant_years_long, days, days)
+            context.resources.getQuantityString(R.plurals.ant_years_long, days, days)
         }
         diff > secInMonth -> {
             val days = (diff / secInMonth).toInt()
-           context.resources.getQuantityString(R.plurals.ant_months_long, days, days)
+            context.resources.getQuantityString(R.plurals.ant_months_long, days, days)
         }
         diff > secInWeek -> {
             val days = (diff / secInWeek).toInt()
@@ -226,14 +246,14 @@ internal fun Date.parseToDisplayAgoTimeLong(context: Context, type: StreamRespon
             context.resources.getQuantityString(R.plurals.ant_minutes_long, minute, minute)
         }
         else -> {
-            return if(prefix == null){
+            return if (prefix == null) {
                 context.getString(R.string.ant_started_now).toLowerCase()
-            }else "$prefix${context.getString(R.string.ant_started_now).toLowerCase()}"
+            } else "$prefix${context.getString(R.string.ant_started_now).toLowerCase()}"
         }
     }
-    val resultString = if(prefix == null){
+    val resultString = if (prefix == null) {
         timeAgo
-    }else "$prefix$timeAgo"
+    } else "$prefix$timeAgo"
     return context.getString(R.string.ant_started_ago, resultString)
 }
 
@@ -258,18 +278,20 @@ internal fun <T : View> T.setMargins(left: Int, top: Int, right: Int, bottom: In
 }
 
 internal fun View.visible(visible: Boolean) {
-    this.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+    this.visibility = if (visible) VISIBLE else View.INVISIBLE
 }
 
 internal fun View.gone(gone: Boolean) {
-    this.visibility = if (gone) View.GONE else View.VISIBLE
+    this.visibility = if (gone) View.GONE else VISIBLE
 }
 
 internal fun <T> LiveData<Resource<T>>.observeOnce(observer: Observer<Resource<T>>) {
     observeForever(object : Observer<Resource<T>> {
         override fun onChanged(resource: Resource<T>?) {
             observer.onChanged(resource)
-            if (resource?.status is Status.Success || resource?.status is Status.Failure) removeObserver(this)
+            if (resource?.status is Status.Success || resource?.status is Status.Failure) removeObserver(
+                this
+            )
         }
     })
 }
@@ -434,10 +456,10 @@ internal fun RecyclerView.betterSmoothScrollToPosition(targetItem: Int) {
 }
 
 fun View.animateShowHideDown(isShow: Boolean) {
-    if (isShow && visibility != View.VISIBLE) {
+    if (isShow && visibility != VISIBLE) {
         startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up_fade_in))
-        visibility = View.VISIBLE
-    } else if (!isShow && visibility == View.VISIBLE) {
+        visibility = VISIBLE
+    } else if (!isShow && visibility == VISIBLE) {
         startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_down_fade_out))
         visibility = View.INVISIBLE
     }
@@ -445,7 +467,7 @@ fun View.animateShowHideDown(isShow: Boolean) {
 
 internal fun View.revealWithAnimation() {
     alpha = 0f
-    visibility = View.VISIBLE
+    visibility = VISIBLE
     animate().alpha(1f).setDuration(100).start()
 }
 
@@ -494,8 +516,8 @@ internal fun Long.formatQuantity(): String {
 /** checks if values are in range and converts it to pixels*/
 internal fun Int.validateHorizontalMarginForFab(context: Context): Int {
     return when {
-        this<0 -> 0
-        this>MAX_HORIZONTAL_MARGIN -> dp2px(context, MAX_HORIZONTAL_MARGIN.toFloat()).toInt()
+        this < 0 -> 0
+        this > MAX_HORIZONTAL_MARGIN -> dp2px(context, MAX_HORIZONTAL_MARGIN.toFloat()).toInt()
         else -> dp2px(context, this.toFloat()).toInt()
     }
 }
@@ -503,8 +525,8 @@ internal fun Int.validateHorizontalMarginForFab(context: Context): Int {
 /** checks if values are in range and converts it to pixels*/
 internal fun Int.validateVerticalMarginForFab(context: Context): Int {
     return when {
-        this<0 -> 0
-        this>MAX_VERTICAL_MARGIN -> dp2px(context, MAX_VERTICAL_MARGIN.toFloat()).toInt()
+        this < 0 -> 0
+        this > MAX_VERTICAL_MARGIN -> dp2px(context, MAX_VERTICAL_MARGIN.toFloat()).toInt()
         else -> dp2px(context, this.toFloat()).toInt()
     }
 }
