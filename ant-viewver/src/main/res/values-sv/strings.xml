@@ -113,8 +113,8 @@
     <string name="ant_ask_questions">Ställ frågor</string>
     <string name="ant_have_your_say">Tyck till</string>
     <string name="ant_be_a_part_of_the_community">Gå med i gemenskapen</string>
-    <string name="ant_web_password_updated">Ditt lösenord är nu uppdaterat!</string>
-    <string name="ant_web_profile_updated">Ditt konto är nu uppdaterat!</string>
-    <string name="ant_web_deleted">Ditt konto är nu raderat!</string>
+    <string name="ant_web_password_updated">Ditt lösenord är uppdaterat</string>
+    <string name="ant_web_profile_updated">Ditt konto är uppdaterat</string>
+    <string name="ant_web_deleted">Ditt konto är raderat</string>
 
 </resources>
