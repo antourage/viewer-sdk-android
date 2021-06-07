@@ -406,7 +406,7 @@ internal class VideosAdapter(
                         replayContainer.visibility = View.INVISIBLE
                     }
 
-                    if(isNew == null || !isNew!!){
+                    if(!isNew){
                         txtNewBadge_vod.gone(true)
                     }else{
                         txtNewBadge_vod.gone(false)

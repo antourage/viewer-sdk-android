@@ -134,17 +134,19 @@ internal class FeedRepository {
 
         internal fun invalidateIsNewProperty(newList: List<StreamResponse>) {
             val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
-                ?: return
             newList.forEach { vod ->
                 if (!vod.isLive) {
+                    if(lastViewedTime == null){
+                        vod.isNew = true
+                    }else{
                     val time = Date((vod.publishDate?.parseToDate()?.time ?: 0))
-
-                    vod.isNew =
-                        !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
-                            it.id?.equals(
-                                vod.id
-                            ) == true
-                        }?.isNew == false))
+                        vod.isNew =
+                            !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
+                                it.id?.equals(
+                                    vod.id
+                                ) == true
+                            }?.isNew == false))
+                    }
                 }
             }
         }

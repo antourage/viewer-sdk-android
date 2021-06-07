@@ -75,7 +75,7 @@ data class StreamResponse(
     @field:SerializedName("curtainRangeModels") var curtainRangeModels: List<CurtainRange>?,
     var isLive: Boolean = false,
     @field:SerializedName("viewersCount") var viewersCount: Long?,
-    @field:SerializedName("isNew") var isNew: Boolean?,
+    var isNew: Boolean = true,
     var stopTimeMillis: Long = 0,
     var lastMessage: String? = null,
     var lastMessageAuthor: String? = null,
