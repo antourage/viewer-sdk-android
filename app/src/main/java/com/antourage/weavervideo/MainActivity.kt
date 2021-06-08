@@ -3,6 +3,8 @@ package com.antourage.weavervideo
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                     as ConnectivityManager
 
         //region Antourage configuration
-        AntourageFab.configure(this)
+        AntourageFab.configure(this, true)
         //endregion
 
 //        /** To add widget programmatically*/
@@ -49,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         antfab.setPosition(WidgetPosition.bottomRight)
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
+        Handler(Looper.getMainLooper()).postDelayed({
+            antfab.showOnboarding()
+        }, 4000)
 
 
         //region Antourage push notification subscription

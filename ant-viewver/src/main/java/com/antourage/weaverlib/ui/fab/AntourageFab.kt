@@ -71,6 +71,7 @@ class AntourageFab @JvmOverloads constructor(
     companion object {
         private var cachedFcmToken: String = ""
         internal var isSubscribedToPushes = false
+        private var skipOnboarding = false
         private var pushRegistrationCallback: ((result: RegisterPushNotificationsResult) -> Unit)? =
             null
         internal const val MAX_HORIZONTAL_MARGIN = 50
@@ -86,11 +87,12 @@ class AntourageFab @JvmOverloads constructor(
         /**
          *  Method for configuring fab that initializes all needed library instances
          *  */
-        fun configure(context: Context) {
+        fun configure(context: Context, skipOnboarding: Boolean = false) {
             UserCache.getInstance(context)
             ConfigManager.init(context)
             handleDeviceId(context)
             setDefaultLocale(context)
+            this.skipOnboarding = skipOnboarding
 
             if (!isSubscribedToPushes) retryRegisterNotifications()
             startAntRequests()
@@ -475,13 +477,19 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    fun showOnboarding(){
+        if (UserCache.getInstance()?.isOnboardingSeen() == false) {
+            revealOnboardingView()
+        }
+    }
+
     override fun onResume() {
         if (!wasPaused) return
         if (didViewerAppear) onViewerDisappear()
         wasPaused = false
         forceHideBadge()
         setLocale()
-        if (UserCache.getInstance()?.isOnboardingSeen() == false) {
+        if (UserCache.getInstance()?.isOnboardingSeen() == false && !skipOnboarding) {
             revealOnboardingView()
         }
         internetStateLiveData.observeForever(networkStateObserver)
