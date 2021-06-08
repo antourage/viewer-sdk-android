@@ -78,6 +78,7 @@ class AntourageFab @JvmOverloads constructor(
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
+        const val AntourageSenderId = "1090288296965"
 
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true

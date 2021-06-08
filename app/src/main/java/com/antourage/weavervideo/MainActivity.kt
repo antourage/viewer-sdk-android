@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         Thread {
             try {
                 fcmToken =
-                    FirebaseInstanceId.getInstance().getToken(getString(R.string.SENDER_ID), "FCM")
+                    FirebaseInstanceId.getInstance().getToken(AntourageFab.AntourageSenderId, "FCM")
             } catch (e: IOException) {
                 e.printStackTrace()
             }

@@ -126,6 +126,6 @@
     <!--intro-->
     <string name="ant_web_profile_updated">Your account has been successfully updated</string>
     <string name="ant_web_password_updated">Your password has been successfully updated</string>
-    <string name="ant_web_deleted">Your account has been successfully deleted. Thank you for being a part of Antourage</string>
+    <string name="ant_web_deleted">Your account has been successfully deleted</string>
 
 </resources>
