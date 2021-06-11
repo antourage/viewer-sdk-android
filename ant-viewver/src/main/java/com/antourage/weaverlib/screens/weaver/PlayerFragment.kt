@@ -91,7 +91,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         playerControls.show()
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
-                    arguments?.getLong(ARGS_LAST_DURATION).let{
+                    arguments?.getLong(ARGS_LAST_DURATION).let {
                         if (!alreadyHandledSignInInterruption && it != 0L) {
                             alreadyHandledSignInInterruption = true
                             playerControls.player?.duration?.let { it1 ->
@@ -455,11 +455,6 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun activateCommentInputBar(shouldActivate: Boolean) {
         //btnShare.visibility = if (shouldActivate) View.GONE else View.VISIBLE
-        btnSend.visibility = when {
-            shouldActivate -> View.VISIBLE
-            etMessage.text.isNullOrBlank() -> View.INVISIBLE
-            else -> View.VISIBLE
-        }
         if (!shouldActivate) {
             etMessage.clearFocus()
         } else {
@@ -601,15 +596,13 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
                     ?.getRefreshToken() == null
             ) View.VISIBLE else View.GONE
+        ll_wrapper.visibility =
+            if (orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
+                    ?.getRefreshToken() != null
+            ) View.VISIBLE else View.GONE
+        btnSend.visibility = ll_wrapper.visibility
+        btnSend.isEnabled = enable
         etMessage.isEnabled = enable
-        if (enable) {
-            //used to fix disabling buttons in landscape and not enabling in portrait
-            //btnShare?.isEnabled = enable //temporary
-//            btnUserSettings?.isEnabled = enable
-        }
-        //btnShare?.isEnabled = !disableButtons
-//        btnUserSettings?.isEnabled = !disableButtons
-
         if (!enable) etMessage.setText("")
         etMessage.hint =
             getString(if (enable) R.string.ant_hint_chat else R.string.ant_hint_disabled)
@@ -712,9 +705,9 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
         poll_bg.setOnClickListener {
             val userId = UserCache.getInstance()?.getUserId()
-            if(userId.isNullOrEmpty() || userId == "-1"){
+            if (userId.isNullOrEmpty() || userId == "-1") {
                 join_conversation_btn.callOnClick()
-            }else{
+            } else {
                 removeMessageInput()
                 playerControls.hide()
                 onPollDetailsClicked()
