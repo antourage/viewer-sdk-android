@@ -1,0 +1,4 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ant_white" android:state_enabled="true" />
+    <item android:color="@color/ant_chat_input_stroke" android:state_enabled="false" />
+</selector>

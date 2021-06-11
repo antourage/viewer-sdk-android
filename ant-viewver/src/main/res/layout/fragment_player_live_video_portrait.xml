@@ -314,7 +314,6 @@
             android:id="@+id/ll_wrapper"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:background="@drawable/bg_rect_gradient_semidark"
             android:elevation="6dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -362,7 +361,8 @@
                 app:layout_constraintBottom_toBottomOf="@id/etMessage"
                 app:layout_constraintEnd_toEndOf="@+id/etMessage"
                 tools:ignore="ContentDescription"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                app:tint="@color/antourage_send_button_selector" />
 
         <ImageButton
                 android:id="@+id/btnShare"
