@@ -7,6 +7,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
@@ -601,7 +603,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     ?.getRefreshToken() != null
             ) View.VISIBLE else View.GONE
         btnSend.visibility = ll_wrapper.visibility
-        btnSend.isEnabled = enable
+        btnSend.isEnabled = if(enable){
+            etMessage?.text.toString().isNotEmpty()
+        }else{
+            false
+        }
         etMessage.isEnabled = enable
         if (!enable) etMessage.setText("")
         etMessage.hint =
@@ -687,6 +693,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
+        etMessage?.addTextChangedListener(object: TextWatcher {
+            override fun onTextChanged(s:CharSequence, start:Int, before:Int, count:Int) {
+                btnSend.isEnabled = s.toString().isNotEmpty()
+            }
+            override fun beforeTextChanged(s:CharSequence, start:Int, count:Int,
+                                           after:Int) {
+            }
+            override fun afterTextChanged(s: Editable) {
+            }
+        })
         etMessage?.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 wasEditTextFocused = true

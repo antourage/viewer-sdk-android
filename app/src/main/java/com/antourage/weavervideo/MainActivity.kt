@@ -51,10 +51,8 @@ class MainActivity : AppCompatActivity() {
         antfab.setPosition(WidgetPosition.bottomRight)
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
-        Handler(Looper.getMainLooper()).postDelayed({
-            antfab.showOnboarding()
-        }, 4000)
 
+//        antfab.showOnboarding()
 
         //region Antourage push notification subscription
         var fcmToken: String? = ""

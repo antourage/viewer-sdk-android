@@ -81,6 +81,7 @@ class AntourageFab @JvmOverloads constructor(
         internal var mLastClickTime: Long = 0
         const val AntourageSenderId = "1090288296965"
 
+
         /** added to prevent multiple calls of onResume breaking widget logic*/
         internal var wasPaused = true
 

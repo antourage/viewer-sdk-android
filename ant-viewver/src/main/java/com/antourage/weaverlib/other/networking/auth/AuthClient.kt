@@ -105,7 +105,7 @@ internal object AuthClient {
         val idToken = data.toString().substringAfter("idToken=").substringBefore("&refreshToken")
         val refreshToken = data.toString().substringAfter("&refreshToken=")
 
-        if (accessToken.isNotBlank() && idToken.isNotBlank() && refreshToken.isNotBlank()) {
+        if(accessToken!="null" && accessToken.isNotBlank() && idToken.isNotBlank() && refreshToken.isNotBlank()) {
             Log.d(TAG, "Saving new tokens")
             UserCache.getInstance()?.saveRefreshToken(refreshToken)
             UserCache.getInstance()?.saveIdToken(idToken)
