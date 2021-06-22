@@ -93,10 +93,8 @@ class ProfileFragment : Fragment() {
         loadUrl()
 
         webView.webChromeClient = MyWebChromeClient()
-        webView.addJavascriptInterface(JsObject(WebCallback.newInstance(
-            { logout() }, { updateUser() })
-        ), "AntListener"
-        )
+        val jsObject = JsObject()
+        webView.addJavascriptInterface(jsObject, "AntListener")
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (!wasPaused && webView?.progress == 100) {
@@ -139,38 +137,46 @@ class ProfileFragment : Fragment() {
         )
     }
 
-    internal class JsObject(val callback: WebViewCallback) {
+    inner class JsObject {
         @JavascriptInterface
         fun receiveMessage(jsonData: String?): Boolean {
             val message = Gson().fromJson(jsonData, WebViewResponse::class.java)
-            if(message?.messageCode == null){
+            var messageId = 0
+            if (message?.messageCode == null) {
                 messageId = 0
-            }else{
+            } else {
                 message.messageCode?.let {
-                    when(it.toLowerCase()){
-                        "accountupdated" ->{
+                    when (it.toLowerCase()) {
+                        "accountupdated" -> {
                             messageId = R.string.ant_web_profile_updated
                         }
-                        "passwordupdated" ->{
+                        "passwordupdated" -> {
                             messageId = R.string.ant_web_password_updated
                         }
-                        "accountdeleted" ->{
+                        "accountdeleted" -> {
                             messageId = R.string.ant_web_deleted
                         }
                     }
                 }
             }
-            callback.onMessage(message)
+            when (message.type) {
+                LOGOUT -> {
+                    logout(messageId)
+                }
+                UPDATE_USER -> {
+                    updateUser(messageId)
+                }
+            }
             return false
         }
     }
 
-    private fun updateUser() {
+    fun updateUser(messageId: Int) {
         setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
     }
 
-    private fun logout() {
+    fun logout(messageId: Int) {
         UserCache.getInstance()?.logout()
         setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
@@ -304,33 +310,6 @@ class ProfileFragment : Fragment() {
             )
         )
         ivError?.visibility = View.VISIBLE
-    }
-
-    internal interface WebViewCallback {
-        fun onMessage(response: WebViewResponse)
-    }
-
-    internal object WebCallback : WebViewCallback {
-        lateinit var update: () -> Unit
-        lateinit var logout: () -> Unit
-
-
-        fun newInstance(logout: () -> Unit, update: () -> Unit): WebViewCallback {
-            this.update = update
-            this.logout = logout
-            return this
-        }
-
-        override fun onMessage(response: WebViewResponse) {
-            when (response.type) {
-                LOGOUT -> {
-                    this.logout()
-                }
-                UPDATE_USER -> {
-                    this.update()
-                }
-            }
-        }
     }
 
     private fun initAndShowLoader() {
@@ -574,7 +553,6 @@ class ProfileFragment : Fragment() {
     companion object {
         private const val UPDATE_USER = "antourage-updateUser"
         private const val LOGOUT = "antourage-logout"
-        private var messageId: Int = 0
     }
 
     override fun onResume() {
