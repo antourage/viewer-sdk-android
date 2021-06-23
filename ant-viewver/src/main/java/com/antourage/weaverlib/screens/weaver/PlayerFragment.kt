@@ -11,6 +11,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.widget.EditText
@@ -39,7 +41,27 @@ import com.google.android.exoplayer2.Player
 import com.google.firebase.Timestamp
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.cl_state_player_live_video_fragment_landscape.*
 import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.*
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.bottomLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.btnSend
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.constraintLayoutParent
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.controls
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.drawerLayout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.etMessage
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivFirstFrame
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivLoader
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ivThanksForWatching
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.join_conversation_btn
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.ll_wrapper
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.navView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.playerView
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.poll_bg
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.poll_name
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.polls_motion_layout
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.rvMessages
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.txtLabelLive
+import kotlinx.android.synthetic.main.fragment_player_live_video_portrait.txtNumberOfViewers
 import kotlinx.android.synthetic.main.player_custom_controls_live_video.*
 import kotlinx.android.synthetic.main.player_header.*
 
@@ -167,7 +189,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun showEndStreamUI() {
         ivFirstFrame?.visibility = View.VISIBLE
         ivThanksForWatching?.visibility = View.VISIBLE
-        txtLabelLive.visibility = View.GONE
+        txtLabelLive.visibility = GONE
         //hides controls appearance
         controls.hide()
         live_control_timer.visibility = View.INVISIBLE
@@ -195,6 +217,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
+            txtNumberOfViewers.visibility = VISIBLE
             when (state) {
                 is PollStatus.NoPoll -> {
                     unlockDrawer()
@@ -212,7 +235,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (bottomLayout.visibility == View.INVISIBLE) showPollStatusLayout()
                 }
                 is PollStatus.PollDetails -> {
-                    join_conversation_btn.visibility = View.GONE
+                    join_conversation_btn.visibility = GONE
                     wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollStatusLayout()
@@ -220,6 +243,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
                         removeMessageInput()
                     } else {
+                        txtNumberOfViewers.visibility = GONE
                         lockDrawer()
                         if (drawerLayout.isDrawerOpen(navView)) {
                             drawerLayout.closeDrawer(navView)
@@ -241,9 +265,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                         if ((childFragmentManager.findFragmentById(R.id.bottomLayout) !is PollDetailsFragment)) {
                             bottomLayout.visibility = View.INVISIBLE
                             if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
+                                txtNumberOfViewers.visibility = VISIBLE
                                 join_conversation_btn.visibility = if (UserCache.getInstance()
                                         ?.getRefreshToken() == null
-                                ) View.VISIBLE else View.GONE
+                                ) View.VISIBLE else GONE
                                 showMessageInput()
                             }
                             if (viewModel.currentPoll != null) {
@@ -597,15 +622,15 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         join_conversation_btn.visibility =
             if (enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
                     ?.getRefreshToken() == null
-            ) View.VISIBLE else View.GONE
+            ) View.VISIBLE else GONE
         ll_wrapper.visibility =
             if (orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
                     ?.getRefreshToken() != null
-            ) View.VISIBLE else View.GONE
+            ) View.VISIBLE else GONE
         btnSend.visibility = ll_wrapper.visibility
-        btnSend.isEnabled = if(enable){
+        btnSend.isEnabled = if (enable) {
             etMessage?.text.toString().isNotEmpty()
-        }else{
+        } else {
             false
         }
         etMessage.isEnabled = enable
@@ -616,14 +641,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun showMessageInput() {
         if (UserCache.getInstance()?.getRefreshToken() == null) {
-            ll_wrapper.visibility = View.GONE
+            ll_wrapper.visibility = GONE
         } else {
             ll_wrapper.visibility = View.VISIBLE
         }
     }
 
     private fun removeMessageInput() {
-        ll_wrapper?.visibility = View.GONE
+        ll_wrapper?.visibility = GONE
     }
 
     private fun orientation() = this.resources.configuration.orientation
@@ -693,13 +718,17 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun initClickListeners() {
         btnSend.setOnClickListener(onBtnSendClicked)
-        etMessage?.addTextChangedListener(object: TextWatcher {
-            override fun onTextChanged(s:CharSequence, start:Int, before:Int, count:Int) {
+        etMessage?.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 btnSend.isEnabled = s.toString().isNotEmpty()
             }
-            override fun beforeTextChanged(s:CharSequence, start:Int, count:Int,
-                                           after:Int) {
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int, count: Int,
+                after: Int
+            ) {
             }
+
             override fun afterTextChanged(s: Editable) {
             }
         })
@@ -724,6 +753,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
             if (userId.isNullOrEmpty() || userId == "-1") {
                 join_conversation_btn.callOnClick()
             } else {
+                txtNumberOfViewers.visibility = GONE
                 removeMessageInput()
                 playerControls.hide()
                 onPollDetailsClicked()
@@ -749,7 +779,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun hideFullScreenIcon() {
-        ivScreenSize.visibility = View.GONE
+        ivScreenSize.visibility = GONE
     }
 
     override fun onMinuteChanged() {
@@ -799,7 +829,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     //callback from drawer in landscape
     override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
         if (!shouldShow && ll_wrapper.visibility == View.VISIBLE) {
-            ll_wrapper.visibility = View.GONE
+            ll_wrapper.visibility = GONE
         } else if (shouldShow && ll_wrapper.visibility != View.VISIBLE) {
             ll_wrapper.visibility = View.VISIBLE
         }
