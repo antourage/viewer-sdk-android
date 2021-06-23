@@ -39,6 +39,7 @@ import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.WebViewResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
+import com.antourage.weaverlib.other.ui.keyboard.hideKeyboard
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -79,6 +80,7 @@ class ProfileFragment : Fragment() {
         closeButton.setOnClickListener {
             it.isEnabled = false
             parentFragmentManager.popBackStack()
+            activity?.hideKeyboard()
         }
     }
 
@@ -174,12 +176,14 @@ class ProfileFragment : Fragment() {
     fun updateUser(messageId: Int) {
         setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
+        activity?.hideKeyboard()
     }
 
     fun logout(messageId: Int) {
         UserCache.getInstance()?.logout()
         setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
         parentFragmentManager.popBackStack()
+        activity?.hideKeyboard()
     }
 
     private fun subscribeToObservers() {

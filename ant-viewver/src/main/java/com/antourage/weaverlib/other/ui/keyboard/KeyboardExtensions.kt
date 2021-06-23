@@ -1,10 +1,12 @@
 package com.antourage.weaverlib.other.ui.keyboard
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.util.TypedValue
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import kotlin.math.roundToInt
 
 internal fun Activity.getRootView(): View {
@@ -28,4 +30,10 @@ internal fun Activity.isKeyboardOpen(): Boolean {
     val heightDiff = getRootView().height - visibleBounds.height()
     val marginOfError = this.convertDpToPx(50F).roundToInt()
     return heightDiff > marginOfError
+}
+
+@SuppressLint("ServiceCast")
+internal fun Activity.hideKeyboard(): Boolean {
+    return (getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+        .hideSoftInputFromWindow((currentFocus ?: View(this)).windowToken, 0)
 }
