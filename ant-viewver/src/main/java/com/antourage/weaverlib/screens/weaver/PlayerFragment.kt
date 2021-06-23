@@ -143,16 +143,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (state != null)
             when (state) {
                 is ChatStatus.ChatTurnedOff -> {
-                    enableMessageInput(false, ivThanksForWatching?.visibility == View.VISIBLE)
+                    enableMessageInput(false, ivThanksForWatching?.visibility == VISIBLE)
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
                 is ChatStatus.ChatMessages -> {
-                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
+                    if (ivThanksForWatching?.visibility != VISIBLE) enableChatUI()
                     //improvements todo: stop showing new users joined view
                 }
                 is ChatStatus.ChatNoMessages -> {
-                    if (ivThanksForWatching?.visibility != View.VISIBLE) enableChatUI()
+                    if (ivThanksForWatching?.visibility != VISIBLE) enableChatUI()
                     //improvements todo: start showing new users joined view
                     // if (orientation() != Configuration.ORIENTATION_LANDSCAPE) else -> hide
                 }
@@ -187,8 +187,8 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showEndStreamUI() {
-        ivFirstFrame?.visibility = View.VISIBLE
-        ivThanksForWatching?.visibility = View.VISIBLE
+        ivFirstFrame?.visibility = VISIBLE
+        ivThanksForWatching?.visibility = VISIBLE
         txtLabelLive.visibility = GONE
         //hides controls appearance
         controls.hide()
@@ -196,14 +196,14 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         live_buttons_layout.visibility = View.INVISIBLE
 
         tv_live_end_time.text = viewModel.getDuration()?.formatTimeMillisToTimer() ?: "0:00"
-        tv_live_end_time.visibility = View.VISIBLE
+        tv_live_end_time.visibility = VISIBLE
         enableMessageInput(false, disableButtons = true)
         if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
             drawerLayout.closeDrawer(navView)
             drawerLayout.visibility = View.INVISIBLE
         } else {
             drawerLayout.openDrawer(navView)
-            drawerLayout.visibility = View.VISIBLE
+            drawerLayout.visibility = VISIBLE
         }
     }
 
@@ -217,12 +217,16 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private val pollStateObserver: Observer<PollStatus> = Observer { state ->
         if (state != null) {
-            txtNumberOfViewers.visibility = VISIBLE
+            if (childFragmentManager.findFragmentById(R.id.bottomLayout) is PollDetailsFragment && bottomLayout.visibility == VISIBLE && orientation() == Configuration.ORIENTATION_LANDSCAPE) {
+                txtNumberOfViewers.visibility = GONE
+            }else{
+                txtNumberOfViewers.visibility = VISIBLE
+            }
             when (state) {
                 is PollStatus.NoPoll -> {
                     unlockDrawer()
                     hidePollStatusLayout()
-                    if (bottomLayout.visibility == View.VISIBLE) bottomLayout.visibility =
+                    if (bottomLayout.visibility == VISIBLE) bottomLayout.visibility =
                         View.INVISIBLE
                 }
                 is PollStatus.ActivePoll -> {
@@ -239,7 +243,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                     wasDrawerClosed = !drawerLayout.isOpened()
                     (activity as AntourageActivity).hideSoftKeyboard()
                     hidePollStatusLayout()
-                    bottomLayout.visibility = View.VISIBLE
+                    bottomLayout.visibility = VISIBLE
                     if (orientation() == Configuration.ORIENTATION_PORTRAIT) {
                         removeMessageInput()
                     } else {
@@ -268,7 +272,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
                                 txtNumberOfViewers.visibility = VISIBLE
                                 join_conversation_btn.visibility = if (UserCache.getInstance()
                                         ?.getRefreshToken() == null
-                                ) View.VISIBLE else GONE
+                                ) VISIBLE else GONE
                                 showMessageInput()
                             }
                             if (viewModel.currentPoll != null) {
@@ -446,7 +450,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     private fun initControlsVisibilityListener() {
         playerControls.addVisibilityListener { visibility ->
             if (orientation() == Configuration.ORIENTATION_LANDSCAPE) {
-                if (visibility == View.VISIBLE) {
+                if (visibility == VISIBLE) {
                     txtNumberOfViewers.marginDp(0f, 62f, 16f)
                     txtLabelLive.marginDp(16f, 62f)
                 } else {
@@ -622,11 +626,11 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         join_conversation_btn.visibility =
             if (enable && orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
                     ?.getRefreshToken() == null
-            ) View.VISIBLE else GONE
+            ) VISIBLE else GONE
         ll_wrapper.visibility =
             if (orientation() == Configuration.ORIENTATION_PORTRAIT && UserCache.getInstance()
                     ?.getRefreshToken() != null
-            ) View.VISIBLE else GONE
+            ) VISIBLE else GONE
         btnSend.visibility = ll_wrapper.visibility
         btnSend.isEnabled = if (enable) {
             etMessage?.text.toString().isNotEmpty()
@@ -643,7 +647,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
         if (UserCache.getInstance()?.getRefreshToken() == null) {
             ll_wrapper.visibility = GONE
         } else {
-            ll_wrapper.visibility = View.VISIBLE
+            ll_wrapper.visibility = VISIBLE
         }
     }
 
@@ -655,7 +659,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     private fun enableChatUI() {
         enableMessageInput(true)
-        if (bottomLayout.visibility != View.VISIBLE && drawerLayout.isOpened()) {
+        if (bottomLayout.visibility != VISIBLE && drawerLayout.isOpened()) {
             showMessageInput()
         } else {
             removeMessageInput()
@@ -665,7 +669,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //region poll UI helper func
     private fun showPollStatusLayout(pollIdForAnimation: String? = null) {
-        polls_motion_layout.visibility = View.VISIBLE
+        polls_motion_layout.visibility = VISIBLE
         if (pollIdForAnimation != null) {
             polls_motion_layout.transitionToEnd()
             //callback to collapse extended poll layout in 6 sec
@@ -775,7 +779,7 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
     }
 
     private fun showFullScreenIcon() {
-        ivScreenSize.visibility = View.VISIBLE
+        ivScreenSize.visibility = VISIBLE
     }
 
     private fun hideFullScreenIcon() {
@@ -828,10 +832,10 @@ internal class PlayerFragment : ChatFragment<PlayerViewModel>() {
 
     //callback from drawer in landscape
     override fun showMessageInputVisibleIfRequired(shouldShow: Boolean) {
-        if (!shouldShow && ll_wrapper.visibility == View.VISIBLE) {
+        if (!shouldShow && ll_wrapper.visibility == VISIBLE) {
             ll_wrapper.visibility = GONE
-        } else if (shouldShow && ll_wrapper.visibility != View.VISIBLE) {
-            ll_wrapper.visibility = View.VISIBLE
+        } else if (shouldShow && ll_wrapper.visibility != VISIBLE) {
+            ll_wrapper.visibility = VISIBLE
         }
     }
 
