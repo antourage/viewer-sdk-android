@@ -282,6 +282,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                     newList.add(
                         newList.size, getStreamLoaderPlaceholder()
                     )
+                } else if (newList?.isNotEmpty() == true && newList.size < VODS_COUNT) {
+                    newList.add(
+                        newList.size, getListEndPlaceHolder()
+                    )
                 }
 
                 vods = newList
