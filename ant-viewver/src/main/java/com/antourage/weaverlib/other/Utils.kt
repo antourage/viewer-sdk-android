@@ -40,7 +40,7 @@ internal fun getScreenWidth(activity: Activity): Int {
 }
 
 internal fun convertUtcToLocal(utcTime: String): Date? {
-    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH)
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", Locale.ENGLISH)
     return try {
        df.parse(utcTime)
     } catch (e: ParseException) {

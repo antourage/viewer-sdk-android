@@ -368,7 +368,7 @@ internal fun String.parseTimerToMills(): Long {
 }
 
 internal fun Long.getUtcTime(): String {
-    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH).format(this)
+    return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", Locale.ENGLISH).format(this)
 }
 
 internal fun Bitmap.toMultipart(): MultipartBody.Part {
