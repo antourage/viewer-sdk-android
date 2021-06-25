@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -681,7 +682,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
             }
 
             if (oldStreams.isNotEmpty() && newestItems.isNotEmpty()) {
-                if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == newestItems.size) {
+                var sizeToCompare = newestItems.size
+                if(oldStreams.none { it.id == -1 } && newestItems.any { it.id == -1 } && newestItems.size>1){
+                    sizeToCompare = newestItems.size - 1
+                }
+                if (rvLayoutManager.findFirstCompletelyVisibleItemPosition() == sizeToCompare) {
                     newItemsList.clear()
                     if (isSnackBarScrollActive) {
                         Handler(Looper.getMainLooper()).postDelayed({

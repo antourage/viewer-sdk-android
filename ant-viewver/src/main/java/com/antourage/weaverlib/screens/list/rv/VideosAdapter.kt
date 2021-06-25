@@ -493,7 +493,7 @@ internal class VideosAdapter(
         }
 
         fun cleanup() {
-            listOfStreams[layoutPosition].id?.let { viewPageStates.put(it, itemView.imagesViewPager.currentItem) }
+            if(listOfStreams.size > layoutPosition) listOfStreams[layoutPosition].id?.let { viewPageStates.put(it, itemView.imagesViewPager.currentItem) }
         }
 
         private fun initViewPager(

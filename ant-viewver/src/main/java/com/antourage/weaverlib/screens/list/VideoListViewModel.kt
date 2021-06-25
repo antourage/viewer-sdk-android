@@ -35,7 +35,8 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
     var feedInfoLiveData: MutableLiveData<FeedInfo> = MutableLiveData()
     var profileLiveData: MutableLiveData<ProfileResponse> = MutableLiveData()
-    var doNotTriggerNewButton: Boolean = false // to prevent new button to appear on pagination fetching
+    var doNotTriggerNewButton: Boolean =
+        false // to prevent new button to appear on pagination fetching
     private var liveVideos: MutableList<StreamResponse>? = null
     private var vods: List<StreamResponse>? = null
 
@@ -102,6 +103,10 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
                 list.add(list.size, getListEndPlaceHolder())
             } else if (vods?.last()?.id == -2) {
                 list.add(list.size, getStreamLoaderPlaceholder())
+            } else if (vods?.isNotEmpty() == true && vods?.size in 1 until VODS_COUNT) {
+                list.add(
+                    list.size, getListEndPlaceHolder()
+                )
             }
 
             vods = list
@@ -459,7 +464,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             -1, null, null,
             null, null, null, null,
             null, null, null, null, null, null,
-            null, null, null, null, null, null,  null, false, null, false
+            null, null, null, null, null, null, null, false, null, false
         )
     }
 
@@ -468,7 +473,7 @@ internal class VideoListViewModel(application: Application) : BaseViewModel(appl
             -2, null, null,
             null, null, null, null,
             null, null, null, null, null, null,
-            null, null, null, null, null, null,  null, false, null, false
+            null, null, null, null, null, null, null, false, null, false
         )
     }
 
