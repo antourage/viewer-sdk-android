@@ -41,6 +41,7 @@ class AntourageActivity : AppCompatActivity() {
 
     private var triggerKeyboardCallback = true
     var shouldGoBackToList = false
+    var shouldHideBackButton = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +53,9 @@ class AntourageActivity : AppCompatActivity() {
         intent?.data?.let {
             AuthClient.handleSignIn(it)
         }
+        intent?.getBooleanExtra(AntourageFab.ARGS_HIDE_BACK_BUTTON, false)?.let {
+            shouldHideBackButton = it
+        }
         VideoCloseBackUp.init(
             applicationContext.getSharedPreferences(
                 "backUpPrefs",
@@ -59,7 +63,8 @@ class AntourageActivity : AppCompatActivity() {
             )
         )
 
-        val streamToWatch = liveWatchedBeforeSignIn ?: intent?.getParcelableExtra(ARGS_STREAM_SELECTED)
+        val streamToWatch =
+            liveWatchedBeforeSignIn ?: intent?.getParcelableExtra(ARGS_STREAM_SELECTED)
         shouldGoBackToList = streamToWatch != null
         supportFragmentManager.beginTransaction()
             .replace(
@@ -147,7 +152,7 @@ class AntourageActivity : AppCompatActivity() {
 
     fun openJoinTab() {
         val url =
-        "${WEB_PROFILE_URL}#/auth?appClientId=${CLIENT_ID}&anonymousAppClientId=${ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${ANONYMOUS_SECRET}"
+            "${WEB_PROFILE_URL}#/auth?appClientId=${CLIENT_ID}&anonymousAppClientId=${ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${ANONYMOUS_SECRET}"
         val builder = Builder()
         val customTabsIntent: CustomTabsIntent = builder
             .build()

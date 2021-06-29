@@ -207,6 +207,11 @@ internal class VideoListFragment : BaseFragment<VideoListViewModel>() {
         loadProfileInfo()
 
         btnNewLive.isEnabled = false
+        ivClose.visibility = if ((activity as AntourageActivity).shouldHideBackButton){
+            View.GONE
+        }else{
+            View.VISIBLE
+        }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")

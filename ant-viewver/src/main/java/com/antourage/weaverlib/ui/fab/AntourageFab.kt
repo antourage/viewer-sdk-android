@@ -77,6 +77,7 @@ class AntourageFab @JvmOverloads constructor(
         internal const val MAX_HORIZONTAL_MARGIN = 50
         internal const val MAX_VERTICAL_MARGIN: Int = 220
         internal const val ARGS_STREAM_SELECTED = "args_stream_selected"
+        const val ARGS_HIDE_BACK_BUTTON = "args_hide_back_button"
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
         const val AntourageSenderId = "1090288296965"
