@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -180,8 +181,8 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
 
     private fun getSimpleExoPlayer(): SimpleExoPlayer {
         val adaptiveTrackSelection = AdaptiveTrackSelection.Factory()
-        trackSelector = DefaultTrackSelector(adaptiveTrackSelection)
-        trackSelector.parameters = DefaultTrackSelector.ParametersBuilder().build()
+        trackSelector = DefaultTrackSelector(getApplication(),adaptiveTrackSelection)
+        trackSelector.parameters = DefaultTrackSelector.ParametersBuilder(getApplication()).build()
         val loadControl = Builder()
             .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
             .setBufferDurationsMs(
@@ -210,6 +211,7 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         if (nextWindowIndex != C.INDEX_UNSET && nextWindowIndex != null) {
             player?.seekTo(nextWindowIndex, C.TIME_UNSET)
             player?.playWhenReady = true
+            player?.prepare()
         }
     }
 
@@ -218,12 +220,14 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
         if (previousWindowIndex != C.INDEX_UNSET && previousWindowIndex != null) {
             player?.seekTo(previousWindowIndex, C.TIME_UNSET)
             player?.playWhenReady = true
+            player?.prepare()
         }
     }
 
     protected fun rewindAndPlayTrack() {
         player?.seekTo(currentWindow, C.TIME_UNSET)
         player?.playWhenReady = true
+        player?.prepare()
     }
 
     protected fun getCurrentDuration() = player?.duration
@@ -571,15 +575,17 @@ internal abstract class BasePlayerViewModel(application: Application) : BaseView
     //endregion
 
     private fun onTrackChanged() {
-            player!!.createMessage { _: Int, _: Any? -> onTrackEnd() }
-                .setHandler(Handler())
-                .setPosition(
-                    currentWindow,
-                    player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
-                )
-                .setDeleteAfterDelivery(false)
-                .send()
-            registerCallbacks(currentWindow)
+        player!!.createMessage { _: Int, _: Any? ->
+            onTrackEnd()
+        }
+            .setHandler(Handler(Looper.getMainLooper()))
+            .setPosition(
+                currentWindow,
+                player!!.duration - END_VIDEO_CALLBACK_OFFSET_MS
+            )
+            .setDeleteAfterDelivery(true)
+            .send()
+        registerCallbacks(currentWindow)
     }
 
     protected fun createAdCallback(

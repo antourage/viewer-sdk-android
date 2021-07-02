@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -122,8 +121,17 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                                     player_control_header
                                         .findViewById(R.id.play_header_iv_photo) as ImageView
                                 )
+                        } else{
+                            Picasso.get().load(R.drawable.antourage_ic_incognito_user)
+                                .placeholder(R.drawable.antourage_ic_incognito_user)
+                                .into(play_header_iv_photo)
+                            Picasso.get().load(R.drawable.antourage_ic_incognito_user)
+                                .placeholder(R.drawable.antourage_ic_incognito_user)
+                                .into(
+                                    player_control_header
+                                        .findViewById(R.id.play_header_iv_photo) as ImageView
+                                )
                         }
-
                     }
                     ivFirstFrame.visibility = View.INVISIBLE
                     updatePrevNextVisibility()
@@ -210,6 +218,16 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                         player_control_header
                             .findViewById(R.id.play_header_iv_photo) as ImageView
                     )
+            } else{
+                Picasso.get().load(R.drawable.antourage_ic_incognito_user)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .into(play_header_iv_photo)
+                Picasso.get().load(R.drawable.antourage_ic_incognito_user)
+                    .placeholder(R.drawable.antourage_ic_incognito_user)
+                    .into(
+                        player_control_header
+                            .findViewById(R.id.play_header_iv_photo) as ImageView
+                    )
             }
             if (vod_skip_button.visibility == View.VISIBLE && !viewModel.shouldShowSkipButton()) {
                 vod_skip_button.visibility = View.INVISIBLE
@@ -231,6 +249,7 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
                     viewModel.startReplayState()
                 } else if (vod_next_auto_layout.visibility != View.VISIBLE) {
                     //STATE END OF NOT LAST VIDEO IN PLAYLIST
+                    playerControls.player?.stop(false)
                     autoPlayCountDownTimer = object : CountDownTimer(5000, 20) {
                         override fun onTick(millisUntilFinished: Long) {
                             vod_progress_bar?.progress =
@@ -751,11 +770,12 @@ internal class VodPlayerFragment : ChatFragment<VideoViewModel>(),
 
     private fun updateWasLiveValueOnUI(feedItem: StreamResponse) {
         context?.apply {
-            val formattedStartTime = if(feedItem.type == StreamResponseType.VOD){
-                feedItem.duration?.parseToMills()?.plus((feedItem.startTime?.parseToDate()?.time ?: 0))?.let {
+            val formattedStartTime = if (feedItem.type == StreamResponseType.VOD) {
+                feedItem.duration?.parseToMills()
+                    ?.plus((feedItem.startTime?.parseToDate()?.time ?: 0))?.let {
                     Date(it).parseToDisplayAgoTimeLong(this, feedItem.type)
                 }
-            }else {
+            } else {
                 feedItem.publishDate?.parseToDate()?.time?.let {
                     Date(it).parseToDisplayAgoTimeLong(this, feedItem.type)
                 }
