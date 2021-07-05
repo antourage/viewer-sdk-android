@@ -129,7 +129,6 @@ internal class FeedRepository {
             if (lastViewedTime == null || newestVodTime.after(lastViewedTime)) {
                 UserCache.getInstance()?.saveLastViewedTime(newestVodTime.time.getUtcTime())
             }
-
         }
 
         internal fun invalidateIsNewProperty(newList: List<StreamResponse>) {
