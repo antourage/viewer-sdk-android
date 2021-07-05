@@ -523,7 +523,7 @@ internal class VideoViewModel constructor(application: Application) : ChatViewMo
                                         list = it
                                     }
                                 }
-
+                                FeedRepository.invalidateIsNewProperty(list)
                                 FeedRepository.vods?.addAll(list)
                                 addToMediaSource(list)
                                 nextVideosFetchedLD.value = true

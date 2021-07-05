@@ -924,8 +924,6 @@ class AntourageFab @JvmOverloads constructor(
     private fun openVodActivity() {
         if (vod?.type != StreamResponseType.POST) {
             FeedRepository.vods = mutableListOf(vod!!)
-            val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
-            if(lastViewedTime == null) FeedRepository.updateLastSeenVod()
             val intent = Intent(context, AntourageActivity::class.java)
             intent.putExtra(ARGS_STREAM_SELECTED, vod!!)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)

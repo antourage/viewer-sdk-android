@@ -135,10 +135,16 @@ internal class FeedRepository {
             val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
             newList.forEach { vod ->
                 if (!vod.isLive) {
-                    if(lastViewedTime == null){
+                    if (lastViewedTime == null && (vods?.find {
+                            it.id?.equals(
+                                vod.id
+                            )== true
+                        }?.isNew == false)) {
+                        vod.isNew = false
+                    } else if (lastViewedTime == null) {
                         vod.isNew = true
-                    }else{
-                    val time = Date((vod.publishDate?.parseToDate()?.time ?: 0))
+                    } else {
+                        val time = Date((vod.publishDate?.parseToDate()?.time ?: 0))
                         vod.isNew =
                             !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
                                 it.id?.equals(
