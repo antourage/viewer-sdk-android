@@ -11,7 +11,7 @@ import java.io.InputStreamReader
 internal object ConfigManager {
     internal const val TAG = "AntourageFabLogs"
 
-    var BASE_URL = "https://api.antourage.com/"
+    var BASE_URL = "https://livestream.antourage.com/"
     var PROFILE_URL = "https://profile.antourage.com/"
     var WEB_PROFILE_URL = "https://widget.antourage.com/"
     var FEED_URL = "https://feed.antourage.com/"
