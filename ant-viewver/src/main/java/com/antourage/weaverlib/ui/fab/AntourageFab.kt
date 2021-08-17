@@ -48,11 +48,9 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
-import com.google.android.exoplayer2.Player
 import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.lang.Exception
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -213,12 +211,8 @@ class AntourageFab @JvmOverloads constructor(
     private var forceVodStateIfNeeded: Boolean = false
     private var isAnimationRunning = false
     private var circleAnimatedDrawable: AnimatedVectorDrawableCompat? = null
-    private var playIconAnimatedDrawable: AnimatedVectorDrawableCompat? = null
-    private var playIconAlphaHandler: Handler = Handler(Looper.getMainLooper())
-    private var playIconStartHandler: Handler = Handler(Looper.getMainLooper())
     private var bounceHandler: Handler = Handler(Looper.getMainLooper())
     private var onboardingHandler: Handler = Handler(Looper.getMainLooper())
-    private var currentPlayerState: Int = 0
     private var isShowingLive: Boolean = false
 
     private fun showBadge(text: String) {
@@ -258,7 +252,6 @@ class AntourageFab @JvmOverloads constructor(
         }
         AntourageFabLifecycleObserver.registerActionHandler(this)
         clearStreams()
-        initPlayAnimation()
         initDefaultFabLocation()
     }
 
@@ -553,22 +546,6 @@ class AntourageFab @JvmOverloads constructor(
             }
         })
 
-        StreamPreviewManager.setStreamManager(object : StreamPreviewManager.StreamCallback {
-            override fun onNewState(playbackState: Int) {
-                super.onNewState(playbackState)
-                currentPlayerState = playbackState
-                if (playbackState == Player.STATE_READY) {
-                    bounceHandler.removeCallbacksAndMessages(null)
-                    setIncomingWidgetStatus(FabState.LIVE)
-                }
-            }
-
-            override fun onError() {
-                super.onError()
-                manageVODs(true)
-            }
-        })
-
         Handler(Looper.getMainLooper()).postDelayed({
             startAntRequests()
         }, 500)
@@ -576,11 +553,12 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onPause() {
         wasPaused = true
+        isShowingLive = false
+        clearStreams()
         StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
         if (shouldDisconnectSocket) disconnectSocket()
         removeSocketListeners()
-        currentPlayerState = 0
         isAnimationRunning = false
         goingLiveToLive = false
         vod = null
@@ -594,7 +572,6 @@ class AntourageFab @JvmOverloads constructor(
                 clearAnimationCallbacks()
             }
             circleAnimatedDrawable?.stop()
-            releasePlayer()
         }, 100)
     }
 
@@ -650,7 +627,10 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun changeFabState(state: FabState) {
         currentFabState = state
-        hideStreamPreview(state)
+        if (state != FabState.LIVE && state != FabState.PRE_LIVE) {
+            isShowingLive = false
+            clearStreams()
+        }
         when (state) {
             FabState.INACTIVE -> {
                 hideBadge()
@@ -666,7 +646,6 @@ class AntourageFab @JvmOverloads constructor(
                 val streamToDisplay = getNextStreamToDisplay()
                 streamToDisplay?.let {
                     currentlyDisplayedLiveStream = streamToDisplay
-                    startPlayingStream(streamToDisplay)
                     shownLiveStreams.add(streamToDisplay)
                 }
                 showBadge(context.getString(R.string.ant_live))
@@ -674,7 +653,6 @@ class AntourageFab @JvmOverloads constructor(
             }
             FabState.LIVE -> {
                 if (goingLiveToLive) goingLiveToLive = false
-                showPlayer()
                 startAnimation(state)
             }
             FabState.PRE_VOD -> {
@@ -706,22 +684,13 @@ class AntourageFab @JvmOverloads constructor(
                     }
                     when (animation) {
                         FabState.PRE_LIVE -> {
-                            currentPlayerState.let {
-                                if (it != Player.STATE_READY) {
-                                    bounceHandler.postDelayed({
-                                        startAnimation(FabState.PRE_LIVE)
-                                    }, 800)
-                                }
-                            }
+                            bounceHandler.removeCallbacksAndMessages(null)
+                            setIncomingWidgetStatus(FabState.LIVE)
                         }
                         FabState.LIVE -> {
-                            currentPlayerState.let {
-//                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true || it == Player.STATE_BUFFERING)
-                                if (it == Player.STATE_READY && playerView.player?.isPlaying == true)
-                                    startAnimation(
-                                        FabState.LIVE
-                                    )
-                            }
+                            startAnimation(
+                                FabState.LIVE
+                            )
                         }
                         FabState.PRE_VOD -> {
                             setIncomingWidgetStatus(FabState.VOD)
@@ -738,72 +707,6 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private fun hideStreamPreview(state: FabState) {
-        if (state != FabState.LIVE && state != FabState.PRE_LIVE) {
-            releasePlayer()
-        }
-    }
-
-    private fun showPlayer() {
-        playerView.alpha = 0f
-        playerView.visibility = View.VISIBLE
-        playerView.animate().alpha(1f).setDuration(300).start()
-        logoView.animate().alpha(0f).setDuration(300).start()
-        playIconStartHandler.postDelayed({
-            showPlayAnimation()
-        }, 1200)
-    }
-
-    private fun releasePlayer() {
-        isShowingLive = false
-        clearStreams()
-        StreamPreviewManager.releasePlayer()
-        playerView.animate().alpha(0f).setDuration(300).start()
-        logoView.animate().alpha(1f).setDuration(300).start()
-        playIconView.alpha = 0f
-        playIconAlphaHandler.removeCallbacksAndMessages(null)
-        playIconStartHandler.removeCallbacksAndMessages(null)
-        playIconAnimatedDrawable?.clearAnimationCallbacks()
-        playIconAnimatedDrawable?.stop()
-        playIconView.animation?.cancel()
-        playIconView.animation?.reset()
-        playIconView.clearAnimation()
-    }
-
-    private fun showPlayAnimation() {
-        /** play animation doesn't repeat without this on some lower M devices*/
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            initPlayAnimation()
-        }
-        playIconView.alpha = 0f
-        playIconView.visibility = View.VISIBLE
-        playIconView.animate().alpha(1f).setDuration(100).start()
-        playIconAnimatedDrawable?.apply {
-            clearAnimationCallbacks()
-            registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    if (isShowingLive) {
-                        showPlayAnimation()
-                    }
-                }
-            })
-            start()
-            playIconAlphaHandler.postDelayed({
-                playIconView.animate().alpha(0f).setDuration(200).start()
-            }, 3800)
-        }
-    }
-
-    private fun initPlayAnimation() {
-        playIconAnimatedDrawable = context?.let {
-            AnimatedVectorDrawableCompat.create(
-                it,
-                R.drawable.antourage_fab_play_animation
-            )
-        }
-        playIconView.setImageDrawable(playIconAnimatedDrawable)
-    }
-
     private fun setAnimatedDrawable(drawableId: Int) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M || currentAnimationDrawableId != drawableId) {
             currentAnimationDrawableId = drawableId
@@ -815,14 +718,6 @@ class AntourageFab @JvmOverloads constructor(
             }
             circleView.setImageDrawable(circleAnimatedDrawable)
             circleView.background = null
-        }
-    }
-
-    private fun startPlayingStream(stream: StreamResponse) {
-        playerView.player = stream.hlsUrl?.let {
-            StreamPreviewManager.getExoPlayer(
-                it, context
-            )
         }
     }
 
@@ -1036,7 +931,7 @@ class AntourageFab @JvmOverloads constructor(
 
     internal enum class FabState(val animationDrawableId: Int) {
         INACTIVE(0),
-        PRE_LIVE(R.drawable.antourage_fab_bounce_once_animation),
+        PRE_LIVE(R.drawable.antourage_fab_bounce_animation),
         LIVE(R.drawable.antourage_fab_rotation_animation),
         PRE_VOD(R.drawable.antourage_fab_bounce_animation),
         VOD(R.drawable.antourage_fab_rotation_animation)
