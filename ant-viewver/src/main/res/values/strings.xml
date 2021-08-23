@@ -127,5 +127,7 @@
     <string name="ant_web_profile_updated">Your account has been successfully updated</string>
     <string name="ant_web_password_updated">Your password has been successfully updated</string>
     <string name="ant_web_deleted">Your account has been successfully deleted</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

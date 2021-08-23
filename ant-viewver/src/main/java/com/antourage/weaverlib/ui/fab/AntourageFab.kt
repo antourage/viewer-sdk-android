@@ -42,6 +42,7 @@ import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
 import com.antourage.weaverlib.screens.base.AntourageActivity
+import com.antourage.weaverlib.screens.base.AntouragePocActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.facebook.react.bridge.Arguments
@@ -98,7 +99,7 @@ class AntourageFab @JvmOverloads constructor(
             startAntRequests()
         }
 
-        internal fun reconfigure(context: Context){
+        internal fun reconfigure(context: Context) {
             UserCache.getInstance(context)
             ConfigManager.init(context)
             handleDeviceId(context)
@@ -216,7 +217,7 @@ class AntourageFab @JvmOverloads constructor(
     private var isShowingLive: Boolean = false
 
     private fun showBadge(text: String) {
-        if(text == badgeView?.text) return
+        if (text == badgeView?.text) return
         badgeView?.text = text
         when (text) {
             context.getString(R.string.ant_live) -> {
@@ -244,6 +245,7 @@ class AntourageFab @JvmOverloads constructor(
         badgeView?.alpha = 0f
         badgeView?.text = ""
     }
+
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
         fabContainer.onClick {
@@ -472,7 +474,7 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    fun showOnboarding(){
+    fun showOnboarding() {
         if (UserCache.getInstance()?.isOnboardingSeen() == false) {
             revealOnboardingView()
         }
@@ -748,23 +750,25 @@ class AntourageFab @JvmOverloads constructor(
 
         if (this::onboardingView.isInitialized) onboardingView.hideView()
 
-        when (currentFabState) {
-            FabState.INACTIVE -> {
-                openAntActivity()
-            }
-            FabState.LIVE -> {
-                openLiveStreamActivity()
-            }
-            FabState.PRE_LIVE -> {
-                openLiveStreamActivity()
-            }
-            FabState.PRE_VOD -> {
-                openVodActivity()
-            }
-            FabState.VOD -> {
-                openVodActivity()
-            }
-        }
+        openPreFeedActivity()
+
+//        when (currentFabState) {
+//            FabState.INACTIVE -> {
+//                openAntActivity()
+//            }
+//            FabState.LIVE -> {
+//                openLiveStreamActivity()
+//            }
+//            FabState.PRE_LIVE -> {
+//                openLiveStreamActivity()
+//            }
+//            FabState.PRE_VOD -> {
+//                openVodActivity()
+//            }
+//            FabState.VOD -> {
+//                openVodActivity()
+//            }
+//        }
     }
 
     private var didViewerAppear = false
@@ -804,6 +808,12 @@ class AntourageFab @JvmOverloads constructor(
     private fun clearStreams() {
         currentlyDisplayedLiveStream = null
         shownLiveStreams.clear()
+    }
+
+    private fun openPreFeedActivity() {
+            val intent = Intent(context, AntouragePocActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            context.startActivity(intent)
     }
 
     private fun openLiveStreamActivity() {
