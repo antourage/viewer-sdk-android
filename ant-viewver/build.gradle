@@ -4,7 +4,6 @@ apply plugin: 'maven-publish'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.github.dcendents.android-maven'
 
 group='com.github.antourage'
 
@@ -14,10 +13,9 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "3.0.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'antourage-proguard-rules.txt'
+        buildConfigField 'String', 'VERSION_NAME', "\"3.0.3\""
     }
     testOptions {
         unitTests.returnDefaultValues = true
