@@ -12,7 +12,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.screens.list.VideoListFragment
 
 internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
@@ -27,9 +26,9 @@ internal abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if(this@BaseFragment !is VideoListFragment){
-                showNoInternetMessage()
-            }
+//            if(this@BaseFragment !is VideoListFragment){
+//                showNoInternetMessage()
+//            }
         }
     }
 

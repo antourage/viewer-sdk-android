@@ -26,10 +26,9 @@ import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.*
+import com.antourage.weaverlib.other.hideBadge
 import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
 import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.StreamResponseType
 import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
@@ -41,8 +40,10 @@ import com.antourage.weaverlib.other.networking.SocketConnector.newVodLiveData
 import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
+import com.antourage.weaverlib.other.showBadge
+import com.antourage.weaverlib.other.validateHorizontalMarginForFab
+import com.antourage.weaverlib.other.validateVerticalMarginForFab
 import com.antourage.weaverlib.screens.base.AntourageActivity
-import com.antourage.weaverlib.screens.base.AntouragePocActivity
 import com.antourage.weaverlib.screens.base.Repository
 import com.antourage.weaverlib.screens.list.ReceivingVideosManager
 import com.facebook.react.bridge.Arguments
@@ -557,7 +558,6 @@ class AntourageFab @JvmOverloads constructor(
         wasPaused = true
         isShowingLive = false
         clearStreams()
-        StreamPreviewManager.removeEventListener()
         ReceivingVideosManager.stopReceivingVideos()
         if (shouldDisconnectSocket) disconnectSocket()
         removeSocketListeners()
@@ -811,36 +811,6 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun openPreFeedActivity() {
-            val intent = Intent(context, AntouragePocActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            context.startActivity(intent)
-    }
-
-    private fun openLiveStreamActivity() {
-        if (currentlyDisplayedLiveStream != null) {
-            val intent = Intent(context, AntourageActivity::class.java)
-            currentlyDisplayedLiveStream?.isLive = true
-            intent.putExtra(ARGS_STREAM_SELECTED, currentlyDisplayedLiveStream)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            context.startActivity(intent)
-        }
-    }
-
-    private fun openVodActivity() {
-        if (vod?.type != StreamResponseType.POST) {
-            FeedRepository.vods = mutableListOf(vod!!)
-            val intent = Intent(context, AntourageActivity::class.java)
-            intent.putExtra(ARGS_STREAM_SELECTED, vod!!)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            context.startActivity(intent)
-        } else {
-            vod?.isNew = true
-            openAntActivity()
-        }
-    }
-
-    private fun openAntActivity() {
-        setAllLiveStreamsAsSeen()
         val intent = Intent(context, AntourageActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)

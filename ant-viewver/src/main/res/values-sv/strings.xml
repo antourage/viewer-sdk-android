@@ -2,22 +2,8 @@
     <public />
     <string name="ant_live">LIVE</string>
     <string name="ant_new_vod">NY</string>
-    <string name="ant_hint_chat">Säg något</string>
-    <string name="ant_hint_disabled">Chat avstängd</string>
 
     <!--polls-->
-    <string name="ant_new_poll">New poll!</string>
-    <string name="ant_poll_vote">RÖSTA</string>
-
-    <plurals name="ant_number_new_comments">
-        <item quantity="one">%d NY KOMMENTAR</item>
-        <item quantity="other">%d NYA KOMMENTARER</item>
-    </plurals>
-
-    <plurals name="ant_number_answers">
-        <item quantity="one">%d poll answer</item>
-        <item quantity="other">%d poll answers</item>
-    </plurals>
 
     <plurals name="ant_seconds">
         <item quantity="one">%d s</item>
@@ -71,42 +57,22 @@
     <string name="choose_link">Välj länk</string>
     <string name="ant_set">Ställ in</string>
 
-    <string name="ant_thanks_for_watching">TACK FÖR ATT DU TITTADE</string>
-
     <!--dialog chat name-->
-    <string name="ant_cancel">Avsluta</string>
-    <string name="ant_save">Spara</string>
-
-    <string name="ant_type_your_display_name">Välj ett chatt-namn</string>
-    <string name="ant_your_chat_name">Ditt chatt-namn</string>
 
     <!--avatar chooser - to be deleted-->
 
     <string name="ant_version_name">Version %1$s</string>
-    <string name="invalid_toke_error_message">Innehållet kan inte visas. Försök öppna innehåll igen.</string>
 
     <!--feed-->
-    <string name="ant_jump_to_top">Gå till början</string>
-    <string name="ant_join_conversation">Gå med i konversation</string>
-    <string name="ant_new">Ny</string>
-    <string name="ant_videos_empty_list_placeholder_text_new">Snart kan du se interaktiv\nvideo här</string>
     <string name="ant_no_connection">Ingen uppkoppling</string>
 
     <string name="ant_server_error">Något gick fel. Vi jobbar på en lösning</string>
     <string name="ant_you_are_online">Du ha uppkoppling</string>
-    <string name="ant_most_recent">senaste</string>
-<!--    <string name="ant_most_recent">%s   •  senaste</string>-->
+    <!--    <string name="ant_most_recent">%s   •  senaste</string>-->
 
     <!--player-->
-    <string name="ant_at">vid</string>
-    <string name="ant_send">SKICKA</string>
-    <string name="ant_ten_seconds">10 sekunder</string>
-    <string name="ant_skip_curtain">skippa ridå</string>
-    <string name="ant_live_error">Livesändningen blev avbruten. Tryck på play för att fortsätta</string>
-    <string name="ant_prefix_live_in_progress">Live sedan %1$s</string>
     <string name="ant_prefix_live">Live\u0020</string>
     <string name="ant_prefix_posted">Publicerat\u0020</string>
-    <string name="join_conversation" translatable="false">Gå med i konversation</string>
 
     <!--intro-->
     <string name="ant_see_it_first">Se det först</string>

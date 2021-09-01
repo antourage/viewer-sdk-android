@@ -1,48 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ant_white">#FFFFFF</color>
-    <color name="ant_white_a60">#99FFFFFF</color>
-    <color name="ant_white_a30">#4DFFFFFF</color>
-    <color name="ant_white_a20">#33FFFFFF</color>
     <color name="ant_black">#000000</color>
     <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget_expantion">#131313</color>
-    <color name="ant_bg_color">#222</color>
     <color name="ant_pink">#E4699B</color>
-    <color name="ant_pink_a30">#4DE4699B</color>
-    <color name="ant_pink_2">#EB8CA1</color>
-    <color name="ant_semitransparent">#66424242</color>
-    <color name="ant_halftransparent">#80000000</color>
-    <color name="ant_dark_transparent">#AB000000</color>
     <color name="ant_dark_transparent_a90">#F2000000</color>
-    <color name="ant_dark_gray_2">#1F1F1F</color>
-    <color name="ant_dark_gray_3_a50">#800F0F0F</color>
-    <color name="ant_dark_gray_3_a80">#CC0F0F0F</color>
-    <color name="ant_dark_gray_4">#3C4043</color>
-    <color name="ant_green_2">#00A854</color>
-    <color name="ant_orange_2">#F6BA5F</color>
-    <color name="ant_yellow">#F3CA3E</color>
     <color name="ant_blue">#3596C5</color>
-    <color name="ant_grayed_text">#464646</color>
-    <color name="ant_light_gray_2">#FCFCFC</color>
-    <color name="ant_gray">#9BA3A9</color>
-    <color name="ant_gray_a30">#4D9BA3A9</color>
 
-    <color name="ant_streamer_name_color">#9BA3A9</color>
-    <color name="ant_feed_bg_color">#191919</color>
-    <color name="ant_feed_header_separator_color">#454545</color>
-    <color name="ant_placeholder_items_color">#303030</color>
     <color name="ant_error_resolved_bg_color">#0cae4b</color>
     <color name="ant_error_bg_color">#323639</color>
 
     <color name="ant_header_dark_gray">#192128</color>
     <color name="ant_web_background">#191919</color>
     <color name="ant_web_icons_tint">#8C8C8C</color>
-
-    <color name="ant_chat_input_stroke">#536471</color>
-    <color name="ant_chat_hint_disabled">#2E3942</color>
-    <color name="ant_chat_input_background">#2E3942</color>
-    <color name="ant_chat_input_background_inactive">#192128</color>
-    <color name="ant_message_author">#ADB3B8</color>
 
 </resources>

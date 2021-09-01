@@ -107,7 +107,7 @@ internal class ConnectionStateMonitor(val context: Context) :
             Global.networkAvailable = false
             internetStateLiveData.postValue(NetworkConnectionState.LOST)
             Handler(Looper.getMainLooper()).postDelayed({ internetStateLiveData.postValue(null) }, 500)
-            handler.postDelayed(finalNetworkCheck, 1000);
+            handler.postDelayed(finalNetworkCheck, 1000)
         }
     }
 }

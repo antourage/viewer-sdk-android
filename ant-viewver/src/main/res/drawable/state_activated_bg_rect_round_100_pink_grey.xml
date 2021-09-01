@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_activated="true" android:drawable="@drawable/bg_button_rect_round_100_1_pink" />
-    <item android:state_activated="false" android:drawable="@drawable/bg_rect_round_stroke_100_grey" />
-</selector>

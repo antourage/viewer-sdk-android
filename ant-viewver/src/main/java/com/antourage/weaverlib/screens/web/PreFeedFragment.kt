@@ -42,7 +42,7 @@ import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.keyboard.hideKeyboard
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_pre_feed.*
 import org.jetbrains.anko.backgroundColor
 import java.io.File
 import java.io.IOException
@@ -148,7 +148,7 @@ class PreFeedFragment : Fragment() {
                 messageId = 0
             } else {
                 message.messageCode?.let {
-                    when (it.toLowerCase()) {
+                    when (it.lowercase(Locale.getDefault())) {
                         "accountupdated" -> {
                             messageId = R.string.ant_web_profile_updated
                         }
@@ -276,7 +276,7 @@ class PreFeedFragment : Fragment() {
     private fun showErrorSnackBar(message: String) {
         profileSnackBar?.text = message
         snackBarLayout?.visibility = View.VISIBLE
-        if (snackBarBehaviour?.state != BottomSheetBehavior.STATE_EXPANDED) {
+        if (snackBarBehaviour.state != BottomSheetBehavior.STATE_EXPANDED) {
             context?.let {
                 profileSnackBar?.backgroundColor =
                     ContextCompat.getColor(it, R.color.ant_error_bg_color)
@@ -496,11 +496,11 @@ class PreFeedFragment : Fragment() {
         resetCallback = false
         dialog?.dismiss()
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         if (takePictureIntent.resolveActivity(activity?.packageManager!!) != null) {
             var photoFile: File? = null
             try {
-                photoFile = getPhotoFileUri();
+                photoFile = getPhotoFileUri()
             } catch (ex: IOException) {
                 ex.printStackTrace()
             }

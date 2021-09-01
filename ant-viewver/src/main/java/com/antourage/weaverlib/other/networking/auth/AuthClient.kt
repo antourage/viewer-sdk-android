@@ -61,7 +61,7 @@ internal object AuthClient {
             Log.d(TAG, "Refreshing token")
 
             val refreshTokenResponse =
-                getAuthClient().authService.refreshToken(CLIENT_ID!!, refreshToken).execute()
+                getAuthClient().authService.refreshToken(CLIENT_ID, refreshToken).execute()
 
             if (refreshTokenResponse.code() != 401) {
                 refreshTokenResponse.body()?.accessToken?.let {

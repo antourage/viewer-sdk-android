@@ -97,7 +97,7 @@ data class StreamResponse(
     }
 }
 
-enum class StreamResponseType() {
+enum class StreamResponseType {
     @SerializedName("liveStream")
     VOD,
     @SerializedName("post")

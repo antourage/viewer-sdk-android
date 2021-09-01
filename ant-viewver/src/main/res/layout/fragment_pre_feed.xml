@@ -5,7 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/ant_header_dark_gray"
-        tools:context=".screens.base.ProfileFragment">
+        tools:context=".screens.web.PreFeedFragment">
 
     <WebView
             android:id="@+id/webView"
