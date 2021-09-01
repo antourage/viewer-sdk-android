@@ -45,7 +45,7 @@ class AccurateWidthTextView @JvmOverloads constructor(
     private fun getMaxLineWidth(layout: Layout): Float {
         return (0 until layout.lineCount)
             .map { layout.getLineWidth(it) }
-            .max()
+            .maxOrNull()
             ?: 0.0f
     }
 
