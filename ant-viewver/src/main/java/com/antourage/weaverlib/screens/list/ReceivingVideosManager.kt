@@ -12,7 +12,6 @@ import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.feed.FeedRepository
-import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
 
 /**
@@ -36,44 +35,6 @@ internal class ReceivingVideosManager {
 
         fun setReceivingVideoCallback(callback: ReceivingVideoCallback) {
             ReceivingVideosManager.callback = callback
-        }
-
-
-        fun loadVODs(count: Int, roomRepository: RoomRepository) {
-            Log.d(TAG, "Trying to load VODs")
-            val response = FeedRepository.getVODsWithLastCommentAndStopTime(count, roomRepository)
-            response.observeForever(object :
-                Observer<Resource<List<StreamResponse>>> {
-                override fun onChanged(resource: Resource<List<StreamResponse>>?) {
-                    if (resource != null) {
-                        when (resource.status) {
-                            is Status.Failure -> {
-                                Log.d(
-                                    TAG,
-                                    "Failed to load VODs: ${resource.status.errorMessage}"
-                                )
-                                callback?.onVODReceived(resource)
-                                response.removeObserver(this)
-                            }
-                            is Status.Success -> {
-                                if (count == 0) {
-                                    callback?.onVODReceivedInitial(resource)
-                                } else {
-                                    callback?.onVODReceived(resource)
-                                }
-                                vods = resource.status.data as MutableList<StreamResponse>
-                                Log.d(TAG, "Successfully received VOD list")
-                                response.removeObserver(this)
-                            }
-                            is Status.Loading -> {
-                                callback?.onVODReceivedInitial(resource)
-                                callback?.onVODReceived(resource)
-                            }
-                            else -> {}
-                        }
-                    }
-                }
-            })
         }
 
         val handlerLiveVideos = Handler(Looper.getMainLooper())

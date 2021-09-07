@@ -14,13 +14,11 @@ import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.room.AppDatabase
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.textColor
-
 
 internal class DevSettingsDialog(
     context: Context,
@@ -43,8 +41,6 @@ internal class DevSettingsDialog(
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
                 if (radioButton.text.toString() != UserCache.getInstance()?.getEnvChoice()) {
                     GlobalScope.launch(Dispatchers.IO) {
-                        AppDatabase.getInstance(context).commentDao().clearComments()
-                        AppDatabase.getInstance(context).videoStopTimeDao().clearVideos()
                         UserCache.getInstance()?.clearUserData()
                     }
                 }
