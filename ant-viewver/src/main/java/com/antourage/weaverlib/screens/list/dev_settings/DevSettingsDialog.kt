@@ -20,7 +20,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.textColor
 
-internal class DevSettingsDialog(
+//TODO make internal
+class DevSettingsDialog(
     context: Context,
     private val listener: OnDevSettingsChangedListener
 ) :

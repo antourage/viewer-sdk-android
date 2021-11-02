@@ -13,7 +13,7 @@ internal object ConfigManager {
 
     var BASE_URL = "https://livestream.antourage.com/"
     var PROFILE_URL = "https://profile.antourage.com/"
-    var WEB_PROFILE_URL = "https://widget.antourage.com/"
+    var WEB_WIDGET_URL = "https://widget.antourage.com/"
     var FEED_URL = "https://feed.antourage.com/"
     var AUTH_URL = "https://identity.antourage.com"
     var CLIENT_ID = ""
@@ -53,7 +53,7 @@ internal object ConfigManager {
                 UserCache.getInstance()?.updateEnvChoice(configFile.name!!)
                 BASE_URL = configFile.apiUrl!!
                 PROFILE_URL = configFile.profileUrl!!
-                WEB_PROFILE_URL = configFile.webWidgetUrl!!
+                WEB_WIDGET_URL = configFile.webWidgetUrl!!
                 FEED_URL = configFile.feedUrl!!
                 AUTH_URL = configFile.authUrl!!
             }
@@ -62,7 +62,7 @@ internal object ConfigManager {
         ) {
             BASE_URL = configFile.apiUrl!!
             PROFILE_URL = configFile.profileUrl!!
-            WEB_PROFILE_URL = configFile.webWidgetUrl!!
+            WEB_WIDGET_URL = configFile.webWidgetUrl!!
             FEED_URL = configFile.feedUrl!!
             AUTH_URL = configFile.authUrl!!
         } else {
@@ -72,7 +72,7 @@ internal object ConfigManager {
             if (!env.isNullOrEmpty()) {
                 BASE_URL = env[0].apiUrl!!
                 PROFILE_URL = env[0].profileUrl!!
-                WEB_PROFILE_URL = env[0].webWidgetUrl!!
+                WEB_WIDGET_URL = env[0].webWidgetUrl!!
                 FEED_URL = env[0].feedUrl!!
                 AUTH_URL = env[0].authUrl!!
                 CLIENT_ID = env[0].appClientId!!
@@ -98,6 +98,7 @@ data class ConfigFile(
     val profileUrl: String?,
     val webWidgetUrl: String?,
     val feedUrl: String?,
+    val preFeedUrl: String?,
     val authUrl: String?,
     val environments: List<Environment>?
 )
@@ -111,5 +112,6 @@ data class Environment(
     val profileUrl: String?,
     val webWidgetUrl: String?,
     val feedUrl: String?,
+    val preFeedUrl: String?,
     val authUrl: String?
 )

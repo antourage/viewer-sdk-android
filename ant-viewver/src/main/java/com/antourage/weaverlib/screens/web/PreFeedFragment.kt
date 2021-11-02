@@ -9,14 +9,13 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +31,7 @@ import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.antourage.weaverlib.ConfigManager.CLIENT_ID
-import com.antourage.weaverlib.ConfigManager.WEB_PROFILE_URL
+import com.antourage.weaverlib.ConfigManager.WEB_WIDGET_URL
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
@@ -40,10 +39,13 @@ import com.antourage.weaverlib.other.models.WebViewResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.ui.keyboard.hideKeyboard
+import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_pre_feed.*
 import org.jetbrains.anko.backgroundColor
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -76,12 +78,6 @@ class PreFeedFragment : Fragment() {
         initAndShowLoader()
         initSnackBar()
         initWebView()
-
-        closeButton.setOnClickListener {
-            it.isEnabled = false
-            parentFragmentManager.popBackStack()
-            activity?.hideKeyboard()
-        }
     }
 
 
@@ -91,6 +87,8 @@ class PreFeedFragment : Fragment() {
         webView.settings.domStorageEnabled = true
         webView.settings.allowContentAccess = true
         webView.settings.allowFileAccess = true
+        webView.isFocusable = true;
+        webView.isFocusableInTouchMode = true;
 
         loadUrl()
 
@@ -118,9 +116,7 @@ class PreFeedFragment : Fragment() {
             ) {
                 super.onReceivedError(view, request, error)
                 shouldReload = true
-                if (ConnectionStateMonitor.isNetworkAvailable()) {
-                    showError()
-                } else {
+                if (!ConnectionStateMonitor.isNetworkAvailable()) {
                     showNoConnection()
                 }
             }
@@ -128,62 +124,49 @@ class PreFeedFragment : Fragment() {
     }
 
     private fun loadUrl() {
-        webView.loadUrl(
-            "${WEB_PROFILE_URL}#/profile?token=${
-                UserCache.getInstance()?.getAccessToken()
-            }&idToken=${
-                UserCache.getInstance()?.getIdToken()
-            }&refreshToken=${
-                UserCache.getInstance()?.getRefreshToken()
-            }&appClientId=$CLIENT_ID"
-        )
+        if (UserCache.getInstance()?.getAccessToken().isNullOrBlank() || UserCache.getInstance()
+                ?.getIdToken().isNullOrBlank() || UserCache.getInstance()?.getRefreshToken()
+                .isNullOrBlank()
+        ) {
+            webView.loadUrl(
+                "${WEB_WIDGET_URL}antourage-mobile/pre-feed"
+            )
+        } else {
+            webView.loadUrl(
+                "${WEB_WIDGET_URL}antourage-mobile/pre-feed?token=${
+                    UserCache.getInstance()?.getAccessToken()
+                }&idToken=${
+                    UserCache.getInstance()?.getIdToken()
+                }&refreshToken=${
+                    UserCache.getInstance()?.getRefreshToken()
+                }&appClientId=$CLIENT_ID"
+            )
+        }
     }
 
     inner class JsObject {
         @JavascriptInterface
         fun receiveMessage(jsonData: String?): Boolean {
-            val message = Gson().fromJson(jsonData, WebViewResponse::class.java)
-            var messageId = 0
-            if (message?.messageCode == null) {
-                messageId = 0
-            } else {
-                message.messageCode?.let {
-                    when (it.lowercase(Locale.getDefault())) {
-                        "accountupdated" -> {
-                            messageId = R.string.ant_web_profile_updated
-                        }
-                        "passwordupdated" -> {
-                            messageId = R.string.ant_web_password_updated
-                        }
-                        "accountdeleted" -> {
-                            messageId = R.string.ant_web_deleted
-                        }
+            try {
+                val jsonObject = JSONObject(jsonData)
+                when (jsonObject.getString(TYPE)) {
+                    BROWSER -> {
+                        (activity as AntourageActivity).openBrowserTab(jsonObject.getString(URL))
+                    }
+                    LOGOUT -> {
+                        UserCache.getInstance()?.logout()
+                    }
+                    EXIT -> {
+                        activity?.finish()
+                    }
+                    AUTH -> {
+                        (activity as AntourageActivity).openJoinTab()
                     }
                 }
-            }
-            when (message.type) {
-                LOGOUT -> {
-                    logout(messageId)
-                }
-                UPDATE_USER -> {
-                    updateUser(messageId)
-                }
+            } catch (e: Exception) {
             }
             return false
         }
-    }
-
-    fun updateUser(messageId: Int) {
-        setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
-        parentFragmentManager.popBackStack()
-        activity?.hideKeyboard()
-    }
-
-    fun logout(messageId: Int) {
-        UserCache.getInstance()?.logout()
-        setFragmentResult("antWebResponse", bundleOf("antWebMessage" to messageId))
-        parentFragmentManager.popBackStack()
-        activity?.hideKeyboard()
     }
 
     private fun subscribeToObservers() {
@@ -356,6 +339,10 @@ class PreFeedFragment : Fragment() {
     }
 
     internal inner class MyWebChromeClient : WebChromeClient() {
+
+        override fun getDefaultVideoPoster(): Bitmap? {
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        }
 
         override fun onShowFileChooser(
             mWebView: WebView,
@@ -555,8 +542,12 @@ class PreFeedFragment : Fragment() {
     }
 
     companion object {
-        private const val UPDATE_USER = "antourage-updateUser"
+        private const val TYPE = "type"
+        private const val EXIT = "antourage-hideWidget"
+        private const val AUTH = "antourage-auth"
+        private const val BROWSER = "antourage-open-browser"
         private const val LOGOUT = "antourage-logout"
+        private const val URL = "url"
     }
 
     override fun onResume() {

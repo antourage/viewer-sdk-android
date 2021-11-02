@@ -3,12 +3,14 @@ package com.antourage.weaverlib
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.util.Log
 import com.antourage.weaverlib.other.models.AdBanner
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
 import java.lang.ref.WeakReference
 import java.util.*
 
-internal class UserCache private constructor(context: Context) {
+//TODO make internal
+class UserCache private constructor(context: Context) {
     private var contextRef: WeakReference<Context>? = null
     private var prefs: SharedPreferences? = null
 

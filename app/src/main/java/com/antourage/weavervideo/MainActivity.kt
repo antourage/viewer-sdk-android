@@ -1,11 +1,15 @@
 package com.antourage.weavervideo
 
+import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
+import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
 import com.antourage.weaverlib.ui.fab.WidgetPosition
@@ -16,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
 
     private lateinit var antfab: AntourageFab
     private lateinit var connectivityManager: ConnectivityManager
@@ -49,6 +53,11 @@ class MainActivity : AppCompatActivity() {
         antfab.setPosition(WidgetPosition.bottomRight)
         antfab.setMargins(horizontal = 10, vertical = 80)
         antfab.showFab(this)
+
+        header.setOnClickListener {
+            val dialog = DevSettingsDialog(this@MainActivity, this)
+            dialog.show()
+        }
 
 //        antfab.showOnboarding()
 
@@ -93,6 +102,16 @@ class MainActivity : AppCompatActivity() {
             }
         }.start()
         //endregion
+    }
+
+    override fun onBeChanged(choice: String) {
+        choice.let {
+            UserCache.getInstance(application.applicationContext)
+                ?.updateEnvChoice(choice)
+            UserCache.getInstance()?.saveAccessToken(null)
+            UserCache.getInstance()?.saveIdToken(null)
+            UserCache.getInstance()?.saveRefreshToken(null)
+        }
     }
 
     override fun onResume() {

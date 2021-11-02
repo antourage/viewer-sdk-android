@@ -2,13 +2,17 @@ package com.antourage.weaverlib.screens.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
@@ -46,6 +50,35 @@ class AntourageActivity : AppCompatActivity() {
             .commit()
         FirebaseLoginService().handleSignIn()
         setupKeyboardListener(findViewById(R.id.mainContent))
+    }
+
+    fun openJoinTab() {
+        val url =
+            "${ConfigManager.WEB_WIDGET_URL}antourage-mobile/auth?appClientId=${ConfigManager.CLIENT_ID}&anonymousAppClientId=${ConfigManager.ANONYMOUS_CLIENT_ID}&anonymousAppClientSecret=${ConfigManager.ANONYMOUS_SECRET}"
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent: CustomTabsIntent = builder
+            .build()
+
+        try {
+            customTabsIntent.intent.setPackage("com.android.chrome")
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        } catch (e: ActivityNotFoundException) {
+            customTabsIntent.intent.setPackage(null)
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        }
+    }
+
+    fun openBrowserTab(url: String) {
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent: CustomTabsIntent = builder
+            .build()
+        try {
+            customTabsIntent.intent.setPackage("com.android.chrome")
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        } catch (e: ActivityNotFoundException) {
+            customTabsIntent.intent.setPackage(null)
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
