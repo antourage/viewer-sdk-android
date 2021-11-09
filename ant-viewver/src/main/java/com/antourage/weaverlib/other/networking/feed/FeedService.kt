@@ -16,7 +16,10 @@ internal interface FeedService {
     fun getVODs(@Query("count") count: Int): LiveData<ApiResponse<List<StreamResponse>>>
 
     @GET("feed/new")
-    fun getVODsForFab(@Query("lastViewDate") lastViewDate: String?): LiveData<ApiResponse<List<StreamResponse>>>
+    fun getVODsForFab(@Query("lastViewDate") lastViewDate: String): LiveData<ApiResponse<List<StreamResponse>>>
+
+    @GET("feed/new")
+    fun getVODsForFab(): LiveData<ApiResponse<List<StreamResponse>>>
 
     @GET("livestreams/{id}/viewers")
     fun getLiveViewers(@Path("id") id: Int): LiveData<ApiResponse<Viewers>>

@@ -18,15 +18,16 @@ internal class FeedRepository {
                 override fun createCall() = FeedClient.getWebClient().feedService.getLiveStreams()
             }.asLiveData()
 
-        fun getVODsForFab(lastViewDate: String?): LiveData<Resource<List<StreamResponse>>> =
+        fun getVODsForFab(lastViewDate: String): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
                 override fun createCall() =
                     FeedClient.getWebClient().feedService.getVODsForFab(lastViewDate)
             }.asLiveData()
 
-        private fun getVODs(count: Int): LiveData<Resource<List<StreamResponse>>> =
+        fun getVODsForFab(): LiveData<Resource<List<StreamResponse>>> =
             object : NetworkBoundResource<List<StreamResponse>>() {
-                override fun createCall() = FeedClient.getWebClient().feedService.getVODs(count)
+                override fun createCall() =
+                    FeedClient.getWebClient().feedService.getVODsForFab()
             }.asLiveData()
 
         internal fun updateLastSeenVod() {
@@ -36,31 +37,6 @@ internal class FeedRepository {
             val newestVodTime = Date((vod.publishDate?.parseToDate()?.time ?: 0))
             if (lastViewedTime == null || newestVodTime.after(lastViewedTime)) {
                 UserCache.getInstance()?.saveLastViewedTime(newestVodTime.time.getUtcTime())
-            }
-        }
-
-        internal fun invalidateIsNewProperty(newList: List<StreamResponse>) {
-            val lastViewedTime = UserCache.getInstance()?.getLastViewedTime()?.parseToDate()
-            newList.forEach { vod ->
-                if (!vod.isLive) {
-                    if (lastViewedTime == null && (vods?.find {
-                            it.id?.equals(
-                                vod.id
-                            )== true
-                        }?.isNew == false)) {
-                        vod.isNew = false
-                    } else if (lastViewedTime == null) {
-                        vod.isNew = true
-                    } else {
-                        val time = Date((vod.publishDate?.parseToDate()?.time ?: 0))
-                        vod.isNew =
-                            !(time.before(lastViewedTime) || time == lastViewedTime || (vods?.find {
-                                it.id?.equals(
-                                    vod.id
-                                ) == true
-                            }?.isNew == false))
-                    }
-                }
             }
         }
     }

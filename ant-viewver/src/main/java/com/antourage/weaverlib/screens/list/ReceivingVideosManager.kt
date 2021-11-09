@@ -109,8 +109,12 @@ internal class ReceivingVideosManager {
             handlerVODs.postDelayed(object : Runnable {
                 override fun run() {
                     if (Global.networkAvailable) {
-                        val streamResponse =
-                            FeedRepository.getVODsForFab(UserCache.getInstance()?.getLastViewedTime())
+                        val lastViewTime = UserCache.getInstance()?.getLastViewedTime()
+                        val streamResponse = if(lastViewTime == null || lastViewTime.isNullOrBlank()){
+                            FeedRepository.getVODsForFab()
+                        }else{
+                            FeedRepository.getVODsForFab(lastViewTime)
+                        }
                         streamResponse.observeForever(object :
                             Observer<Resource<List<StreamResponse>>> {
                             override fun onChanged(resource: Resource<List<StreamResponse>>?) {

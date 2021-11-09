@@ -12,10 +12,12 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,9 +26,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -35,19 +35,16 @@ import com.antourage.weaverlib.ConfigManager.WEB_WIDGET_URL
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.other.models.WebViewResponse
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
-import com.antourage.weaverlib.other.ui.keyboard.hideKeyboard
 import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_pre_feed.*
 import org.jetbrains.anko.backgroundColor
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -96,15 +93,19 @@ class PreFeedFragment : Fragment() {
         val jsObject = JsObject()
         webView.addJavascriptInterface(jsObject, "AntListener")
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                webView?.loadUrl(
+                    "javascript:(function() {" +
+                            "window.parent.addEventListener ('message', function(event) {" +
+                            " AntListener.receiveMessage(JSON.stringify(event.data));});" +
+                            "})()"
+                )
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (!wasPaused && webView?.progress == 100) {
                     shouldReload = false
-                    webView?.loadUrl(
-                        "javascript:(function() {" +
-                                "window.parent.addEventListener ('message', function(event) {" +
-                                " AntListener.receiveMessage(JSON.stringify(event.data));});" +
-                                "})()"
-                    )
                     hideLoading()
                 }
             }
@@ -124,22 +125,34 @@ class PreFeedFragment : Fragment() {
     }
 
     private fun loadUrl() {
+        val lastViewDateUrl = if (UserCache.getInstance()?.getLastViewedTime() != null) {
+            "?lastViewDate=" + URLEncoder.encode(
+                UserCache.getInstance()?.getLastViewedTime(),
+                "UTF-8"
+            )
+        } else {
+            null
+        }
+
+        val url: String
         if (UserCache.getInstance()?.getAccessToken().isNullOrBlank() || UserCache.getInstance()
                 ?.getIdToken().isNullOrBlank() || UserCache.getInstance()?.getRefreshToken()
                 .isNullOrBlank()
         ) {
+            url = "${WEB_WIDGET_URL}antourage-mobile/pre-feed"
             webView.loadUrl(
-                "${WEB_WIDGET_URL}antourage-mobile/pre-feed"
+                url
             )
         } else {
+            url = "${WEB_WIDGET_URL}antourage-mobile/pre-feed?token=${
+                UserCache.getInstance()?.getAccessToken()
+            }&idToken=${
+                UserCache.getInstance()?.getIdToken()
+            }&refreshToken=${
+                UserCache.getInstance()?.getRefreshToken()
+            }&appClientId=$CLIENT_ID" + if (lastViewDateUrl != null) "?lastViewDate=$lastViewDateUrl" else ""
             webView.loadUrl(
-                "${WEB_WIDGET_URL}antourage-mobile/pre-feed?token=${
-                    UserCache.getInstance()?.getAccessToken()
-                }&idToken=${
-                    UserCache.getInstance()?.getIdToken()
-                }&refreshToken=${
-                    UserCache.getInstance()?.getRefreshToken()
-                }&appClientId=$CLIENT_ID"
+                url
             )
         }
     }
@@ -152,6 +165,11 @@ class PreFeedFragment : Fragment() {
                 when (jsonObject.getString(TYPE)) {
                     BROWSER -> {
                         (activity as AntourageActivity).openBrowserTab(jsonObject.getString(URL))
+                    }
+                    LAST_VIEW_DATE -> {
+                        val lastViewDate = jsonObject.getString(VIEW_DATE)
+                        if (lastViewDate.isNotBlank() && lastViewDate != "null")
+                            UserCache.getInstance()?.saveLastViewedTime(lastViewDate)
                     }
                     LOGOUT -> {
                         UserCache.getInstance()?.logout()
@@ -546,8 +564,10 @@ class PreFeedFragment : Fragment() {
         private const val EXIT = "antourage-hideWidget"
         private const val AUTH = "antourage-auth"
         private const val BROWSER = "antourage-open-browser"
+        private const val LAST_VIEW_DATE = "antourage-lastViewDate"
         private const val LOGOUT = "antourage-logout"
         private const val URL = "url"
+        private const val VIEW_DATE = "lastViewDate"
     }
 
     override fun onResume() {
