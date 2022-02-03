@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BadgeFab">
+        <attr name="badgeTextColor" format="color" />
+        <attr name="badgeBackgroundColor" format="color" />
+        <attr name="badgePosition" format="enum">
+            <enum name="RightTop" value="0" />
+            <enum name="LeftBottom" value="1" />
+            <enum name="LeftTop" value="2" />
+            <enum name="RightBottom" value="3" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PieChart">
+        <attr name="showText" format="boolean" />
+        <attr name="labelPosition" format="enum">
+            <enum name="left" value="0"/>
+            <enum name="right" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="AntRefreshLayout">
+        <attr name="offsetTop" format="integer"/>
+        <attr name="customBar" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="SegmentedProgressBar">
+        <attr name="progressColor" format="color"/>
+        <attr name="segmentColor" format="color"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="barHeight" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="AntourageFab">
+        <attr name="portalColor" format="color"/>
+        <attr name="ctaBackgroundColor" format="color"/>
+        <attr name="ctaTextColor" format="color"/>
+        <attr name="overlayBackgroundColor" format="color"/>
+        <attr name="overlayAlpha" format="float"/>
+        <attr name="liveDotColor" format="color"/>
+        <attr name="titleTextColor" format="color"/>
+        <attr name="titleBackgroundColor" format="color"/>
+        <attr name="nameTextColor" format="color"/>
+        <attr name="nameBackgroundColor" format="color"/>
+        <attr name="idleInterval" format="integer"/>
+    </declare-styleable>
+
+</resources>

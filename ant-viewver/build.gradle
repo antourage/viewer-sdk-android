@@ -1,0 +1,222 @@
+apply plugin: 'com.android.library'
+apply plugin: "org.sonarqube"
+apply plugin: 'maven-publish'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+group='com.github.antourage'
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 31
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'antourage-proguard-rules.txt'
+        buildConfigField 'String', 'VERSION_NAME', "\"3.0.3\""
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
+            resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
+        }
+        debugMini {
+            initWith debug
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+            matchingFallbacks = ['debug']
+            resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
+            resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+            resValue('string', "default_web_client_id", "1090288296965-af0rel1gllhfhacd94q4qsp9k77hsgv3.apps.googleusercontent.com")
+            buildConfigField('String', "DatabaseUrl", "\"https://leobit-antourage.firebaseio.com\"")
+            resValue('string', "firebase_database_url", "https://leobit-antourage.firebaseio.com")
+            resValue('string', "gcm_defaultSenderId", "1090288296965")
+            buildConfigField('String', "FirebaseApiKey", "\"AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys\"")
+            resValue('string', "google_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            buildConfigField('String', "ApplicationFirebaseId", "\"1:1090288296965:android:e9d14e6292648f90\"")
+            resValue('string', "google_app_id", "1:1090288296965:android:e9d14e6292648f90")
+            resValue('string', "google_crash_reporting_api_key", "AIzaSyBWgZ89s4cRmcozp3EKnFcZ9JIXzeKW-Ys")
+            resValue('string', "google_storage_bucket", "leobit-antourage.appspot.com")
+            buildConfigField('String', "FirebaseProjectId", "\"leobit-antourage\"")
+
+            buildConfigField('String', "FirebaseName", "\"secondary\"")
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    androidExtensions {
+        experimental = true
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //Android general
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.exifinterface:exifinterface:1.3.1'
+    implementation "androidx.preference:preference-ktx:1.1.1"
+    implementation "androidx.fragment:fragment-ktx:1.3.4"
+    //Constraint layout
+    //Do not update as there is some weird bug with adjustResize
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    //Architecture Components
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+    // RecyclerView
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    // CardView
+    implementation 'androidx.cardview:cardview:1.0.0'
+    // Retrofit stuff
+    implementation 'com.squareup.retrofit2:retrofit:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
+
+    //ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.16.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.16.1'
+    implementation 'com.google.android.exoplayer:extension-okhttp:2.16.1'
+
+    // for firebase
+    implementation 'com.google.firebase:firebase-auth:20.0.0'
+    implementation 'com.google.firebase:firebase-firestore:22.0.0'
+    //Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    //room:
+    implementation "androidx.room:room-runtime:2.3.0"
+    implementation "androidx.room:room-ktx:2.3.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    kapt "androidx.room:room-compiler:2.3.0"
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
+    implementation "androidx.work:work-runtime:2.7.0"
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
+
+    //CircleImageView
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
+   
+    //Testing
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //SignalR
+    implementation("com.microsoft.signalr:signalr:5.0.0-rc.1.20451.17")
+    implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.30'
+
+    //Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.anko:anko:$anko_version"
+
+    //Custom Chrome Tabs
+    implementation "androidx.browser:browser:1.3.0"
+
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
+}
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+project.afterEvaluate {
+    publishing {
+        publications {
+            library(MavenPublication) {
+                def artifactId = 'weaverlib'
+                def groupId = 'com.testing'
+
+                setGroupId(groupId)
+                setArtifactId(artifactId)
+                version android.defaultConfig.versionName
+
+                println "publishing: " + groupId
+                println "publishing: " + artifactId
+                println "publishing: " + bundleReleaseAar
+
+                artifact(bundleReleaseAar)
+                pom.withXml {
+                    final dependenciesNode = asNode().appendNode('dependencies')
+
+                    ext.addDependency = { Dependency dep, String scope ->
+                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                            return // ignore invalid dependencies
+
+                        final dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
+                        dependencyNode.appendNode('scope', scope)
+
+                        if (!dep.transitive) {
+                            // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            }
+                        }
+                    }
+
+                    // List all "compile" dependencies (for old Gradle)
+                    configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "api" dependencies (for new Gradle) as "compile" dependencies
+                    configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+                    // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                    configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+                }
+            }
+        }
+    }
+}

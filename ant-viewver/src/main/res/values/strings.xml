@@ -1,0 +1,93 @@
+<resources>
+    <public />
+    <string name="ant_live">LIVE</string>
+    <string name="ant_new_vod">NEW</string>
+
+    <!--polls-->
+
+    <plurals name="ant_seconds">
+        <item quantity="one">%d s</item>
+        <item quantity="other">%d s</item>
+    </plurals>
+    <plurals name="ant_minutes">
+        <item quantity="one">%d m</item>
+        <item quantity="other">%d m</item>
+    </plurals>
+
+    <plurals name="ant_hours">
+        <item quantity="one">%d h</item>
+        <item quantity="other">%d h</item>
+    </plurals>
+    <plurals name="ant_days">
+        <item quantity="one">%d d</item>
+        <item quantity="other">%d d</item>
+    </plurals>
+
+
+    <plurals name="ant_minutes_long">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
+    <plurals name="ant_hours_long">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="ant_days_long">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="ant_weeks_long">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="ant_months_long">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="ant_years_long">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+
+    <string name="ant_started_ago">%1$s ago</string>
+    <string name="ant_started_now">Just now</string>
+    <string name="ant_recent">Recent</string>
+
+    <string name="ant_prefix_posted">Posted\u0020</string>
+    <string name="ant_prefix_live">Live\u0020</string>
+
+    <string name="choose_link">Choose link</string>
+    <string name="ant_set">set</string>
+
+    <!--dialog chat name-->
+    <!--todo:  translate properly in sweden. Was "Type your display name"-->
+
+    <!--avatar chooser - to be deleted-->
+
+
+    <string name="ant_version_name">Version %1$s</string>
+    <string name="ant_no_internet_action" translatable="false">No_internet_connection_available</string>
+
+    <!--feed-->
+    <string name="ant_no_connection">no connection</string>
+    <string name="ant_server_error">Something is not right. We are working to get this fixed</string>
+    <string name="ant_you_are_online">you are online</string>
+    <!--    <string name="ant_most_recent">%s   •  most recent</string>-->
+
+    <!--player-->
+
+
+    <!--intro-->
+    <string name="ant_see_it_first">See It First</string>
+    <string name="ant_ask_questions">Ask Questions</string>
+    <string name="ant_have_your_say">Have Your Say</string>
+    <string name="ant_be_a_part_of_the_community">Be A Part of the Community</string>
+
+    <!--intro-->
+    <string name="ant_web_profile_updated">Your account has been successfully updated</string>
+    <string name="ant_web_password_updated">Your password has been successfully updated</string>
+    <string name="ant_web_deleted">Your account has been successfully deleted</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+</resources>
