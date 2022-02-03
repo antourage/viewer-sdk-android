@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:background="@color/ant_white"
+        android:overScrollMode="never"
+        tools:context=".MainActivity">
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/footer"
+            app:layout_constraintTop_toBottomOf="@+id/header">
+
+        <ImageView
+                android:id="@+id/mainContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY" />
+    </ScrollView>
+
+    <ImageView
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/hacken_header" />
+
+
+    <ImageView
+            android:id="@+id/header_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toBottomOf="@+id/header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/hacken_header_overlay" />
+
+    <ImageView
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/hacken_footer" />
+
+        <com.antourage.weaverlib.ui.fab.AntourageFab
+                android:id="@+id/antfab"
+                android:layout_width="wrap_content"
+                app:portalColor="@color/ant_white"
+                app:liveDotColor="@color/ant_black"
+                app:nameTextColor="@color/ant_blue"
+                app:nameBackgroundColor="@color/ant_black"
+                app:titleTextColor="@color/ant_error_resolved_bg_color"
+                app:titleBackgroundColor="@color/ant_pink"
+                app:overlayAlpha="1.0"
+                app:overlayBackgroundColor="@color/ant_purple"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/footer"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
