@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
         }
 
         //region Antourage configuration
-        AntourageFab.configure(this, true)
+        AntourageFab.configure(this)
         //endregion
 
         antfab.setLifecycle(lifecycle)
