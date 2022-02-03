@@ -115,8 +115,8 @@ class AntourageFab @JvmOverloads constructor(
                 setNameTextColor(getColor(R.styleable.AntourageFab_nameTextColor, 0))
                 setNameBackgroundColor(getColor(R.styleable.AntourageFab_nameBackgroundColor, 0))
                 setIdleInterval(getInt(R.styleable.AntourageFab_nameBackgroundColor, 0))
-                setOverlayAlpha(getFloat(R.styleable.AntourageFab_overlayAlpha, 0f))
-                setOverlayBackgroundColor(getColor(R.styleable.AntourageFab_overlayBackgroundColor, 0))
+//                setOverlayAlpha(getFloat(R.styleable.AntourageFab_overlayAlpha, 0f))
+//                setOverlayBackgroundColor(getColor(R.styleable.AntourageFab_overlayBackgroundColor, 0))
             } finally {
                 recycle()
             }
