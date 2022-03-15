@@ -14,8 +14,6 @@ import okhttp3.OkHttpClient
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 
 
-
-
 @Keep
 internal class StreamPreviewManager {
 
@@ -95,7 +93,7 @@ internal class StreamPreviewManager {
 
             override fun onPlayerError(error: PlaybackException) {
                 callback?.onError()
-                Log.d(AntourageFab.TAG, "player error: ${error.cause.toString()}")
+                Log.e(AntourageFab.TAG, "player error: ${error.cause.toString()}")
             }
         }
 

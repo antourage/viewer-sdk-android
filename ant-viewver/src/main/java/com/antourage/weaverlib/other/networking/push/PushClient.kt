@@ -1,17 +1,20 @@
-package com.antourage.weaverlib.other.networking.profile
-import com.antourage.weaverlib.ConfigManager.PROFILE_URL
+package com.antourage.weaverlib.other.networking.push
+
+import com.antourage.weaverlib.ConfigManager.BASE_URL
 import com.antourage.weaverlib.other.networking.ApiClient
 import com.antourage.weaverlib.other.networking.LiveDataCallAdapterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-internal object ProfileClient {
-    private const val VERSION_SUFFIX = "api/v1/"
-    lateinit var profileService: ProfileService
+// TODO merge clients as URL is the same now
+
+internal object PushClient{
+    private const val VERSION_SUFFIX = "api/v3/"
+    lateinit var pushService: PushService
     private var retrofit: Retrofit? = null
 
-    fun getWebClient(): ProfileClient {
-        if (retrofit == null || (retrofit?.baseUrl().toString() != PROFILE_URL + VERSION_SUFFIX)) {
+    fun getWebClient(): PushClient {
+        if (retrofit == null || (retrofit?.baseUrl().toString() != BASE_URL + VERSION_SUFFIX)) {
             buildRetrofit()
         }
         return this
@@ -21,12 +24,12 @@ internal object ProfileClient {
 
     private fun buildRetrofit() {
         retrofit = Retrofit.Builder()
-            .baseUrl(PROFILE_URL + VERSION_SUFFIX)
+            .baseUrl(BASE_URL + VERSION_SUFFIX)
             .client(ApiClient.getHttpClient())
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
-        profileService = retrofit?.create(ProfileService::class.java)!!
+        pushService = retrofit?.create(PushService::class.java)!!
     }
 
     //endregion

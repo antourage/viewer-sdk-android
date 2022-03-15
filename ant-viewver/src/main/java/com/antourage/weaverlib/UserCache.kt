@@ -5,7 +5,6 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.util.Log
 import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
-import com.antourage.weaverlib.screens.web.PreFeedFragment
 import java.lang.ref.WeakReference
 
 //TODO make internal
@@ -27,8 +26,6 @@ class UserCache private constructor(context: Context) {
         private const val SP_ACCESS_TOKEN = "sp_access_token"
         private const val SP_ID_TOKEN = "sp_id_token"
         private const val SP_REFRESH_TOKEN = "sp_refresh_token"
-
-        private const val SP_LAST_VIEW_DATE = "sp_last_view_date"
 
         private const val SP_USER_NICKNAME = "sp_user_nickname"
         private const val SP_USER_IMAGE_URL = "sp_user_image_url"

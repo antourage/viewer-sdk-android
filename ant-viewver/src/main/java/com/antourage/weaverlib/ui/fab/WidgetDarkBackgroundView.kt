@@ -3,11 +3,12 @@ package com.antourage.weaverlib.ui.fab
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorInt
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.circularHideOverlay
 import com.antourage.weaverlib.other.circularRevealOverlay
-import kotlinx.android.synthetic.main.antourage_onboarding_layout.view.*
+import kotlinx.android.synthetic.main.antourage_overlay_layout.view.*
 
 class WidgetDarkBackgroundView  @JvmOverloads constructor(
     context: Context,
@@ -28,8 +29,22 @@ class WidgetDarkBackgroundView  @JvmOverloads constructor(
         fab.invalidate()
     }
 
+    fun setOverlayColor(@ColorInt color: Int) {
+        if (color != 0){
+            onboardingContainer?.background?.setTint(color)
+        }
+        postInvalidate()
+    }
+
+    fun setOverlayAlpha(alpha: Float) {
+        if (alpha != 0f){
+            onboardingContainer?.alpha = alpha
+        }
+        postInvalidate()
+    }
+
     private fun init() {
-        View.inflate(context, R.layout.antourage_onboarding_layout, this)
+        View.inflate(context, R.layout.antourage_overlay_layout, this)
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
 

@@ -21,7 +21,7 @@
             app:layout_constraintTop_toBottomOf="@+id/header">
 
         <ImageView
-                android:id="@+id/mainContent"
+                android:id="@+id/main_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
@@ -57,6 +57,7 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
+            android:translationZ="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -65,14 +66,6 @@
         <com.antourage.weaverlib.ui.fab.AntourageFab
                 android:id="@+id/antfab"
                 android:layout_width="wrap_content"
-                app:portalColor="@color/ant_white"
-                app:liveDotColor="@color/ant_black"
-                app:nameTextColor="@color/ant_blue"
-                app:nameBackgroundColor="@color/ant_black"
-                app:titleTextColor="@color/ant_error_resolved_bg_color"
-                app:titleBackgroundColor="@color/ant_pink"
-                app:overlayAlpha="1.0"
-                app:overlayBackgroundColor="@color/ant_purple"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/footer"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -80,3 +73,10 @@
                 app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--        app:portalColor="@color/ant_pink"-->
+<!--        app:liveDotColor="@color/ant_black"-->
+<!--        app:nameTextColor="@color/ant_blue"-->
+<!--        app:nameBackgroundColor="@color/ant_black"-->
+<!--        app:titleTextColor="@color/ant_error_resolved_bg_color"-->
+<!--        app:titleBackgroundColor="@color/ant_pink"-->

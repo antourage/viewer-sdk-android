@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
 import com.antourage.weaverlib.UserCache
@@ -35,18 +34,14 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
         Picasso.get().load(R.drawable.hacken_header).into(header)
         Picasso.get().load(R.drawable.hacken_header_overlay).into(header_overlay)
         Picasso.get().load(R.drawable.hacken_footer).into(footer)
-        Picasso.get().load(R.drawable.hacken_background).into(mainContent)
+        Picasso.get().load(R.drawable.hacken_background).into(main_content)
 
         connectivityManager =
             this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
 
-        mainContent.setOnClickListener {
-            Toast.makeText(this, "yes", Toast.LENGTH_SHORT).show()
-        }
-
         //region Antourage configuration
-        AntourageFab.configure(this)
+        AntourageFab.configure(this,1)
         //endregion
 
         antfab.setLifecycle(lifecycle)
@@ -66,7 +61,7 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
                 e.printStackTrace()
             }
             runOnUiThread {
-                AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
+                AntourageFab.registerNotifications(fcmToken, 1 ) { subscriptionResult ->
                     //Handle subscription result
                     when (subscriptionResult) {
                         //If result is successful, subscribe to the topic with

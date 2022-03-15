@@ -45,8 +45,8 @@ data class LiveUpdatedResponse(
 )
 
 data class WebViewResponse(
-    @SerializedName("type") var type : String,
-    @SerializedName("message") var messageCode : String?
+    @SerializedName("type") var type: String,
+    @SerializedName("message") var messageCode: String?
 )
 
 class ListOfStreams : ArrayList<StreamResponse>()
@@ -100,11 +100,35 @@ data class StreamResponse(
 enum class StreamResponseType {
     @SerializedName("liveStream")
     VOD,
+
     @SerializedName("post")
     POST,
+
     @SerializedName("video")
     UPLOADED_VIDEO
 }
+
+data class PortalStateSocketResponse(
+    @SerializedName("data") var portalState: PortalStateResponse?
+)
+
+
+data class PortalStateResponse(
+    @SerializedName("team_domain") var fallbackUrl: String?,
+    @SerializedName("item") var item: PortalState? = PortalState()
+)
+
+data class PortalState(
+    @SerializedName("content_id") var contentId: Int? = null,
+    @SerializedName("live") var live: Boolean? = null,
+    @SerializedName("name") var name: String? = null,
+    @SerializedName("thumbnail_url") var thumbnailUrl: String? = null,
+    @SerializedName("asset_type") var assetType: String? = null,
+    @SerializedName("asset_url") var assetUrl: String? = null,
+    @SerializedName("title") var title: String? = null,
+    @SerializedName("cta_label") var ctaLabel: String? = null,
+    @SerializedName("cta_url") var ctaUrl: String? = null
+)
 
 data class ProfileResponse(
     @field:SerializedName("identityId") val id: String?,

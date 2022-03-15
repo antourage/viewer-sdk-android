@@ -3,7 +3,7 @@
         android:id="@+id/onboardingContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:translationZ="1dp"
-        android:background="@color/ant_dark_background">
+        android:alpha="0.7"
+        android:background="@color/ant_black">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,10 +6,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.antourage.weaverlib.screens.base.AntourageActivity
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -33,6 +33,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             content?.let { mContent -> title?.let { mTitle -> sendNotification(mTitle, mContent.toString()) } }
         }
 
+        Log.d(TAG, "Message Notification Body: $remoteMessage}")
+
+
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
@@ -52,27 +55,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
 
     override fun onNewToken(token: String) {
-        Log.d(TAG, "Refreshed token: $token")
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // Instance ID token to your app server.
-        sendRegistrationToServer(token)
         AntourageFab.retryRegisterNotifications(token)
     }
     // [END on_new_token]
 
-
-    /**
-     * Persist token to third-party servers.
-     *
-     * Modify this method to associate the user's FCM InstanceID token with any server-side account
-     * maintained by your application.
-     *
-     * @param token The new token.
-     */
-    private fun sendRegistrationToServer(token: String?) {
-        Log.d(TAG, "sendRegistrationTokenToServer($token)")
-    }
 
     /**
      * Create and show a simple notification containing the received FCM message.
@@ -80,15 +66,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * @param messageBody FCM message body received.
      */
     private fun sendNotification(title: String, content: String) {
-        val intent = Intent(this, AntourageActivity::class.java)
+        //todo parse url
+        val url = null
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url ?: "http://antourage.com/"))
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(
                 this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
             )
-        }
-        else {
+        } else {
             PendingIntent.getActivity(
                 this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT

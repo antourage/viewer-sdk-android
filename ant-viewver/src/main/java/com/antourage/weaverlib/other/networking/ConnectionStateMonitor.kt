@@ -23,7 +23,7 @@ internal class ConnectionStateMonitor(val context: Context) :
     companion object {
         private lateinit var connectivityManager: ConnectivityManager
         private val handler: Handler = Handler()
-        val internetStateLiveData = MutableLiveData<NetworkConnectionState>()
+        val internetStateLiveData = MutableLiveData<NetworkConnectionState?>()
         private val networkRequest: NetworkRequest =
             NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)

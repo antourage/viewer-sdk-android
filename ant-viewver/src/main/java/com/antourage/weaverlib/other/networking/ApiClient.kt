@@ -1,7 +1,6 @@
 package com.antourage.weaverlib.other.networking
 
 import com.antourage.weaverlib.ConfigManager.BASE_URL
-import com.antourage.weaverlib.other.networking.auth.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,9 +8,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 internal object ApiClient {
-    private const val VERSION_SUFFIX = "api/v1/widget/"
+    private const val VERSION_SUFFIX = "api/v3/"
 
-    lateinit var webService: WebService
+    lateinit var apiService: ApiService
     private var retrofit: Retrofit? = null
     private var httpClient: OkHttpClient? = null
 
@@ -39,7 +38,7 @@ internal object ApiClient {
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .build()
-        webService = retrofit?.create(WebService::class.java)!!
+        apiService = retrofit?.create(ApiService::class.java)!!
     }
 
     private fun buildOkHttpClient(): OkHttpClient {
@@ -50,7 +49,7 @@ internal object ApiClient {
         val builder = OkHttpClient.Builder()
         builder
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(AuthInterceptor())
+//            .addInterceptor(AuthInterceptor())
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)

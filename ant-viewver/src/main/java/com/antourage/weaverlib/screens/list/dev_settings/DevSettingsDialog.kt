@@ -14,6 +14,10 @@ import com.antourage.weaverlib.BuildConfig
 import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
+import com.antourage.weaverlib.other.networking.push.PushRepository
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.cachedFcmToken
+import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.teamId
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -27,8 +31,8 @@ class DevSettingsDialog(
 ) :
     Dialog(context) {
 
-    companion object{
-       const val PROD = "prod"
+    companion object {
+        const val PROD = "prod"
     }
 
     @SuppressLint("SetTextI18n")
@@ -41,6 +45,12 @@ class DevSettingsDialog(
             setTxt.setOnClickListener {
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)
                 if (radioButton.text.toString() != UserCache.getInstance()?.getEnvChoice()) {
+                    PushRepository.unsubscribeFromPushNotifications(
+                        SubscribeToPushesRequest(
+                            cachedFcmToken,
+                            teamId
+                        )
+                    )
                     GlobalScope.launch(Dispatchers.IO) {
                         UserCache.getInstance()?.clearUserData()
                     }

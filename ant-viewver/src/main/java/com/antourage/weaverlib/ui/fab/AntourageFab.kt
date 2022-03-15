@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Outline
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -14,10 +16,16 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import androidx.annotation.ColorInt
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.*
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -26,37 +34,27 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.hideBadge
-import com.antourage.weaverlib.other.models.NotificationSubscriptionResponse
-import com.antourage.weaverlib.other.models.StreamResponse
-import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
+import com.antourage.weaverlib.other.models.*
 import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion.internetStateLiveData
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
+import com.antourage.weaverlib.other.networking.push.PushRepository
+import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.other.showBadge
-import com.antourage.weaverlib.screens.base.AntourageActivity
-import com.antourage.weaverlib.screens.base.Repository
-import com.antourage.weaverlib.screens.list.ReceivingVideosManager
+import com.antourage.weaverlib.screens.list.PortalStateManager
 import com.google.android.exoplayer2.Player
 import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import java.util.*
-import android.graphics.Outline
-
-import android.view.ViewOutlineProvider
-import androidx.annotation.ColorInt
-import androidx.core.graphics.drawable.DrawableCompat
-import kotlinx.android.synthetic.main.antourage_live_name_layout.view.*
-import kotlinx.android.synthetic.main.antourage_onboarding_layout.view.*
+import kotlinx.android.synthetic.main.antourage_labels_layout.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.backgroundColor
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.textColor
-
-
-/**
- * When integrating to React Native need to add also constraint layout library in declaration
- * so it would know that it is subclass of View
- */
+import java.util.*
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
@@ -65,25 +63,37 @@ class AntourageFab @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), LifecycleEventObserver {
 
+    private var shouldShowBadge: Boolean = false
+    private var badgeVisible: Boolean = false
+    private var fallbackUrl: String? = null
     private var idleInterval: Int = 60
+
+    @ColorInt
+    private var portalColor: Int = 0
     private var backgroundView: WidgetDarkBackgroundView = WidgetDarkBackgroundView(context)
-    private var goingLiveToLive: Boolean = false
-    private var currentlyDisplayedLiveStream: StreamResponse? = null
+
+    private var currentPortalState: PortalState? = null
+    private var nextPortalStateToShow: PortalStateResponse? = null
+
     private var currentAnimationDrawableId: Int = -1
-    private val liveStreams = arrayListOf<StreamResponse>()
-    private var vod: StreamResponse? = null
-    private val shownLiveStreams = linkedSetOf<StreamResponse>()
     private var currentWidgetState: WidgetState = WidgetState.INITIAL
+    private var expandInProgress = false
     private var nextWidgetState: WidgetState? = null
+
     private var isAnimationRunning = false
     private var portalAnimatedDrawable: AnimatedVectorDrawableCompat? = null
-    private var isShowingLive: Boolean = false
     private var currentPlayerState: Int = 0
+
+    private var handlerRevealViews: Handler = Handler(Looper.getMainLooper())
+    private var handlerHideViews: Handler = Handler(Looper.getMainLooper())
+    private var handlerIdle: Handler = Handler(Looper.getMainLooper())
+    val pulseAnimation: Animation = AlphaAnimation(0.0f, 1.0f)
 
 
     init {
         View.inflate(context, R.layout.antourage_fab_layout, this)
 
+        this.z = 1000f
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.AntourageFab,
@@ -91,60 +101,71 @@ class AntourageFab @JvmOverloads constructor(
         ).apply {
 
             try {
-
-
-//    <attr name="portalColor" format="color"/>
-//    <attr name="ctaBackgroundColor" format="color"/>
-//    <attr name="ctaTextColor" format="color"/>
-//    <attr name="overlayBackgroundColor" format="color"/>
-//    <attr name="overlayAlpha" format="float"/>
-//    <attr name="liveDotColor" format="color"/>
-//    <attr name="titleTextColor" format="color"/>
-//    <attr name="titleBackgroundColor" format="color"/>
-//    <attr name="nameTextColor" format="color"/>
-//    <attr name="nameBackgroundColor" format="color"/>
-//    <attr name="idleInterval" format="integer"/>
-
-
-//                setPortalColor(getColor(R.styleable.AntourageFab_portalColor, 0))
-//                setCTATextColor(getColor(R.styleable.AntourageFab_ctaTextColor, 0))
-//                setCTABackgroundColor(getColor(R.styleable.AntourageFab_ctaBackgroundColor, 0))
+                setPortalColor(getColor(R.styleable.AntourageFab_portalColor, 0))
+                setCTATextColor(getColor(R.styleable.AntourageFab_ctaTextColor, 0))
+                setCTABackgroundColor(getColor(R.styleable.AntourageFab_ctaBackgroundColor, 0))
                 setLiveDotColor(getColor(R.styleable.AntourageFab_liveDotColor, 0))
                 setTitleTextColor(getColor(R.styleable.AntourageFab_titleTextColor, 0))
                 setTitleBackgroundColor(getColor(R.styleable.AntourageFab_titleBackgroundColor, 0))
                 setNameTextColor(getColor(R.styleable.AntourageFab_nameTextColor, 0))
                 setNameBackgroundColor(getColor(R.styleable.AntourageFab_nameBackgroundColor, 0))
                 setIdleInterval(getInt(R.styleable.AntourageFab_nameBackgroundColor, 0))
-//                setOverlayAlpha(getFloat(R.styleable.AntourageFab_overlayAlpha, 0f))
-//                setOverlayBackgroundColor(getColor(R.styleable.AntourageFab_overlayBackgroundColor, 0))
+                setOverlayAlpha(getFloat(R.styleable.AntourageFab_overlayAlpha, 0f))
+                setOverlayColor(
+                    getColor(
+                        R.styleable.AntourageFab_overlayColor,
+                        0
+                    )
+                )
             } finally {
                 recycle()
             }
         }
 
-//        backgroundView.setOnClickListener {
-//            backgroundView.hideView()
-//            liveNameView.hideView()
-//        }
+        backgroundView.setOnClickListener {
+            if (SystemClock.elapsedRealtime() - mLastBackgroundClickTime > 2000) {
+                mLastClickTime = SystemClock.elapsedRealtime()
+                bigDummyClickableView.visibility = View.GONE
+                backgroundView.hideView()
+                labelsView.hideView()
+            }
+        }
 
-        dummyView.onClick {
-//            backgroundView.hideView()
-            checkWhatToOpen()
+        dummyClickableView.onClick {
+            portalClicked()
         }
-        bigDummyView.onClick {
-//            backgroundView.hideView()
-            checkWhatToOpen()
+        bigDummyClickableView.onClick {
+            portalClicked()
         }
+        labelsView.onClick {
+            portalClicked()
+        }
+
+        initPulseAnimation()
+
         clearStreams()
     }
 
+    private fun initPulseAnimation() {
+        pulseAnimation.duration = 500
+        pulseAnimation.repeatMode = Animation.REVERSE
+        pulseAnimation.repeatCount = Animation.INFINITE
+    }
+
+    private fun clearStreams() {
+        currentPortalState = null
+        nextPortalStateToShow = null
+    }
+
     companion object {
-        private var cachedFcmToken: String = ""
+        internal var teamId: Int = -1
+        internal var cachedFcmToken: String = ""
         internal var isSubscribedToPushes = false
         private var pushRegistrationCallback: ((result: RegisterPushNotificationsResult) -> Unit)? =
             null
         internal const val TAG = "AntourageFabLogs"
         internal var mLastClickTime: Long = 0
+        internal var mLastBackgroundClickTime: Long = 0
         const val AntourageSenderId = "1090288296965"
 
         /** added to prevent multiple calls of onResume breaking widget logic*/
@@ -153,13 +174,13 @@ class AntourageFab @JvmOverloads constructor(
         /**
          *  Method for configuring fab that initializes all needed library instances
          *  */
-        fun configure(context: Context) {
+        fun configure(context: Context, teamId: Int) {
+            this.teamId = teamId
             UserCache.getInstance(context)
             ConfigManager.init(context)
             handleDeviceId(context)
             setDefaultLocale(context)
             if (!isSubscribedToPushes) retryRegisterNotifications()
-            startAntRequests()
         }
 
         internal fun reconfigure(context: Context) {
@@ -195,11 +216,6 @@ class AntourageFab @JvmOverloads constructor(
             }
         }
 
-        private fun startAntRequests(isInitial: Boolean = true) {
-            ReceivingVideosManager.isFirstRequest = true
-            ReceivingVideosManager.startReceivingLiveStreams(true)
-        }
-
         fun retryRegisterNotifications(firebaseToken: String? = null) {
             if (pushRegistrationCallback == null) return
             if (firebaseToken != null) cachedFcmToken = firebaseToken
@@ -210,13 +226,14 @@ class AntourageFab @JvmOverloads constructor(
             }
             if (cachedFcmToken.isNotEmpty() && pushRegistrationCallback != null) {
                 Handler(Looper.getMainLooper()).post {
-                    registerNotifications(cachedFcmToken, pushRegistrationCallback)
+                    registerNotifications(cachedFcmToken, teamId, pushRegistrationCallback)
                 }
             }
         }
 
         fun registerNotifications(
             fcmToken: String?,
+            teamId: Int,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
             Log.d(TAG, "Trying to register ant push notifications...")
@@ -224,7 +241,7 @@ class AntourageFab @JvmOverloads constructor(
             if (fcmToken.isNullOrEmpty()) return
             cachedFcmToken = fcmToken
             val response =
-                Repository.subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken))
+                PushRepository.subscribeToPushNotifications(SubscribeToPushesRequest(fcmToken, teamId))
             response.observeForever(object : Observer<Resource<NotificationSubscriptionResponse>> {
                 override fun onChanged(it: Resource<NotificationSubscriptionResponse>?) {
                     when (val responseStatus = it?.status) {
@@ -255,34 +272,33 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private fun showBadge(text: String) {
-        if (text == badgeView?.text) return
-        badgeView?.text = text
-        when (text) {
-            context.getString(R.string.ant_live) -> {
-                badgeView?.background = ContextCompat.getDrawable(
-                    context,
-                    R.drawable.antourage_fab_badge_rounded_background_live
-                )
-            }
-            context.getString(R.string.ant_new_vod) -> {
-                badgeView?.background = ContextCompat.getDrawable(
-                    context,
-                    R.drawable.antourage_fab_badge_rounded_background_vod
-                )
+    private fun showBadge(text: String?) {
+        shouldShowBadge = true
+        text?.let { tvBadge?.text = it }
+        if (!badgeVisible) {
+            badgeVisible = true
+            badgeView?.showBadge(measureAndLayout)
+            if (tvBadge?.text.toString() == context.getString(R.string.ant_live)) {
+                liveDotView.startAnimation(pulseAnimation)
+                liveDotView?.visibility = View.VISIBLE
+            } else {
+                liveDotView?.visibility = View.GONE
             }
         }
-        badgeView?.showBadge(measureAndLayout)
     }
 
     private fun hideBadge() {
-        badgeView.hideBadge(measureAndLayout)
+        if(badgeVisible){
+            liveDotView.clearAnimation()
+            badgeVisible = false
+            badgeView.hideBadge(measureAndLayout)
+        }
     }
 
     /**method for React Native for force hide badge on widget appearing*/
     fun forceHideBadge() {
         badgeView?.alpha = 0f
-        badgeView?.text = ""
+        tvBadge?.text = ""
     }
 
     fun setLifecycle(lifecycle: Lifecycle) {
@@ -320,58 +336,30 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private val stateFromSocketsObserver =
+        Observer<PortalStateResponse> { state ->
+            state?.let {
+                handlePortalState(it)
+            }
+        }
+
     private fun onResume() {
         if (!wasPaused) return
         wasPaused = false
+        expandInProgress = false
+        badgeVisible = false
+        shouldShowBadge = false
         setNextWidgetState(WidgetState.INACTIVE)
         forceHideBadge()
         setLocale()
         internetStateLiveData.observeForever(networkStateObserver)
 
-        ReceivingVideosManager.setReceivingVideoCallback(object :
-            ReceivingVideosManager.ReceivingVideoCallback {
-            override fun onVODForFabReceived(resource: Resource<List<StreamResponse>>) {
-                super.onVODForFabReceived(resource)
-
-                // TODO manage vods
-
-//                when (val status = resource.status) {
-//                    is Status.Success -> {
-//                        if (status.data != null && status.data.isNotEmpty()) {
-//                            vod = status.data[0]
-//                            manageVODs()
-//                        } else {
-//                            vod = null
-//                            manageVODs()
-//                        }
-//                    }
-//                    is Status.Failure -> {
-//                        vod = null
-//                        manageVODs()
-//                    }
-//                }
-            }
-
-            override fun onLiveBroadcastReceived(resource: Resource<List<StreamResponse>>) {
-//                when (val status = resource.status) {
-//                    is Status.Success -> {
-//                        if (!status.data.isNullOrEmpty()) {
-//                            liveStreams.clear()
-//                            liveStreams.addAll(status.data)
-//                            if (!goingLiveToLive) {
-//                                manageLiveStreams()
-//                            }
-//                        } else {
-//                            liveStreams.clear()
-//                            manageVODs(true)
-//                            goingLiveToLive = false
-//                        }
-//                    }
-//                    is Status.Failure -> {
-//                        manageVODs(true)
-//                        goingLiveToLive = false
-//                    }
-//                }
+        PortalStateManager.setReceivedCallback(object :
+            PortalStateManager.PortalStateCallback {
+            override fun onPortalStateReceived(state: PortalStateResponse) {
+                handlePortalState(state)
+                SocketConnector.portalStateLD.observeForever(stateFromSocketsObserver)
+                SocketConnector.connectToSockets()
             }
         })
 
@@ -380,7 +368,11 @@ class AntourageFab @JvmOverloads constructor(
                 super.onNewState(playbackState)
                 currentPlayerState = playbackState
                 if (playbackState == Player.STATE_READY) {
-                    setLiveState()
+                    if (currentPortalState?.live == true) {
+                        setNextWidgetState(WidgetState.LIVE)
+                    } else {
+                        setNextWidgetState(WidgetState.NEW)
+                    }
                 }
             }
 
@@ -390,25 +382,27 @@ class AntourageFab @JvmOverloads constructor(
             }
         })
 
-        initPreLiveState()
-
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            startAntRequests()
-//        }, 500)
+        PortalStateManager.fetchPortalState()
     }
 
     private fun onPause() {
         wasPaused = true
-        isShowingLive = false
+        shouldShowBadge = false
+        badgeVisible = false
         clearStreams()
-        ReceivingVideosManager.stopReceivingVideos()
+        SocketConnector.disconnectSocket()
+        PortalStateManager.onPause()
         isAnimationRunning = false
-        goingLiveToLive = false
-        vod = null
         currentWidgetState = WidgetState.INITIAL
         setNextWidgetState(null)
         forceHideBadge()
+        SocketConnector.portalStateLD.removeObserver(stateFromSocketsObserver)
+        handlerHideViews.removeCallbacksAndMessages(null)
+        handlerRevealViews.removeCallbacksAndMessages(null)
         Handler(Looper.getMainLooper()).postDelayed({
+            releasePlayer(false)
+            backgroundView.hideView()
+            labelsView.hideView(false)
             portalAnimatedDrawable?.apply {
                 clearAnimationCallbacks()
             }
@@ -416,41 +410,63 @@ class AntourageFab @JvmOverloads constructor(
         }, 100)
     }
 
-    private fun manageLiveStreams() {
-        if (!newestStreamWasShown() && !goingLiveToLive) {
-            if (isShowingLive) {
-                setLiveToLiveState()
+
+    private fun handlePortalState(state: PortalStateResponse) {
+        fallbackUrl = state.fallbackUrl
+        nextPortalStateToShow =
+            if (!expandInProgress) {
+                state.item?.live?.let {
+                    if (it) {
+                        initPreLiveState(state.item!!)
+                    } else {
+                        initPreVodState(state.item!!)
+                    }
+                }
+                null
             } else {
-                initPreLiveState()
+                state
+            }
+    }
+
+    private fun initPreLiveState(data: PortalState) {
+        expandInProgress = true
+        currentPortalState = data
+        showBadge(context.getString(R.string.ant_live))
+        playerView.player =
+            data.assetUrl?.let {
+                StreamPreviewManager.startPlayingStream(
+                    it,
+                    context
+                )
+            }
+    }
+
+
+    private fun initPreVodState(data: PortalState) {
+        var seen = true
+        GlobalScope.launch(Dispatchers.IO) {
+            data.contentId?.let {
+                seen = RoomRepository.getInstance(context).isAlreadySeen(it)
+            }
+            launch(Dispatchers.Main) {
+                expandInProgress = true
+                currentPortalState = data
+                if (!seen) {
+                    showBadge(context.getString(R.string.ant_new_vod))
+                }else{
+                    hideBadge()
+                }
+                playerView.player =
+                    data.assetUrl?.let {
+                        StreamPreviewManager.startPlayingStream(
+                            it,
+                            context
+                        )
+                    }
             }
         }
     }
 
-
-    private fun initPreLiveState() {
-        val streamToDisplay = getNextStreamToDisplay()
-//        streamToDisplay?.let {
-//            isShowingLive = true
-//            showBadge(context.getString(R.string.ant_live))
-//            currentlyDisplayedLiveStream = streamToDisplay
-//            playerView.player = streamToDisplay.hlsUrl?.let {
-        playerView.player =
-            StreamPreviewManager.startPlayingStream(
-                "http://cdnapi.kaltura.com/p/1878761/sp/187876100/playManifest/entryId/1_usagz19w/flavorIds/1_5spqkazq,1_nslowvhp,1_boih5aji,1_qahc37ag/format/applehttp/protocol/http/a.m3u8",
-                context
-            )
-//            shownLiveStreams.add(streamToDisplay)
-//        }
-    }
-
-    private fun setLiveState() {
-        setNextWidgetState(WidgetState.LIVE)
-    }
-
-    private fun setLiveToLiveState() {
-        goingLiveToLive = true
-        setNextWidgetState(WidgetState.INACTIVE)
-    }
 
     private fun setNextWidgetState(status: WidgetState?) {
         nextWidgetState =
@@ -464,34 +480,46 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun changeWidgetState(state: WidgetState) {
         currentWidgetState = state
-        if (state != WidgetState.LIVE && !goingLiveToLive) {
-            isShowingLive = false
-            releasePlayer()
-            clearStreams()
+        if (state != WidgetState.LIVE && state != WidgetState.NEW) {
+            bigDummyClickableView.visibility = View.GONE
+            releasePlayer(true)
         }
         when (state) {
             WidgetState.INACTIVE -> {
+                currentPortalState = null
                 hideBadge()
-                bigDummyView.visibility = View.GONE
+                bigDummyClickableView.visibility = View.GONE
                 portalAnimatedDrawable?.clearAnimationCallbacks()
-                if (goingLiveToLive) {
-                    initPreLiveState()
-                }
                 startAnimation(state)
             }
             WidgetState.LIVE -> {
-                if (goingLiveToLive) goingLiveToLive = false
                 showPlayer()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    liveNameView.revealView()
-                    bigDummyView.visibility = View.VISIBLE
+                handlerRevealViews.postDelayed({
+                    hideBadge()
+                    labelsView.revealView(currentPortalState)
+                    bigDummyClickableView.visibility = View.VISIBLE
                     darkenBackground()
-                }, 2300)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    liveNameView.hideView()
-                    bigDummyView.visibility = View.GONE
+                }, 100)
+                handlerHideViews.postDelayed({
+                    labelsView.hideView()
+                    bigDummyClickableView.visibility = View.GONE
                     backgroundView.hideView()
-                }, 6000)
+                }, 5500)
+                startAnimation(state)
+            }
+            WidgetState.NEW -> {
+                showPlayer()
+                handlerRevealViews.postDelayed({
+                    hideBadge()
+                    labelsView.revealView(currentPortalState)
+                    bigDummyClickableView.visibility = View.VISIBLE
+                    darkenBackground()
+                }, 100)
+                handlerHideViews.postDelayed({
+                    labelsView.hideView()
+                    bigDummyClickableView.visibility = View.GONE
+                    backgroundView.hideView()
+                }, 5500)
                 startAnimation(state)
             }
         }
@@ -508,11 +536,37 @@ class AntourageFab @JvmOverloads constructor(
                 }
 
                 override fun onAnimationEnd(drawable: Drawable?) {
+                    if (shouldShowBadge) showBadge(null)
                     isAnimationRunning = false
-                    if (nextWidgetState != null) {
-                        changeWidgetState(nextWidgetState!!)
-                        nextWidgetState = null
-                        return
+                    if (currentAnimationDrawableId == WidgetState.LIVE.animationDrawableId) {
+                        expandInProgress = false
+                        nextPortalStateToShow?.let {
+                            it.item?.live?.let { live ->
+                                if (live) {
+                                    initPreLiveState(it.item!!)
+                                    nextPortalStateToShow = null
+                                    startAnimation(WidgetState.INACTIVE)
+                                    return
+                                } else {
+                                    initPreVodState(it.item!!)
+                                    nextPortalStateToShow = null
+                                    startAnimation(WidgetState.INACTIVE)
+                                    return
+                                }
+                            }
+                        }
+
+                        if (nextWidgetState != null) {
+                            changeWidgetState(nextWidgetState!!)
+                            nextWidgetState = null
+                            return
+                        }
+                    } else {
+                        if (nextWidgetState != null) {
+                            changeWidgetState(nextWidgetState!!)
+                            nextWidgetState = null
+                            return
+                        }
                     }
                     startAnimation(WidgetState.INACTIVE)
                 }
@@ -531,15 +585,17 @@ class AntourageFab @JvmOverloads constructor(
                 )
             }
             ivPortal.setImageDrawable(portalAnimatedDrawable)
-//            setPortalColor(ContextCompat.getColor(context, R.color.ant_purple ))
+            setPortalColor(portalColor)
             ivPortal.background = null
         }
     }
 
 
     fun setPortalColor(@ColorInt color: Int) {
-        if (color != 0)
-            DrawableCompat.setTint(ivPortal.drawable, color)
+        if (color != 0) {
+            portalColor = color
+            DrawableCompat.setTint(ivPortal.drawable, portalColor)
+        }
         postInvalidate()
     }
 
@@ -556,13 +612,16 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     fun setLiveDotColor(@ColorInt color: Int) {
-        if (color != 0)
+        if (color != 0) {
             dotView.background.setTint(color)
+            liveDotView.background.setTint(color)
+        }
         postInvalidate()
     }
 
     fun setTitleTextColor(@ColorInt color: Int) {
-        if (color != 0){
+        if (color != 0) {
+            tvBadge.setTextColor(color)
             tvLiveFirstLine.setTextColor(color)
             tvLiveSecondLine?.setTextColor(color)
         }
@@ -570,7 +629,8 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     fun setTitleBackgroundColor(@ColorInt color: Int) {
-        if (color != 0){
+        if (color != 0) {
+            badgeView?.background?.setTint(color)
             tvLiveSecondLine?.background?.setTint(color)
             firstLineContainer.background.setTint(color)
         }
@@ -578,40 +638,40 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     fun setNameTextColor(@ColorInt color: Int) {
-        if (color != 0){
+        if (color != 0) {
             tvStreamerName.setTextColor(color)
         }
         postInvalidate()
     }
 
     fun setNameBackgroundColor(@ColorInt color: Int) {
-        if (color != 0){
+        if (color != 0) {
             tvStreamerName.background.setTint(color)
         }
         postInvalidate()
     }
 
     fun setIdleInterval(seconds: Int) {
-        if (seconds != 0){
+        if (seconds != 0) {
             idleInterval = seconds
         }
     }
 
-    fun setOverlayBackgroundColor(@ColorInt color: Int) {
-        if (color != 0){
-            onboardingContainer.background.setTint(color)
+    fun setOverlayColor(@ColorInt color: Int) {
+        if (color != 0) {
+            backgroundView.setOverlayColor(color)
         }
-        backgroundView.postInvalidate()
     }
 
     fun setOverlayAlpha(alpha: Float) {
-        if (alpha != 0f){
-            backgroundView.alpha = alpha
+        if (alpha != 0f) {
+            backgroundView.setOverlayAlpha(alpha)
         }
-        backgroundView.postInvalidate()
     }
 
     private fun showPlayer() {
+        playerView?.alpha = 0f
+        playerView?.visibility = View.VISIBLE
         playerView?.player?.playWhenReady = true
         playerView?.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
@@ -620,84 +680,71 @@ class AntourageFab @JvmOverloads constructor(
         }
 
         playerView?.clipToOutline = true
-        playerView?.alpha = 0f
-        playerView?.visibility = View.VISIBLE
-        playerView?.animate()?.alpha(1f)?.setStartDelay(2300)?.setDuration(1000)?.withEndAction {
-            playerView?.animate()?.alpha(0f)?.setStartDelay(2000)?.setDuration(1000)?.start()
-        }?.start()
+        playerView?.animate()?.alpha(1f)?.setStartDelay(100)?.setDuration(1000)
+            ?.withEndAction {
+                playerView?.animate()?.alpha(0f)?.setStartDelay(4500)?.setDuration(1000)
+                    ?.start()
+            }?.start()
     }
 
-    private fun releasePlayer() {
-        isShowingLive = false
+    private fun releasePlayer(shouldAnimate: Boolean = false) {
         clearStreams()
         StreamPreviewManager.releasePlayer()
-        playerView?.animate()?.alpha(0f)?.setDuration(300)?.start()
-    }
-
-    private fun clearStreams() {
-        currentlyDisplayedLiveStream = null
-        shownLiveStreams.clear()
-    }
-
-
-    private fun getNextStreamToDisplay(): StreamResponse? {
-        for (element in liveStreams) {
-            if (shownLiveStreams.none { it.id == element.id }) {
-                return element
+        if (shouldAnimate) {
+            if (playerView?.visibility == View.VISIBLE) {
+                playerView?.animate()?.alpha(0f)?.setDuration(300)?.start()
             }
+        } else {
+            playerView?.visibility = View.GONE
         }
-        return null
     }
 
-    private fun newestStreamWasShown(): Boolean {
-        return if (liveStreams.isNotEmpty()) shownLiveStreams.contains(liveStreams[0])
-        else false
-    }
-
-    private fun checkWhatToOpen() {
+    private fun portalClicked() {
+        backgroundView.hideView()
         //to prevent quick multiple taps
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         }
         mLastClickTime = SystemClock.elapsedRealtime()
-        openPreFeedActivity()
-    }
-
-    private fun openPreFeedActivity() {
-        val intent = Intent(context, AntourageActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        context.startActivity(intent)
-    }
-
-    /**
-    if user goes to videos list screen, he will see all live videos anyway
-    so no need to show them in fab expansion
-     */
-    private fun setAllLiveStreamsAsSeen() {
-        shownLiveStreams.addAll(liveStreams)
-    }
-
-
-    private val networkStateObserver: Observer<NetworkConnectionState> = Observer { networkState ->
-        when (networkState?.ordinal) {
-            NetworkConnectionState.LOST.ordinal -> {
-                if (!Global.networkAvailable) {
-                    clearStreams()
-                    ReceivingVideosManager.pauseWhileNoNetwork()
-                    setNextWidgetState(WidgetState.INACTIVE)
+        if(currentPortalState?.live == false){
+            currentPortalState?.contentId?.let {
+                GlobalScope.launch(Dispatchers.IO) {
+                    RoomRepository.getInstance(context).addToSeen(Video(it))
                 }
             }
-            NetworkConnectionState.AVAILABLE.ordinal -> {
-                startAntRequests()
-            }
+        }
+        openFullPageActivity(currentPortalState?.ctaUrl ?: fallbackUrl)
+    }
+
+    private fun openFullPageActivity(url: String?) {
+        url?.let {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
         }
     }
+
+    private val networkStateObserver: Observer<NetworkConnectionState?> =
+        Observer { networkState ->
+            networkState?.let {
+                when (networkState.ordinal) {
+                    NetworkConnectionState.LOST.ordinal -> {
+                        if (!Global.networkAvailable) {
+                            PortalStateManager.networkLost()
+                            SocketConnector.disconnectSocket()
+                            setNextWidgetState(WidgetState.INACTIVE)
+                        }
+                    }
+                    NetworkConnectionState.AVAILABLE.ordinal -> {
+                        PortalStateManager.fetchPortalState()
+                    }
+                }
+            }
+        }
 
     internal enum class WidgetState(val animationDrawableId: Int) {
         INITIAL(R.drawable.antourage_portal_small),
         INACTIVE(R.drawable.antourage_portal_small),
         LIVE(R.drawable.anourage_portal_expanded),
+        NEW(R.drawable.anourage_portal_expanded),
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -717,6 +764,7 @@ class AntourageFab @JvmOverloads constructor(
         }
         ((rootView as ViewGroup).findViewById<ViewGroup>(android.R.id.content)
             .getChildAt(0) as ViewGroup).addView(backgroundView)
+        backgroundView.z = 500f
         backgroundView.startAnimation(this)
     }
 
