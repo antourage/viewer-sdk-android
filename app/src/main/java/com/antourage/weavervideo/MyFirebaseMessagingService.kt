@@ -22,42 +22,29 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
-    // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Check if message contains a data payload.
         remoteMessage.data.run {
             val title = get("title")
             val params = get("param")
             val jsonParams = JSONArray(params)
             val content = jsonParams[0]
-            content?.let { mContent -> title?.let { mTitle -> sendNotification(mTitle, mContent.toString()) } }
+            val url = jsonParams[1]
+            if (content != null && title != null && url != null) {
+                sendNotification(title, content.toString(), url.toString())
+            }
         }
-
         Log.d(TAG, "Message Notification Body: $remoteMessage}")
-
-
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            Log.d(TAG, "Message Notification Body: ${it.body}")
-        }
-
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
     }
-    // [END receive_message]
 
-    // [START on_new_token]
     /**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
      */
 
-
     override fun onNewToken(token: String) {
         AntourageFab.retryRegisterNotifications(token)
     }
-    // [END on_new_token]
 
 
     /**
@@ -65,9 +52,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      *
      * @param messageBody FCM message body received.
      */
-    private fun sendNotification(title: String, content: String) {
-        //todo parse url
-        val url = null
+    private fun sendNotification(title: String, content: String, url: String?) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url ?: "http://antourage.com/"))
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -95,7 +80,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -109,7 +93,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     companion object {
-
         private const val TAG = "MyFirebaseMsgService"
     }
 }

@@ -40,7 +40,7 @@ class DevSettingsDialog(
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_backend_choice)
-        if (!ConfigManager.configFile.environments.isNullOrEmpty()) {
+        if (ConfigManager.isConfigInitialized() && !ConfigManager.configFile.environments.isNullOrEmpty()) {
             populateEnvs()
             setTxt.setOnClickListener {
                 val radioButton = rg_links.findViewById<RadioButton>(rg_links.checkedRadioButtonId)

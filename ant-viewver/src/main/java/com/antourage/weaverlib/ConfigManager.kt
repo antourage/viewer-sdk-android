@@ -11,8 +11,8 @@ import java.io.InputStreamReader
 internal object ConfigManager {
     internal const val TAG = "AntourageFabLogs"
 
-    var BASE_URL = "https://developers.antourage.com/"
-    var FEED_URL = "https://feed.dev1.antourage.com/"
+    var BASE_URL = "https://developers.dev3.antourage.com/"
+    var FEED_URL = "https://feed.dev3.antourage.com/"
 
     lateinit var configFile: ConfigFile
 

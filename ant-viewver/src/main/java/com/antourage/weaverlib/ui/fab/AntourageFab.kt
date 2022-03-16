@@ -275,21 +275,23 @@ class AntourageFab @JvmOverloads constructor(
     private fun showBadge(text: String?) {
         shouldShowBadge = true
         text?.let { tvBadge?.text = it }
+        if (tvBadge?.text.toString() == context.getString(R.string.ant_live)) {
+            liveDotView.startAnimation(pulseAnimation)
+            liveDotView?.visibility = View.VISIBLE
+        } else {
+            liveDotView?.visibility = View.GONE
+            liveDotView.clearAnimation()
+        }
         if (!badgeVisible) {
             badgeVisible = true
             badgeView?.showBadge(measureAndLayout)
-            if (tvBadge?.text.toString() == context.getString(R.string.ant_live)) {
-                liveDotView.startAnimation(pulseAnimation)
-                liveDotView?.visibility = View.VISIBLE
-            } else {
-                liveDotView?.visibility = View.GONE
-            }
         }
     }
 
     private fun hideBadge() {
         if(badgeVisible){
             liveDotView.clearAnimation()
+            liveDotView?.visibility = View.GONE
             badgeVisible = false
             badgeView.hideBadge(measureAndLayout)
         }
@@ -413,6 +415,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun handlePortalState(state: PortalStateResponse) {
         fallbackUrl = state.fallbackUrl
+        if(currentPortalState?.contentId == state.item?.contentId && currentPortalState?.live == state.item?.live) return
         nextPortalStateToShow =
             if (!expandInProgress) {
                 state.item?.live?.let {

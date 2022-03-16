@@ -15,7 +15,7 @@ android {
         targetSdkVersion 31
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'antourage-proguard-rules.txt'
-        buildConfigField 'String', 'VERSION_NAME', "\"3.0.3\""
+        buildConfigField 'String', 'VERSION_NAME', "\"4.0.0_beta1\""
     }
     testOptions {
         unitTests.returnDefaultValues = true
