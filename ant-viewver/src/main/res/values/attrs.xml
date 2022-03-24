@@ -11,7 +11,6 @@
         <attr name="titleBackgroundColor" format="color"/>
         <attr name="nameTextColor" format="color"/>
         <attr name="nameBackgroundColor" format="color"/>
-        <attr name="idleInterval" format="integer"/>
     </declare-styleable>
 
 </resources>

@@ -84,7 +84,7 @@
             android:id="@+id/btnEnterPortal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/antourage_cat_purple_background"
+            android:background="@drawable/antourage_cta_purple_background"
             android:paddingVertical="5dp"
             android:paddingLeft="16dp"
             app:layout_constraintBottom_toBottomOf="parent"

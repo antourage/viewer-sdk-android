@@ -8,13 +8,11 @@
     <color name="ant_dark_transparent_a90">#F2000000</color>
     <color name="ant_blue">#3596C5</color>
 
-    <color name="ant_error_resolved_bg_color">#0cae4b</color>
-    <color name="ant_error_bg_color">#323639</color>
-
-    <color name="ant_header_dark_gray">#192128</color>
-    <color name="ant_web_background">#191919</color>
-    <color name="ant_web_icons_tint">#8C8C8C</color>
-
+    <color name="ant_env_dialog_color">#191919</color>
     <color name="ant_purple">#8D48FF</color>
+
+    <color name="ant_colorWidgetBorder">#17DDAB</color>
+    <color name="ant_ctaBackground">#8D48FF</color>
+    <color name="ant_colorLive">#FB3F39</color>
 
 </resources>

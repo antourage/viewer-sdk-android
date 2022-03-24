@@ -9,10 +9,10 @@ import java.io.InputStream
 import java.io.InputStreamReader
 
 internal object ConfigManager {
-    internal const val TAG = "AntourageFabLogs"
+    private const val TAG = "AntourageFabLogs"
 
-    var BASE_URL = "https://developers.dev3.antourage.com/"
-    var FEED_URL = "https://feed.dev3.antourage.com/"
+    var BASE_URL = "https://developers.antourage.com/"
+    var FEED_URL = "https://feed.antourage.com/"
 
     lateinit var configFile: ConfigFile
 
@@ -26,7 +26,7 @@ internal object ConfigManager {
                 configFile = gson.fromJson(br, ConfigFile::class.java)
                 setupUrls()
             } catch (e: Exception) {
-                Log.e(TAG, "File antourage_info.json not found")
+                Log.e(TAG, "Dev file antourage_info.json not found")
             }
         }
     }

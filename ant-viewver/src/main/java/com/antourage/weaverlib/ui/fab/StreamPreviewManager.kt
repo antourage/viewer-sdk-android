@@ -26,12 +26,15 @@ internal class StreamPreviewManager {
             StreamPreviewManager.callback = callback
         }
 
-        fun startPlayingStream(streamUrl: String, context: Context): ExoPlayer? {
+        fun startPlayingStream(streamUrl: String, context: Context, curtainMilliseconds: Long? = null): ExoPlayer? {
             player = buildExoPlayer(context)
             this.streamUrl = streamUrl
             player?.volume = 0f
             player?.setMediaSource(getMediaSource(streamUrl, context))
             player?.prepare()
+            curtainMilliseconds?.let {
+                player?.seekTo(it)
+            }
             initEventListener()
             return player
         }

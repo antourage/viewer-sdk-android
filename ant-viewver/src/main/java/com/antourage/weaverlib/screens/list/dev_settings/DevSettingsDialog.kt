@@ -66,15 +66,7 @@ class DevSettingsDialog(
 
         val versionName = BuildConfig.VERSION_NAME
         txtModuleVersion.text = context.resources.getString(R.string.ant_version_name, versionName)
-
-        /*
-        handler is used here to prevent immediate dialog closing in case user made more clicks
-         than needed to open it.
-         */
-        setCanceledOnTouchOutside(false)
-        Handler(Looper.getMainLooper()).postDelayed({
-            setCanceledOnTouchOutside(true)
-        }, 1500)
+        setCanceledOnTouchOutside(true)
     }
 
     private fun populateEnvs() {

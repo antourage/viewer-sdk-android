@@ -5,7 +5,6 @@ import androidx.annotation.Keep
 import androidx.lifecycle.Observer
 import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.PortalStateResponse
-import com.antourage.weaverlib.other.models.StreamResponse
 import com.antourage.weaverlib.other.networking.PortalStateRepository
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.Status

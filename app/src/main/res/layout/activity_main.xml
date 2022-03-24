@@ -4,29 +4,36 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/ant_white"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:background="@color/ant_white"
         android:overScrollMode="never"
         tools:context=".MainActivity">
 
-    <ScrollView
+    <fragment
+            android:id="@+id/nav_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            app:layout_constraintStart_toStartOf="parent"
+            app:defaultNavHost="true"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/footer"
-            app:layout_constraintTop_toBottomOf="@+id/header">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header"
+            app:navGraph="@navigation/nav_graph" />
 
-        <ImageView
-                android:id="@+id/main_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY" />
-    </ScrollView>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/ant_black"
+            app:menu="@menu/bottom_nav"
+            app:itemTextColor="@color/nav_bar_color"
+            app:itemIconTint="@color/nav_bar_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
 
     <ImageView
             android:id="@+id/header"
@@ -34,9 +41,9 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/hacken_header" />
 
 
@@ -46,37 +53,20 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
-            app:layout_constraintTop_toBottomOf="@+id/header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header"
             tools:src="@drawable/hacken_header_overlay" />
 
-    <ImageView
-            android:id="@+id/footer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:translationZ="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:src="@drawable/hacken_footer" />
-
-        <com.antourage.weaverlib.ui.fab.AntourageFab
-                android:id="@+id/antfab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/footer"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
-<!--        app:portalColor="@color/ant_pink"-->
-<!--        app:liveDotColor="@color/ant_black"-->
-<!--        app:nameTextColor="@color/ant_blue"-->
-<!--        app:nameBackgroundColor="@color/ant_black"-->
-<!--        app:titleTextColor="@color/ant_error_resolved_bg_color"-->
-<!--        app:titleBackgroundColor="@color/ant_pink"-->
+        <!--        app:ctaBackgroundColor="@color/ant_pink"-->
+        <!--        app:portalColor="@color/ant_pink"-->
+        <!--        app:ctaBackgroundColor="@color/ant_pink"-->
+        <!--        app:portalColor="@color/ant_pink"-->
+        <!--        app:liveDotColor="@color/ant_black"-->
+        <!--        app:nameTextColor="@color/ant_blue"-->
+        <!--        app:nameBackgroundColor="@color/ant_black"-->
+        <!--        app:titleTextColor="@color/ant_error_resolved_bg_color"-->
+        <!--        app:titleBackgroundColor="@color/ant_pink"-->

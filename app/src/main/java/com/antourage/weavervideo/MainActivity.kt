@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
-import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
-import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
+class MainActivity : AppCompatActivity(){
 
     private lateinit var connectivityManager: ConnectivityManager
 
@@ -33,23 +33,22 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
 
         Picasso.get().load(R.drawable.hacken_header).into(header)
         Picasso.get().load(R.drawable.hacken_header_overlay).into(header_overlay)
-        Picasso.get().load(R.drawable.hacken_footer).into(footer)
-        Picasso.get().load(R.drawable.hacken_background).into(main_content)
+
+        val bottomNavigationView = findViewById<BottomNavigationView
+                >(R.id.bottom_navigation_view)
+        val navController = findNavController(R.id.nav_fragment)
+        bottomNavigationView.setupWithNavController(
+            navController
+        )
+
 
         connectivityManager =
             this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
 
         //region Antourage configuration
-        AntourageFab.configure(this,1)
+        AntourageFab.configure(this, 1)
         //endregion
-
-        antfab.setLifecycle(lifecycle)
-
-        header.setOnClickListener {
-            val dialog = DevSettingsDialog(this@MainActivity, this)
-            dialog.show()
-        }
 
         //region Antourage push notification subscription
         var fcmToken: String? = ""
@@ -61,7 +60,7 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
                 e.printStackTrace()
             }
             runOnUiThread {
-                AntourageFab.registerNotifications(fcmToken, 1 ) { subscriptionResult ->
+                AntourageFab.registerNotifications(fcmToken, 1) { subscriptionResult ->
                     //Handle subscription result
                     when (subscriptionResult) {
                         //If result is successful, subscribe to the topic with
@@ -92,15 +91,5 @@ class MainActivity : AppCompatActivity() , OnDevSettingsChangedListener{
             }
         }.start()
         //endregion
-    }
-
-    override fun onBeChanged(choice: String) {
-        choice.let {
-            UserCache.getInstance(application.applicationContext)
-                ?.updateEnvChoice(choice)
-            UserCache.getInstance()?.saveAccessToken(null)
-            UserCache.getInstance()?.saveIdToken(null)
-            UserCache.getInstance()?.saveRefreshToken(null)
-        }
     }
 }
