@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/liveLabelsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +18,6 @@
             android:maxWidth="250dp"
             android:paddingHorizontal="10dp"
             android:paddingVertical="5dp"
-            android:text="Casey Neistat"
             android:textColor="@color/ant_purple"
             android:textSize="15sp"
             app:layout_constraintBottom_toTopOf="@+id/firstLineContainer"
@@ -54,7 +52,6 @@
                 android:maxWidth="250dp"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="5dp"
-                android:text="Hermosa Beach wrist away"
                 android:textColor="@color/ant_black"
                 android:textSize="15sp"
                 app:layout_constraintStart_toEndOf="@+id/dotView"
@@ -74,7 +71,6 @@
             android:maxWidth="250dp"
             android:paddingHorizontal="10dp"
             android:paddingVertical="5dp"
-            android:text="attack getting job done"
             android:textColor="@color/ant_black"
             android:textSize="15sp"
             app:layout_constraintBottom_toTopOf="@+id/btnEnterPortal"
@@ -86,7 +82,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/antourage_cta_purple_background"
             android:paddingVertical="5dp"
-            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent">
 
@@ -97,15 +93,14 @@
                 android:layout_marginEnd="16dp"
                 android:fontFamily="@font/poppins_semibold"
                 android:includeFontPadding="false"
-                android:text="Join for full experience!"
                 android:textAllCaps="false"
                 android:textColor="@color/ant_white"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintEnd_toStartOf="@+id/ctaArrow"
                 app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/ctaArrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"

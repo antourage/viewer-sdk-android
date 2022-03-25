@@ -12,7 +12,9 @@
     <color name="ant_purple">#8D48FF</color>
 
     <color name="ant_colorWidgetBorder">#17DDAB</color>
-    <color name="ant_ctaBackground">#8D48FF</color>
+    <color name="ant_colorTitleText">#080808</color>
+    <color name="ant_colorNameBg">#8D48FF</color>
+    <color name="ant_colorCtaBg">#FB3F39</color>
     <color name="ant_colorLive">#FB3F39</color>
 
 </resources>

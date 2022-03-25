@@ -17,7 +17,7 @@ internal fun generateConfig(context: Context, config: WebConfig): PortalConfig {
     val colorCtaBg: Int = try {
         Color.parseColor(config.colorCtaBg)
     } catch (e: Exception) {
-        ContextCompat.getColor(context, R.color.ant_ctaBackground)
+        ContextCompat.getColor(context, R.color.ant_colorCtaBg)
     }
 
     val colorCtaText: Int = try {
@@ -41,19 +41,19 @@ internal fun generateConfig(context: Context, config: WebConfig): PortalConfig {
     val colorNameBg: Int = try {
         Color.parseColor(config.colorNameBg)
     } catch (e: Exception) {
-        ContextCompat.getColor(context, R.color.ant_white)
+        ContextCompat.getColor(context, R.color.ant_colorNameBg)
     }
 
     val colorNameText: Int = try {
         Color.parseColor(config.colorNameText)
     } catch (e: Exception) {
-        ContextCompat.getColor(context, R.color.ant_black)
+        ContextCompat.getColor(context, R.color.ant_white)
     }
 
     val colorTitleText: Int = try {
         Color.parseColor(config.colorTitleText)
     } catch (e: Exception) {
-        ContextCompat.getColor(context, R.color.ant_black)
+        ContextCompat.getColor(context, R.color.ant_colorTitleText)
     }
 
     return PortalConfig(

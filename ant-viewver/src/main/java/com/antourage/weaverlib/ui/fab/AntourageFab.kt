@@ -18,7 +18,6 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import androidx.annotation.ColorInt
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getColor
@@ -55,6 +54,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.textColor
 import java.util.*
+import androidx.annotation.ColorInt
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
@@ -63,8 +63,10 @@ class AntourageFab @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), LifecycleEventObserver {
 
-    private lateinit var currentlifecycle: Lifecycle
-    private var isConfigOverridden: Boolean = false
+    private lateinit var currentLifecycle: Lifecycle
+
+    @ColorInt
+    private var webPortalColor: Int? = null
     private var shouldShowBadge: Boolean = false
     private var badgeVisible: Boolean = false
     private var fallbackUrl: String? = null
@@ -106,7 +108,7 @@ class AntourageFab @JvmOverloads constructor(
                 )
                 ctaBackgroundColor = getColor(
                     R.styleable.AntourageFab_ctaBackgroundColor,
-                    getColor(context, R.color.ant_ctaBackground)
+                    getColor(context, R.color.ant_colorCtaBg)
                 )
                 liveDotColor = getColor(
                     R.styleable.AntourageFab_liveDotColor,
@@ -114,7 +116,7 @@ class AntourageFab @JvmOverloads constructor(
                 )
                 titleTextColor = getColor(
                     R.styleable.AntourageFab_titleTextColor,
-                    getColor(context, R.color.ant_black)
+                    getColor(context, R.color.ant_colorTitleText)
                 )
                 titleBackgroundColor = getColor(
                     R.styleable.AntourageFab_titleBackgroundColor,
@@ -122,11 +124,11 @@ class AntourageFab @JvmOverloads constructor(
                 )
                 nameTextColor = getColor(
                     R.styleable.AntourageFab_nameTextColor,
-                    getColor(context, R.color.ant_black)
+                    getColor(context, R.color.ant_white)
                 )
                 nameBackgroundColor = getColor(
                     R.styleable.AntourageFab_nameBackgroundColor,
-                    getColor(context, R.color.ant_white)
+                    getColor(context, R.color.ant_colorNameBg)
                 )
             } finally {
                 recycle()
@@ -152,78 +154,128 @@ class AntourageFab @JvmOverloads constructor(
     var portalColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_colorWidgetBorder)) isConfigOverridden = true
-            DrawableCompat.setTint(ivPortal.drawable, value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_colorWidgetBorder)) {
+                isConfigOverridden = true
+            }
+            changePortalColor(value)
         }
+
+    private fun changePortalColor(value: Int) {
+        webPortalColor = value
+        DrawableCompat.setTint(ivPortal.drawable, value)
+        postInvalidate()
+    }
 
     @ColorInt
     var ctaBackgroundColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_ctaBackground)) isConfigOverridden = true
-            btnEnterPortal.background.setTint(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_colorCtaBg)) {
+                isConfigOverridden = true
+            }
+            changeCtaBackgroundColor(value)
         }
+
+    private fun changeCtaBackgroundColor(value: Int) {
+        btnEnterPortal.background.setTint(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var ctaTextColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_white)) isConfigOverridden = true
-            btnCta.textColor = value
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_white)) {
+                isConfigOverridden = true
+            }
+            changeCtaTextColor(value)
         }
+
+    private fun changeCtaTextColor(value: Int) {
+        btnCta.textColor = value
+        ctaArrow.drawable.setTint(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var liveDotColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_colorLive)) isConfigOverridden = true
-            dotView.background.setTint(value)
-            liveDotView.background.setTint(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_colorLive)) {
+                isConfigOverridden = true
+            }
+            changeLiveDotColor(value)
         }
+
+    private fun changeLiveDotColor(value: Int) {
+        dotView.background.setTint(value)
+        liveDotView.background.setTint(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var titleTextColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_black)) isConfigOverridden = true
-            tvBadge.setTextColor(value)
-            tvLiveFirstLine.setTextColor(value)
-            tvLiveSecondLine?.setTextColor(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_colorTitleText)) {
+                isConfigOverridden = true
+            }
+            changeTitleTextColor(value)
         }
+
+    private fun changeTitleTextColor(value: Int) {
+        tvBadge.setTextColor(value)
+        tvLiveFirstLine.setTextColor(value)
+        tvLiveSecondLine?.setTextColor(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var titleBackgroundColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_white)) isConfigOverridden = true
-            badgeView?.background?.setTint(value)
-            tvLiveSecondLine?.background?.setTint(value)
-            firstLineContainer.background.setTint(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_white)) {
+                isConfigOverridden = true
+            }
+            changeTitleBackgroundColor(value)
         }
+
+    private fun changeTitleBackgroundColor(value: Int) {
+        badgeView?.background?.setTint(value)
+        tvLiveSecondLine?.background?.setTint(value)
+        firstLineContainer.background.setTint(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var nameTextColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_black)) isConfigOverridden = true
-            tvStreamerName.setTextColor(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_white)) {
+                isConfigOverridden = true
+            }
+            changeNameTextColor(value)
         }
+
+    private fun changeNameTextColor(value: Int) {
+        tvStreamerName.setTextColor(value)
+        postInvalidate()
+    }
 
     @ColorInt
     var nameBackgroundColor: Int
         set(value) {
             field = value
-            if (field != getColor(context, R.color.ant_white)) isConfigOverridden = true
-            tvStreamerName.background.setTint(value)
-            postInvalidate()
+            if (field != getColor(context, R.color.ant_colorNameBg)) {
+                isConfigOverridden = true
+            }
+            changeNameBackgroundColor(value)
         }
+
+    private fun changeNameBackgroundColor(value: Int) {
+        tvStreamerName.background.setTint(value)
+        postInvalidate()
+    }
 
     private fun initPulseAnimation() {
         pulseAnimation.duration = 500
@@ -237,6 +289,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     companion object {
+        private var isConfigOverridden: Boolean = false
         internal var teamId: Int = -1
         internal var wasAlreadyExpanded: Boolean = false
         internal var cachedFcmToken: String = ""
@@ -381,7 +434,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     fun setLifecycle(lifecycle: Lifecycle) {
-        currentlifecycle = lifecycle
+        currentLifecycle = lifecycle
         lifecycle.addObserver(this)
     }
 
@@ -664,7 +717,7 @@ class AntourageFab @JvmOverloads constructor(
                 )
             }
             ivPortal.setImageDrawable(portalAnimatedDrawable)
-            DrawableCompat.setTint(ivPortal.drawable, portalColor)
+            webPortalColor?.let { DrawableCompat.setTint(ivPortal.drawable, it) }
             ivPortal.background = null
         }
     }
@@ -672,15 +725,15 @@ class AntourageFab @JvmOverloads constructor(
     private fun setColorsFromConfig(state: PortalStateResponse) {
         if (isConfigOverridden) return
         val config = state.config?.let { generateConfig(context, it) }
-        config?.let {
-            portalColor = it.colorWidgetBorder
-            ctaTextColor = it.colorCtaText
-            ctaBackgroundColor = it.colorCtaBg
-            liveDotColor = it.colorLive
-            titleTextColor = it.colorTitleText
-            titleBackgroundColor = it.colorTitleBg
-            nameTextColor = it.colorNameText
-            nameBackgroundColor = it.colorNameBg
+        config?.run {
+            changePortalColor(colorWidgetBorder)
+            changeCtaTextColor(colorCtaText)
+            changeCtaBackgroundColor(colorCtaBg)
+            changeLiveDotColor(colorLive)
+            changeTitleTextColor(colorTitleText)
+            changeTitleBackgroundColor(colorTitleBg)
+            changeNameTextColor(colorNameText)
+            changeNameBackgroundColor(colorNameBg)
         }
     }
 
@@ -766,7 +819,7 @@ class AntourageFab @JvmOverloads constructor(
         if (event == Lifecycle.Event.ON_RESUME) {
             onResume()
         } else if (event == Lifecycle.Event.ON_PAUSE) {
-            currentlifecycle.removeObserver(this)
+            currentLifecycle.removeObserver(this)
             onPause()
         }
     }
