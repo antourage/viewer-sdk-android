@@ -58,13 +58,15 @@ class WidgetLabelsView @JvmOverloads constructor(
     fun revealView(data: PortalState?) {
         data?.apply {
             title?.let { setText(it) }
-            name?.let { tvStreamerName.text = it }
             ctaLabel?.let { btnCta.text = ctaLabel }
             live?.let {
                 if (it) {
                     dotView?.visibility = View.VISIBLE
                     dotView.startAnimation(anim)
+                    tvStreamerName?.visibility = View.VISIBLE
+                    name?.let { tvStreamerName.text = it }
                 } else {
+                    tvStreamerName?.visibility = View.INVISIBLE
                     dotView?.visibility = View.GONE
                 }
             }
