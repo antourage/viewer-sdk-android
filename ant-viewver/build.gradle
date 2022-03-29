@@ -152,7 +152,6 @@ dependencies {
     implementation group: 'org.slf4j', name: 'slf4j-android', version: '1.7.30'
 
     //Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.anko:anko:$anko_version"
 
     //noinspection GradleDynamicVersion

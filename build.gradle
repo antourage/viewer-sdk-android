@@ -1,7 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.6.10'
     ext.anko_version = '0.10.8'
 
     repositories {
@@ -10,7 +9,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
