@@ -67,6 +67,7 @@ class AntourageFab @JvmOverloads constructor(
 
     @ColorInt
     private var webPortalColor: Int? = null
+    private var isConfigOverridden: Boolean = false
     private var shouldShowBadge: Boolean = false
     private var badgeVisible: Boolean = false
     private var fallbackUrl: String? = null
@@ -289,7 +290,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     companion object {
-        private var isConfigOverridden: Boolean = false
+        internal val shownLiveIds = mutableSetOf<Int>()
         internal var teamId: Int = -1
         internal var wasAlreadyExpanded: Boolean = false
         internal var cachedFcmToken: String = ""
@@ -562,16 +563,20 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun initPreLiveState(data: PortalState) {
-        expandInProgress = true
         currentPortalState = data
         showBadge(context.getString(R.string.ant_live))
-        playerView.player =
-            data.assetUrl?.let {
-                StreamPreviewManager.startPlayingStream(
-                    it,
-                    context
-                )
+        data.contentId?.let { id ->
+            if(shownLiveIds.none { it == id }){
+                expandInProgress = true
+                playerView.player =
+                    data.assetUrl?.let {
+                        StreamPreviewManager.startPlayingStream(
+                            it,
+                            context
+                        )
+                    }
             }
+        }
     }
 
 
@@ -582,7 +587,6 @@ class AntourageFab @JvmOverloads constructor(
                 seen = RoomRepository.getInstance(context).isAlreadySeen(it)
             }
             launch(Dispatchers.Main) {
-                expandInProgress = true
                 currentPortalState = data
                 if (!seen) {
                     showBadge(context.getString(R.string.ant_new_vod))
@@ -590,6 +594,7 @@ class AntourageFab @JvmOverloads constructor(
                     hideBadge()
                 }
                 if (!wasAlreadyExpanded) {
+                    expandInProgress = true
                     playerView.player =
                         data.assetUrl?.let {
                             StreamPreviewManager.startPlayingStream(
@@ -739,6 +744,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun showPlayer() {
         wasAlreadyExpanded = true
+        currentPortalState?.contentId?.let { if(currentPortalState?.live == true) shownLiveIds.add(it) }
         playerView?.alpha = 0f
         playerView?.visibility = View.VISIBLE
         playerView?.player?.playWhenReady = true
