@@ -556,6 +556,11 @@ class AntourageFab @JvmOverloads constructor(
         fallbackUrl = state.fallbackUrl
         setColorsFromConfig(state)
         if (currentPortalState?.contentId == state.item?.contentId && currentPortalState?.live == state.item?.live) return
+        if(state.item?.contentId == null) {
+            shouldShowBadge = false
+            hideBadge()
+            return
+        }
         nextPortalStateToShow =
             if (!expandInProgress) {
                 state.item?.live?.let {
