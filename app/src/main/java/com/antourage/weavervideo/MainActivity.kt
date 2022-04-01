@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(){
                 e.printStackTrace()
             }
             runOnUiThread {
-                AntourageFab.registerNotifications(fcmToken, 1) { subscriptionResult ->
+                AntourageFab.registerNotifications(fcmToken) { subscriptionResult ->
                     //Handle subscription result
                     when (subscriptionResult) {
                         //If result is successful, subscribe to the topic with

@@ -289,6 +289,16 @@ class AntourageFab @JvmOverloads constructor(
         nextPortalStateToShow = null
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        onResume()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        onPause()
+    }
+
     companion object {
         internal val shownLiveIds = mutableSetOf<Int>()
         internal var teamId: Int = -1
@@ -352,19 +362,18 @@ class AntourageFab @JvmOverloads constructor(
             }
             if (cachedFcmToken.isNotEmpty() && pushRegistrationCallback != null) {
                 Handler(Looper.getMainLooper()).post {
-                    registerNotifications(cachedFcmToken, teamId, pushRegistrationCallback)
+                    registerNotifications(cachedFcmToken, pushRegistrationCallback)
                 }
             }
         }
 
         fun registerNotifications(
             fcmToken: String?,
-            teamId: Int,
             callback: ((result: RegisterPushNotificationsResult) -> Unit)? = null
         ) {
             Log.d(TAG, "Trying to register ant push notifications...")
             pushRegistrationCallback = callback
-            if (fcmToken.isNullOrEmpty()) return
+            if (fcmToken.isNullOrEmpty() || teamId == -1) return
             cachedFcmToken = fcmToken
             val response =
                 PushRepository.subscribeToPushNotifications(
@@ -505,7 +514,7 @@ class AntourageFab @JvmOverloads constructor(
     }
 
     private fun onResume() {
-        if (!wasPaused) return
+        if (!wasPaused || parent == null) return
         wasPaused = false
         expandInProgress = false
         badgeVisible = false
