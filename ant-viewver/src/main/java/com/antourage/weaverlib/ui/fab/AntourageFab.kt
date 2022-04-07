@@ -55,6 +55,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.textColor
 import java.util.*
 import androidx.annotation.ColorInt
+import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
@@ -494,6 +495,12 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
+    private val socketConnectionObserver = Observer<SocketConnector.SocketConnection> {
+        if (it == SocketConnector.SocketConnection.CONNECTED && SocketConnector.shouldCallApiRequest) {
+            PortalStateManager.fetchPortalState(true)
+        }
+    }
+
     private val streamPreviewObserver = object : StreamPreviewManager.StreamCallback {
         override fun onNewState(playbackState: Int) {
             super.onNewState(playbackState)
@@ -522,6 +529,7 @@ class AntourageFab @JvmOverloads constructor(
         setNextWidgetState(WidgetState.INACTIVE)
         forceHideBadge()
         setLocale()
+        socketConnection.observeForever(socketConnectionObserver)
         internetStateLiveData.observeForever(networkStateObserver)
         PortalStateManager.setReceivedCallback(portalStateObserver)
         StreamPreviewManager.setCallback(streamPreviewObserver)
@@ -540,6 +548,7 @@ class AntourageFab @JvmOverloads constructor(
         setNextWidgetState(null)
         forceHideBadge()
         SocketConnector.portalStateLD.removeObserver(stateFromSocketsObserver)
+        socketConnection.removeObserver(socketConnectionObserver)
         handlerHideViews.removeCallbacksAndMessages(null)
         handlerRevealViews.removeCallbacksAndMessages(null)
         Handler(Looper.getMainLooper()).postDelayed({

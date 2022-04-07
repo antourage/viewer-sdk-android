@@ -15,7 +15,7 @@ android {
         targetSdkVersion 31
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'antourage-proguard-rules.txt'
-        versionName "4.0.0_beta4"
+        versionName "4.0.0_beta5"
     }
     testOptions {
         unitTests.returnDefaultValues = true

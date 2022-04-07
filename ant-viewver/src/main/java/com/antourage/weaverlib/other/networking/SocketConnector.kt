@@ -1,5 +1,3 @@
-@file:Suppress("CAST_NEVER_SUCCEEDS")
-
 package com.antourage.weaverlib.other.networking
 
 import android.annotation.SuppressLint
@@ -40,11 +38,13 @@ internal object SocketConnector {
     private var reconnectHandler = Handler(Looper.getMainLooper())
     private const val INITIAL_RECONNECT = -1L
     private const val FIRST_RECONNECT = 0L
-    private const val SECOND_RECONNECT = 1000L
-    private const val THIRD_RECONNECT = 2000L
-    private const val FOURTH_RECONNECT = 4000L
+    private const val SECOND_RECONNECT = 2000L
+    private const val THIRD_RECONNECT = 10000L
+    private const val FOURTH_RECONNECT = 30000L
+    private const val FIFTH_RECONNECT = 68000L
     private var nextReconnectDelay = INITIAL_RECONNECT
     private var shouldDisconnectSocket = false
+    var shouldCallApiRequest = false
 
     class ConnectToSocketTask : AsyncTask<Long, Any, Any>() {
         @SuppressLint("CheckResult")
@@ -54,6 +54,8 @@ internal object SocketConnector {
                 return
             }
 
+            if (delay[0] != FIRST_RECONNECT && delay[0] != INITIAL_RECONNECT)
+                shouldCallApiRequest = true
             if (delay[0] != INITIAL_RECONNECT) Thread.sleep(delay[0]!!)
             hubConnection.start().blockingGet()
             return
@@ -82,10 +84,6 @@ internal object SocketConnector {
         } catch (e: RuntimeException) {
             e.printStackTrace()
         }
-    }
-
-    fun isConnected(): Boolean {
-        return this::hubConnection.isInitialized && hubConnection.connectionState == HubConnectionState.CONNECTED
     }
 
     fun connectToSockets() {
@@ -126,7 +124,7 @@ internal object SocketConnector {
                 }
             }
         }, PortalStateSocketResponse::class.java)
-//
+
         hubConnection.onClosed {
             reconnect()
         }
@@ -151,6 +149,9 @@ internal object SocketConnector {
                 nextReconnectDelay = FOURTH_RECONNECT
             }
             FOURTH_RECONNECT -> {
+                nextReconnectDelay = FIFTH_RECONNECT
+            }
+            FIFTH_RECONNECT -> {
                 nextReconnectDelay = INITIAL_RECONNECT
                 if (Global.networkAvailable) {
                     isSocketUsed = false
@@ -171,18 +172,12 @@ internal object SocketConnector {
         }
     }
 
-    fun cancelReconnect() {
-        if (this::connectToSocketTask.isInitialized) connectToSocketTask.cancel(true)
-        isConnectTaskRunning = false
-        socketConnection.postValue(SocketConnection.WAITING)
-        reconnectHandler.removeCallbacksAndMessages(null)
-    }
-
-    fun clearSocketData() {
+    private fun clearSocketData() {
         portalStateLD.postValue(null)
     }
 
     fun disconnectSocket() {
+        shouldCallApiRequest = false
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
         reconnectHandler.removeCallbacksAndMessages(null)

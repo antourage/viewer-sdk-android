@@ -7,6 +7,7 @@ import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.PortalStateResponse
 import com.antourage.weaverlib.other.networking.PortalStateRepository
 import com.antourage.weaverlib.other.networking.Resource
+import com.antourage.weaverlib.other.networking.SocketConnector
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.ui.fab.AntourageFab
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.TAG
@@ -25,8 +26,10 @@ internal class PortalStateManager {
             PortalStateManager.callback = callback
         }
 
-        fun fetchPortalState() {
-            if (Global.networkAvailable && !fetched) {
+        fun fetchPortalState(forceFetchAgain: Boolean = false) {
+            if(!Global.networkAvailable) return
+            if (forceFetchAgain || !fetched) {
+                if(forceFetchAgain) SocketConnector.shouldCallApiRequest = false
                 fetched = true
                 val portalStateResponse = PortalStateRepository.getPortalState(AntourageFab.teamId)
                 portalStateResponse.observeForever(object : Observer<Resource<PortalStateResponse>>{
