@@ -177,6 +177,7 @@ internal object SocketConnector {
     }
 
     fun disconnectSocket() {
+        connectToSocketTask.cancel(true)
         shouldCallApiRequest = false
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
