@@ -319,6 +319,7 @@ class AntourageFab @JvmOverloads constructor(
          *  Method for configuring fab that initializes all needed library instances
          *  */
         fun configure(context: Context, teamId: Int) {
+            Log.e(TAG, "configure: $teamId" )
             this.teamId = teamId
             UserCache.getInstance(context)
             ConfigManager.init(context)
@@ -520,7 +521,7 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private fun onResume() {
+    fun onResume() {
         if (!wasPaused || parent == null) return
         wasPaused = false
         expandInProgress = false
@@ -536,7 +537,7 @@ class AntourageFab @JvmOverloads constructor(
         PortalStateManager.fetchPortalState()
     }
 
-    private fun onPause() {
+    fun onPause() {
         wasPaused = true
         shouldShowBadge = false
         badgeVisible = false
