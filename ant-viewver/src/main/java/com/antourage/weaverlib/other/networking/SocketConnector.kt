@@ -177,7 +177,6 @@ internal object SocketConnector {
     }
 
     fun disconnectSocket() {
-        connectToSocketTask.cancel(true)
         shouldCallApiRequest = false
         shouldDisconnectSocket = true
         socketConnection.postValue(SocketConnection.WAITING)
@@ -188,6 +187,9 @@ internal object SocketConnector {
                 if (hubConnection.connectionState == HubConnectionState.CONNECTED) {
                     hubConnection.stop()
                 }
+            }
+            if (this::connectToSocketTask.isInitialized) {
+                connectToSocketTask.cancel(true)
             }
         } catch (e: NullPointerException) {
             e.printStackTrace()

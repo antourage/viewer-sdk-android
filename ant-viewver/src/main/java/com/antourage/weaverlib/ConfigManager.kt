@@ -13,6 +13,7 @@ internal object ConfigManager {
 
     var BASE_URL = "https://developers.antourage.com/"
     var FEED_URL = "https://feed.antourage.com/"
+    var TEAM_ID: Int? = null
 
     lateinit var configFile: ConfigFile
 
@@ -41,12 +42,15 @@ internal object ConfigManager {
                 UserCache.getInstance()?.updateEnvChoice(configFile.name!!)
                 BASE_URL = configFile.apiUrl!!
                 FEED_URL = configFile.feedUrl!!
+                TEAM_ID =  configFile.teamId
+
             }
         } else if (isEnvOverrided() && UserCache.getInstance()
                 ?.getEnvChoice() == configFile.name!!
         ) {
             BASE_URL = configFile.apiUrl!!
             FEED_URL = configFile.feedUrl!!
+            TEAM_ID =  configFile.teamId
         } else {
             val env = configFile.environments?.filter {
                 it.name == UserCache.getInstance()?.getEnvChoice()
@@ -54,6 +58,7 @@ internal object ConfigManager {
             if (!env.isNullOrEmpty()) {
                 BASE_URL = env[0].apiUrl!!
                 FEED_URL = env[0].feedUrl!!
+                TEAM_ID =  env[0].teamId
             }
         }
     }
@@ -64,6 +69,7 @@ internal object ConfigManager {
 }
 
 data class ConfigFile(
+    val teamId: Int?,
     val name: String?,
     val apiUrl: String?,
     val feedUrl: String?,
@@ -71,6 +77,7 @@ data class ConfigFile(
 )
 
 data class Environment(
+    val teamId: Int?,
     val name: String?,
     val apiUrl: String?,
     val feedUrl: String?

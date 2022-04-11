@@ -319,10 +319,9 @@ class AntourageFab @JvmOverloads constructor(
          *  Method for configuring fab that initializes all needed library instances
          *  */
         fun configure(context: Context, teamId: Int) {
-            Log.e(TAG, "configure: $teamId" )
-            this.teamId = teamId
             UserCache.getInstance(context)
             ConfigManager.init(context)
+            this.teamId = ConfigManager.TEAM_ID ?: teamId
             handleDeviceId(context)
             setDefaultLocale(context)
             if (!isSubscribedToPushes) retryRegisterNotifications()
@@ -542,6 +541,10 @@ class AntourageFab @JvmOverloads constructor(
         shouldShowBadge = false
         badgeVisible = false
         clearStreams()
+
+//TODO initizalided
+
+
         SocketConnector.disconnectSocket()
         PortalStateManager.onPause()
         isAnimationRunning = false
@@ -566,7 +569,7 @@ class AntourageFab @JvmOverloads constructor(
         fallbackUrl = state.fallbackUrl
         setColorsFromConfig(state)
         if (currentPortalState?.contentId == state.item?.contentId && currentPortalState?.live == state.item?.live) return
-        if(state.item?.contentId == null) {
+        if (state.item?.contentId == null) {
             shouldShowBadge = false
             hideBadge()
             return
@@ -590,7 +593,7 @@ class AntourageFab @JvmOverloads constructor(
         currentPortalState = data
         showBadge(context.getString(R.string.ant_live))
         data.contentId?.let { id ->
-            if(shownLiveIds.none { it == id }){
+            if (shownLiveIds.none { it == id }) {
                 expandInProgress = true
                 playerView.player =
                     data.assetUrl?.let {
@@ -768,7 +771,11 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun showPlayer() {
         wasAlreadyExpanded = true
-        currentPortalState?.contentId?.let { if(currentPortalState?.live == true) shownLiveIds.add(it) }
+        currentPortalState?.contentId?.let {
+            if (currentPortalState?.live == true) shownLiveIds.add(
+                it
+            )
+        }
         playerView?.alpha = 0f
         playerView?.visibility = View.VISIBLE
         playerView?.player?.playWhenReady = true
