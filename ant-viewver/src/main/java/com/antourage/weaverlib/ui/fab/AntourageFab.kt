@@ -143,7 +143,7 @@ class AntourageFab @JvmOverloads constructor(
         bigDummyClickableView.onClick {
             portalClicked()
         }
-        labelsView.onClick {
+        btnEnterPortal?.onClick {
             portalClicked()
         }
 
