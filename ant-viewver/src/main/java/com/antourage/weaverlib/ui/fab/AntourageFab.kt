@@ -541,10 +541,6 @@ class AntourageFab @JvmOverloads constructor(
         shouldShowBadge = false
         badgeVisible = false
         clearStreams()
-
-//TODO initizalided
-
-
         SocketConnector.disconnectSocket()
         PortalStateManager.onPause()
         isAnimationRunning = false
