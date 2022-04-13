@@ -12,7 +12,6 @@ import android.view.animation.Animation
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.PortalState
-import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.antourage_labels_layout.view.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -58,7 +57,7 @@ class WidgetLabelsView @JvmOverloads constructor(
     fun revealView(data: PortalState?) {
         data?.apply {
             title?.let { setText(it) }
-            ctaLabel?.let { btnCta.text = ctaLabel }
+            ctaLabel?.let { btnCta.text = it }
             live?.let {
                 if (it) {
                     dotView?.visibility = View.VISIBLE
@@ -72,24 +71,25 @@ class WidgetLabelsView @JvmOverloads constructor(
             }
         }
 
-        isLabelShown = true
-        val local = Rect()
-        liveLabelsContainer.getLocalVisibleRect(local)
-        val from = Rect(local)
-        val to = Rect(local)
+        liveLabelsContainer.post {
+            isLabelShown = true
+            val local = Rect()
+            liveLabelsContainer.getLocalVisibleRect(local)
+            val from = Rect(local)
+            val to = Rect(local)
+            from.left = from.right
 
-        from.left = from.right
+            val anim: ObjectAnimator = ObjectAnimator.ofObject(
+                liveLabelsContainer,
+                "clipBounds",
+                RectEvaluator(),
+                from, to
+            )
 
-        val anim: ObjectAnimator = ObjectAnimator.ofObject(
-            liveLabelsContainer,
-            "clipBounds",
-            RectEvaluator(),
-            from, to
-        )
-
-        anim.duration = 1000
-        anim.start()
-        liveLabelsContainer.visibility = View.VISIBLE
+            anim.duration = 1000
+            anim.start()
+            liveLabelsContainer.visibility = View.VISIBLE
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
