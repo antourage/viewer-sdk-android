@@ -69,6 +69,8 @@ class AntourageFab @JvmOverloads constructor(
     @ColorInt
     private var webPortalColor: Int? = null
     private var isConfigOverridden: Boolean = false
+
+    /** if true - will show badge again after portal finishes expanding*/
     private var shouldShowBadge: Boolean = false
     private var badgeVisible: Boolean = false
     private var fallbackUrl: String? = null
@@ -429,7 +431,8 @@ class AntourageFab @JvmOverloads constructor(
         }
     }
 
-    private fun hideBadge() {
+    private fun hideBadge(fullyHide: Boolean = false) {
+        if (fullyHide) shouldShowBadge = false
         if (badgeVisible) {
             liveDotView.clearAnimation()
             liveDotView?.visibility = View.GONE
@@ -566,8 +569,7 @@ class AntourageFab @JvmOverloads constructor(
         setColorsFromConfig(state)
         if (currentPortalState?.contentId == state.item?.contentId && currentPortalState?.live == state.item?.live) return
         if (state.item?.contentId == null) {
-            shouldShowBadge = false
-            hideBadge()
+            hideBadge(true)
             return
         }
         nextPortalStateToShow =
@@ -614,7 +616,7 @@ class AntourageFab @JvmOverloads constructor(
                 if (!seen) {
                     showBadge(context.getString(R.string.ant_new_vod))
                 } else {
-                    hideBadge()
+                    hideBadge(true)
                 }
                 if (!wasAlreadyExpanded) {
                     expandInProgress = true
