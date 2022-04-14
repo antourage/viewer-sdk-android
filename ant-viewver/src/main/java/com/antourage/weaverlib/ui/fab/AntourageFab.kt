@@ -666,7 +666,7 @@ class AntourageFab @JvmOverloads constructor(
                 handlerHideViews.postDelayed({
                     labelsView.hideView()
                     bigDummyClickableView.visibility = View.GONE
-                }, 5500)
+                }, 6200)
                 startAnimation(state)
             }
             WidgetState.NEW -> {
@@ -679,7 +679,7 @@ class AntourageFab @JvmOverloads constructor(
                 handlerHideViews.postDelayed({
                     labelsView.hideView()
                     bigDummyClickableView.visibility = View.GONE
-                }, 5500)
+                }, 6200)
                 startAnimation(state)
             }
         }
