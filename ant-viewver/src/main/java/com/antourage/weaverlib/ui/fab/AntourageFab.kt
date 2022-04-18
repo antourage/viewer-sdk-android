@@ -832,6 +832,7 @@ class AntourageFab @JvmOverloads constructor(
                     NetworkConnectionState.LOST.ordinal -> {
                         if (!Global.networkAvailable) {
                             shouldShowBadge = false
+                            expandInProgress = false
                             PortalStateManager.networkLost()
                             SocketConnector.disconnectSocket()
                             setNextWidgetState(WidgetState.INACTIVE)
