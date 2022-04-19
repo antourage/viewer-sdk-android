@@ -30,11 +30,11 @@ class WidgetLabelsView @JvmOverloads constructor(
         init()
     }
 
-    private fun setText(text: String) {
-        val maxLenght = 25
-        if (text.length > maxLenght) {
+    private fun setTitle(text: String) {
+        val maxLength = 25
+        if (text.length > maxLength) {
             tvLiveSecondLine.visibility = View.VISIBLE
-            val p: Pattern = Pattern.compile("\\G\\s*(.{1,$maxLenght})(?=\\s|$)", Pattern.DOTALL)
+            val p: Pattern = Pattern.compile("\\G\\s*(.{1,$maxLength})(?=\\s|$)", Pattern.DOTALL)
             val m: Matcher = p.matcher(text)
             val lines = mutableListOf<String>()
             while (m.find()) lines.add(m.group(1))
@@ -47,6 +47,23 @@ class WidgetLabelsView @JvmOverloads constructor(
         }
     }
 
+    private fun formatCtaText(text: String): String {
+        val maxLenght = 25
+        if (text.length > maxLenght) {
+            val p: Pattern = Pattern.compile("\\G\\s*(.{1,$maxLenght})(?=\\s|$)", Pattern.DOTALL)
+            val m: Matcher = p.matcher(text)
+            val lines = mutableListOf<String>()
+            while (m.find()) lines.add(m.group(1))
+            try {
+                return "${lines[0]}\n${lines[1]}"
+            }catch (e: Exception){
+                return text
+            }
+        } else {
+            return text
+        }
+    }
+
     private fun init() {
         View.inflate(context, R.layout.antourage_labels_layout, this)
         anim.duration = 500
@@ -56,8 +73,8 @@ class WidgetLabelsView @JvmOverloads constructor(
 
     fun revealView(data: PortalState?) {
         data?.apply {
-            title?.let { setText(it) }
-            ctaLabel?.let { btnCta.text = it }
+            title?.let { setTitle(it) }
+            ctaLabel?.let { btnCta.text = formatCtaText(it) }
             live?.let {
                 if (it) {
                     dotView?.visibility = View.VISIBLE
