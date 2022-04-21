@@ -3,7 +3,6 @@ package com.antourage.weaverlib.ui.fab
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Outline
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -18,6 +17,7 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import androidx.annotation.ColorInt
 import androidx.annotation.Keep
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getColor
@@ -39,23 +39,21 @@ import com.antourage.weaverlib.other.networking.ConnectionStateMonitor.Companion
 import com.antourage.weaverlib.other.networking.NetworkConnectionState
 import com.antourage.weaverlib.other.networking.Resource
 import com.antourage.weaverlib.other.networking.SocketConnector
+import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.push.PushRepository
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.other.showBadge
 import com.antourage.weaverlib.screens.list.PortalStateManager
 import com.google.android.exoplayer2.Player
-import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.antourage_labels_layout.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.configuration
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.textColor
-import java.util.*
-import androidx.annotation.ColorInt
-import com.antourage.weaverlib.other.networking.SocketConnector.socketConnection
 
 @Keep
 class AntourageFab @JvmOverloads constructor(
@@ -294,7 +292,9 @@ class AntourageFab @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        onResume()
+        this.post {
+            onResume()
+        }
     }
 
     override fun onDetachedFromWindow() {
@@ -308,6 +308,7 @@ class AntourageFab @JvmOverloads constructor(
         internal var wasAlreadyExpanded: Boolean = false
         internal var cachedFcmToken: String = ""
         internal var isSubscribedToPushes = false
+        internal var localisation = "en"
         private var pushRegistrationCallback: ((result: RegisterPushNotificationsResult) -> Unit)? =
             null
         internal const val TAG = "AntourageFabLogs"
@@ -320,26 +321,25 @@ class AntourageFab @JvmOverloads constructor(
         /**
          *  Method for configuring fab that initializes all needed library instances
          *  */
-        fun configure(context: Context, teamId: Int) {
+        fun configure(context: Context, teamId: Int, localisation: String? = null) {
+            this.localisation = initLocalisation(context, localisation)
             UserCache.getInstance(context)
             ConfigManager.init(context)
             this.teamId = ConfigManager.TEAM_ID ?: teamId
             handleDeviceId(context)
-            setDefaultLocale(context)
             if (!isSubscribedToPushes) retryRegisterNotifications()
         }
 
-        private fun setDefaultLocale(context: Context) {
-            val defaultLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                context.resources.configuration.locales[0]
+        private fun initLocalisation(context: Context, localisation: String?): String {
+            return if (localisation.isNullOrEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    context.resources.configuration.locales[0].toLanguageTag().split("-")
+                        .first()
+                } else {
+                    context.configuration.locale.toLanguageTag().split("-").first()
+                }
             } else {
-                context.resources.configuration.locale
-            }
-
-            if (defaultLocale.toLanguageTag().contains("sv")) {
-                Global.defaultLocale = defaultLocale
-            } else {
-                Global.defaultLocale = Locale("en", "US")
+                localisation.split("-").first()
             }
         }
 
@@ -418,7 +418,7 @@ class AntourageFab @JvmOverloads constructor(
     private fun showBadge(text: String?) {
         shouldShowBadge = true
         text?.let { tvBadge?.text = it }
-        if (tvBadge?.text.toString() == context.getString(R.string.ant_live)) {
+        if (currentPortalState?.live == true) {
             liveDotView.startAnimation(pulseAnimation)
             liveDotView?.visibility = View.VISIBLE
         } else {
@@ -450,37 +450,6 @@ class AntourageFab @JvmOverloads constructor(
     fun setLifecycle(lifecycle: Lifecycle) {
         currentLifecycle = lifecycle
         lifecycle.addObserver(this)
-    }
-
-
-    /**
-     * Method to force set locale (currently default or Swedish)
-     */
-    fun setLocale(lang: String? = null) {
-        if (lang != null) {
-            when (lang) {
-                "sv" -> forceLocale(Locale("sv", "SE"))
-                "en" -> forceLocale(Locale("en", "US"))
-                else -> Log.e(TAG, "Trying to set unsupported locale $lang")
-            }
-        } else if (Global.chosenLocale != null) {
-            forceLocale(Global.chosenLocale!!)
-        }
-    }
-
-    @SuppressLint("RestrictedApi")
-    private fun forceLocale(locale: Locale) {
-        if (getActivity(context) != null) {
-            val config =
-                Configuration(getActivity(context)!!.resources.configuration)
-            Locale.setDefault(locale)
-            config.setLocale(locale)
-            Global.chosenLocale = locale
-            getActivity(context)?.baseContext?.resources?.updateConfiguration(
-                config,
-                getActivity(context)?.baseContext?.resources?.displayMetrics
-            )
-        }
     }
 
     private val stateFromSocketsObserver =
@@ -531,7 +500,6 @@ class AntourageFab @JvmOverloads constructor(
         shouldShowBadge = false
         setNextWidgetState(WidgetState.INACTIVE)
         forceHideBadge()
-        setLocale()
         socketConnection.observeForever(socketConnectionObserver)
         internetStateLiveData.observeForever(networkStateObserver)
         PortalStateManager.setReceivedCallback(portalStateObserver)
@@ -589,7 +557,9 @@ class AntourageFab @JvmOverloads constructor(
 
     private fun initPreLiveState(data: PortalState) {
         currentPortalState = data
-        showBadge(context.getString(R.string.ant_live))
+        showBadge(
+            PortalStateManager.localisationJsonObject.optString(PortalStateManager.LIVE, context.getString(R.string.ant_live))
+        )
         data.contentId?.let { id ->
             if (shownLiveIds.none { it == id }) {
                 expandInProgress = true
@@ -614,7 +584,9 @@ class AntourageFab @JvmOverloads constructor(
             launch(Dispatchers.Main) {
                 currentPortalState = data
                 if (!seen) {
-                    showBadge(context.getString(R.string.ant_new_vod))
+                    showBadge(
+                        PortalStateManager.localisationJsonObject.optString(PortalStateManager.NEW, context.getString(R.string.ant_new_vod))
+                    )
                 } else {
                     hideBadge(true)
                 }

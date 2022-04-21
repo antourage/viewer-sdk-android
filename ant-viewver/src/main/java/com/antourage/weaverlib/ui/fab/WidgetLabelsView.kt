@@ -12,6 +12,7 @@ import android.view.animation.Animation
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.PortalState
+import com.antourage.weaverlib.screens.list.PortalStateManager
 import kotlinx.android.synthetic.main.antourage_labels_layout.view.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -56,7 +57,7 @@ class WidgetLabelsView @JvmOverloads constructor(
             while (m.find()) lines.add(m.group(1))
             try {
                 return "${lines[0]}\n${lines[1]}"
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 return text
             }
         } else {
@@ -74,7 +75,14 @@ class WidgetLabelsView @JvmOverloads constructor(
     fun revealView(data: PortalState?) {
         data?.apply {
             title?.let { setTitle(it) }
-            ctaLabel?.let { btnCta.text = formatCtaText(it) }
+            ctaLabel?.let {
+                btnCta.text = formatCtaText(
+                    PortalStateManager.localisationJsonObject.optString(
+                        it,
+                        context.getString(R.string.join_for_full_experience)
+                    )
+                )
+            }
             live?.let {
                 if (it) {
                     dotView?.visibility = View.VISIBLE

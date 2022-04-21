@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(){
                     as ConnectivityManager
 
         //region Antourage configuration
-        AntourageFab.configure(this, 1)
+        AntourageFab.configure(this, 1, "es")
         //endregion
 
         //region Antourage push notification subscription

@@ -103,7 +103,7 @@
                 android:fontFamily="@font/poppins_semibold"
                 android:includeFontPadding="false"
                 android:maxWidth="260dp"
-                android:text="Join for full experience!"
+                android:text="@string/join_for_full_experience"
                 android:textAllCaps="false"
                 android:textColor="@color/ant_white"
                 app:layout_constraintBottom_toBottomOf="parent"
