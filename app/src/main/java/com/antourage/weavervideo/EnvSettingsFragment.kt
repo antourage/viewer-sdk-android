@@ -29,9 +29,6 @@ class EnvSettingsFragment : Fragment(), OnDevSettingsChangedListener {
         choice.let {
             UserCache.getInstance(requireContext())
                 ?.updateEnvChoice(choice)
-            UserCache.getInstance()?.saveAccessToken(null)
-            UserCache.getInstance()?.saveIdToken(null)
-            UserCache.getInstance()?.saveRefreshToken(null)
         }
     }
 

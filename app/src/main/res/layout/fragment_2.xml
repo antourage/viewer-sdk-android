@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -7,10 +8,72 @@
         tools:context=".Fragment2">
 
     <TextView
-            android:text="Screen without portal"
-            android:layout_gravity="center"
-            android:textSize="20sp"
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:text="@string/language_settings"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+            android:id="@+id/tvLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:text="@string/in_case_language_is_not_set_during_integration_n_will_used"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+
+    <EditText
+            android:id="@+id/etLanguage"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:foregroundGravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:hint="@string/language"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="2"
+            android:maxLines="1"
+            android:minHeight="48dp"
+            android:textAlignment="center"
+            android:textColor="@color/ant_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnSet"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLanguage"
+            app:layout_constraintVertical_bias="0.4" />
+
+    <Button
+            android:id="@+id/btnSet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set"
+            app:layout_constraintBottom_toTopOf="@+id/btnReset"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etLanguage"
+            app:layout_constraintTop_toTopOf="@+id/etLanguage" />
+
+    <Button
+            android:id="@+id/btnReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset"
+            app:layout_constraintBottom_toBottomOf="@+id/etLanguage"
+            app:layout_constraintEnd_toEndOf="@+id/btnSet"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/btnSet"
+            app:layout_constraintTop_toBottomOf="@+id/btnSet" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

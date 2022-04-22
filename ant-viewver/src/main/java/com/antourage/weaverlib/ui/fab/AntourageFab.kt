@@ -1,6 +1,5 @@
 package com.antourage.weaverlib.ui.fab
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Outline
@@ -10,7 +9,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.provider.Settings
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -326,7 +324,6 @@ class AntourageFab @JvmOverloads constructor(
             UserCache.getInstance(context)
             ConfigManager.init(context)
             this.teamId = ConfigManager.TEAM_ID ?: teamId
-            handleDeviceId(context)
             if (!isSubscribedToPushes) retryRegisterNotifications()
         }
 
@@ -343,24 +340,10 @@ class AntourageFab @JvmOverloads constructor(
             }
         }
 
-        @SuppressLint("HardwareIds")
-        private fun handleDeviceId(context: Context) {
-            if (UserCache.getInstance()?.getDeviceId() == null) {
-                UserCache.getInstance()?.saveDeviceId(
-                    Settings.Secure.getString(
-                        context.contentResolver,
-                        Settings.Secure.ANDROID_ID
-                    ) ?: ""
-                )
-            }
-        }
-
         fun retryRegisterNotifications(firebaseToken: String? = null) {
             if (pushRegistrationCallback == null) return
             if (firebaseToken != null) cachedFcmToken = firebaseToken
-            if (UserCache.getInstance() != null && UserCache.getInstance()!!.getIdToken()
-                    .isNullOrBlank()
-            ) {
+            if (UserCache.getInstance() != null) {
                 return
             }
             if (cachedFcmToken.isNotEmpty() && pushRegistrationCallback != null) {

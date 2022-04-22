@@ -1,7 +1,9 @@
 package com.antourage.weavervideo
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -18,11 +20,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity(){
-
+class MainActivity : AppCompatActivity() {
+    private var prefs: SharedPreferences? = null
     private lateinit var connectivityManager: ConnectivityManager
 
     companion object {
+        const val LANGUAGE = "language"
+        const val PREFS = "test_prefs"
         const val TAG = "Antourage_testing_tag"
     }
 
@@ -30,6 +34,9 @@ class MainActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         MultiDex.install(this)
         setContentView(R.layout.activity_main)
+
+        prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        LocaleHelper.setLocale(this, getLanguage())
 
         Picasso.get().load(R.drawable.hacken_header).into(header)
         Picasso.get().load(R.drawable.hacken_header_overlay).into(header_overlay)
@@ -41,13 +48,12 @@ class MainActivity : AppCompatActivity(){
             navController
         )
 
-
         connectivityManager =
             this@MainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)
                     as ConnectivityManager
 
         //region Antourage configuration
-        AntourageFab.configure(this, 1, "es")
+        AntourageFab.configure(this, 1)
         //endregion
 
         //region Antourage push notification subscription
@@ -91,5 +97,31 @@ class MainActivity : AppCompatActivity(){
             }
         }.start()
         //endregion
+    }
+
+    fun getLanguage(): String {
+        var language = prefs?.getString(LANGUAGE, null)
+        if (language.isNullOrEmpty()) {
+            language = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                resources.configuration.locales[0].toLanguageTag().split("-")
+                    .first()
+            } else {
+                resources.configuration.locale.toLanguageTag().split("-").first()
+            }
+        }
+
+        return language
+    }
+
+    fun updateLanguageChoice(language: String?) {
+        if(language == null){
+            prefs?.edit()
+                ?.remove(LANGUAGE)
+                ?.apply()
+        }else{
+            prefs?.edit()
+                ?.putString(LANGUAGE, language.lowercase())
+                ?.apply()
+        }
     }
 }

@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name" translatable="false">BK Häcken</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="home" translatable="false">HOME</string>
+    <string name="lang" translatable="false">LANGUAGE</string>
+    <string name="news" translatable="false">NEWS</string>
+    <string name="matches" translatable="false">MATCHES</string>
+    <string name="env" translatable="false">ENV</string>
+    <string name="language_settings">Language settings</string>
+    <string name="in_case_language_is_not_set_during_integration_n_will_used">In case language is not set\n during integration\n %1$s will be used</string>
+    <string name="set">SET</string>
+    <string name="language">language</string>
+    <string name="reset">reset</string>
 </resources>

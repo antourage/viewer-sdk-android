@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="HEM"
+    <item android:title="@string/home"
             android:id="@+id/fragment1"
             android:icon="@drawable/ant_menu2"/>
-    <item android:title="NYHETER"
+    <item android:title="@string/lang"
             android:id="@+id/fragment2"
             android:icon="@drawable/ant_menu1"/>
-    <item android:title="FANTASY"
+    <item android:title="@string/news"
             android:id="@+id/fragment3"
             android:icon="@drawable/ant_menu4"/>
-    <item android:title="MATCHER"
+    <item android:title="@string/matches"
             android:id="@+id/fragment4"
             android:icon="@drawable/ant_menu5"/>
-    <item android:title="ENV"
+    <item android:title="@string/env"
             android:id="@+id/envSettingsFragment"
             android:icon="@drawable/ant_menu6"/>
 </menu>

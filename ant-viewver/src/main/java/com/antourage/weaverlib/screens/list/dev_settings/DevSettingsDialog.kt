@@ -51,9 +51,6 @@ class DevSettingsDialog(
                             teamId
                         )
                     )
-                    GlobalScope.launch(Dispatchers.IO) {
-                        UserCache.getInstance()?.clearUserData()
-                    }
                 }
                 listener.onBeChanged(radioButton.text.toString())
                 this.dismiss()
