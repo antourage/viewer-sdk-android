@@ -85,6 +85,7 @@ class AntourageFab @JvmOverloads constructor(
 
     private var handlerRevealViews: Handler = Handler(Looper.getMainLooper())
     private var handlerHideViews: Handler = Handler(Looper.getMainLooper())
+    private var handlerReleasePlayer: Handler = Handler(Looper.getMainLooper())
     private val pulseAnimation: Animation = AlphaAnimation(0.0f, 1.0f)
 
     init {
@@ -505,6 +506,7 @@ class AntourageFab @JvmOverloads constructor(
         socketConnection.removeObserver(socketConnectionObserver)
         handlerHideViews.removeCallbacksAndMessages(null)
         handlerRevealViews.removeCallbacksAndMessages(null)
+        handlerReleasePlayer.removeCallbacksAndMessages(null)
         Handler(Looper.getMainLooper()).postDelayed({
             releasePlayer(false)
             labelsView.hideView(false)
@@ -541,7 +543,10 @@ class AntourageFab @JvmOverloads constructor(
     private fun initPreLiveState(data: PortalState) {
         currentPortalState = data
         showBadge(
-            PortalStateManager.localisationJsonObject.optString(PortalStateManager.LIVE, context.getString(R.string.ant_live))
+            PortalStateManager.localisationJsonObject.optString(
+                PortalStateManager.LIVE,
+                context.getString(R.string.ant_live)
+            )
         )
         data.contentId?.let { id ->
             if (shownLiveIds.none { it == id }) {
@@ -568,7 +573,10 @@ class AntourageFab @JvmOverloads constructor(
                 currentPortalState = data
                 if (!seen) {
                     showBadge(
-                        PortalStateManager.localisationJsonObject.optString(PortalStateManager.NEW, context.getString(R.string.ant_new_vod))
+                        PortalStateManager.localisationJsonObject.optString(
+                            PortalStateManager.NEW,
+                            context.getString(R.string.ant_new_vod)
+                        )
                     )
                 } else {
                     hideBadge(true)
@@ -741,6 +749,9 @@ class AntourageFab @JvmOverloads constructor(
         playerView?.clipToOutline = true
         playerView?.animate()?.alpha(1f)?.setStartDelay(100)?.setDuration(1000)
             ?.withEndAction {
+                handlerReleasePlayer.postDelayed({
+                    StreamPreviewManager.releasePlayer()
+                }, 5500)
                 playerView?.animate()?.alpha(0f)?.setStartDelay(4500)?.setDuration(1000)
                     ?.start()
             }?.start()
@@ -828,11 +839,4 @@ class AntourageFab @JvmOverloads constructor(
         )
         layout(left, top, right, bottom)
     }
-
-    private fun runOnUi(method: () -> Unit) {
-        Handler(Looper.getMainLooper()).post {
-            method()
-        }
-    }
-
 }

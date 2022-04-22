@@ -105,9 +105,6 @@ internal class StreamPreviewManager {
             player?.removeListener(playerEventListener)
         }
 
-        fun removeEventListener() {
-            player?.removeListener(playerEventListener)
-        }
     }
 
     @Keep
