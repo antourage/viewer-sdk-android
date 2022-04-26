@@ -1,17 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="AntTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowAnimationStyle">@style/AntActivityAnimation</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:navigationBarColor">@color/ant_black</item>
-    </style>
-
-    <style name="AntActivityAnimation" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@anim/antourage_enter_from_right</item>
-        <item name="android:activityOpenExitAnimation">@anim/antourage_exit_to_left</item>
-        <item name="android:activityCloseEnterAnimation">@anim/antourage_enter_from_left</item>
-        <item name="android:activityCloseExitAnimation">@anim/antourage_exit_to_right</item>
-    </style>
-
 </resources>

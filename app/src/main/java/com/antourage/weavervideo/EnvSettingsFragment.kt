@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.antourage.weaverlib.UserCache
+import com.antourage.weaverlib.dev_settings.UserCache
 import com.antourage.weaverlib.dev_settings.DevSettingsDialog
 import com.antourage.weaverlib.dev_settings.OnDevSettingsChangedListener
 

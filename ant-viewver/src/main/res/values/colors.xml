@@ -2,13 +2,9 @@
 <resources>
     <color name="ant_white">#FFFFFF</color>
     <color name="ant_black">#000000</color>
-    <color name="ant_transparent"> #00000000</color>
     <color name="ant_bg_color_widget_expantion">#131313</color>
     <color name="ant_pink">#E4699B</color>
-    <color name="ant_dark_transparent_a90">#F2000000</color>
-    <color name="ant_blue">#3596C5</color>
 
-    <color name="ant_env_dialog_color">#191919</color>
     <color name="ant_purple">#8D48FF</color>
 
     <color name="ant_colorWidgetBorder">#17DDAB</color>

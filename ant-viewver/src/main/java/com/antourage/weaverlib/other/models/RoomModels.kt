@@ -1,7 +1,8 @@
 package com.antourage.weaverlib.other.models
 
-import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity(tableName = "videos")
 internal data class Video(

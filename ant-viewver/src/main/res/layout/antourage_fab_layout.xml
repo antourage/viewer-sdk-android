@@ -106,7 +106,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.antourage.weaverlib.ui.fab.WidgetLabelsView
+        <com.antourage.weaverlib.ui.WidgetLabelsView
                 android:id="@+id/labelsView"
                 android:layout_marginBottom="175dp"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.antourage.weaverlib.ui.fab.AntourageFab
-import com.antourage.weaverlib.ui.fab.RegisterPushNotificationsResult
+import com.antourage.weaverlib.ui.AntourageFab
+import com.antourage.weaverlib.other.models.RegisterPushNotificationsResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.FirebaseMessaging

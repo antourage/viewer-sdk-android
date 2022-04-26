@@ -9,13 +9,11 @@ import android.view.Window
 import android.widget.RadioButton
 import androidx.core.content.ContextCompat
 import com.antourage.weaverlib.BuildConfig
-import com.antourage.weaverlib.ConfigManager
 import com.antourage.weaverlib.R
-import com.antourage.weaverlib.UserCache
 import com.antourage.weaverlib.other.models.SubscribeToPushesRequest
-import com.antourage.weaverlib.other.networking.push.PushRepository
-import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.cachedFcmToken
-import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.teamId
+import com.antourage.weaverlib.networking.push.PushRepository
+import com.antourage.weaverlib.ui.AntourageFab.Companion.cachedFcmToken
+import com.antourage.weaverlib.ui.AntourageFab.Companion.teamId
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
 import org.jetbrains.anko.textColor
 

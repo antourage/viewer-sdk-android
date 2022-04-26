@@ -21,7 +21,7 @@
     </ScrollView>
 
 
-    <com.antourage.weaverlib.ui.fab.AntourageFab
+    <com.antourage.weaverlib.ui.AntourageFab
             android:id="@+id/antfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
