@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.antourage.weaverlib.UserCache
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
-import com.antourage.weaverlib.screens.list.dev_settings.OnDevSettingsChangedListener
+import com.antourage.weaverlib.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.dev_settings.OnDevSettingsChangedListener
 
 class EnvSettingsFragment : Fragment(), OnDevSettingsChangedListener {
 

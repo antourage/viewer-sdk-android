@@ -1,9 +1,8 @@
-package com.antourage.weaverlib.screens.list
+package com.antourage.weaverlib
 
 import android.util.Log
 import androidx.annotation.Keep
 import androidx.lifecycle.Observer
-import com.antourage.weaverlib.Global
 import com.antourage.weaverlib.other.models.PortalStateResponse
 import com.antourage.weaverlib.other.networking.PortalStateRepository
 import com.antourage.weaverlib.other.networking.Resource
@@ -30,7 +29,7 @@ internal class PortalStateManager {
         internal var localisationJsonObject = JSONObject()
 
         fun setReceivedCallback(callback: PortalStateCallback) {
-            PortalStateManager.callback = callback
+            Companion.callback = callback
         }
 
         @Suppress("BlockingMethodInNonBlockingContext")

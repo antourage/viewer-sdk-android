@@ -12,7 +12,7 @@ import android.view.animation.Animation
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.antourage.weaverlib.R
 import com.antourage.weaverlib.other.models.PortalState
-import com.antourage.weaverlib.screens.list.PortalStateManager
+import com.antourage.weaverlib.PortalStateManager
 import kotlinx.android.synthetic.main.antourage_labels_layout.view.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern

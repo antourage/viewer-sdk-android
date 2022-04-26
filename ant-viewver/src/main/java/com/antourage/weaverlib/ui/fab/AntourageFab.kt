@@ -42,7 +42,7 @@ import com.antourage.weaverlib.other.networking.Status
 import com.antourage.weaverlib.other.networking.push.PushRepository
 import com.antourage.weaverlib.other.room.RoomRepository
 import com.antourage.weaverlib.other.showBadge
-import com.antourage.weaverlib.screens.list.PortalStateManager
+import com.antourage.weaverlib.PortalStateManager
 import com.google.android.exoplayer2.Player
 import kotlinx.android.synthetic.main.antourage_fab_layout.view.*
 import kotlinx.android.synthetic.main.antourage_labels_layout.view.*

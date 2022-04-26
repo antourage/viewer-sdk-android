@@ -3,7 +3,7 @@ package com.antourage.weaverlib
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog
+import com.antourage.weaverlib.dev_settings.DevSettingsDialog
 import java.lang.ref.WeakReference
 
 class UserCache private constructor(context: Context) {

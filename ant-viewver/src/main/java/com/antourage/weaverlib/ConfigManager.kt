@@ -2,7 +2,7 @@ package com.antourage.weaverlib
 
 import android.content.Context
 import android.util.Log
-import com.antourage.weaverlib.screens.list.dev_settings.DevSettingsDialog.Companion.PROD
+import com.antourage.weaverlib.dev_settings.DevSettingsDialog.Companion.PROD
 import com.google.gson.Gson
 import java.io.BufferedReader
 import java.io.InputStream

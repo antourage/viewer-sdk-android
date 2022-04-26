@@ -1,11 +1,9 @@
-package com.antourage.weaverlib.screens.list.dev_settings
+package com.antourage.weaverlib.dev_settings
 
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.widget.RadioButton
@@ -19,12 +17,8 @@ import com.antourage.weaverlib.other.networking.push.PushRepository
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.cachedFcmToken
 import com.antourage.weaverlib.ui.fab.AntourageFab.Companion.teamId
 import kotlinx.android.synthetic.main.dialog_backend_choice.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.jetbrains.anko.textColor
 
-//TODO make internal
 class DevSettingsDialog(
     context: Context,
     private val listener: OnDevSettingsChangedListener

@@ -1,4 +1,4 @@
-package com.antourage.weaverlib.screens.list.dev_settings
+package com.antourage.weaverlib.dev_settings
 
 //TODO make internal
 interface OnDevSettingsChangedListener {
